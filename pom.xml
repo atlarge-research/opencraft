@@ -207,6 +207,25 @@
 
     <plugins>
       <plugin>
+        <groupId>com.googlecode.addjars-maven-plugin</groupId>
+        <artifactId>addjars-maven-plugin</artifactId>
+        <version>1.0.5</version>
+        <executions>
+            <execution>
+                <goals>
+                  <goal>add-jars</goal>
+                </goals>
+                <configuration>
+                    <resources>
+                        <resource>
+                          <directory>${basedir}/lib</directory>
+                        </resource>
+                    </resources>
+                </configuration>
+            </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>net.md-5</groupId>
         <artifactId>scriptus</artifactId>
         <version>0.3.1</version>
