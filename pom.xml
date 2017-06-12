@@ -41,18 +41,18 @@
         </repository>
     </repositories>
 
-	<distributionManagement>
-		<repository>
-			<id>glowstone-upstream</id>
-			<name>glowstone-releases</name>
-			<url>https://repo.glowstone.net/content/repositories/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>glowstone-upstream</id>
-			<name>glowstone-snapshots</name>
-			<url>https://repo.glowstone.net/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
+    <distributionManagement>
+            <repository>
+                    <id>glowstone-upstream</id>
+                    <name>glowstone-releases</name>
+                    <url>https://repo.glowstone.net/content/repositories/releases</url>
+            </repository>
+            <snapshotRepository>
+                    <id>glowstone-upstream</id>
+                    <name>glowstone-snapshots</name>
+                    <url>https://repo.glowstone.net/content/repositories/snapshots</url>
+            </snapshotRepository>
+    </distributionManagement>
 
     <dependencies>
         <dependency>
@@ -301,6 +301,26 @@
         <defaultGoal>package</defaultGoal>
         <plugins>
             <plugin>
+                <groupId>com.googlecode.addjars-maven-plugin</groupId>
+                <artifactId>addjars-maven-plugin</artifactId>
+                <version>1.0.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>add-jars</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/lib</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>net.md-5</groupId>
                 <artifactId>scriptus</artifactId>
                 <version>0.2</version>
@@ -436,7 +456,9 @@
         <profile>
             <id>lwjgl-natives-linux</id>
             <activation>
-                <os><family>unix</family></os>
+                <os>
+                    <family>unix</family>
+                </os>
             </activation>
             <properties>
                 <lwjgl.natives>natives-linux</lwjgl.natives>
@@ -445,7 +467,9 @@
         <profile>
             <id>lwjgl-natives-macos</id>
             <activation>
-                <os><family>mac</family></os>
+                <os>
+                    <family>mac</family>
+                </os>
             </activation>
             <properties>
                 <lwjgl.natives>natives-macos</lwjgl.natives>
@@ -454,7 +478,9 @@
         <profile>
             <id>lwjgl-natives-windows</id>
             <activation>
-                <os><family>windows</family></os>
+                <os>
+                    <family>windows</family>
+                </os>
             </activation>
             <properties>
                 <lwjgl.natives>natives-windows</lwjgl.natives>
