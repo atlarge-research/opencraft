@@ -166,6 +166,7 @@ public class WorldScheduler {
             try {
                 while (!isInterrupted() && !tickEnd.isTerminated()) {
                     tickBegin.arriveAndAwaitAdvance();
+                    com.atlarge.yscollector.YSCollector.start("world_" + world.getName() + "_tick", "World thread: Duration processing tick.");
                     try {
                         world.pulse();
                     } catch (Exception e) {
@@ -174,6 +175,7 @@ public class WorldScheduler {
                     } finally {
                         tickEnd.arriveAndAwaitAdvance();
                     }
+                    com.atlarge.yscollector.YSCollector.stop("world_" + world.getName() + "_tick");
                 }
             } finally {
                 tickBegin.arriveAndDeregister();
