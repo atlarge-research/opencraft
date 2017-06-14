@@ -42,19 +42,25 @@
     </repositories>
 
     <distributionManagement>
-            <repository>
-                    <id>glowstone-upstream</id>
-                    <name>glowstone-releases</name>
-                    <url>https://repo.glowstone.net/content/repositories/releases</url>
-            </repository>
-            <snapshotRepository>
-                    <id>glowstone-upstream</id>
-                    <name>glowstone-snapshots</name>
-                    <url>https://repo.glowstone.net/content/repositories/snapshots</url>
-            </snapshotRepository>
+        <repository>
+            <id>glowstone-upstream</id>
+            <name>glowstone-releases</name>
+            <url>https://repo.glowstone.net/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>glowstone-upstream</id>
+            <name>glowstone-snapshots</name>
+            <url>https://repo.glowstone.net/content/repositories/snapshots</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <dependencies>
+        <!-- Yardstick -->
+        <dependency>
+            <groupId>com.atlarge</groupId>
+            <artifactId>yscollector</artifactId>
+            <version>0.2</version>
+        </dependency>
         <dependency>
             <groupId>net.glowstone</groupId>
             <artifactId>glowkit</artifactId>
@@ -73,7 +79,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.14.8</version>
+            <version>1.16.16</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -300,22 +306,26 @@
 
         <defaultGoal>package</defaultGoal>
         <plugins>
+            <!-- Yardstick: Add JAR to the final build -->
             <plugin>
-                <groupId>com.googlecode.addjars-maven-plugin</groupId>
-                <artifactId>addjars-maven-plugin</artifactId>
-                <version>1.0.5</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
                 <executions>
                     <execution>
-                        <goals>
-                            <goal>add-jars</goal>
-                        </goals>
+                        <id>install-external</id>
+                        <phase>clean</phase>
                         <configuration>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}/lib</directory>
-                                </resource>
-                            </resources>
+                            <file>${basedir}/lib/yscollector-0.2.jar</file>
+                            <repositoryLayout>default</repositoryLayout>
+                            <groupId>com.atlarge</groupId>
+                            <artifactId>yscollector</artifactId>
+                            <version>0.2</version>
+                            <packaging>jar</packaging>
+                            <generatePom>true</generatePom>
                         </configuration>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

@@ -1,10 +1,5 @@
 package net.glowstone.scheduler;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
-import net.glowstone.GlowServer;
-import net.glowstone.GlowWorld;
-
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -12,13 +7,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
 import java.util.logging.Level;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableList.Builder;
+import net.glowstone.GlowServer;
+import net.glowstone.GlowWorld;
 
 /**
  * Manager for world thread pool.
  * <p>
- * This is a little magical and finnicky, so tread with caution when messing with the phasers
+ * This is a little magical and finnicky, so tread with caution when messing
+ * with the phasers
  */
 public class WorldScheduler {
+
     private final Object advanceCondition = new Object();
     private final ExecutorService worldExecutor = Executors.newCachedThreadPool();
     private final Phaser tickBegin = new Phaser(1);
@@ -114,6 +115,7 @@ public class WorldScheduler {
     }
 
     private static class WorldEntry {
+
         private final GlowWorld world;
         private WorldThread task;
 
@@ -123,6 +125,7 @@ public class WorldScheduler {
     }
 
     private class WorldThread extends Thread {
+
         private final GlowWorld world;
 
         public WorldThread(GlowWorld world) {
@@ -135,6 +138,7 @@ public class WorldScheduler {
             try {
                 while (!isInterrupted() && !tickEnd.isTerminated()) {
                     tickBegin.arriveAndAwaitAdvance();
+                    com.atlarge.yscollector.YSCollector.start("world_" + world.getName() + "_tick", "World thread: Duration processing tick.");
                     try {
                         world.pulse();
                     } catch (Exception e) {
@@ -142,6 +146,7 @@ public class WorldScheduler {
                     } finally {
                         tickEnd.arriveAndAwaitAdvance();
                     }
+                    com.atlarge.yscollector.YSCollector.stop("world_" + world.getName() + "_tick");
                 }
             } finally {
                 tickBegin.arriveAndDeregister();
