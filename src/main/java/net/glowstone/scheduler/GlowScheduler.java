@@ -1,5 +1,12 @@
 package net.glowstone.scheduler;
 
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -32,7 +39,8 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scheduler.BukkitWorker;
 
 /**
- * A scheduler for managing server ticks, Bukkit tasks, and other synchronization.
+ * A scheduler for managing server ticks, Bukkit tasks, and other
+ * synchronization.
  */
 public final class GlowScheduler implements BukkitScheduler {
 
@@ -182,13 +190,17 @@ public final class GlowScheduler implements BukkitScheduler {
      */
     // TODO: Add watchdog system to make sure ticks advance
     private void pulse() {
+        com.atlarge.yscollector.YSCollector.start("tick", "The duration of a tick."); // YSCollector
         primaryThread = Thread.currentThread();
 
         // Process player packets
+        com.atlarge.yscollector.YSCollector.start("tick_network", "The duration of a tick processing the network"); // YSCollector
         sessionRegistry.pulse();
+        com.atlarge.yscollector.YSCollector.stop("tick_network"); // YSCollector
 
         // Run the relevant tasks.
-        for (Iterator<GlowTask> it = tasks.values().iterator(); it.hasNext(); ) {
+        com.atlarge.yscollector.YSCollector.start("tick_jobs", "Duration of the server tick spent processing jobs"); // YSCollector
+        for (Iterator<GlowTask> it = tasks.values().iterator(); it.hasNext();) {
             GlowTask task = it.next();
             switch (task.shouldExecute()) {
                 case RUN:
@@ -205,6 +217,9 @@ public final class GlowScheduler implements BukkitScheduler {
                     // do nothing
             }
         }
+        com.atlarge.yscollector.YSCollector.stop("tick_jobs");
+
+        com.atlarge.yscollector.YSCollector.start("tick_worlds", "Duration of a tick processing worlds");
         try {
             int currentTick = worlds.beginTick();
             try {
@@ -230,7 +245,9 @@ public final class GlowScheduler implements BukkitScheduler {
             System.out.flush();
             System.err.flush();
         }
+        com.atlarge.yscollector.YSCollector.stop("tick_worlds"); // YSCollector
 
+        com.atlarge.yscollector.YSCollector.stop("tick"); // YSCollector
     }
 
     @Override

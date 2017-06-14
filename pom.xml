@@ -47,6 +47,12 @@
   </distributionManagement>
 
   <dependencies>
+    <!-- Yardstick -->
+    <dependency>
+        <groupId>com.atlarge</groupId>
+        <artifactId>yscollector</artifactId>
+        <version>0.2</version>
+    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-jdk14</artifactId>
@@ -206,23 +212,27 @@
     <defaultGoal>package</defaultGoal>
 
     <plugins>
+      <!-- Yardstick: Add JAR to the final build -->
       <plugin>
-        <groupId>com.googlecode.addjars-maven-plugin</groupId>
-        <artifactId>addjars-maven-plugin</artifactId>
-        <version>1.0.5</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
         <executions>
-            <execution>
-                <goals>
-                  <goal>add-jars</goal>
-                </goals>
-                <configuration>
-                    <resources>
-                        <resource>
-                          <directory>${basedir}/lib</directory>
-                        </resource>
-                    </resources>
-                </configuration>
-            </execution>
+          <execution>
+            <id>install-external</id>
+            <phase>clean</phase>
+            <configuration>
+              <file>${basedir}/lib/yscollector-0.2.jar</file>
+              <repositoryLayout>default</repositoryLayout>
+              <groupId>com.atlarge</groupId>
+              <artifactId>yscollector</artifactId>
+              <version>0.2</version>
+              <packaging>jar</packaging>
+              <generatePom>true</generatePom>
+            </configuration>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+          </execution>
         </executions>
       </plugin>
       <plugin>
