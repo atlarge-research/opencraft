@@ -58,11 +58,11 @@ The `X` is simply an ever-increasing counter that prevents multiple builds on th
 
 ## Allowing Others to Reproduce Your Experiments
 
-From the commit you used to build the version of Glowstone used in your experiments, create a tag in git:
+1. From the commit you used to build the version of Glowstone used in your experiments, create a tag using `git tag -a YYYYMMDD-X -m "project-[your-project-name-here]"`.
+2. Push the tag to Gitlab using `git push origin YYYYMMDD-X`.
+2. Go to [Glowstone's Gitlab page](https://atlarge.ewi.tudelft.nl/gitlab/opencraft/glowstone/collector-glowstone) and navigate to the tag you just created.
+3. Attach `YYYYMMDD-X.jar` and `YYYYMMDD-X.zip` to the tag, creating a _release_.
 
-```
-git tag -a YYYYMMDD-X -m "project-[your-project-name-here]"
-git push origin YYYYMMDD-X
-```
 
-[^1]: If you're own Windows, you might not have `make`. In that case run `./scripts/archive.sh` directly. Read the contents of `Makefile` to see what the `make` command does exactly. 
+[^1]: If you're own Windows, you might not have `make`. In that case run `./scripts/archive.sh` directly. Read the contents of `Makefile` to see what the `make` command does exactly.
+[^2]: The dependencies are found in the `.m2` directory in the zip file.
