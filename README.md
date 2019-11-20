@@ -43,7 +43,7 @@ After running the experiments, you **must** complete the steps listed here for r
 
 ### Building the Code
 
-To build the code, simply run `make`. This creates two files:
+To build the code, simply run `make`.[^1] This creates two files:
 
 1. `YYYYMMDD-X.zip`
 2. `YYYYMMDD-X.jar`
@@ -64,3 +64,5 @@ From the commit you used to build the version of Glowstone used in your experime
 git tag -a YYYYMMDD-X -m "project-[your-project-name-here]"
 git push origin YYYYMMDD-X
 ```
+
+[^1]: If you're own Windows, you might not have `make`. In that case run `./scripts/archive.sh` directly. Read the contents of `Makefile` to see what the `make` command does exactly. 
