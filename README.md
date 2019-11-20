@@ -50,7 +50,7 @@ To build the code, simply run `make`.[^1] This creates two files:
 
 `YYYYMMDD` is a timestamp that includes the current year, month, and day.
 
-The zip file contains the sources used to compile the project, including the local `.m2` directory that holds all the dependencies. We include this directory because not all of Glowstone's dependencies are forever available online. Specifically, Glowstone defines its own maven repositories where it keeps only the most recent versions of `Glowkit` and `network`. Adding these sources in the zip allows us to compile the code even after these sources are no longer available online.
+The zip file contains Glowstone's source code and its dependencies[^2] used to compile the project. We include the dependencies because Glowstone does not offer reproducible builds. Specifically, Glowstone dependencies `Glowkit` and `network` are hosted on a third-party maven repositories which keeps only their most recent versions. Adding these JARs in the zip file allows us to compile the code, even after these versions are no longer available online.
 
 The JAR file is the executable that you can use in your experiments.
 
