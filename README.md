@@ -21,9 +21,7 @@ git checkout dev
 git merge --no-ff upstream/dev
 ```
 
-There is a reasonable chance that this results in conflicting files—Glowstone's developers may have edited the code were inspecting or monitoring.
-
-**Merge these conflicts carefully.** Our existing modifications can be crucial for somebody else's experiments. If you don't know what to do, contact one of the other Opencraft team-members.
+There is a reasonable chance that this results in conflicting files—Glowstone's developers may have edited the code were inspecting or monitoring. **Merge these conflicts carefully.** Our existing modifications can be crucial for somebody else's experiments. If you don't know what to do, contact one of the other Opencraft team-members.
 
 ### Adding Your Own Code
 
@@ -45,18 +43,12 @@ After running the experiments, you **must** complete the steps listed here for r
 
 ### Building the Code
 
-Run the archive script to create the zip-archives others can use to recompile your code.
-
-```
-./scripts/archive.sh
-```
-
-This script creates two files:
+To build the code, simply run `make`. This creates two files:
 
 1. `YYYYMMDD-X.zip`
 2. `YYYYMMDD-X.jar`
 
-Here `YYYYMMDD` is a timestamp that includes the current year, month, and day.
+`YYYYMMDD` is a timestamp that includes the current year, month, and day.
 
 The zip file contains the sources used to compile the project, including the local `.m2` directory that holds all the dependencies. We include this directory because not all of Glowstone's dependencies are forever available online. Specifically, Glowstone defines its own maven repositories where it keeps only the most recent versions of `Glowkit` and `network`. Adding these sources in the zip allows us to compile the code even after these sources are no longer available online.
 
