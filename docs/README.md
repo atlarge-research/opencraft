@@ -1,74 +1,156 @@
-# Opencraft's Glowstone Fork
+![Built with Love](https://forthebadge.com/images/badges/built-with-love.svg)
+[![Join the Discord chat](https://img.shields.io/badge/discord-glowstone-7289da.svg?style=flat-square&logo=discord)](https://discord.gg/TFJqhsC)
+[![Build Status](https://dev.azure.com/glowstonemc/Glowstone/_apis/build/status/Glowstone?branchName=dev)](https://dev.azure.com/glowstonemc/Glowstone/_build/latest?definitionId=1&branchName=dev)
+[![Release Status](https://vsrm.dev.azure.com/glowstonemc/_apis/public/Release/badge/bce4eb30-17cf-4f26-b394-a6a5d1eea1fa/1/1)](https://dev.azure.com/glowstonemc/Glowstone/_release?definitionId=1)
 
-This is Opencraft's fork of [Glowstone](https://github.com/GlowstoneMC/Glowstone). We benchmark Glowstone using Yardstick. We created a fork for two reasons:
+<img align="right" alt="Glowstone logo" width="100" src="../etc/logo/logo.png">
 
-1. We need to add a small amount of code to allow us to monitor the game through Prometheus.
-2. Glowstone does not provide stable releases. Its dependencies, even for releases, are often `*-SNAPSHOT` versions. Instead of  taking over versioning for Glowstone and all its sub-projects, we add scripts to this repository to download all dependencies to a local directory which we can include in our releases. This improves experiment reproducibility.
+# Glowstone
 
-## Changing the Code
+A fast, customizable and compatible open source server for Minecraft: Java Edition.
 
-In case you need to insert extra code in Glowstone for additional monitoring, please follow these instructions.
+## Introduction
 
-We use [git flow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) to create and maintain a clean commit history.
+Glowstone is a lightweight, from scratch, open source
+[Minecraft](https://minecraft.net) server written in Java that supports plugins
+written for the Bukkit API and its major forks, Spigot and Paper.
 
-### Updating Glowstone
+The main goals of the project are to provide a lightweight implementation
+of the Bukkit API and Minecraft server where exact vanilla functionality is
+not needed or higher performance is desired than the official software can
+deliver. Glowstone makes use of a thread-per-world model and performs
+synchronization only when necessitated by the Bukkit API.
 
-When compiling for the first time, you'll likely need to pull new commits from Glowstone's repository. Merge this code into the `dev` branch without fast-forwarding. E.g.,
+Still have questions? Check out our [FAQ](https://github.com/GlowstoneMC/Glowstone/wiki/Frequently-Asked-Questions).
 
+## Features
+
+Glowstone has a few key advantages over CraftBukkit:
+ * It is **100% open source**. While CraftBukkit and most other mods are open
+   source, they rely on decompiled Minecraft source code. Glowstone's code is
+   completely original.
+ * Because of this, it is easy to contribute to Glowstone's development. The
+   barrier of entry to contributions is lower because there is no need to work
+   around decompiled source or maintain a minimal diff.
+ * Glowstone supports all plugins written for the Bukkit, Spigot and Paper APIs natively. In
+   practice, some plugins may try to make use of parts of the API which are not
+   yet implemented, but in a completed state Glowstone would support all Bukkit plugins.
+ * Glowstone's simplicity affords it a performance improvement over CraftBukkit
+   and other servers, making it especially suited for situations where a large
+   amount of players must be supported but vanilla game features are not needed.
+ 
+However, there are several drawbacks:
+ * Glowstone **is not finished**. Nothing is guaranteed to work, though many things
+   are likely to. If in doubt, file an issue.
+ * Bukkit plugins which expect the presence of CraftBukkit-specific code
+   (that are in the `org.bukkit.craftbukkit` or `net.minecraft.server` packages)
+   will not work on Glowstone unless they are designed to fail gracefully.
+ * Glowstone is not produced by the Bukkit team, and while we do make an effort
+   to produce quality work, Glowstone does not undergo the same rigorious testing
+   as the Bukkit project.
+   
+For a current list of features, [check the wiki](https://github.com/GlowstoneMC/Glowstone/wiki/Current-Features).
+
+## Downloads
+
+The latest LTS and monthly releases, as well as a direct link to our latest build can be found on [our website](https://glowstone.net/#downloads).
+
+Older releases can be found on [GitHub](https://github.com/GlowstoneMC/Glowstone/releases).
+
+## Building
+
+### 1. Setup
+After installing [Oracle JDK](https://oracle.com/technetwork/java/javase/downloads) (recommended) or [OpenJDK](https://openjdk.java.net/), and
+[Maven](https://maven.apache.org), checkout the source:
+
+```sh
+git clone https://github.com/GlowstoneMC/Glowstone
+cd Glowstone
 ```
-git fetch --all
-git checkout dev
-git merge --no-ff upstream/dev
+
+### 2. Build
+
+```sh
+./scripts/build.sh
 ```
 
-There is a reasonable chance that this results in conflicting files—Glowstone's developers may have edited the code were inspecting or monitoring.
+The final jar will be placed in `target/` named `glowstone.jar`.
 
-**Merge these conflicts carefully.** Our existing modifications can be crucial for somebody else's experiments. If you don't know what to do, contact one of the other Opencraft team-members.
+## Running
 
-### Adding Your Own Code
+Running Glowstone is simple because its dependencies are shaded into the output
+jar at compile time. Simply execute `java -jar glowstone.jar` along with any
+extra JVM options desired (we recommend using `java -Xms1G -Xmx1G -XX:+UseG1GC -jar glowstone.jar`). A variety of command-line options are also available -
+run `java -jar glowstone.jar --help` for more information.
 
-If you're adding a new feature, such as additional support for monitoring tools, please create a feature branch.
+By default, configuration is stored in the `config/` subdirectory and logs
+are stored in the `logs/` subdirectory. The main configuration file is
+`config/glowstone.yml`, which replaces CraftBukkit's `server.properties` and
+`bukkit.yml`. Settings from these two files will be copied over to Glowstone's
+configuration during the default configuration generation process.
 
-```
-git checkout dev
-git pull origin/dev
-git flow feature start
-```
+Glowstone uses [JLine](https://jline.github.io/jline2/) for console input and colored
+console output. The JLine console can be disabled in the configuration if a
+flat console is desired.
 
-Add code to your liking until it does what you need it to do. Then run `git flow feature finish` to merge these changes back into the `dev` branch.
+Need more help? Check out [our wiki](https://github.com/GlowstoneMC/Glowstone/wiki#using-glowstone) for some guides that will help you with running,
+maintaining and configuring your Glowstone server.
 
-## Running Experiments
+## Playing
 
-Presumably you are modifying the code to support your experiments. After modifying the code, you can build the project to create a JAR that includes all dependencies.
+For those of you who just want to play on a Glowstone server, we have one available 
+for testing at `mc.glowstone.net`. Have fun!
 
-After running the experiments, you **must** complete the steps listed here for reproducibility purposes:
+## Docs and Support
 
-### Building the Code
+The best place to receive support is on [GitHub issues](https://github.com/GlowstoneMC/Glowstone/issues).
+When reporting bugs, please retest and include whether the problem reproduces on:
 
-Run the archive script to create the zip-archives others can use to recompile your code.
+* Earlier [builds](https://circleci.com/gh/GlowstoneMC/Glowstone) of Glowstone
 
-```
-./scripts/archive.sh
-```
+Javadocs for Glowstone can be found [here](https://glowstone.net/jd/glowstone/).
 
-This script creates two files:
+For documentation on the Glowkit API (an updated Bukkit for Glowstone, based on the Paper API, compatible with Spigot's update to Bukkit), see the [Glowkit Javadocs](https://glowstone.net/jd/glowkit/).
 
-1. `YYYYMMDD-X.zip`
-2. `YYYYMMDD-X.jar`
+## Contributing
 
-Here `YYYYMMDD` is a timestamp that includes the current year, month, and day.
+First of all, thank you for your interest in advancing Glowstone! We always love to see new developers work on the project! You can find all of our resources on how to get started on our [wiki](https://github.com/GlowstoneMC/Glowstone/wiki#contributing).
 
-The zip file contains the sources used to compile the project, including the local `.m2` directory that holds all the dependencies. We include this directory because not all of Glowstone's dependencies are forever available online. Specifically, Glowstone defines its own maven repositories where it keeps only the most recent versions of `Glowkit` and `network`. Adding these sources in the zip allows us to compile the code even after these sources are no longer available online.
+## Sponsors
 
-The JAR file is the executable that you can use in your experiments.
+* **[Aternos](https://aternos.org/) - Minecraft Servers. Free. Forever.**
+* [Martin Panzer (Postremus)](https://martinpanzer.de/)
 
-The `X` is simply an ever-increasing counter that prevents multiple builds on the same day from overwriting each other.
+[More backers](https://github.com/GlowstoneMC/Glowstone/blob/dev/docs/BACKERS.md)
 
-## Allowing Others to Reproduce Your Experiments
+Sponsor Glowstone [on Bountysource](https://www.bountysource.com/teams/glowstonemc)!
 
-From the commit you used to build the version of Glowstone used in your experiments, create a tag in git:
+## Credits
 
-```
-git tag -a YYYYMMDD-X -m "project-[your-project-name-here]"
-git push origin YYYYMMDD-X
-```
+ * [The Minecraft Coalition](https://wiki.vg/) and [`#mcdevs`](https://github.com/mcdevs) -
+   protocol and file formats research.
+ * [The Bukkit team](https://bukkit.org) for their outstandingly well-designed
+   plugin API.
+ * [The SpigotMC team](https://spigotmc.org/) for updating and enhancing
+   the Bukkit plugin API.
+ * [AquiferMC](https://aquifermc.org/) for further enhancing the Bukkit API.
+ * [The SpongePowered Team](https://www.spongepowered.org/) for
+   creating the Sponge API.
+ * [Trustin Lee](https://github.com/trustin) - author of the
+   [Netty](https://netty.io/) library.
+ * [Graham Edgecombe](https://github.com/grahamedgecombe/) - author of the
+   original [Lightstone](https://github.com/grahamedgecombe/lightstone).
+ * [Tad Hardesty](https://github.com/SpaceManiac) and [all the contributors](https://github.com/GlowstoneMC/Glowstone-Legacy/graphs/contributors) to Glowstone Legacy.
+ * [deathcap](https://github.com/deathcap) for starting Glowstone++.
+ * All the people behind [Maven](https://maven.apache.org/team-list.html) and [Java](https://java.net/people).
+ * [Notch](https://notch.tumblr.com/) and
+   [Mojang](https://mojang.com/about) - for making such an awesome game in the first
+   place!
+
+## Copyright
+
+Glowstone is open-source software released under the MIT license. Please see
+the `LICENSE` file for details.
+
+Glowkit is open-source software released under the GPL license. Please see
+the `LICENSE.txt` file in the Glowkit repository for details.
