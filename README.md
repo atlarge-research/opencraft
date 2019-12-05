@@ -1,15 +1,14 @@
-# Opencraft's Glowstone Fork
+# Opencraft
 
-This is Opencraft's fork of [Glowstone](https://github.com/GlowstoneMC/Glowstone). We benchmark Glowstone using Yardstick. We created a fork for two reasons:
+This is the repository of Opencraft.
+Opencraft is a fork of [Glowstone](https://atlarge.ewi.tudelft.nl/gitlab/opencraft/minecraft-like-games/collector-glowstone).
 
-1. We need to add a small amount of code to allow us to monitor the game through Prometheus.
-2. Glowstone does not provide stable releases. Its dependencies, even for releases, are often `*-SNAPSHOT` versions. Instead of  taking over versioning for Glowstone and all its sub-projects, we add scripts to this repository to download all dependencies to a local directory which we can include in our releases. This improves experiment reproducibility.
-
-## Updating Glowstone
+## Updating Opencraft
 
 When compiling for the first time, you'll likely need to pull new commits from Glowstone's repository. Merge this code into the `dev` branch without fast-forwarding. E.g.,
 
 ```
+git remote add upstream https://atlarge.ewi.tudelft.nl/gitlab/opencraft/minecraft-like-games/collector-glowstone.git
 git fetch --all
 git checkout dev
 git merge --no-ff upstream/dev
@@ -19,11 +18,9 @@ There is a reasonable chance that this results in conflicting files—Glowstone'
 
 ## Changing the Code
 
-In case you need to insert extra code in Glowstone for additional monitoring, please follow these instructions.
-
 We use [git flow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) to create and maintain a clean commit history.
 
-If you're adding a new feature, such as additional support for monitoring tools, please create a feature branch.
+If you're adding a new feature, please create a feature branch.
 
 ```
 git checkout dev
