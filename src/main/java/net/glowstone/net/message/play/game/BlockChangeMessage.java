@@ -25,4 +25,15 @@ public final class BlockChangeMessage implements Message {
         this(x, y, z, type << 4 | metadata & 0xf);
     }
 
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getZ() {
+        return z;
+    }
 }

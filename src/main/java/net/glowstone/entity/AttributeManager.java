@@ -17,6 +17,8 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 
+
+
 /**
  * Manages the attributes described at https://minecraft.gamepedia.com/Attribute
  */

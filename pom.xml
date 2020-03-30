@@ -47,12 +47,6 @@
   </distributionManagement>
 
   <dependencies>
-    <!-- Yardstick -->
-    <dependency>
-        <groupId>com.atlarge</groupId>
-        <artifactId>yscollector</artifactId>
-        <version>0.2</version>
-    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-jdk14</artifactId>
@@ -212,29 +206,6 @@
     <defaultGoal>package</defaultGoal>
 
     <plugins>
-      <!-- Yardstick: Add JAR to the final build -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-install-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>install-external</id>
-            <phase>clean</phase>
-            <configuration>
-              <file>${basedir}/lib/yscollector-0.2.jar</file>
-              <repositoryLayout>default</repositoryLayout>
-              <groupId>com.atlarge</groupId>
-              <artifactId>yscollector</artifactId>
-              <version>0.2</version>
-              <packaging>jar</packaging>
-              <generatePom>true</generatePom>
-            </configuration>
-            <goals>
-              <goal>install-file</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>net.md-5</groupId>
         <artifactId>scriptus</artifactId>
@@ -254,12 +225,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <dependencies>
           <dependency>
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
-            <version>8.18</version>
+            <version>8.29</version>
           </dependency>
         </dependencies>
         <executions>
@@ -363,29 +334,12 @@
           </execution>
         </executions>
         <configuration>
-          <failIfNoTests>true</failIfNoTests>
+          <skipTests>true</skipTests>
+          <failIfNoTests>false</failIfNoTests>
           <trimStackTrace>false</trimStackTrace>
           <forkCount>1</forkCount>
           <reuseForks>true</reuseForks>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok-maven-plugin</artifactId>
-        <version>1.18.4.0</version>
-        <executions>
-          <execution>
-            <id>delombok</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>delombok</goal>
-            </goals>
-            <configuration>
-              <addOutputDirectory>false</addOutputDirectory>
-              <sourceDirectory>src/main/java</sourceDirectory>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -396,20 +350,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
           <version>3.1.0</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.0.1</version>
-        <configuration>
-          <defaultVersion>${project.version}</defaultVersion>
-          <sourcepath>target/generated-sources/delombok</sourcepath>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>3.0.1</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -464,6 +404,60 @@
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>build-extras</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok-maven-plugin</artifactId>
+            <version>1.18.4.0</version>
+            <executions>
+              <execution>
+                <id>delombok</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>delombok</goal>
+                </goals>
+                <configuration>
+                  <addOutputDirectory>false</addOutputDirectory>
+                  <sourceDirectory>src/main/java</sourceDirectory>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>3.0.1</version>
+            <configuration>
+              <defaultVersion>${project.version}</defaultVersion>
+              <sourcepath>target/generated-sources/delombok</sourcepath>
+            </configuration>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals><goal>jar</goal></goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>3.0.1</version>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals><goal>jar-no-fork</goal></goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
   <reporting>
     <plugins>
       <plugin>
@@ -474,7 +468,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <configuration>
           <configLocation>${project.basedir}/etc/checkstyle.xml</configLocation>
           <headerLocation>${project.basedir}/LICENSE</headerLocation>

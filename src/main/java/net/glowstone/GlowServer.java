@@ -1,6 +1,7 @@
 package net.glowstone;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static net.glowstone.GlowWorld.dyconitManager;
 
 import com.flowpowered.network.Message;
 import com.google.common.collect.ImmutableSet;
@@ -2164,7 +2165,8 @@ public class GlowServer implements Server {
      */
     public void broadcastPacket(Message message) {
         for (GlowPlayer player : getRawOnlinePlayers()) {
-            player.getSession().send(message);
+            //player.getSession().send(message);
+            dyconitManager.send(player.getPlayer(), message, player.getSession(), null, null);
         }
     }
 

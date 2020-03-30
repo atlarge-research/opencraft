@@ -1,5 +1,7 @@
 package net.glowstone.net.handler.play.player;
 
+import static net.glowstone.GlowWorld.dyconitManager;
+
 import com.flowpowered.network.MessageHandler;
 import java.util.Objects;
 import net.glowstone.EventFactory;
@@ -69,7 +71,8 @@ public final class PlayerUpdateHandler implements MessageHandler<GlowSession, Pl
                 .callEvent(new PlayerMoveEvent(player, oldLocation, newLocation));
             if (event.isCancelled()) {
                 // tell client they're back where they started
-                session.send(new PositionRotationMessage(oldLocation));
+                //session.send(new PositionRotationMessage(oldLocation));
+                dyconitManager.send(player, new PositionRotationMessage(oldLocation), session, null, null);
                 return;
             }
 

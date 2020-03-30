@@ -4,7 +4,6 @@
 *.iws
 .gradle
 .idea
-.m2
 build
 out
 nbproject
@@ -22,7 +21,4 @@ dependency-reduced-pom.xml
 .db
 .DS_Store
 .vscode
-lib
-
-Makefile
-builds
+scripts/logs

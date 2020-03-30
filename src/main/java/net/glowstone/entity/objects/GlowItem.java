@@ -80,6 +80,11 @@ public class GlowItem extends GlowEntity implements Item {
             world.playSound(location, Sound.ENTITY_ITEM_PICKUP, 0.3f, (float) (1 + Math.random()));
             world.getRawPlayers().stream().filter(other -> other.canSeeEntity(this))
                     .forEach(other -> other.getSession().send(message));
+            //for (GlowPlayer other : world.getRawPlayers()) {
+            //    if (other.canSeeEntity(this)) {
+            //        dyconitManager.send(other.getPlayer(), message, other.getSession());
+            //    }
+            //}
             remove();
             return true;
         }

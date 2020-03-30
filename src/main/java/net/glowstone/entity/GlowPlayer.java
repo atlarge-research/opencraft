@@ -3,6 +3,7 @@ package net.glowstone.entity;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static net.glowstone.GlowServer.logger;
+import static net.glowstone.GlowWorld.dyconitManager;
 
 import com.destroystokyo.paper.Title;
 import com.destroystokyo.paper.profile.PlayerProfile;
@@ -695,9 +696,13 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         saveData();
 
         streamBlocks(); // stream the initial set of blocks
+
         sendWeather();
+
         sendRainDensity();
+
         sendSkyDarkness();
+
         getServer().sendPlayerAbilities(this);
 
         // send initial location
@@ -712,7 +717,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         invMonitor = new InventoryMonitor(getOpenInventory());
         updateInventory(); // send inventory contents
-        session.send(recipeMonitor.createInitMessage());
+        //session.send(recipeMonitor.createInitMessage());
+        //dyconitManager.send(getPlayer(), recipeMonitor.createInitMessage(), session);
+        dyconitManager.send(getPlayer(), recipeMonitor.createInitMessage(), session, null, null);
 
         if (!server.getResourcePackUrl().isEmpty()) {
             setResourcePack(server.getResourcePackUrl(), server.getResourcePackHash());
@@ -921,8 +928,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         // send changed metadata
         List<MetadataMap.Entry> changes = metadata.getChanges();
-        if (!changes.isEmpty()) {
-            session.send(new EntityMetadataMessage(getEntityId(), changes));
+        if (changes.isEmpty()) {
+            //session.send(new EntityMetadataMessage(getEntityId(), changes));
+            dyconitManager.send(getPlayer(), new EntityMetadataMessage(getEntityId(), changes), session, null, null);
         }
 
         // Entity IDs are only unique per world, so we can't spawn or teleport between worlds while
@@ -936,7 +944,12 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 if (!isWithinDistance(entity) || entity.isRemoved()) {
                     destroyEntities.add(entity);
                 } else {
-                    entity.createUpdateMessage(session).forEach(session::send);
+                    //makes it possible to pick up the small blocks
+                    //entity.createUpdateMessage(session).forEach(session::send);
+                    for (Message m : entity.createUpdateMessage(session)) {
+                        //dyconitManager.send(getPlayer(), m, session, entity);
+                        dyconitManager.send(getPlayer(), m, session, entity, null);
+                    }
                 }
             }
             if (!destroyEntities.isEmpty()) {
@@ -945,7 +958,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                     knownEntities.remove(entity);
                     destroyIds.add(entity.getEntityId());
                 }
-                session.send(new DestroyEntitiesMessage(destroyIds));
+                //session.send(new DestroyEntitiesMessage(destroyIds));
+                //dyconitManager.send(getPlayer(), new DestroyEntitiesMessage(destroyIds), session);
+                dyconitManager.send(getPlayer(), new DestroyEntitiesMessage(destroyIds), session, null, null);
             }
             // add entities
             knownChunks.forEach(key ->
@@ -963,9 +978,17 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                                         } finally {
                                             worldLock.readLock().unlock();
                                         }
-                                        entity.createSpawnMessage().forEach(session::send);
-                                        entity.createAfterSpawnMessage(session)
-                                                .forEach(session::send);
+                                        //this shows the mini blocks
+                                        for (Message message : entity.createSpawnMessage()) {
+                                            //dyconitManager.send(getPlayer(), message, session, entity);
+                                            dyconitManager.send(getPlayer(), message, session, entity, null);
+                                        }
+                                        //I dont know yet what this does
+                                        for (Message message : entity.createAfterSpawnMessage(session)) {
+                                            //dyconitManager.send(getPlayer(), message, session, entity);
+                                            dyconitManager.send(getPlayer(), message, session, entity, null);
+                                        }
+
                                     })));
         } finally {
             worldLock.writeLock().unlock();
@@ -1013,6 +1036,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         Map<Key, Map<BlockVector, BlockChangeMessage>> chunks = new HashMap<>();
         while (true) {
             BlockChangeMessage message = blockChanges.poll();
+
             if (message == null) {
                 break;
             }
@@ -1030,15 +1054,23 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             List<BlockChangeMessage> value = new ArrayList<>(entry.getValue().values());
 
             if (value.size() == 1) {
-                session.send(value.get(0));
+                //dyconitManager.send(getPlayer(), value.get(0), session, key);
+                dyconitManager.send(getPlayer(), value.get(0), session, null, key);
+                //session.send(value.get(0));
             } else if (value.size() > 1) {
-                session.send(new MultiBlockChangeMessage(key.getX(), key.getZ(), value));
+                //dyconitManager.send(getPlayer(), new MultiBlockChangeMessage(key.getX(), key.getZ(), value), session, key);
+                dyconitManager.send(getPlayer(), new MultiBlockChangeMessage(key.getX(), key.getZ(), value), session, null, key);
+                //session.send(new MultiBlockChangeMessage(key.getX(), key.getZ(), value));
             }
         }
         // now send post-block-change messages
         List<Message> postMessages = new ArrayList<>(afterBlockChanges);
         afterBlockChanges.clear();
-        postMessages.forEach(session::send);
+        for (Message message : postMessages) {
+            //dyconitManager.send(getPlayer(), message, session);
+            dyconitManager.send(getPlayer(), message, session, null, null);
+        }
+        //postMessages.forEach(session::send);
     }
 
     /**
@@ -1122,7 +1154,11 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         // and remove old chunks
         if (previousChunks != null) {
             previousChunks.forEach(key -> {
-                session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
+                //here is the problem
+                //session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
+                //dyconitManager.send(getPlayer(), new UnloadChunkMessage(key.getX(), key.getZ()), session);
+                dyconitManager.send(getPlayer(), new UnloadChunkMessage(key.getX(), key.getZ()), session, null, null);
+
                 knownChunks.remove(key);
                 chunkLock.release(key);
             });
@@ -1246,7 +1282,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 List<Integer> entityIds = new ArrayList<>(knownEntities.size());
                 entityIds.addAll(knownEntities.stream().map(GlowEntity::getEntityId)
                         .collect(Collectors.toList()));
-                session.send(new DestroyEntitiesMessage(entityIds));
+                //session.send(new DestroyEntitiesMessage(entityIds));
+                //dyconitManager.send(getPlayer(), new DestroyEntitiesMessage(entityIds), session);
+                dyconitManager.send(getPlayer(), new DestroyEntitiesMessage(entityIds), session, null, null);
                 knownEntities.clear();
             }
             active = true;
@@ -1285,6 +1323,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         }
     }
 
+
+
     ////////////////////////////////////////////////////////////////////////////
     // Basic stuff
 
@@ -1306,7 +1346,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             closeInventory();
         }
 
-        session.send(new SignEditorMessage(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+        //session.send(new SignEditorMessage(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()));
+        //dyconitManager.send(getPlayer(), new SignEditorMessage(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), session);
+        dyconitManager.send(getPlayer(), new SignEditorMessage(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()), session, null, null);
     }
 
     /**
@@ -1958,7 +2000,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 world.getEntityManager().move(this, location);
                 //Position.copyLocation(location, this.previousLocation);
                 //Position.copyLocation(location, this.location);
-                session.send(new PositionRotationMessage(location));
+                //session.send(new PositionRotationMessage(location));
+                dyconitManager.send(getPlayer(), new PositionRotationMessage(location), session, null, null);
                 teleportedTo = location.clone();
             }
         } finally {
@@ -2449,8 +2492,10 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     @Override
     public void playEffect(Location loc, Effect effect, int data) {
         int id = effect.getId();
-        session.send(new PlayEffectMessage(id, loc.getBlockX(), loc.getBlockY(), loc
-                .getBlockZ(), data, false));
+        //session.send(new PlayEffectMessage(id, loc.getBlockX(), loc.getBlockY(), loc
+        //        .getBlockZ(), data, false));
+        dyconitManager.send(getPlayer(), new PlayEffectMessage(id, loc.getBlockX(), loc.getBlockY(), loc
+                .getBlockZ(), data, false), session, null, null);
     }
 
     @Override
@@ -3054,17 +3099,21 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     @Override
     public void updateInventory() {
         session.send(new SetWindowContentsMessage(invMonitor.getId(), invMonitor.getContents()));
+        //dyconitManager.send(getPlayer(), new SetWindowContentsMessage(invMonitor.getId(), invMonitor.getContents()), session);
+        //SendFactory.send(getPlayer(), new SetWindowContentsMessage(invMonitor.getId(), invMonitor.getContents()), session, null, null);
     }
-
     /**
      * Sends a {@link SetWindowSlotMessage} to update the contents of an inventory slot.
      *
      * @param slot the slot ID
      * @param item the new contents
      */
+
     public void sendItemChange(int slot, ItemStack item) {
         if (invMonitor != null) {
             session.send(new SetWindowSlotMessage(invMonitor.getId(), slot, item));
+            //dyconitManager.send(getPlayer(), new SetWindowSlotMessage(invMonitor.getId(), slot, item), session);
+            //SendFactory.send(getPlayer(), new SetWindowSlotMessage(invMonitor.getId(), slot, item), session, null, null);
         }
     }
 
@@ -3101,6 +3150,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             return false;
         }
         session.send(new WindowPropertyMessage(invMonitor.getId(), prop.getId(), value));
+        //dyconitManager.send(getPlayer(), new WindowPropertyMessage(invMonitor.getId(), prop.getId(), value), session);
+        //SendFactory.send(getPlayer(), new WindowPropertyMessage(invMonitor.getId(), prop.getId(), value), session, null, null);
         return true;
     }
 

@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.flowpowered.network.Message;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -41,6 +39,7 @@ import net.glowstone.constants.GlowParticle;
 import net.glowstone.constants.GlowSound;
 import net.glowstone.constants.GlowTree;
 import net.glowstone.data.CommandFunction;
+import net.glowstone.dyconit.DyconitManager;
 import net.glowstone.entity.CustomEntityDescriptor;
 import net.glowstone.entity.EntityManager;
 import net.glowstone.entity.EntityRegistry;
@@ -122,7 +121,7 @@ import org.jetbrains.annotations.NonNls;
  */
 @ToString(of = "name")
 public class GlowWorld implements World {
-
+    public static final DyconitManager dyconitManager = new DyconitManager();
     /**
      * The metadata store for world objects.
      */
@@ -671,8 +670,16 @@ public class GlowWorld implements World {
     }
 
     public void broadcastBlockChangeInRange(GlowChunk.Key chunkKey, BlockChangeMessage message) {
-        getRawPlayers().stream().filter(player -> player.canSeeChunk(chunkKey))
-            .forEach(player -> player.sendBlockChangeForce(message));
+        //getRawPlayers().stream().filter(player -> player.canSeeChunk(chunkKey))
+        //    .forEach(player -> player.sendBlockChangeForce(message));
+
+        for (GlowPlayer player : getRawPlayers()) {
+            if (player.canSeeChunk(chunkKey)) {
+                dyconitManager.send(player.getPlayer(), message, player.getSession(), null, null);
+            }
+        }
+
+
     }
 
     private void maybeStrikeLightningInChunk(int cx, int cz) {
@@ -1374,7 +1381,8 @@ public class GlowWorld implements World {
 
         for (GlowPlayer player : getRawPlayers()) {
             if (player.canSeeChunk(key)) {
-                player.getSession().send(getChunkAt(x, z).toMessage());
+                //player.getSession().send(getChunkAt(x, z).toMessage());
+                dyconitManager.send(player.getPlayer(), getChunkAt(x, z).toMessage(), player.getSession(), null, null);
                 result = true;
             }
         }
