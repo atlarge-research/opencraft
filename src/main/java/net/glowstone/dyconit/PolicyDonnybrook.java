@@ -1,9 +1,7 @@
 package net.glowstone.dyconit;
 
-import java.util.HashSet;
 import java.util.Set;
 import net.glowstone.chunk.GlowChunk;
-import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
 /*
@@ -24,11 +22,6 @@ class PolicyDonnybrook {
         Set nearbyKeys = DyconitManager.getNearbyChunkKeys(p, 1);
         Set farKeys = DyconitManager.getNearbyChunkKeys(p, 2);
         farKeys.removeAll(nearbyKeys);
-        System.out.println("===============================");
-        System.out.println(nearbyKeys);
-        System.out.println("-         -        -         -");
-        System.out.println(farKeys);
-        System.out.println("===============================");
 
         for (GlowChunk.Key key : dyconits.getKeyDyconitMap().keySet()) {
             Dyconit.Subscription sub = dyconits.retrieveDyconit(key)
