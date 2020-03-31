@@ -60,6 +60,7 @@ import net.glowstone.constants.GlowBlockEntity;
 import net.glowstone.constants.GlowEffect;
 import net.glowstone.constants.GlowParticle;
 import net.glowstone.constants.GlowSound;
+import net.glowstone.dyconit.DyconitManager;
 import net.glowstone.entity.meta.ClientSettings;
 import net.glowstone.entity.meta.MetadataIndex;
 import net.glowstone.entity.meta.MetadataIndex.StatusFlags;
@@ -1144,7 +1145,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         boolean skylight = world.getEnvironment() == Environment.NORMAL;
 
         newChunks.stream().map(key -> world.getChunkAt(key.getX(), key.getZ()).toMessage(skylight))
-                .forEach(session::send);
+                .forEach(m -> dyconitManager.send(getPlayer(), m, session, null, null));
 
         // send visible block entity data
         newChunks.stream().flatMap(key -> world.getChunkAt(key.getX(),
@@ -1154,7 +1155,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         // and remove old chunks
         if (previousChunks != null) {
             previousChunks.forEach(key -> {
-                //here is the problem
                 //session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
                 //dyconitManager.send(getPlayer(), new UnloadChunkMessage(key.getX(), key.getZ()), session);
                 dyconitManager.send(getPlayer(), new UnloadChunkMessage(key.getX(), key.getZ()), session, null, null);
