@@ -486,7 +486,7 @@ public class GlowWorld implements World {
         }
 
         updateBlocksInActiveChunks();
-        // why update blocks before Players or Entities? if there is a specific reason we should
+        // why upate blocks before Players or Entities? if there is a specific reason we shouldd
         // document it here.
 
         pulsePlayers(players);
@@ -498,8 +498,8 @@ public class GlowWorld implements World {
         updateOverworldWeather();
 
         handleSleepAndWake(players);
-
         saveWorld();
+        dyconitManager.processDyconits();
     }
 
     private void updateActiveChunkCollection(GlowEntity entity) {

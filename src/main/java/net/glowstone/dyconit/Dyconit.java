@@ -6,6 +6,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Map;
+
+import net.glowstone.messagetype.UpdateMessage;
 import org.bukkit.entity.Player;
 
 class Dyconit {
@@ -20,10 +22,10 @@ class Dyconit {
         int stalenessBound;
         int numericalErrorBound;
         Instant timestampLastReset;
-        ArrayList<Message> messageQueue;
+        ArrayList<UpdateMessage> messageQueue;
 
         private Subscription() {
-            stalenessBound = 100;           //in milliseconds
+            stalenessBound = 10000000;           //in milliseconds
             numericalErrorBound = 100;      //in amount of updates
             timestampLastReset = Instant.now();
             messageQueue = new ArrayList<>();
@@ -44,7 +46,7 @@ class Dyconit {
         subscriptions.putIfAbsent(player, new Subscription());
     }
 
-    void addMessage(Player player, Message message) {
+    void addMessage(Player player, UpdateMessage message) {
         if (subscriptions.containsKey(player)) {
             subscriptions.get(player).messageQueue.add(message);
         }

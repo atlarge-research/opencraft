@@ -17,8 +17,7 @@ class PolicyDonnybrook {
         return policy;
     }
 
-    void enforce(Player p) {
-        DyconitCollection dyconits = DyconitManager.getDyconits();
+    void enforce(Player p, DyconitCollection dyconits) {
         Set nearbyKeys = DyconitManager.getNearbyChunkKeys(p, 1);
         Set farKeys = DyconitManager.getNearbyChunkKeys(p, 2);
         farKeys.removeAll(nearbyKeys);
@@ -36,7 +35,7 @@ class PolicyDonnybrook {
             } else if (farKeys.contains(key)) {
                 sub.stalenessBound = 200;
             } else {
-                sub.stalenessBound = 1000;
+                sub.stalenessBound = 5000;
             }
         }
     }

@@ -22,3 +22,6 @@ dependency-reduced-pom.xml
 .DS_Store
 .vscode
 scripts/logs
+*.json
+*.dat
+*.mca

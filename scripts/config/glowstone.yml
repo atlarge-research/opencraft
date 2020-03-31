@@ -9,8 +9,8 @@ server:
     port: 25565
     name: Glowstone Server
     log-file: logs/log-%D.txt
-    online-mode: true
-    max-players: 20
+    online-mode: false
+    max-players: 500
     whitelisted: false
     motd: A Glowstone server
     shutdown-message: Server shutting down.
@@ -26,7 +26,7 @@ console:
 game:
     gamemode: SURVIVAL
     gamemode-force: false
-    difficulty: NORMAL
+    difficulty: EASY
     hardcore: false
     pvp: true
     max-build-height: 256

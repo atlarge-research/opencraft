@@ -21,39 +21,46 @@ public class DyconitManager {
     }
 
     public void send(Player player, Message m, GlowSession session, Entity entity, GlowChunk.Key key) {
-        //System.out.println(player.getChunk().toString());
         UpdateMessage message = MessageFactory.createMessageObject(player, m, session, entity, key);
 
         chunks.insertDyconit(message.getKey(), message.getPlayer());
-        chunks.retrieveDyconit(message.getKey()).addMessage(player, m);
+        chunks.retrieveDyconit(message.getKey()).addMessage(player, message);
 
-        policy.enforce(player);
-
-        sendUpdatesToClient(player, session);
+        policy.enforce(player, chunks);
     }
 
-    public void sendUpdatesToClient(Player p, GlowSession session) {
+    public void processDyconits() {
         for (Dyconit dyconit : chunks.getKeyDyconitMap().values()) {
-            Dyconit.Subscription sub = dyconit.subscriptions.get(p);
+            processSubscriptions(dyconit);
+        }
+    }
 
-            if (sub == null){ continue; }
-
-            if (sub.exceedBound()) {
-                sub.messageQueue.forEach(session::send);
-                sub.messageQueue.clear();
+    private void processSubscriptions(Dyconit dyconit) {
+        for (Player pSub : dyconit.subscriptions.keySet()) {
+            if (dyconit.subscriptions.containsKey(pSub)) {
+                Dyconit.Subscription sub = dyconit.subscriptions.get(pSub);
+                if (sub.messageQueue.size() > 0) {
+                    sendUpdatesToClient(sub);
+                } else {
+                    dyconit.subscriptions.remove(pSub);
+                }
             }
         }
     }
 
+    private void sendUpdatesToClient(Dyconit.Subscription sub) {
+        if (sub.exceedBound()) {
+            sub.messageQueue.forEach(m -> m.getSession().send(m.getMessage()));
+            sub.messageQueue.clear();
+        }
+    }
+
     static Set getNearbyChunkKeys(Player player, int distance) {
-        System.out.println("BEGIN");
         Set<GlowChunk.Key> chunkKeys = new HashSet<>();
 
         Chunk currentChunk = player.getChunk();
         int xloc = currentChunk.getX();
         int zloc = currentChunk.getZ();
-
-        System.out.println(xloc + ' ' + zloc);
 
         for (int i = -distance; i <= distance; i++) {
             for (int j = -distance; j <= distance; j++) {
@@ -61,9 +68,5 @@ public class DyconitManager {
             }
         }
         return chunkKeys;
-    }
-
-    static DyconitCollection getDyconits() {
-        return chunks;
     }
 }
