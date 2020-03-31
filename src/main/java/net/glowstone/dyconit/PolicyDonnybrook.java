@@ -21,32 +21,30 @@ class PolicyDonnybrook {
 
     void enforce(Player p) {
         DyconitCollection dyconits = DyconitManager.getDyconits();
-        Set nearbyKeys = getNearbyChunkKeys(p, 1);
+        Set nearbyKeys = DyconitManager.getNearbyChunkKeys(p, 1);
+        Set farKeys = DyconitManager.getNearbyChunkKeys(p, 2);
+        farKeys.removeAll(nearbyKeys);
+        System.out.println("===============================");
+        System.out.println(nearbyKeys);
+        System.out.println("-         -        -         -");
+        System.out.println(farKeys);
+        System.out.println("===============================");
 
         for (GlowChunk.Key key : dyconits.getKeyDyconitMap().keySet()) {
             Dyconit.Subscription sub = dyconits.retrieveDyconit(key)
                                                         .subscriptions.get(p);
 
+            if (sub == null) {
+                continue;
+            }
+
             if (nearbyKeys.contains(key)) {
                 sub.stalenessBound = 100;
+            } else if (farKeys.contains(key)) {
+                sub.stalenessBound = 200;
             } else {
-                sub.stalenessBound = 5000;
+                sub.stalenessBound = 1000;
             }
         }
-    }
-
-    private Set getNearbyChunkKeys(Player player, int distance) {
-        Set<GlowChunk.Key> chunkKeys = new HashSet<>();
-
-        Chunk currentChunk = player.getChunk();
-        int xloc = currentChunk.getX();
-        int zloc = currentChunk.getZ();
-
-        for (int i = -distance; i <= distance; i++) {
-            for (int j = -distance; j <= distance; j++) {
-                chunkKeys.add(GlowChunk.Key.of(xloc += i, zloc += j));
-            }
-        }
-        return chunkKeys;
     }
 }

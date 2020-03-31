@@ -5,8 +5,12 @@ import net.glowstone.chunk.GlowChunk;
 import net.glowstone.messagetype.MessageFactory;
 import net.glowstone.messagetype.UpdateMessage;
 import net.glowstone.net.GlowSession;
+import org.bukkit.Chunk;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class DyconitManager {
     public static DyconitCollection chunks;
@@ -22,21 +26,43 @@ public class DyconitManager {
         UpdateMessage message = MessageFactory.createMessageObject(player, m, session, entity, key);
 
         chunks.insertDyconit(message.getKey(), message.getPlayer());
+
+        Set test = getNearbyChunkKeys(player, 2);
         chunks.retrieveDyconit(message.getKey()).addMessage(player, m);
+
 
         policy.enforce(player);
 
         sendUpdatesToClient(player, session);
     }
 
-    private void sendUpdatesToClient(Player p, GlowSession session) {
+    public void sendUpdatesToClient(Player p, GlowSession session) {
         for (Dyconit dyconit : chunks.getKeyDyconitMap().values()) {
             Dyconit.Subscription sub = dyconit.subscriptions.get(p);
+
+            if (sub == null){
+                continue;
+            }
             if (sub.exceedBound()) {
                 sub.messageQueue.forEach(session::send);
                 sub.messageQueue.clear();
             }
         }
+    }
+
+    static Set getNearbyChunkKeys(Player player, int distance) {
+        Set<GlowChunk.Key> chunkKeys = new HashSet<>();
+
+        Chunk currentChunk = player.getChunk();
+        int xloc = currentChunk.getX();
+        int zloc = currentChunk.getZ();
+
+        for (int i = -distance; i <= distance; ++i) {
+            for (int j = -distance; j <= distance; ++j) {
+                chunkKeys.add(GlowChunk.Key.of(xloc += i, zloc += j));
+            }
+        }
+        return chunkKeys;
     }
 
     static DyconitCollection getDyconits() {
