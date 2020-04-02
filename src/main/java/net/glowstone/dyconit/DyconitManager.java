@@ -13,14 +13,20 @@ import java.util.Set;
 
 public class DyconitManager {
     public static DyconitCollection chunks;
-    private PolicyDonnybrook policy;
+    private IPolicy policy;
 
     public DyconitManager() {
         chunks = new DyconitCollection();
         policy = PolicyDonnybrook.setPolicy();
     }
 
-    public void send(Player player, Message m, GlowSession session, Entity entity, GlowChunk.Key key) {
+    public void send(Player player,
+                     Message m,
+                     GlowSession session,
+                     Entity entity,
+                     GlowChunk.Key key) {
+
+        //PolicyFactory.loadPolicy();
         UpdateMessage message = MessageFactory.createMessageObject(player, m, session, entity, key);
 
         chunks.insertDyconit(message.getKey(), message.getPlayer());
@@ -50,8 +56,10 @@ public class DyconitManager {
 
     private void sendUpdatesToClient(Dyconit.Subscription sub) {
         if (sub.exceedBound()) {
-            sub.messageQueue.forEach(m -> m.getSession().send(m.getMessage()));
-            sub.messageQueue.clear();
+            synchronized (sub.messageQueue) {
+                sub.messageQueue.forEach(m -> m.getSession().send(m.getMessage()));
+                sub.messageQueue.clear();
+            }
         }
     }
 

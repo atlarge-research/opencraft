@@ -1,12 +1,12 @@
 package net.glowstone.dyconit;
 
-import com.flowpowered.network.Message;
 import com.google.common.collect.Maps;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-
 import net.glowstone.messagetype.UpdateMessage;
 import org.bukkit.entity.Player;
 
@@ -22,13 +22,13 @@ class Dyconit {
         int stalenessBound;
         int numericalErrorBound;
         Instant timestampLastReset;
-        ArrayList<UpdateMessage> messageQueue;
+        final List<UpdateMessage> messageQueue;
 
         private Subscription() {
             stalenessBound = 10000000;           //in milliseconds
             numericalErrorBound = 100;      //in amount of updates
             timestampLastReset = Instant.now();
-            messageQueue = new ArrayList<>();
+            messageQueue = Collections.synchronizedList(new ArrayList<>());
         }
 
         boolean exceedBound() {
@@ -48,7 +48,9 @@ class Dyconit {
 
     void addMessage(Player player, UpdateMessage message) {
         if (subscriptions.containsKey(player)) {
-            subscriptions.get(player).messageQueue.add(message);
+            synchronized (subscriptions.get(player).messageQueue) {
+                subscriptions.get(player).messageQueue.add(message);
+            }
         }
     }
 }
