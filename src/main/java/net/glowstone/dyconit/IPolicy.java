@@ -1,4 +1,7 @@
 package net.glowstone.dyconit;
 
-public interface IPolicy {
+import org.bukkit.entity.Player;
+
+interface IPolicy {
+    void enforce(Player p, DyconitCollection dyconits);
 }

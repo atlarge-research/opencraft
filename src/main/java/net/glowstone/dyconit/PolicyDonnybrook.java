@@ -8,34 +8,29 @@ import org.bukkit.entity.Player;
 Policy 1: DONNYBROOK
  */
 
-class PolicyDonnybrook {
+class PolicyDonnybrook implements IPolicy{
     private static final PolicyDonnybrook policy = new PolicyDonnybrook();
 
     private PolicyDonnybrook() {}
 
-    static PolicyDonnybrook setPolicy() {
+    static IPolicy setPolicy() {
         return policy;
     }
 
-    void enforce(Player p, DyconitCollection dyconits) {
+    @Override
+    public void enforce(Player p, DyconitCollection dyconits) {
         Set nearbyKeys = DyconitManager.getNearbyChunkKeys(p, 1);
-        Set farKeys = DyconitManager.getNearbyChunkKeys(p, 2);
-        farKeys.removeAll(nearbyKeys);
 
         for (GlowChunk.Key key : dyconits.getKeyDyconitMap().keySet()) {
             Dyconit.Subscription sub = dyconits.retrieveDyconit(key)
                                                         .subscriptions.get(p);
 
-            if (sub == null) {
-                continue;
-            }
+            if (sub == null) { continue; }
 
             if (nearbyKeys.contains(key)) {
                 sub.stalenessBound = 100;
-            } else if (farKeys.contains(key)) {
-                sub.stalenessBound = 200;
-            } else {
-                sub.stalenessBound = 5000;
+            }  else {
+                sub.stalenessBound = 500;
             }
         }
     }

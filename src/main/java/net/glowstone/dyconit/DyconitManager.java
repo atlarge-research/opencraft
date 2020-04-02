@@ -17,7 +17,7 @@ public class DyconitManager {
 
     public DyconitManager() {
         chunks = new DyconitCollection();
-        policy = PolicyDonnybrook.setPolicy();
+        policy = PolicyFactory.loadPolicy();
     }
 
     public void send(Player player,
@@ -26,7 +26,7 @@ public class DyconitManager {
                      Entity entity,
                      GlowChunk.Key key) {
 
-        //PolicyFactory.loadPolicy();
+
         UpdateMessage message = MessageFactory.createMessageObject(player, m, session, entity, key);
 
         chunks.insertDyconit(message.getKey(), message.getPlayer());
