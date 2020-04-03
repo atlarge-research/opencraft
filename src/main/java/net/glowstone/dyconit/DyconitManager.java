@@ -63,7 +63,7 @@ public class DyconitManager {
         }
     }
 
-    static Set getNearbyChunkKeys(Player player, int distance) {
+    static Set<GlowChunk.Key> getNearbyChunkKeys(Player player, int distance) {
         Set<GlowChunk.Key> chunkKeys = new HashSet<>();
 
         Chunk currentChunk = player.getChunk();

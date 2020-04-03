@@ -18,7 +18,7 @@ final class PolicyFactory {
                 System.out.println("Epicenter policy loaded.");
                 return PolicyEpicenter.setPolicy();
             default:
-                System.out.println("Please provide a valid policy in the policyconfig.txt file.");
+                System.out.println("Please provide a valid `policy=<policy>` in the policyconfig.txt file located in ./target/config.");
                 System.exit(0);
         }
 

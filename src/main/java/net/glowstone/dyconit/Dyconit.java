@@ -25,7 +25,7 @@ class Dyconit {
         final List<UpdateMessage> messageQueue;
 
         private Subscription() {
-            stalenessBound = 10000000;           //in milliseconds
+            stalenessBound = 100000;        //in milliseconds
             numericalErrorBound = 100;      //in amount of updates
             timestampLastReset = Instant.now();
             messageQueue = Collections.synchronizedList(new ArrayList<>());
