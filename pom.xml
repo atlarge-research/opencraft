@@ -4,14 +4,14 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.glowstone</groupId>
-    <artifactId>glowstone</artifactId>
-    <version>2018.10.0-SNAPSHOT</version>
+    <groupId>com.atlarge</groupId>
+    <artifactId>opencraft</artifactId>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>Glowstone</name>
-    <url>https://www.glowstone.net</url>
-    <description>A fast, customizable and compatible open source Minecraft server.</description>
+    <name>OpenCraft</name>
+    <url>https://atlarge-research.com/opencraft/</url>
+    <description>A massively scalable Minecraft server.</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
