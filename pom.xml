@@ -9,7 +9,7 @@
     <version>1.0</version>
     <packaging>jar</packaging>
 
-    <name>OpenCraft</name>
+    <name>Opencraft</name>
     <url>https://atlarge-research.com/opencraft/</url>
     <description>A massively scalable Minecraft server.</description>
 
