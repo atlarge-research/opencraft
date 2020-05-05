@@ -659,6 +659,11 @@ public class GlowChunk implements Chunk {
         return heightMap[z * WIDTH + x] & 0xff;
     }
 
+    /**
+     * Computes the regional difficulty.
+     * Not used at the moment.
+     * @return regional difficulty.
+     */
     public double getRegionalDifficulty() {
         final double moonPhase = world.getMoonPhase();
         final long worldTime = world.getFullTime();
@@ -706,6 +711,11 @@ public class GlowChunk implements Chunk {
         return regionalDifficulty;
     }
 
+    /**
+     * Compute the normalized regional difficulty.
+     * Not used at the moment.
+     * @return normalized regional difficulty.
+     */
     public double getClampedRegionalDifficulty() {
         final double rd = getRegionalDifficulty();
 

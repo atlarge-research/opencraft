@@ -187,12 +187,14 @@ public final class GlowScheduler implements BukkitScheduler {
         primaryThread = Thread.currentThread();
 
         // Process player packets
-        com.atlarge.yscollector.YSCollector.start("tick_network", "The duration of a tick processing the network"); // YSCollector
+        com.atlarge.yscollector.YSCollector.start("tick_network",
+                "The duration of a tick processing the network"); // YSCollector
         sessionRegistry.pulse();
         com.atlarge.yscollector.YSCollector.stop("tick_network"); // YSCollector
 
         // Run the relevant tasks.
-        com.atlarge.yscollector.YSCollector.start("tick_jobs", "Duration of the server tick spent processing jobs"); // YSCollector
+        com.atlarge.yscollector.YSCollector.start("tick_jobs",
+                "Duration of the server tick spent processing jobs"); // YSCollector
         for (Iterator<GlowTask> it = tasks.values().iterator(); it.hasNext();) {
             GlowTask task = it.next();
             switch (task.shouldExecute()) {
