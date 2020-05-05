@@ -15,7 +15,7 @@
   </module>
 
   <module name="TreeWalker">
-    <module name="Indentation"> <!-- TODO: indent by 2 -->
+    <module name="Indentation"> 
       <property name="basicOffset" value="4"/>
       <property name="braceAdjustment" value="0"/>
       <property name="caseIndent" value="4"/>
@@ -41,7 +41,7 @@
     <!-- Code -->
     <module name="LineLength">
       <property name="severity" value="warning"/>
-      <property name="max" value="100"/>
+      <property name="max" value="120"/>
       <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
     </module>
     <module name="OuterTypeFilename"/>
@@ -51,7 +51,6 @@
     <module name="ArrayTypeStyle"/>
     <module name="MultipleVariableDeclarations"/>
     <module name="MissingSwitchDefault"/>
-    <module name="FallThrough"/>
     <module name="UpperEll"/>
     <module name="ModifierOrder"/>
     <module name="EmptyLineSeparator">
@@ -185,23 +184,23 @@
 
     <!-- Naming conventions -->
     <module name="PackageName">
-      <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+      <property name="format" value="^[a-z]+(.[a-z][a-z0-9])$"/>
       <message key="name.invalidPattern" value="Package name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="TypeName">
       <message key="name.invalidPattern" value="Type name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="MemberName">
-      <property name="format" value="^([a-z][a-z0-9][a-zA-Z0-9]*|[xyz])$"/>
+      <property name="format" value="^([a-z][a-zA-Z0-9]*)$"/>
       <message key="name.invalidPattern" value="Member name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="ParameterName">
-      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^([a-z][a-zA-Z0-9]*)$"/>
       <message key="name.invalidPattern"
         value="Parameter name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="CatchParameterName">
-      <property name="format" value="^[a-z]([a-z0-9][a-zA-Z0-9]*)?$"/>
+      <property name="format" value="^([a-z][a-zA-Z0-9]*)$"/>
       <message key="name.invalidPattern"
         value="Catch parameter name ''{0}'' must match pattern ''{1}''."/>
     </module>
@@ -212,17 +211,17 @@
         value="Local variable name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="ClassTypeParameterName">
-      <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+      <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
       <message key="name.invalidPattern"
         value="Class type name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="MethodTypeParameterName">
-      <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+      <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
       <message key="name.invalidPattern"
         value="Method type name ''{0}'' must match pattern ''{1}''."/>
     </module>
     <module name="InterfaceTypeParameterName">
-      <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+      <property name="format" value="^[A-Z][a-zA-Z0-9]*$"/>
       <message key="name.invalidPattern"
         value="Interface type name ''{0}'' must match pattern ''{1}''."/>
     </module>
@@ -232,7 +231,7 @@
       <property name="allowedAbbreviationLength" value="1"/>
     </module>
     <module name="MethodName">
-      <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9_]*$"/>
+      <property name="format" value="^([a-z][a-zA-Z0-9]*)$"/>
       <message key="name.invalidPattern"
         value="Method name ''{0}'' must match pattern ''{1}''."/>
     </module>
