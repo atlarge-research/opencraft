@@ -749,6 +749,10 @@ public class GlowWorld implements World {
         return RayUtil.getExposure(location, entity.getLocation());
     }
 
+    /**
+     * Gets the value of the moon phase.
+     * @return moon phase value.
+     */
     public double getMoonPhase() {
         // https://minecraft.gamepedia.com/Moon#Phases
         double actualPhase = Math.floor((double) fullTime / TickUtil.TICKS_PER_DAY) % 8;
@@ -2125,8 +2129,8 @@ public class GlowWorld implements World {
 
     @Override
     public <T> void spawnParticle(Particle particle, List<Player> receivers, Player source,
-                                  double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ,
-                                  double extra, T data) {
+                                  double x, double y, double z, int count, double offsetX, double offsetY,
+                                  double offsetZ, double extra, T data) {
         if (receivers == null) {
             receivers = getPlayers();
         }

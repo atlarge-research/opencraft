@@ -1168,7 +1168,7 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
         return Collections.unmodifiableCollection(potionEffects.values());
     }
 
-    public void clearActivePotionEffects() {
+    private void clearActivePotionEffects() {
         for (PotionEffect effect : this.getActivePotionEffects()) {
             this.removePotionEffect(effect.getType());
         }
@@ -1333,8 +1333,8 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
     }
 
     /**
-     * Use "Totem of Undying" if equipped
-     * @return result of totem use
+     * Use "Totem of Undying" if equipped.
+     * @return result of totem use.
      */
     public boolean tryUseTotem() {
         //TODO: Should return false if player die in void.
