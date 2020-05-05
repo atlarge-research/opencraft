@@ -1,5 +1,6 @@
 package net.glowstone.scheduler;
 
+import com.atlarge.yscollector.YSCollector;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import java.util.List;
@@ -166,7 +167,8 @@ public class WorldScheduler {
             try {
                 while (!isInterrupted() && !tickEnd.isTerminated()) {
                     tickBegin.arriveAndAwaitAdvance();
-                    com.atlarge.yscollector.YSCollector.start("world_" + world.getName() + "_tick", "World thread: Duration processing tick.");
+                    YSCollector.start("world_" + world.getName() + "_tick",
+                            "World thread: Duration processing tick.");
                     try {
                         world.pulse();
                     } catch (Exception e) {
@@ -175,7 +177,7 @@ public class WorldScheduler {
                     } finally {
                         tickEnd.arriveAndAwaitAdvance();
                     }
-                    com.atlarge.yscollector.YSCollector.stop("world_" + world.getName() + "_tick");
+                    YSCollector.stop("world_" + world.getName() + "_tick");
                 }
             } finally {
                 tickBegin.arriveAndDeregister();

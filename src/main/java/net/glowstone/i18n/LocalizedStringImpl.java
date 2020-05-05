@@ -25,6 +25,11 @@ public class LocalizedStringImpl implements LocalizedString {
         this(key, STRINGS);
     }
 
+    /**
+     * Constructor for a localizedStringImplementation.
+     * @param key the key.
+     * @param resourceBundle the resourcebundle.
+     */
     public LocalizedStringImpl(@NonNls String key, ResourceBundle resourceBundle) {
         this.key = key;
         this.resourceBundle = resourceBundle;
