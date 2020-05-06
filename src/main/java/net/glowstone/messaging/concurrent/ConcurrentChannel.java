@@ -6,7 +6,7 @@ import net.glowstone.messaging.Channel;
 
 /**
  * The concurrent broker uses a concurrent hashmap to store topic-channel pairs. The concurrent
- * hash map allows multiple publishers and subscribers to access to broker simultaneously.
+ * hash map allows multiple publishers and subscribers to access the broker simultaneously.
  *
  * @param <Subscriber> the type of subscribers that is allowed to subscribe to a channel.
  * @param <Message> the type of messages that is allowed to be published to a channel.
