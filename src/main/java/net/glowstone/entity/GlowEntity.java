@@ -408,6 +408,10 @@ public abstract class GlowEntity implements Entity {
         return location.clone();
     }
 
+    public Location getPreviousLocation() {
+        return previousLocation.clone();
+    }
+
     @Override
     public Location getLocation(Location loc) {
         return Position.copyLocation(location, loc);
