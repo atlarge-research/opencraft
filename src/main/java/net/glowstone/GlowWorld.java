@@ -66,7 +66,6 @@ import net.glowstone.util.RayUtil;
 import net.glowstone.util.TickUtil;
 import net.glowstone.util.collection.ConcurrentSet;
 import net.glowstone.util.config.WorldConfig;
-import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.BlockChangeDelegate;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
@@ -554,6 +553,10 @@ public class GlowWorld implements World {
         saveWorld();
     }
 
+    /**
+     * Update player subscriptions based on their current interest..
+     * @param player the player.
+     */
     private void updateSubscriptions(GlowPlayer player) {
 
         Location previous = player.getPreviousLocation();
