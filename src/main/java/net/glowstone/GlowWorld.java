@@ -55,6 +55,8 @@ import net.glowstone.generator.structures.GlowStructure;
 import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
+import net.glowstone.messaging.Broker;
+import net.glowstone.messaging.concurrent.ConcurrentBroker;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
@@ -418,6 +420,8 @@ public class GlowWorld implements World {
     @Getter
     private boolean initialized;
 
+    private Broker<Key, UUID, Message> messageBroker;
+
     /**
      * Creates a new world from the options in the given WorldCreator.
      *
@@ -485,6 +489,8 @@ public class GlowWorld implements World {
         server.getLogger().info("Preparing spawn for " + name + ": done");
         initialized = true;
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
+
+        messageBroker = new ConcurrentBroker<>();
     }
 
     ////////////////////////////////////////////////////////////////////////////
