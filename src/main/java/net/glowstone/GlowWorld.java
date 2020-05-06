@@ -66,6 +66,7 @@ import net.glowstone.util.RayUtil;
 import net.glowstone.util.TickUtil;
 import net.glowstone.util.collection.ConcurrentSet;
 import net.glowstone.util.config.WorldConfig;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.BlockChangeDelegate;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
@@ -420,7 +421,7 @@ public class GlowWorld implements World {
     @Getter
     private boolean initialized;
 
-    private Broker<UUID, UUID, Message> messageBroker;
+    private Broker<GlowChunk.Key, UUID, Message> messageBroker;
 
     /**
      * Creates a new world from the options in the given WorldCreator.
@@ -555,6 +556,55 @@ public class GlowWorld implements World {
 
     private void updateSubscriptions(GlowPlayer player) {
 
+        Location previous = player.getPreviousLocation();
+        int previousX = previous.getBlockX() >> 4;
+        int previousZ = previous.getBlockZ() >> 4;
+
+        Location current = player.getLocation();
+        int currentX = current.getBlockX() >> 4;
+        int currentZ = current.getBlockZ() >> 4;
+
+        int radius = server.getViewDistance();
+
+        if (previous.getWorld() == this) {
+            for (int x = previousX - radius; x < previousX + radius; x++) {
+                for (int z = previousZ - radius; z < previousZ + radius; z++) {
+                    if (current.getWorld() != this || Math.max(x - currentX, z - currentZ) > radius) {
+
+                        messageBroker.unsubscribe(
+                                GlowChunk.Key.of(x, z),
+                                player.getUniqueId()
+                        );
+
+                        // TODO: Send chunk unload message
+                        // TODO: Send entity despawn messages
+                    }
+                }
+            }
+        }
+
+        if (current.getWorld() == this) {
+            for (int x = currentX - radius; x < currentX + radius; x++) {
+                for (int z = currentZ - radius; z < currentZ + radius; z++) {
+                    if (previous.getWorld() != this || Math.max(x - previousX, z - previousZ) > radius) {
+
+                        messageBroker.subscribe(
+                                GlowChunk.Key.of(x, z),
+                                player.getUniqueId(),
+                                player.getSession()::send
+                        );
+
+                        // TODO: Send chunk load message
+                        // TODO: Stream chunk data.
+                        //  Doing so effectively requires temporarily storing these chunks in a list and sorting them, or
+                        //  sending them via a priority queue that keeps in mind the current location of the player. Take a
+                        //  look at the streamBlocks method in GlowPlayer to see how its solved there.
+
+                        // TODO: Send entity spawn messages
+                    }
+                }
+            }
+        }
     }
 
     private void updateActiveChunkCollection(GlowEntity entity) {
