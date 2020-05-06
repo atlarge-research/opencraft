@@ -2,12 +2,21 @@ package net.glowstone.messaging;
 
 import java.util.Objects;
 
-public final class Coordinate {
+/**
+ * The coordinates class represents a position in 2-dimensional space.
+ */
+public class Coordinates {
 
     public int x;
     public int y;
 
-    public Coordinate(int x, int y) {
+    /**
+     * Combines two coordinates into a single object.
+     *
+     * @param x the x-coordinate.
+     * @param y the y-coordinate.
+     */
+    public Coordinates(int x, int y) {
         this.x = x;
         this.y = y;
     }
@@ -19,11 +28,11 @@ public final class Coordinate {
             return true;
         }
 
-        if ((!(other instanceof Coordinate))) {
+        if ((!(other instanceof Coordinates))) {
             return false;
         }
 
-        Coordinate that = (Coordinate) other;
+        Coordinates that = (Coordinates) other;
         return x == that.x && y == that.y;
     }
 
