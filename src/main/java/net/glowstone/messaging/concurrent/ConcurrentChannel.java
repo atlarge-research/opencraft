@@ -1,9 +1,8 @@
 package net.glowstone.messaging.concurrent;
 
-import net.glowstone.messaging.Channel;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import net.glowstone.messaging.Channel;
 
 /**
  * The concurrent broker uses a concurrent hashmap to store topic-channel pairs. The concurrent

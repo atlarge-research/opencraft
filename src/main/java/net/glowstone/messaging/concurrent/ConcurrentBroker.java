@@ -1,10 +1,9 @@
 package net.glowstone.messaging.concurrent;
 
-import net.glowstone.messaging.Broker;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import net.glowstone.messaging.Broker;
 
 /**
  * The concurrent broker uses a concurrent hashmap to store topic-channel pairs. The concurrent
@@ -27,7 +26,7 @@ public final class ConcurrentBroker<Topic, Subscriber, Message> implements Broke
 
     @Override
     public void subscribe(Topic topic, Subscriber subscriber, Consumer<Message> callback) {
-        channels.compute(topic, (t, channel)-> {
+        channels.compute(topic, (t, channel) -> {
             if (channel == null) {
                 channel = new ConcurrentChannel<>();
             }
