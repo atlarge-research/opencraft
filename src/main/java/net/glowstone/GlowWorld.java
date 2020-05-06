@@ -559,6 +559,7 @@ public class GlowWorld implements World {
      */
     private void updateSubscriptions(GlowPlayer player) {
 
+        // everything is bit shifted in order to get the chunk value.
         Location previous = player.getPreviousLocation();
         int previousX = previous.getBlockX() >> 4;
         int previousZ = previous.getBlockZ() >> 4;
