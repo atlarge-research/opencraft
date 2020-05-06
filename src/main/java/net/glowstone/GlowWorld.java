@@ -420,7 +420,7 @@ public class GlowWorld implements World {
     @Getter
     private boolean initialized;
 
-    private Broker<Key, UUID, Message> messageBroker;
+    private Broker<UUID, UUID, Message> messageBroker;
 
     /**
      * Creates a new world from the options in the given WorldCreator.
@@ -510,6 +510,7 @@ public class GlowWorld implements World {
      * Updates all the entities within this world.
      */
     public void pulse() {
+
         List<GlowEntity> allEntities = new ArrayList<>(entityManager.getAll());
         List<GlowPlayer> players = new LinkedList<>();
 
