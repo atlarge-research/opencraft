@@ -6,10 +6,21 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+/**
+ * The concurrent broker uses a concurrent hashmap to store topic-channel pairs. The concurrent
+ * hash map allows multiple publishers and subscribers to access to broker simultaneously.
+ *
+ * @param <Topic> the type of topics that is allowed to identify channels.
+ * @param <Subscriber> the type of subscribers that is allowed to subscribe to a channel.
+ * @param <Message> the type of messages that is allowed to be published to a channel.
+ */
 public final class ConcurrentBroker<Topic, Subscriber, Message> implements Broker<Topic, Subscriber, Message> {
 
     private final Map<Topic, ConcurrentChannel<Subscriber, Message>> channels;
 
+    /**
+     * Create a concurrent broker.
+     */
     public ConcurrentBroker() {
         channels = new ConcurrentHashMap<>();
     }
