@@ -7,6 +7,7 @@ import io.netty.channel.ChannelFuture;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.PriorityQueue;
 import java.util.concurrent.CountDownLatch;
 import net.glowstone.GlowServer;
 import net.glowstone.i18n.ConsoleMessages;

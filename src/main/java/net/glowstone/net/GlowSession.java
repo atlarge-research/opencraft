@@ -16,7 +16,9 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.logging.Level;
@@ -25,6 +27,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.glowstone.EventFactory;
 import net.glowstone.GlowServer;
+import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.entity.meta.profile.GlowPlayerProfile;
 import net.glowstone.io.PlayerDataService.PlayerReader;
@@ -59,12 +62,31 @@ import org.bukkit.event.player.PlayerLoginEvent.Result;
 public class GlowSession extends BasicSession {
 
     /**
+     * The comperator for the chunk priority queue.
+     */
+    class ChunkComperator implements Comparator<GlowChunk> {
+
+        @Override
+        public int compare(GlowChunk a, GlowChunk b) {
+            double dx = 16 * a.getX() + 8 - player.getLocation().getX();
+            double dz = 16 * a.getZ() + 8 - player.getLocation().getZ();
+            double da = dx * dx + dz * dz;
+            dx = 16 * b.getX() + 8 - player.getLocation().getX();
+            dz = 16 * b.getZ() + 8 - player.getLocation().getZ();
+            double db = dx * dx + dz * dz;
+            return Double.compare(da, db);
+        }
+    }
+    /**
      * The server this session belongs to.
      *
      * @return The server.
      */
     @Getter
     private final GlowServer server;
+
+    @Getter
+    private PriorityQueue<GlowChunk> queue;
 
     /**
      * The provider of the protocols.
@@ -177,6 +199,7 @@ public class GlowSession extends BasicSession {
         this.server = server;
         this.protocolProvider = protocolProvider;
         this.connectionManager = connectionManager;
+        queue = new PriorityQueue<>(new ChunkComperator());
         address = super.getAddress();
     }
 
