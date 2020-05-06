@@ -46,7 +46,6 @@ import net.glowstone.entity.EntityManager;
 import net.glowstone.entity.EntityRegistry;
 import net.glowstone.entity.GlowEntity;
 import net.glowstone.entity.GlowLightningStrike;
-import net.glowstone.entity.GlowLivingEntity;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.entity.objects.GlowFallingBlock;
 import net.glowstone.entity.objects.GlowItem;
@@ -890,37 +889,14 @@ public class GlowWorld implements World {
         return new ArrayList<>(entityManager.getAll(GlowPlayer.class));
     }
 
-    /**
-     * Returns a list of entities within a bounding box centered around a Location.
-     *
-     * <p>Some implementations may impose artificial restrictions on the size of the search bounding
-     * box.
-     *
-     * @param location The center of the bounding box
-     * @param x        1/2 the size of the box along x axis
-     * @param y        1/2 the size of the box along y axis
-     * @param z        1/2 the size of the box along z axis
-     * @return the collection of entities near location. This will always be a non-null collection.
-     */
     @Override
     public Collection<Entity> getNearbyEntities(Location location, double x, double y, double z) {
-        Vector minCorner = new Vector(
-            location.getX() - x, location.getY() - y, location.getZ() - z);
-        Vector maxCorner = new Vector(
-            location.getX() + x, location.getY() + y, location.getZ() + z);
-        BoundingBox searchBox = BoundingBox.fromCorners(minCorner, maxCorner); // TODO: test
-        GlowEntity except = null;
-        return entityManager.getEntitiesInside(searchBox, except);
+        return entityManager.getNearbyEntities(location, x, y, z);
     }
 
     @Override
     public Entity getEntity(UUID uuid) {
-        for (Entity entity : getEntities()) {
-            if (entity.getUniqueId().equals(uuid)) {
-                return entity;
-            }
-        }
-        return null;
+        return entityManager.getEntity(uuid);
     }
 
     @Override
@@ -930,36 +906,25 @@ public class GlowWorld implements World {
 
     @Override
     public List<LivingEntity> getLivingEntities() {
-        return entityManager.getAll().stream().filter(e -> e instanceof GlowLivingEntity)
-            .map(e -> (GlowLivingEntity) e).collect(Collectors.toCollection(LinkedList::new));
+        return entityManager.getLivingEntities();
     }
 
     @Override
     @Deprecated
     @SuppressWarnings("unchecked")
     public <T extends Entity> Collection<T> getEntitiesByClass(Class<T>... classes) {
-        return (Collection<T>) getEntitiesByClasses(classes);
+        return (Collection<T>) entityManager.getEntitiesByClasses(classes);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Entity> Collection<T> getEntitiesByClass(Class<T> cls) {
-        return entityManager.getAll().stream().filter(e -> cls.isAssignableFrom(e.getClass()))
-            .map(e -> (T) e).collect(Collectors.toCollection(ArrayList::new));
+        return entityManager.getEntitiesByClass(cls);
     }
 
     @Override
     public Collection<Entity> getEntitiesByClasses(Class<?>... classes) {
-        ArrayList<Entity> result = new ArrayList<>();
-        for (Entity e : entityManager.getAll()) {
-            for (Class<?> cls : classes) {
-                if (cls.isAssignableFrom(e.getClass())) {
-                    result.add(e);
-                    break;
-                }
-            }
-        }
-        return result;
+        return entityManager.getEntitiesByClasses(classes);
     }
 
     ////////////////////////////////////////////////////////////////////////////
