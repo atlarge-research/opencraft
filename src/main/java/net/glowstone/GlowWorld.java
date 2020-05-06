@@ -569,7 +569,7 @@ public class GlowWorld implements World {
         if (previous.getWorld() == this) {
             for (int x = previousX - radius; x < previousX + radius; x++) {
                 for (int z = previousZ - radius; z < previousZ + radius; z++) {
-                    if (current.getWorld() != this || Math.max(x - currentX, z - currentZ) > radius) {
+                    if (current.getWorld() != this || Math.max(Math.abs(x - currentX), Math.abs(z - currentZ)) > radius) {
 
                         messageBroker.unsubscribe(
                                 GlowChunk.Key.of(x, z),
@@ -586,7 +586,7 @@ public class GlowWorld implements World {
         if (current.getWorld() == this) {
             for (int x = currentX - radius; x < currentX + radius; x++) {
                 for (int z = currentZ - radius; z < currentZ + radius; z++) {
-                    if (previous.getWorld() != this || Math.max(x - previousX, z - previousZ) > radius) {
+                    if (previous.getWorld() != this || Math.max(Math.abs(x - previousX), Math.abs(z - previousZ)) > radius) {
 
                         messageBroker.subscribe(
                                 GlowChunk.Key.of(x, z),
