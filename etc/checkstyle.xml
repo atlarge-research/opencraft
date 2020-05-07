@@ -14,8 +14,14 @@
     <property name="eachLine" value="true"/>
   </module>
 
+  <module name="LineLength">
+    <property name="severity" value="warning"/>
+    <property name="max" value="120"/>
+    <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+  </module>
+
   <module name="TreeWalker">
-    <module name="Indentation"> 
+    <module name="Indentation">
       <property name="basicOffset" value="4"/>
       <property name="braceAdjustment" value="0"/>
       <property name="caseIndent" value="4"/>
@@ -39,11 +45,6 @@
     </module>
 
     <!-- Code -->
-    <module name="LineLength">
-      <property name="severity" value="warning"/>
-      <property name="max" value="120"/>
-      <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
-    </module>
     <module name="OuterTypeFilename"/>
     <module name="OneTopLevelClass"/>
     <module name="NoLineWrap"/>
@@ -106,11 +107,8 @@
       <property name="severity" value="warning"/>
       <property name="scope" value="public"/>
       <property name="allowMissingParamTags" value="true"/>
-      <property name="allowMissingThrowsTags" value="true"/>
       <property name="allowMissingReturnTag" value="true"/>
-      <property name="minLineCount" value="2"/>
       <property name="allowedAnnotations" value="Override, Test"/>
-      <property name="allowThrowsTagsForSubclasses" value="true"/>
     </module>
     <module name="SingleLineJavadoc">
       <property name="severity" value="warning"/>
