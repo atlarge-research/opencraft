@@ -41,7 +41,7 @@ public final class GlowScheduler implements BukkitScheduler {
      * The number of milliseconds between pulses.
      */
     static final int PULSE_EVERY = 50;
-    private static final int MAX_THREADS = Runtime.getRuntime().availableProcessors();
+    private static final int  MAX_THREADS= Runtime.getRuntime().availableProcessors();
     /**
      * The server this scheduler is managing for.
      */

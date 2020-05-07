@@ -1111,8 +1111,13 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         boolean skylight = world.getEnvironment() == Environment.NORMAL;
 
-        newChunks.stream().map(key -> world.getChunkAt(key.getX(), key.getZ()).toMessage(skylight))
-                .forEach(session::send);
+        newChunks.forEach(key -> {
+            session.createTask(key, () -> {
+                GlowChunk chunk = world.getChunkAt(key.getX(), key.getZ());
+                Message message = chunk.toMessage(skylight);
+                session.send(message);
+            });
+        });
 
         // send visible block entity data
         newChunks.stream().flatMap(key -> world.getChunkAt(key.getX(),

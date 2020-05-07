@@ -22,12 +22,16 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
+
+
 import lombok.Getter;
 import lombok.Setter;
 import net.glowstone.EventFactory;
 import net.glowstone.GlowServer;
+import net.glowstone.TaskExecutor;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.entity.meta.profile.GlowPlayerProfile;
@@ -48,6 +52,7 @@ import net.glowstone.net.protocol.LoginProtocol;
 import net.glowstone.net.protocol.PlayProtocol;
 import net.glowstone.net.protocol.ProtocolProvider;
 import net.glowstone.util.UuidUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Statistic;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
@@ -64,17 +69,17 @@ import sun.awt.image.ImageWatched;
 public class GlowSession extends BasicSession {
 
     /**
-     * The comparator for the chunk priority queue.
+     * The comparator to find the closest chunk in the LinkedList.
      */
-    class ChunkComparator implements Comparator<GlowChunk> {
+    class ChunkComparator implements Comparator<Pair<GlowChunk.Key, Runnable>> {
 
         @Override
-        public int compare(GlowChunk a, GlowChunk b) {
-            double dx = 16 * a.getX() + 8 - player.getLocation().getX();
-            double dz = 16 * a.getZ() + 8 - player.getLocation().getZ();
+        public int compare(Pair<GlowChunk.Key, Runnable> a, Pair<GlowChunk.Key, Runnable> b) {
+            double dx = 16 * a.getLeft().getX() + 8 - player.getLocation().getX();
+            double dz = 16 * a.getLeft().getZ() + 8 - player.getLocation().getZ();
             double da = dx * dx + dz * dz;
-            dx = 16 * b.getX() + 8 - player.getLocation().getX();
-            dz = 16 * b.getZ() + 8 - player.getLocation().getZ();
+            dx = 16 * b.getLeft().getX() + 8 - player.getLocation().getX();
+            dz = 16 * b.getLeft().getZ() + 8 - player.getLocation().getZ();
             double db = dx * dx + dz * dz;
             return Double.compare(da, db);
         }
@@ -88,8 +93,9 @@ public class GlowSession extends BasicSession {
     @Getter
     private final GlowServer server;
 
-    @Getter
-    private LinkedList<GlowChunk> linkedList;
+    private List<Pair<GlowChunk.Key, Runnable>> tasks;
+
+    private AtomicBoolean tasksExecuting;
 
     /**
      * The provider of the protocols.
@@ -202,7 +208,8 @@ public class GlowSession extends BasicSession {
         this.server = server;
         this.protocolProvider = protocolProvider;
         this.connectionManager = connectionManager;
-        linkedList = new LinkedList<>();
+        tasks = new LinkedList<>();
+        tasksExecuting = new AtomicBoolean(false);
         address = super.getAddress();
     }
 
@@ -368,6 +375,34 @@ public class GlowSession extends BasicSession {
                 buf.release();
             }
         });
+    }
+
+    /**
+     * Create a new tasks to add to the task list.
+     *
+     * @param key the coordinates of the chunk.
+     * @param task the task to be executed for the chunk.
+     */
+    public void createTask(GlowChunk.Key key, Runnable task) {
+        tasks.add(Pair.of(key, task));
+        if(tasksExecuting.compareAndSet(false, true)) {
+            TaskExecutor.execute(this, task);
+        }
+    }
+
+    /**
+     * Retrieves the next tasks we need from the task list.
+     *
+     * @return next task to be executed.
+     */
+    public Runnable nextTask() {
+        Pair<GlowChunk.Key, Runnable> pair = Collections.min(tasks, new ChunkComparator());
+        if(pair == null) {
+            tasksExecuting.set(false);
+            return null;
+        }
+        tasks.remove(pair);
+        return pair.getRight();
     }
 
     @Override
