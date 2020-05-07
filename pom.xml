@@ -23,6 +23,10 @@
         <powermock.version>2.0.0</powermock.version>
         <junit.jupiter.version>5.6.2</junit.jupiter.version>
         <junit.vintage.version>5.6.2</junit.vintage.version>
+        <checkstyle.max.validations>0</checkstyle.max.validations>
+        <checkstyle.violation.severity>warning</checkstyle.violation.severity>
+        <checkstyle.version>8.29</checkstyle.version>
+        <maven.checkstyle.version>3.1.1</maven.checkstyle.version>
     </properties>
 
     <repositories>
@@ -209,6 +213,24 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- code quality -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${checkstyle.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <configLocation>${project.basedir}/etc/checkstyle.xml</configLocation>
+                    <maxAllowedViolations>${checkstyle.max.validations}</maxAllowedViolations>
+                    <violationSeverity>${checkstyle.violation.severity}</violationSeverity>
+                </configuration>
+            </plugin>
             <!-- builds api signature -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -290,7 +312,7 @@
             <!--  runs test -->
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M4</version>
+                <version>3.0.0-M3</version>
                 <executions>
                     <execution>
                         <id>default-test</id>
@@ -439,11 +461,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.1.1</version>
+                <version>${maven.checkstyle.version}</version>
                 <configuration>
                     <configLocation>${project.basedir}/etc/checkstyle.xml</configLocation>
-                    <maxAllowedViolations>0</maxAllowedViolations>
-                    <violationSeverity>warning</violationSeverity>
+                    <maxAllowedViolations>${checkstyle.max.validations}</maxAllowedViolations>
+                    <violationSeverity>${checkstyle.violation.severity}</violationSeverity>
                 </configuration>
             </plugin>
         </plugins>
