@@ -209,25 +209,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- code quality -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.1.1</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.puppycrawl.tools</groupId>
-                        <artifactId>checkstyle</artifactId>
-                        <version>8.29</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <configLocation>${project.basedir}/etc/checkstyle.xml</configLocation>
-                    <headerLocation>${project.basedir}/LICENSE</headerLocation>
-                    <maxAllowedViolations>0</maxAllowedViolations>
-                    <violationSeverity>warning</violationSeverity>
-                </configuration>
-            </plugin>
             <!-- builds api signature -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -464,7 +445,6 @@
                 <version>3.1.1</version>
                 <configuration>
                     <configLocation>${project.basedir}/etc/checkstyle.xml</configLocation>
-                    <headerLocation>${project.basedir}/LICENSE</headerLocation>
                     <maxAllowedViolations>0</maxAllowedViolations>
                     <violationSeverity>warning</violationSeverity>
                 </configuration>
