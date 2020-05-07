@@ -19,10 +19,10 @@ final class PolicyFactory {
                 return PolicyEpicenter.setPolicy();
             default:
                 System.out.println("Please provide a valid `policy=<policy>` in the policyconfig.txt file located in ./target/config.");
-                System.out.println("Default/fallback policy loaded.");
+                System.exit(0);
         }
 
-        return PolicyDefault.setPolicy();
+        return null;
     }
 
     static private String readFile() {

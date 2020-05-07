@@ -33,11 +33,12 @@ class PolicyEpicenter implements IPolicy {
 
         for (GlowChunk.Key key : dyconits.getKeyDyconitMap().keySet()) {
             Dyconit.Subscription sub = dyconits.retrieveDyconit(key)
-                                                        .subscriptions.get(p);
+                    .subscriptions.get(p);
 
             if (sub == null) { continue; }
 
             sub.stalenessBound = km.getOrDefault(key, 100000);
         }
+
     }
 }
