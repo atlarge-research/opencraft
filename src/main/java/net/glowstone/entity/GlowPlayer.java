@@ -42,7 +42,6 @@ import lombok.Setter;
 import net.glowstone.EventFactory;
 import net.glowstone.GlowOfflinePlayer;
 import net.glowstone.GlowWorld;
-import net.glowstone.GlowWorldBorder;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.ItemTable;
 import net.glowstone.block.blocktype.BlockBed;
@@ -103,7 +102,6 @@ import net.glowstone.net.message.play.game.StatisticMessage;
 import net.glowstone.net.message.play.game.TimeMessage;
 import net.glowstone.net.message.play.game.TitleMessage;
 import net.glowstone.net.message.play.game.TitleMessage.Action;
-import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.game.UpdateSignMessage;
 import net.glowstone.net.message.play.game.UserListHeaderFooterMessage;
@@ -705,7 +703,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         // send initial location
         session.send(new PositionRotationMessage(location));
 
-        session.send(((GlowWorldBorder) world.getWorldBorder()).createMessage());
+        session.send((world.getWorldBorder()).createMessage());
         sendTime();
         setCompassTarget(world.getSpawnLocation()); // set our compass target
 
@@ -1093,54 +1091,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             knownChunks.removeAll(previousChunks);
             previousChunks.clear();
         }
-
-//        // sort chunks by distance from player - closer chunks sent first
-//        newChunks.sort((a, b) -> {
-//            double dx = 16 * a.getX() + 8 - location.getX();
-//            double dz = 16 * a.getZ() + 8 - location.getZ();
-//            double da = dx * dx + dz * dz;
-//            dx = 16 * b.getX() + 8 - location.getX();
-//            dz = 16 * b.getZ() + 8 - location.getZ();
-//            double db = dx * dx + dz * dz;
-//            return Double.compare(da, db);
-//        });
-//
-//        // populate then send chunks to the player
-//        // done in two steps so that all the new chunks are finalized before any of them are sent
-//        // this prevents sending a chunk then immediately sending block changes in it because
-//        // one of its neighbors has populated
-//
-//        // first step: force population then acquire lock on each chunk
-//        newChunks.forEach(newChunk -> {
-//            world.getChunkManager().forcePopulation(newChunk.getX(), newChunk.getZ());
-//            knownChunks.add(newChunk);
-//            chunkLock.acquire(newChunk);
-//        });
-//
-//        boolean skylight = world.getEnvironment() == Environment.NORMAL;
-//
-//        newChunks.forEach(key -> {
-//            session.createTask(key, () -> {
-//                GlowChunk chunk = world.getChunkAt(key.getX(), key.getZ());
-//                Message message = chunk.toMessage(skylight);
-//                session.send(message);
-//            });
-//        });
-//
-//        // send visible block entity data
-//        newChunks.stream().flatMap(key -> world.getChunkAt(key.getX(),
-//                key.getZ()).getRawBlockEntities().stream())
-//                .forEach(entity -> entity.update(this));
-//
-//        // and remove old chunks
-//        if (previousChunks != null) {
-//            previousChunks.forEach(key -> {
-//                session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
-//                knownChunks.remove(key);
-//                chunkLock.release(key);
-//            });
-//            previousChunks.clear();
-//        }
     }
 
     /**
@@ -1190,7 +1140,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         // fire world change if needed
         if (oldWorld != world) {
-            session.send(((GlowWorldBorder) world.getWorldBorder()).createMessage());
+            session.send((world.getWorldBorder()).createMessage());
             EventFactory.getInstance().callEvent(new PlayerChangedWorldEvent(this, oldWorld));
         }
     }

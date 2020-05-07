@@ -116,7 +116,6 @@ public abstract class GlowEntity implements Entity {
     /**
      * The current position.
      */
-    @Getter
     protected final Location location;
     /**
      * The position in the last cycle.

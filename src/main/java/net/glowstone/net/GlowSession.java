@@ -16,22 +16,19 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
 
-
 import lombok.Getter;
 import lombok.Setter;
+
 import net.glowstone.EventFactory;
 import net.glowstone.GlowServer;
-import net.glowstone.TaskExecutor;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.entity.meta.profile.GlowPlayerProfile;
@@ -66,23 +63,6 @@ import org.bukkit.event.player.PlayerLoginEvent.Result;
  * @author Graham Edgecombe
  */
 public class GlowSession extends BasicSession {
-
-    /**
-     * The comparator to find the closest chunk in the LinkedList.
-     */
-    class ChunkComparator implements Comparator<Pair<GlowChunk.Key, Runnable>> {
-
-        @Override
-        public int compare(Pair<GlowChunk.Key, Runnable> a, Pair<GlowChunk.Key, Runnable> b) {
-            double dx = 16 * a.getLeft().getX() + 8 - player.getLocation().getX();
-            double dz = 16 * a.getLeft().getZ() + 8 - player.getLocation().getZ();
-            double da = dx * dx + dz * dz;
-            dx = 16 * b.getLeft().getX() + 8 - player.getLocation().getX();
-            dz = 16 * b.getLeft().getZ() + 8 - player.getLocation().getZ();
-            double db = dx * dx + dz * dz;
-            return Double.compare(da, db);
-        }
-    }
 
     /**
      * The server this session belongs to.
@@ -374,42 +354,6 @@ public class GlowSession extends BasicSession {
                 buf.release();
             }
         });
-    }
-
-    /**
-     * Create a new tasks to add to the task list.
-     *
-     * @param key the coordinates of the chunk.
-     * @param task the task to be executed for the chunk.
-     */
-    public void createTask(GlowChunk.Key key, Runnable task) {
-        tasks.add(Pair.of(key, task));
-        if(tasksExecuting.compareAndSet(false, true)) {
-            TaskExecutor.execute(this, task);
-        }
-    }
-
-    /**
-     * Removes every instance with this key from the list.
-     * @param key the key.
-     */
-    public void cancelTask(GlowChunk.Key key) {
-        tasks.removeIf(pair -> pair.getLeft().equals(key));
-    }
-
-    /**
-     * Retrieves the next tasks we need from the task list.
-     *
-     * @return next task to be executed.
-     */
-    public Runnable nextTask() {
-        Pair<GlowChunk.Key, Runnable> pair = Collections.min(tasks, new ChunkComparator());
-        if(pair == null) {
-            tasksExecuting.set(false);
-            return null;
-        }
-        tasks.remove(pair);
-        return pair.getRight();
     }
 
     @Override

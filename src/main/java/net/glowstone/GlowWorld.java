@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -424,6 +426,8 @@ public class GlowWorld implements World {
 
     private Broker<GlowChunk.Key, UUID, Message> messageBroker;
 
+    private Executor executor;
+
     /**
      * Creates a new world from the options in the given WorldCreator.
      *
@@ -493,6 +497,8 @@ public class GlowWorld implements World {
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
 
         messageBroker = new ConcurrentBroker<>();
+
+        executor = Executors.newCachedThreadPool();
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -592,7 +598,6 @@ public class GlowWorld implements World {
                                 player.getUniqueId()
                         );
 
-//                        session.cancelTask(key);
                         session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
 
                         // TODO: Send entity despawn messages
@@ -605,7 +610,6 @@ public class GlowWorld implements World {
             for (int x = currentX - radius; x <= currentX + radius; x++) {
                 for (int z = currentZ - radius; z <= currentZ + radius; z++) {
                     if (previous.getWorld() != this || Math.abs(x - previousX) > radius || Math.abs(z - previousZ) > radius || force) {
-                        System.out.println("subscribe: " + x + " and " + z);
 
                         GlowChunk.Key key = GlowChunk.Key.of(x, z);
 
@@ -615,24 +619,16 @@ public class GlowWorld implements World {
                                 session::send
                         );
 
-                        // populate then send chunks to the player
-                        // done in two steps so that all the new chunks are finalized before any of them are sent
-                        // this prevents sending a chunk then immediately sending block changes in it because
-                        // one of its neighbors has populated
-                        getChunkManager().forcePopulation(key.getX(), key.getZ());
-//                        player.getChunkLock().acquire(key);
-
-                        boolean skylight = getEnvironment() == Environment.NORMAL;
-
-                        GlowChunk chunk = getChunkAt(key.getX(), key.getZ());
-//                        session.createTask(key, () -> {
+                        executor.execute(() -> {
+                            getChunkManager().forcePopulation(key.getX(), key.getZ());
+                            player.getChunkLock().acquire(key);
+                            boolean skylight = getEnvironment() == Environment.NORMAL;
+                            GlowChunk chunk = getChunkAt(key.getX(), key.getZ());
                             Message message = chunk.toMessage(skylight);
                             session.send(message);
-//                        });
-
-                        // send visible block entity data
-                        chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
-//                        player.getChunkLock().release(key);
+                            chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
+                            player.getChunkLock().release(key);
+                        });
 
                         // TODO: Send entity spawn messages
                     }
