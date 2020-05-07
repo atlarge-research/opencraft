@@ -3,7 +3,6 @@ image: maven:latest
 cache:
   paths:
     - .m2/repository
-    - target/
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
@@ -22,6 +21,10 @@ build:
   stage: build
   script:
     - mvn $MAVEN_CLI_OPTS -Dmaven.clean.skip=true compile
+  artifacts:
+    paths:
+      - target/
+    expire_in: 1 week
 
 test:
   stage: test
