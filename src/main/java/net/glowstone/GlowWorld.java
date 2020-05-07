@@ -581,6 +581,8 @@ public class GlowWorld implements World {
                         );
 
                         // TODO: Send chunk unload message
+                        // TODO: Remove chunks from priorityQueue
+
                         // TODO: Send entity despawn messages
                     }
                 }

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -53,6 +54,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
+import sun.awt.image.ImageWatched;
 
 /**
  * A single connection to the server, which may or may not be associated with a player.
@@ -62,9 +64,9 @@ import org.bukkit.event.player.PlayerLoginEvent.Result;
 public class GlowSession extends BasicSession {
 
     /**
-     * The comperator for the chunk priority queue.
+     * The comparator for the chunk priority queue.
      */
-    class ChunkComperator implements Comparator<GlowChunk> {
+    class ChunkComparator implements Comparator<GlowChunk> {
 
         @Override
         public int compare(GlowChunk a, GlowChunk b) {
@@ -77,6 +79,7 @@ public class GlowSession extends BasicSession {
             return Double.compare(da, db);
         }
     }
+
     /**
      * The server this session belongs to.
      *
@@ -86,7 +89,7 @@ public class GlowSession extends BasicSession {
     private final GlowServer server;
 
     @Getter
-    private PriorityQueue<GlowChunk> queue;
+    private LinkedList<GlowChunk> linkedList;
 
     /**
      * The provider of the protocols.
@@ -199,7 +202,7 @@ public class GlowSession extends BasicSession {
         this.server = server;
         this.protocolProvider = protocolProvider;
         this.connectionManager = connectionManager;
-        queue = new PriorityQueue<>(new ChunkComperator());
+        linkedList = new LinkedList<>();
         address = super.getAddress();
     }
 
