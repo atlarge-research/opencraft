@@ -45,7 +45,7 @@
             <artifactId>yscollector</artifactId>
             <version>0.2</version>
         </dependency>
-        <!-- bukkit api interpreter-->
+        <!-- bukkit api implementation-->
         <dependency>
             <groupId>net.glowstone</groupId>
             <artifactId>glowkit</artifactId>
