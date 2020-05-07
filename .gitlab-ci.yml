@@ -36,7 +36,7 @@ test:
 deploy:
   stage: deploy
   dependencies:
-    -build
+    - build
   script:
     - mvn $MAVEN_CLI_OPTS deploy
   when: manual
