@@ -522,7 +522,7 @@ public class GlowWorld implements World {
         entityManager.getAll().stream()
                 .filter(GlowPlayer.class::isInstance)
                 .map(GlowPlayer.class::cast)
-                .forEach(player -> updateSubscriptions(player, false));
+                .forEach(this::updateSubscriptions);
 
         List<GlowEntity> allEntities = new ArrayList<>(entityManager.getAll());
         List<GlowPlayer> players = new LinkedList<>();
@@ -565,9 +565,9 @@ public class GlowWorld implements World {
      * Update player subscriptions based on their current interest..
      * @param player the player.
      */
-    public void updateSubscriptions(GlowPlayer player, boolean force) {
+    public void updateSubscriptions(GlowPlayer player) {
 
-        // TODO: figure out chunk locking.
+        boolean force = player.hasJoined();
 
         // everything is bit shifted in order to get the chunk value.
         Location previous = player.getPreviousLocation();
@@ -582,7 +582,7 @@ public class GlowWorld implements World {
             return;
         }
 
-        int radius = 2;
+        int radius = Math.min(server.getViewDistance(), player.getViewDistance());
 
         GlowSession session = player.getSession();
 

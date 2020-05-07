@@ -545,7 +545,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     /**
      * If we should force block streaming regardless of chunk difference.
      */
-    private boolean forceStream = false;
+    public boolean forceStream = false;
     /**
      * Current casted fishing hook.
      */
@@ -567,6 +567,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     public GlowFishingHook getCurrentFishingHook() {
         return currentFishingHook.get();
     }
+
+    private boolean joined;
 
     /**
      * Creates a new player and adds it to the world.
@@ -599,6 +601,16 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         recipeMonitor = new PlayerRecipeMonitor(this);
 
         updateBossBars();
+
+        joined = false;
+    }
+
+    /**
+     * Checks whether the player has just joined the server.
+     * @return whether he joined.
+     */
+    public boolean hasJoined() {
+        return joined;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -693,7 +705,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         // save data back out
         saveData();
 
-        world.updateSubscriptions(this, true);
         streamBlocks(); // stream the initial set of blocks
         sendWeather();
         sendRainDensity();
@@ -717,6 +728,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         if (!server.getResourcePackUrl().isEmpty()) {
             setResourcePack(server.getResourcePackUrl(), server.getResourcePackHash());
         }
+
+        joined = true;
     }
 
     @Override
@@ -990,6 +1003,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 setCurrentFishingHook(null);
             }
         }
+
+        joined = false;
     }
 
     @Override
