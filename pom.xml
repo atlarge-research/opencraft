@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.glowstone</groupId>
@@ -13,7 +13,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <api.version>1.12.2-R5.0-SNAPSHOT</api.version>
+    <api.version>1.12.2-R6.0-SNAPSHOT</api.version>
     <minecraft.version>1.12.2</minecraft.version>
     <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <maven.compiler.source>1.8</maven.compiler.source>
@@ -27,24 +27,27 @@
 
   <repositories>
     <repository>
-      <id>glowstone-internal</id>
-      <url>https://repo.glowstone.net/repository/maven-public/</url>
-    </repository>
-    <repository>
-      <id>glowstone-snapshots</id>
-      <url>https://repo.glowstone.net/repository/snapshots/</url>
+      <id>mvn-repo</id>
+      <url>https://atlarge.ewi.tudelft.nl/gitlab/jcuijpers/maven-glowstone-dependencies</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
   </repositories>
 
   <distributionManagement>
     <repository>
-      <id>glowstone-upstream</id>
-      <url>https://repo.glowstone.net/content/repositories/releases/</url>
+      <id>glowstone-internal</id>
+      <url>file://${project.build.directory}/mvn-repo</url>
     </repository>
     <snapshotRepository>
-      <id>glowstone-upstream</id>
-      <url>https://repo.glowstone.net/content/repositories/snapshots/</url>
+      <id>glowstone-snapshots</id>
+      <url>file://${project.build.directory}/mvn-repo2</url>
     </snapshotRepository>
+
   </distributionManagement>
 
   <dependencies>
@@ -138,10 +141,10 @@
     </dependency>
     <!-- Tests -->
     <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.13</version>
-        <scope>test</scope>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.13</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.vintage</groupId>
@@ -343,14 +346,14 @@
         </configuration>
       </plugin>
       <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.1</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
       </plugin>
       <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.1.0</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.1.0</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -359,8 +362,8 @@
       </plugin>
       <plugin>
         <groupId>org.jacoco</groupId>
-	      <artifactId>jacoco-maven-plugin</artifactId>
-	      <version>0.8.5</version>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.8.5</version>
         <configuration>
           <excludes>
             <exclude>META-INF/versions/**</exclude>
