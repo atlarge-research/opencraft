@@ -306,6 +306,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     /**
      * The lock used to prevent chunks from unloading near the player.
      */
+    @Getter
     private ChunkLock chunkLock;
     /**
      * The tracker for changes to the currently open inventory.
@@ -694,6 +695,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         // save data back out
         saveData();
 
+        world.updateSubscriptions(this, true);
         streamBlocks(); // stream the initial set of blocks
         sendWeather();
         sendRainDensity();
@@ -1086,53 +1088,59 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         prevCentralX = centralX;
         prevCentralZ = centralZ;
 
-        // sort chunks by distance from player - closer chunks sent first
-        newChunks.sort((a, b) -> {
-            double dx = 16 * a.getX() + 8 - location.getX();
-            double dz = 16 * a.getZ() + 8 - location.getZ();
-            double da = dx * dx + dz * dz;
-            dx = 16 * b.getX() + 8 - location.getX();
-            dz = 16 * b.getZ() + 8 - location.getZ();
-            double db = dx * dx + dz * dz;
-            return Double.compare(da, db);
-        });
-
-        // populate then send chunks to the player
-        // done in two steps so that all the new chunks are finalized before any of them are sent
-        // this prevents sending a chunk then immediately sending block changes in it because
-        // one of its neighbors has populated
-
-        // first step: force population then acquire lock on each chunk
-        newChunks.forEach(newChunk -> {
-            world.getChunkManager().forcePopulation(newChunk.getX(), newChunk.getZ());
-            knownChunks.add(newChunk);
-            chunkLock.acquire(newChunk);
-        });
-
-        boolean skylight = world.getEnvironment() == Environment.NORMAL;
-
-        newChunks.forEach(key -> {
-            session.createTask(key, () -> {
-                GlowChunk chunk = world.getChunkAt(key.getX(), key.getZ());
-                Message message = chunk.toMessage(skylight);
-                session.send(message);
-            });
-        });
-
-        // send visible block entity data
-        newChunks.stream().flatMap(key -> world.getChunkAt(key.getX(),
-                key.getZ()).getRawBlockEntities().stream())
-                .forEach(entity -> entity.update(this));
-
-        // and remove old chunks
+        knownChunks.addAll(newChunks);
         if (previousChunks != null) {
-            previousChunks.forEach(key -> {
-                session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
-                knownChunks.remove(key);
-                chunkLock.release(key);
-            });
+            knownChunks.removeAll(previousChunks);
             previousChunks.clear();
         }
+
+//        // sort chunks by distance from player - closer chunks sent first
+//        newChunks.sort((a, b) -> {
+//            double dx = 16 * a.getX() + 8 - location.getX();
+//            double dz = 16 * a.getZ() + 8 - location.getZ();
+//            double da = dx * dx + dz * dz;
+//            dx = 16 * b.getX() + 8 - location.getX();
+//            dz = 16 * b.getZ() + 8 - location.getZ();
+//            double db = dx * dx + dz * dz;
+//            return Double.compare(da, db);
+//        });
+//
+//        // populate then send chunks to the player
+//        // done in two steps so that all the new chunks are finalized before any of them are sent
+//        // this prevents sending a chunk then immediately sending block changes in it because
+//        // one of its neighbors has populated
+//
+//        // first step: force population then acquire lock on each chunk
+//        newChunks.forEach(newChunk -> {
+//            world.getChunkManager().forcePopulation(newChunk.getX(), newChunk.getZ());
+//            knownChunks.add(newChunk);
+//            chunkLock.acquire(newChunk);
+//        });
+//
+//        boolean skylight = world.getEnvironment() == Environment.NORMAL;
+//
+//        newChunks.forEach(key -> {
+//            session.createTask(key, () -> {
+//                GlowChunk chunk = world.getChunkAt(key.getX(), key.getZ());
+//                Message message = chunk.toMessage(skylight);
+//                session.send(message);
+//            });
+//        });
+//
+//        // send visible block entity data
+//        newChunks.stream().flatMap(key -> world.getChunkAt(key.getX(),
+//                key.getZ()).getRawBlockEntities().stream())
+//                .forEach(entity -> entity.update(this));
+//
+//        // and remove old chunks
+//        if (previousChunks != null) {
+//            previousChunks.forEach(key -> {
+//                session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
+//                knownChunks.remove(key);
+//                chunkLock.release(key);
+//            });
+//            previousChunks.clear();
+//        }
     }
 
     /**

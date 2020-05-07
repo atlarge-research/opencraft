@@ -57,8 +57,10 @@ import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
 import net.glowstone.messaging.Broker;
 import net.glowstone.messaging.concurrent.ConcurrentBroker;
+import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
+import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
 import net.glowstone.util.BlockStateDelegate;
 import net.glowstone.util.GameRuleManager;
@@ -514,7 +516,7 @@ public class GlowWorld implements World {
         entityManager.getAll().stream()
                 .filter(GlowPlayer.class::isInstance)
                 .map(GlowPlayer.class::cast)
-                .forEach(this::updateSubscriptions);
+                .forEach(player -> updateSubscriptions(player, false));
 
         List<GlowEntity> allEntities = new ArrayList<>(entityManager.getAll());
         List<GlowPlayer> players = new LinkedList<>();
@@ -557,7 +559,9 @@ public class GlowWorld implements World {
      * Update player subscriptions based on their current interest..
      * @param player the player.
      */
-    private void updateSubscriptions(GlowPlayer player) {
+    public void updateSubscriptions(GlowPlayer player, boolean force) {
+
+        // TODO: figure out chunk locking.
 
         // everything is bit shifted in order to get the chunk value.
         Location previous = player.getPreviousLocation();
@@ -568,20 +572,28 @@ public class GlowWorld implements World {
         int currentX = current.getBlockX() >> 4;
         int currentZ = current.getBlockZ() >> 4;
 
-        int radius = server.getViewDistance();
+        if (previousX == currentX && previousZ == currentZ && !force) {
+            return;
+        }
 
-        if (previous.getWorld() == this) {
-            for (int x = previousX - radius; x < previousX + radius; x++) {
-                for (int z = previousZ - radius; z < previousZ + radius; z++) {
-                    if (current.getWorld() != this || Math.max(Math.abs(x - currentX), Math.abs(z - currentZ)) > radius) {
+        int radius = 2;
+
+        GlowSession session = player.getSession();
+
+        if (previous.getWorld() == this && !force) {
+            for (int x = previousX - radius; x <= previousX + radius; x++) {
+                for (int z = previousZ - radius; z <= previousZ + radius; z++) {
+                    if (current.getWorld() != this || Math.abs(x - currentX) > radius || Math.abs(z - currentZ) > radius) {
+
+                        GlowChunk.Key key = GlowChunk.Key.of(x, z);
 
                         messageBroker.unsubscribe(
-                                GlowChunk.Key.of(x, z),
+                                key,
                                 player.getUniqueId()
                         );
 
-                        // TODO: Send chunk unload message
-                        // TODO: Remove chunks from priorityQueue
+//                        session.cancelTask(key);
+                        session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
 
                         // TODO: Send entity despawn messages
                     }
@@ -590,21 +602,37 @@ public class GlowWorld implements World {
         }
 
         if (current.getWorld() == this) {
-            for (int x = currentX - radius; x < currentX + radius; x++) {
-                for (int z = currentZ - radius; z < currentZ + radius; z++) {
-                    if (previous.getWorld() != this || Math.max(Math.abs(x - previousX), Math.abs(z - previousZ)) > radius) {
+            for (int x = currentX - radius; x <= currentX + radius; x++) {
+                for (int z = currentZ - radius; z <= currentZ + radius; z++) {
+                    if (previous.getWorld() != this || Math.abs(x - previousX) > radius || Math.abs(z - previousZ) > radius || force) {
+                        System.out.println("subscribe: " + x + " and " + z);
+
+                        GlowChunk.Key key = GlowChunk.Key.of(x, z);
 
                         messageBroker.subscribe(
-                                GlowChunk.Key.of(x, z),
+                                key,
                                 player.getUniqueId(),
-                                player.getSession()::send
+                                session::send
                         );
 
-                        // TODO: Send chunk load message
-                        // TODO: Stream chunk data.
-                        //  Doing so effectively requires temporarily storing these chunks in a list and sorting them, or
-                        //  sending them via a priority queue that keeps in mind the current location of the player. Take a
-                        //  look at the streamBlocks method in GlowPlayer to see how its solved there.
+                        // populate then send chunks to the player
+                        // done in two steps so that all the new chunks are finalized before any of them are sent
+                        // this prevents sending a chunk then immediately sending block changes in it because
+                        // one of its neighbors has populated
+                        getChunkManager().forcePopulation(key.getX(), key.getZ());
+//                        player.getChunkLock().acquire(key);
+
+                        boolean skylight = getEnvironment() == Environment.NORMAL;
+
+                        GlowChunk chunk = getChunkAt(key.getX(), key.getZ());
+//                        session.createTask(key, () -> {
+                            Message message = chunk.toMessage(skylight);
+                            session.send(message);
+//                        });
+
+                        // send visible block entity data
+                        chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
+//                        player.getChunkLock().release(key);
 
                         // TODO: Send entity spawn messages
                     }

@@ -59,7 +59,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
-import sun.awt.image.ImageWatched;
 
 /**
  * A single connection to the server, which may or may not be associated with a player.
@@ -388,6 +387,14 @@ public class GlowSession extends BasicSession {
         if(tasksExecuting.compareAndSet(false, true)) {
             TaskExecutor.execute(this, task);
         }
+    }
+
+    /**
+     * Removes every instance with this key from the list.
+     * @param key the key.
+     */
+    public void cancelTask(GlowChunk.Key key) {
+        tasks.removeIf(pair -> pair.getLeft().equals(key));
     }
 
     /**
