@@ -20,7 +20,7 @@ stages:
 build:
   stage: build
   script:
-    - mvn $MAVEN_CLI_OPTS compile
+    - mvn $MAVEN_CLI_OPTS -Dmaven.clean.skip=true compile
 
 test:
   stage: test
