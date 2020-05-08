@@ -520,6 +520,11 @@ public class GlowWorld implements World {
      */
     public void pulse() {
 
+        entityManager.getAll().stream()
+                .filter(GlowPlayer.class::isInstance)
+                .map(GlowPlayer.class::cast)
+                .forEach(this::updateSubscriptions);
+
         List<GlowEntity> allEntities = new ArrayList<>(entityManager.getAll());
         List<GlowPlayer> players = new LinkedList<>();
 
@@ -543,11 +548,6 @@ public class GlowWorld implements World {
         updateBlocksInActiveChunks();
         // why update blocks before Players or Entities? if there is a specific reason we should
         // document it here.
-
-        entityManager.getAll().stream()
-                .filter(GlowPlayer.class::isInstance)
-                .map(GlowPlayer.class::cast)
-                .forEach(this::updateSubscriptions);
 
         pulsePlayers(players);
         resetEntities(allEntities);
