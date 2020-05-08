@@ -21,6 +21,7 @@ lint:
   stage: lintandbuild
   script:
     - mvn $MAVEN_CLI_OPTS checkstyle:check
+  allow_failure: true
 
 build:
   stage: lintandbuild
