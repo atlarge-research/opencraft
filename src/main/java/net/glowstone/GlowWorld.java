@@ -572,7 +572,8 @@ public class GlowWorld implements World {
         if (previous.getWorld() == this) {
             for (int x = previousX - radius; x < previousX + radius; x++) {
                 for (int z = previousZ - radius; z < previousZ + radius; z++) {
-                    if (current.getWorld() != this || Math.max(Math.abs(x - currentX), Math.abs(z - currentZ)) > radius) {
+                    if (current.getWorld() != this
+                            || Math.max(Math.abs(x - currentX), Math.abs(z - currentZ)) > radius) {
 
                         messageBroker.unsubscribe(
                                 GlowChunk.Key.of(x, z),
@@ -589,7 +590,8 @@ public class GlowWorld implements World {
         if (current.getWorld() == this) {
             for (int x = currentX - radius; x < currentX + radius; x++) {
                 for (int z = currentZ - radius; z < currentZ + radius; z++) {
-                    if (previous.getWorld() != this || Math.max(Math.abs(x - previousX), Math.abs(z - previousZ)) > radius) {
+                    if (previous.getWorld() != this
+                            || Math.max(Math.abs(x - previousX), Math.abs(z - previousZ)) > radius) {
 
                         messageBroker.subscribe(
                                 GlowChunk.Key.of(x, z),
@@ -599,9 +601,9 @@ public class GlowWorld implements World {
 
                         // TODO: Send chunk load message
                         // TODO: Stream chunk data.
-                        //  Doing so effectively requires temporarily storing these chunks in a list and sorting them, or
-                        //  sending them via a priority queue that keeps in mind the current location of the player. Take a
-                        //  look at the streamBlocks method in GlowPlayer to see how its solved there.
+                        //  Doing so effectively requires temporarily storing these chunks in a list and sorting them,
+                        //  or sending them via a priority queue that keeps in mind the current location of the player.
+                        //  Take a look at the streamBlocks method in GlowPlayer to see how its solved there.
 
                         // TODO: Send entity spawn messages
                     }
