@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
@@ -561,8 +562,7 @@ public class GlowWorld implements World {
         saveWorld();
     }
 
-    // TODO: Move to player
-    Location previous = null;
+    private final Map<GlowPlayer, Location> previousLocations = new WeakHashMap<>();
 
     /**
      * Update player subscriptions based on their current interest..
@@ -570,23 +570,24 @@ public class GlowWorld implements World {
      */
     public void updateSubscriptions(GlowPlayer player) {
 
-        boolean force = false;
+
+        Location current = player.getLocation();
+        Location previous = previousLocations.get(player);
+        boolean first = false;
 
         if (previous == null) {
             previous = player.getLocation();
-            force = true;
+            first = true;
         }
 
-        // everything is bit shifted in order to get the chunk value.
-        int previousX = previous.getBlockX() >> 4;
-        int previousZ = previous.getBlockZ() >> 4;
-
-        Location current = player.getLocation();
         int currentX = current.getBlockX() >> 4;
         int currentZ = current.getBlockZ() >> 4;
 
-        if (previousX == currentX && previousZ == currentZ && !force) {
-            // TODO: Skip this test if view distance changed.
+        int previousX = previous.getBlockX() >> 4;
+        int previousZ = previous.getBlockZ() >> 4;
+
+        // TODO: Skip this test if view distance changed.
+        if (!first && previousX == currentX && previousZ == currentZ) {
             return;
         }
 
@@ -594,7 +595,7 @@ public class GlowWorld implements World {
 
         GlowSession session = player.getSession();
 
-        if (previous.getWorld() == this && !force) {
+        if (!first && previous.getWorld() == this) {
             for (int x = previousX - radius; x <= previousX + radius; x++) {
                 for (int z = previousZ - radius; z <= previousZ + radius; z++) {
                     if (current.getWorld() != this
@@ -623,7 +624,7 @@ public class GlowWorld implements World {
                     if (previous.getWorld() != this
                             || Math.abs(x - previousX) > radius
                             || Math.abs(z - previousZ) > radius
-                            || force) {
+                            || first) {
 
                         GlowChunk.Key key = GlowChunk.Key.of(x, z);
 
@@ -651,7 +652,7 @@ public class GlowWorld implements World {
             }
         }
 
-        previous = current;
+        previousLocations.put(player, current);
     }
 
     private void updateActiveChunkCollection(GlowEntity entity) {
