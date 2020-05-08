@@ -17,9 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -519,11 +517,6 @@ public class GlowWorld implements World {
      */
     public void pulse() {
 
-        entityManager.getAll().stream()
-                .filter(GlowPlayer.class::isInstance)
-                .map(GlowPlayer.class::cast)
-                .forEach(this::updateSubscriptions);
-
         List<GlowEntity> allEntities = new ArrayList<>(entityManager.getAll());
         List<GlowPlayer> players = new LinkedList<>();
 
@@ -548,6 +541,11 @@ public class GlowWorld implements World {
         // why update blocks before Players or Entities? if there is a specific reason we should
         // document it here.
 
+        entityManager.getAll().stream()
+                .filter(GlowPlayer.class::isInstance)
+                .map(GlowPlayer.class::cast)
+                .forEach(this::updateSubscriptions);
+
         pulsePlayers(players);
         resetEntities(allEntities);
         worldBorder.pulse();
@@ -561,16 +559,23 @@ public class GlowWorld implements World {
         saveWorld();
     }
 
+    // TODO: Move to player
+    Location previous = null;
+
     /**
      * Update player subscriptions based on their current interest..
      * @param player the player.
      */
     public void updateSubscriptions(GlowPlayer player) {
 
-        boolean force = player.hasJoined();
+        boolean force = false;
+
+        if (previous == null) {
+            previous = player.getLocation();
+            force = true;
+        }
 
         // everything is bit shifted in order to get the chunk value.
-        Location previous = player.getPreviousLocation();
         int previousX = previous.getBlockX() >> 4;
         int previousZ = previous.getBlockZ() >> 4;
 
@@ -579,10 +584,11 @@ public class GlowWorld implements World {
         int currentZ = current.getBlockZ() >> 4;
 
         if (previousX == currentX && previousZ == currentZ && !force) {
+            // TODO: Skip this test if view distance changed.
             return;
         }
 
-        int radius = Math.min(server.getViewDistance(), player.getViewDistance());
+        int radius = Math.min(server.getViewDistance(), 1 + player.getViewDistance());
 
         GlowSession session = player.getSession();
 
@@ -599,6 +605,7 @@ public class GlowWorld implements World {
                         );
 
                         session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
+                        player.getChunkLock().release(key);
 
                         // TODO: Send entity despawn messages
                     }
@@ -619,15 +626,16 @@ public class GlowWorld implements World {
                                 session::send
                         );
 
+                        getChunkManager().forcePopulation(key.getX(), key.getZ());
+                        player.getChunkLock().acquire(key);
+
+                        boolean skylight = getEnvironment() == Environment.NORMAL;
+
                         executor.execute(() -> {
-                            getChunkManager().forcePopulation(key.getX(), key.getZ());
-                            player.getChunkLock().acquire(key);
-                            boolean skylight = getEnvironment() == Environment.NORMAL;
                             GlowChunk chunk = getChunkAt(key.getX(), key.getZ());
                             Message message = chunk.toMessage(skylight);
                             session.send(message);
                             chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
-                            player.getChunkLock().release(key);
                         });
 
                         // TODO: Send entity spawn messages
@@ -635,6 +643,8 @@ public class GlowWorld implements World {
                 }
             }
         }
+
+        previous = current;
     }
 
     private void updateActiveChunkCollection(GlowEntity entity) {
