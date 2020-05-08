@@ -13,18 +13,18 @@ workflow:
     - if: $CI_MERGE_REQUEST_ID
 
 stages:
-  - lintandbuild
-  - test
+  - static_analysis
+  - build
+  - verify
   - deploy
 
 lint:
-  stage: lintandbuild
+  stage: static_analysis
   script:
     - mvn $MAVEN_CLI_OPTS checkstyle:check
-  allow_failure: true
 
 build:
-  stage: lintandbuild
+  stage: build
   script:
     - mvn $MAVEN_CLI_OPTS -Dmaven.clean.skip=true compile
   artifacts:
@@ -33,7 +33,7 @@ build:
     expire_in: 1h
 
 verify:
-  stage: test
+  stage: verify
   dependencies:
     - build
   script:
