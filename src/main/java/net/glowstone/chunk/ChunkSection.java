@@ -21,22 +21,27 @@ public final class ChunkSection {
      * for it.
      */
     public static final int ARRAY_SIZE = GlowChunk.WIDTH * GlowChunk.HEIGHT * GlowChunk.SEC_DEPTH;
+
     /**
      * Block light level to use for empty chunk sections.
      */
     public static final byte EMPTY_BLOCK_LIGHT = 0;
+
     /**
      * Sky light level to use for empty chunk sections.
      */
     public static final byte EMPTY_SKYLIGHT = 0;
+
     /**
      * The default value for block light, used on new chunk sections.
      */
     public static final byte DEFAULT_BLOCK_LIGHT = 0;
+
     /**
      * The default value for sky light, used on new chunk sections.
      */
     public static final byte DEFAULT_SKYLIGHT = 0xF;
+
     /**
      * The number of bits per block used in the global palette.
      */
@@ -48,6 +53,7 @@ public final class ChunkSection {
     @Nullable
     private IntList palette;
     private VariableValueArray data;
+
     /**
      * The sky light array. This array is always set, even in dimensions without skylight.
      *
@@ -56,11 +62,13 @@ public final class ChunkSection {
      */
     @Getter
     private NibbleArray skyLight;
+
     /**
      * The block light array.
      */
     @Getter
     private NibbleArray blockLight;
+
     /**
      * The number of non-air blocks in this section, used to determine whether it is empty.
      */

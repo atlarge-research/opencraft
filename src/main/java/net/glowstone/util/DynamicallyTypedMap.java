@@ -7,6 +7,7 @@ package net.glowstone.util;
  */
 // TODO: Extend Map<K, Object>?
 public interface DynamicallyTypedMap<K> {
+
     /**
      * Retrieves an entry as a {@link String}.
      *

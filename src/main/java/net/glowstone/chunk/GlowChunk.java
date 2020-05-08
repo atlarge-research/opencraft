@@ -46,45 +46,55 @@ public class GlowChunk implements Chunk {
      * The width of a chunk (x axis).
      */
     public static final int WIDTH = 16;
+
     /**
      * The height of a chunk (z axis).
      */
     public static final int HEIGHT = 16;
+
     /**
      * The depth of a chunk (y axis).
      */
     public static final int DEPTH = 256;
+
     /**
      * The Y depth of a single chunk section.
      */
     public static final int SEC_DEPTH = 16;
+
     /**
      * The number of chunk sections in a single chunk column.
      */
     public static final int SEC_COUNT = DEPTH / SEC_DEPTH;
+
     /**
      * The world of this chunk.
      */
     @Getter
     private final GlowWorld world;
+
     /**
      * The x-coordinate of this chunk.
      */
     @Getter
     private final int x;
+
     /**
      * The z-coordinate of this chunk.
      */
     @Getter
     private final int z;
+
     /**
      * The block entities that reside in this chunk.
      */
     private final HashMap<Integer, BlockEntity> blockEntities = new HashMap<>();
+
     /**
      * The entities that reside in this chunk.
      */
     private final Set<GlowEntity> entities = ConcurrentHashMap.newKeySet(4);
+
     /**
      * The array of chunk sections this chunk contains, or null if it is unloaded.
      *
@@ -92,15 +102,18 @@ public class GlowChunk implements Chunk {
      */
     @Getter
     private ChunkSection[] sections;
+
     /**
      * The array of biomes this chunk contains, or null if it is unloaded.
      */
     private byte[] biomes;
+
     /**
      * The height map values values of each column, or null if it is unloaded. The height for a
      * column is one plus the y-index of the highest non-air block in the column.
      */
     private byte[] heightMap;
+
     /**
      * Whether the chunk has been populated by special features. Used in map generation.
      *
@@ -879,10 +892,12 @@ public class GlowChunk implements Chunk {
          * The x-coordinate.
          */
         private final int x;
+
         /**
          * The z-coordinate.
          */
         private final int z;
+
         /**
          * A pre-computed hash code based on the coordinates.
          */

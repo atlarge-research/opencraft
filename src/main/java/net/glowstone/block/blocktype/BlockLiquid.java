@@ -29,6 +29,7 @@ public abstract class BlockLiquid extends BlockType {
 
     private static final int TICK_RATE_WATER = 4;
     private static final int TICK_RATE_LAVA = 20;
+
     /**
      * Get the bucket type to replace the empty bucket when the liquid has been collected.
      *

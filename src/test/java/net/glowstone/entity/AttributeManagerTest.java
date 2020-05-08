@@ -16,6 +16,7 @@ public class AttributeManagerTest {
     private static final double DELTA = 0.001;
 
     public static class KeyTest {
+
         /**
          * Require that there is a corresponding key for each Attribute.
          * This test will fail if new attributes are introduced to the bukkit api.

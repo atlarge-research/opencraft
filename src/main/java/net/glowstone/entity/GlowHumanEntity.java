@@ -75,26 +75,31 @@ public abstract class GlowHumanEntity extends GlowLivingEntity implements HumanE
      */
     @Getter
     private final GlowInventory enderChest = new GlowInventory(this, InventoryType.ENDER_CHEST);
+
     /**
      * Whether this human is sleeping or not.
      */
     @Getter
     protected boolean sleeping;
+
     /**
      * This human's PermissibleBase for permissions.
      */
     protected PermissibleBase permissions;
+
     /**
      * The item the player has on their cursor.
      */
     @Getter
     @Setter
     private ItemStack itemOnCursor;
+
     /**
      * How long this human has been sleeping.
      */
     @Getter
     private int sleepTicks;
+
     /**
      * Whether this human is considered an op.
      */

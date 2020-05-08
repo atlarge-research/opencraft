@@ -50,6 +50,7 @@ public class GlowBlock implements Block {
     private static final BlockFace[] ADJACENT = new BlockFace[]{
         BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP,
         BlockFace.DOWN};
+
     /**
      * The metadata store for blocks.
      */

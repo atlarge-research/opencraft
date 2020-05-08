@@ -188,6 +188,7 @@ public class Library implements Comparable<Library> {
     // The fields the following getters represent were moved from this class to the LibraryKey
     // class. These methods are being preserved here for compatibiltiy with old code as well as
     // ease of use.
+
     /**
      * Returns the group ID of this library.
      */

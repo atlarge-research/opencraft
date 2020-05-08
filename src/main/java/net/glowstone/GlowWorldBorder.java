@@ -14,6 +14,7 @@ public class GlowWorldBorder implements WorldBorder {
     private final World world;
     @Getter
     private double size;
+
     /**
      * The target side length the world border is being resized to, in blocks.
      *
@@ -34,6 +35,7 @@ public class GlowWorldBorder implements WorldBorder {
     private int warningTime;
     @Getter
     private int warningDistance;
+
     /**
      * The delay in ticks until the world border's sides should reach the target length.
      *

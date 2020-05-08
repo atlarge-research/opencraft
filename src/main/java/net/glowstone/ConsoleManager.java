@@ -56,6 +56,7 @@ public final class ConsoleManager {
     private final ChatColor[] colors = ChatColor.values();
 
     private ConsoleReader reader;
+
     /**
      * Returns this ConsoleManager's console as a ConsoleCommandSender.
      *

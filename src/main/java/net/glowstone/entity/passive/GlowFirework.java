@@ -37,6 +37,7 @@ public class GlowFirework extends GlowEntity implements Firework, Summonable {
     private UUID spawningEntity;
     @Getter
     private LivingEntity boostedEntity;
+
     /**
      * The number of ticks before this fireworks rocket explodes.
      */

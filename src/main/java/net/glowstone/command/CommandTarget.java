@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NonNls;
 public class CommandTarget {
 
     private final CommandSender sender;
+
     /**
      * The type of selector (target).
      *
@@ -296,6 +297,7 @@ public class CommandTarget {
         /** The value of the argument. */
         @Getter
         private String value;
+
         /** Whether the argument is inverted (functionality should be done in reverse). */
         @Getter
         private boolean inverted = false;

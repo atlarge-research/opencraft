@@ -122,40 +122,48 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
     @Getter
     @Setter
     private boolean collidable = true;
+
     /**
      * The number of arrows stuck inside this entity.
      */
     @Getter
     @Setter
     private int arrowsStuck = 0;
+
     /**
      * The entity's AI task manager.
      */
     @Getter
     protected final TaskManager taskManager;
+
     /**
      * Potion effects on the entity.
      */
     private final Map<PotionEffectType, PotionEffect> potionEffects = new ConcurrentHashMap<>();
+
     /**
      * The LivingEntity's AttributeManager.
      */
     @Getter
     private final AttributeManager attributeManager;
+
     /**
      * The entity's health.
      */
     @Getter
     protected double health;
+
     /**
      * The entity's max health.
      */
     protected double maxHealth;
+
     /**
      * The LivingEntity's number of ticks since death.
      */
     @Getter
     protected int deathTicks;
+
     /**
      * <p>The entity's movement as a unit vector, applied each tick according to the entity's speed.
      * </p><p>
@@ -165,55 +173,65 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
     @Getter
     @Setter
     protected Vector movement = new Vector();
+
     /**
      * The speed multiplier of the entity.
      */
     @Getter
     @Setter
     protected double speed = 1;
+
     /**
      * The magnitude of the last damage the entity took.
      */
     @Getter
     @Setter
     private double lastDamage;
+
     /**
      * How long the entity has until it runs out of air.
      */
     @Getter
     private int remainingAir = 300;
+
     /**
      * The maximum amount of air the entity can hold.
      */
     @Getter
     private int maximumAir = 300;
+
     /**
      * The number of ticks remaining in the invincibility period.
      */
     @Getter
     @Setter
     private int noDamageTicks;
+
     /**
      * The default length of the invincibility period.
      */
     @Getter
     @Setter
     private int maximumNoDamageTicks = 10;
+
     /**
      * Whether the entity should be removed if it is too distant from players.
      */
     @Setter
     private boolean removeWhenFarAway;
+
     /**
      * Whether the (non-Player) entity can pick up armor and tools.
      */
     @Setter
     private boolean canPickupItems;
+
     /**
      * Monitor for the equipment of this entity.
      */
     @Getter
     private EquipmentMonitor equipmentMonitor = new EquipmentMonitor(this);
+
     /**
      * Whether the entity can automatically glide when falling with an Elytra equipped. This value
      * is ignored for players.
@@ -221,38 +239,46 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
     @Getter
     @Setter
     private boolean fallFlying;
+
     /**
      * Ticks until the next ambient sound roll.
      */
     private int nextAmbientTime = 1;
+
     /**
      * The last entity which damaged this living entity.
      */
     @Getter
     @Setter
     private Entity lastDamager;
+
     /**
      * The head rotation of the living entity, if applicable.
      */
     @Getter
     private float headYaw;
+
     /**
      * Whether the headYaw value should be updated.
      */
     private boolean headRotated;
+
     /**
      * The entity's current AI state.
      */
     @Getter
     private MobState state = MobState.NO_AI;
+
     /**
      * If this entity has swam in lava (for fire application).
      */
     private boolean swamInLava;
+
     /**
      * If this entity has stood in fire (for fire application).
      */
     private boolean stoodInFire;
+
     /**
      * The ticks an entity stands adjacent to fire and lava.
      */
