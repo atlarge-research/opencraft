@@ -26,6 +26,7 @@ import net.glowstone.block.blocktype.BlockType;
 import net.glowstone.block.entity.BlockEntity;
 import net.glowstone.entity.GlowEntity;
 import net.glowstone.net.message.play.game.ChunkDataMessage;
+import net.glowstone.util.Coordinates;
 import net.glowstone.util.TickUtil;
 import net.glowstone.util.nbt.CompoundTag;
 import org.bukkit.Chunk;
@@ -875,6 +876,19 @@ public class GlowChunk implements Chunk {
 
     public void addTick() {
         inhabitedTime++;
+    }
+
+    /**
+     * Get the coordinates of the center chunk.
+     *
+     * @return The x and z coordinates at the center of the chunk.
+     */
+    public Coordinates getCenterCoordinates() {
+        // Multiply by 16 and add 8 to get the center of the chunk.
+        final int x = (this.x << 4) + 8;
+        final int z = (this.z << 4) + 8;
+
+        return new Coordinates(x, z);
     }
 
     /**

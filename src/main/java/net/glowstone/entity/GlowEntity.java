@@ -43,6 +43,7 @@ import net.glowstone.net.message.play.entity.RelativeEntityPositionMessage;
 import net.glowstone.net.message.play.entity.RelativeEntityPositionRotationMessage;
 import net.glowstone.net.message.play.entity.SetPassengerMessage;
 import net.glowstone.net.message.play.player.InteractEntityMessage;
+import net.glowstone.util.Coordinates;
 import net.glowstone.util.Position;
 import net.glowstone.util.UuidUtils;
 import org.bukkit.Chunk;
@@ -1662,6 +1663,15 @@ public abstract class GlowEntity implements Entity {
             return;
         }
         this.leashHolderUniqueId = uniqueId;
+    }
+
+    /**
+     * Get the coordinates of the entity.
+     *
+     * @return The x and z coordinates of the entity.
+     */
+    public Coordinates getCoordinates() {
+        return new Coordinates(location.getX(), location.getZ());
     }
 
     /**
