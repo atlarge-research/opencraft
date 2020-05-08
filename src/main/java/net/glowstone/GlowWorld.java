@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.flowpowered.network.Message;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -602,8 +600,9 @@ public class GlowWorld implements World {
                         // TODO: Send chunk load message
                         // TODO: Stream chunk data.
                         //  Doing so effectively requires temporarily storing these chunks in a list and sorting them,
-                        //  or sending them via a priority queue that keeps in mind the current location of the player.
-                        //  Take a look at the streamBlocks method in GlowPlayer to see how its solved there.
+                        // or sending them via a priority queue that keeps in mind the current location of the player.
+                        // Take a look at the streamBlocks method in GlowPlayer to see how its solved there.
+
 
                         // TODO: Send entity spawn messages
                     }
