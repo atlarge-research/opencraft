@@ -118,11 +118,6 @@
 
     <!-- Imports -->
     <module name="AvoidStarImport"/>
-    <module name="CustomImportOrder">
-      <property name="sortImportsInGroupAlphabetically" value="true"/>
-      <property name="separateLineBetweenGroups" value="true"/>
-      <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
-    </module>
     <module name="RedundantImport"/>
     <module name="UnusedImports"/>
     <module name="IllegalImport">
@@ -140,13 +135,13 @@
     <module name="RightCurly">
       <property name="id" value="RightCurlySame"/>
       <property name="tokens"
-        value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_DO"/>
+        value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_DO"/>
     </module>
     <module name="RightCurly">
       <property name="id" value="RightCurlyAlone"/>
       <property name="option" value="alone"/>
       <property name="tokens"
-        value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT, INSTANCE_INIT"/>
+        value="LITERAL_FOR, LITERAL_WHILE, STATIC_INIT, INSTANCE_INIT"/>
     </module>
     <module name="EmptyCatchBlock">
       <property name="exceptionVariableName" value="expected"/>

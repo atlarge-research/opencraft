@@ -603,6 +603,7 @@ public class GlowWorld implements World {
                         // or sending them via a priority queue that keeps in mind the current location of the player.
                         // Take a look at the streamBlocks method in GlowPlayer to see how its solved there.
 
+
                         // TODO: Send entity spawn messages
                     }
                 }
