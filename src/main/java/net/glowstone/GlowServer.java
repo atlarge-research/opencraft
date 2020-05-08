@@ -436,6 +436,17 @@ public class GlowServer implements Server {
     );
 
     /**
+     * Whether the server should just generate and load configuration files, then exit.
+     * This can be enabled by using the --generate-config launch argument.
+     *
+     * <p>Getter for this value.</p>
+     * @return boolean getGenerateConfigOnly.
+     */
+    public static boolean getGenerateConfigOnly() {
+        return generateConfigOnly;
+    }
+
+    /**
      * Creates a new server.
      *
      * @param config This server's config.
@@ -466,34 +477,6 @@ public class GlowServer implements Server {
         ipBans = new GlowBanList(this, Type.IP);
 
         loadConfig();
-    }
-
-    /**
-     * Creates a new server on TCP port 25565 and starts listening for connections.
-     *
-     * @param args The command-line arguments.
-     */
-    public static void main(String... args) {
-        try {
-            GlowServer server = createFromArguments(args);
-
-            // we don't want to run a server when called with --version, --help or --generate-config
-            if (server == null) {
-                return;
-            }
-            if (generateConfigOnly) {
-                ConsoleMessages.Info.CONFIG_ONLY_DONE.log();
-                return;
-            }
-
-            server.run();
-        } catch (SecurityException e) {
-            ConsoleMessages.Error.CLASSPATH.log(e);
-        } catch (Throwable t) {
-            // general server startup crash
-            ConsoleMessages.Error.STARTUP.log(t);
-            System.exit(1);
-        }
     }
 
     /**
