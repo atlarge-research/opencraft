@@ -14,7 +14,7 @@ workflow:
 
 stages:
   - lintandbuild
-  - verify
+  - test
   - deploy
 
 lint:
@@ -33,12 +33,16 @@ build:
     expire_in: 1h
 
 verify:
-  stage: verify
+  stage: test
   dependencies:
     - build
   script:
     - mvn $MAVEN_CLI_OPTS test
+    - mkdir public
+    - mv target/site/jacoco/index.html public
   artifacts:
+    paths:
+      - public
     reports:
       junit:
         - target/surefire-reports/TEST-*.xml
