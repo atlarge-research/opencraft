@@ -1671,7 +1671,7 @@ public abstract class GlowEntity implements Entity {
      * @return The x and z coordinates of the entity.
      */
     public Coordinates getCoordinates() {
-        return new Coordinates(this.location.getX(), this.location.getZ());
+        return new Coordinates(location.getX(), location.getZ());
     }
 
     /**

@@ -115,16 +115,6 @@ public class Coordinates {
         return Math.sqrt(squaredDistance(coordinates));
     }
 
-    /**
-     * Retrieve the location of the block as integer.
-     *
-     * @param coordinate The location of the coordinate that needs to be converted to integer form.
-     * @return The floored double as integer.
-     */
-    private static int convertToBlock(double coordinate) {
-        return NumberConversions.floor(coordinate);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -147,5 +137,15 @@ public class Coordinates {
     @Override
     public String toString() {
         return "Coordinates{x=" + this.x + ",z=" + this.z + "}";
+    }
+
+    /**
+     * Retrieve the location of the block as integer.
+     *
+     * @param coordinate The location of the coordinate that needs to be converted to integer form.
+     * @return The floored double as integer.
+     */
+    private static int convertToBlock(double coordinate) {
+        return NumberConversions.floor(coordinate);
     }
 }
