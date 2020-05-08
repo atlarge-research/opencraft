@@ -112,4 +112,72 @@ class CoordinatesTest {
 
         assertEquals(distance, coords.distance(coordsCompare));
     }
+
+    @Test
+    void testEqualsSame() {
+        final double x = 1.0;
+        final double z = 3.0;
+        final Coordinates coords = new Coordinates(x, z);
+
+        assertEquals(coords, coords);
+    }
+
+    @Test
+    void testNotEqualsNull() {
+        final double x = 1.0;
+        final double z = 3.0;
+        final Coordinates coords = new Coordinates(x, z);
+
+        assertNotEquals(coords, null);
+    }
+
+    @Test
+    void testNotEqualsObject() {
+        final double x = 1.0;
+        final double z = 3.0;
+        final Coordinates coords = new Coordinates(x, z);
+
+        assertNotEquals(coords, "this is a string, not a coordinates object");
+    }
+
+    @Test
+    void testNotEqualsX() {
+        final double x = 1.0;
+        final double z = 3.0;
+        final double modifiedX = 4.0;
+        final Coordinates coords = new Coordinates(x, z);
+        final Coordinates compare = new Coordinates(modifiedX, z);
+
+        assertNotEquals(coords, compare);
+    }
+
+    @Test
+    void testNotEqualsZ() {
+        final double x = 1.0;
+        final double z = 3.0;
+        final double modifiedZ = 5.0;
+        final Coordinates coords = new Coordinates(x, z);
+        final Coordinates compare = new Coordinates(modifiedZ, z);
+
+        assertNotEquals(coords, compare);
+    }
+
+    @Test
+    void testEquals() {
+        final double x = 1.0;
+        final double z = 3.0;
+        final Coordinates coords = new Coordinates(x, z);
+        final Coordinates compare = new Coordinates(x, z);
+
+        assertEquals(coords, compare);
+    }
+
+    @Test
+    void testToString() {
+        final double x = 12.0;
+        final double z = 30.0;
+        final Coordinates coords = new Coordinates(x, z);
+
+        assertEquals("Coordinates{x=12.0,z=30.0}", coords.toString());
+    }
 }
