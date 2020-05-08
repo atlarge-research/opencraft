@@ -16,8 +16,7 @@ public class DefaultDispenseBehavior implements DispenseBehavior {
 
     public static final DefaultDispenseBehavior INSTANCE = new DefaultDispenseBehavior();
 
-    protected DefaultDispenseBehavior() {
-    }
+    protected DefaultDispenseBehavior() {}
 
     @Override
     public ItemStack dispense(GlowBlock block, ItemStack stack) {

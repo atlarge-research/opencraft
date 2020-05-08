@@ -110,8 +110,7 @@ public class FishingRewardManager {
          */
         private int maxEnchantmentLevel;
 
-        private RewardItem() {
-        }
+        private RewardItem() {}
 
         @Override
         public Map<String, Object> serialize() {
