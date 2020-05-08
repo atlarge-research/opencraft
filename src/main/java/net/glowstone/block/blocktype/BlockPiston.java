@@ -29,6 +29,7 @@ import org.bukkit.material.PistonBaseMaterial;
 public class BlockPiston extends BlockDirectional {
 
     private static final int PUSH_LIMIT = 12;
+
     /**
      * The piston is either non-sticky (default), or has a sticky behavior.
      *

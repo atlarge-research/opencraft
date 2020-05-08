@@ -19,6 +19,7 @@ import org.bukkit.material.types.DoublePlantSpecies;
  */
 @FunctionalInterface
 public interface TerrainObject {
+
     /**
      * Plant block types.
      */

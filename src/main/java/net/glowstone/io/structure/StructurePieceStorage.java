@@ -18,6 +18,7 @@ public final class StructurePieceStorage {
      * <p>This is generally used to map stored structure pieces to actual structure pieces.
      */
     private static final Map<String, StructurePieceStore<?>> idTable = new HashMap<>();
+
     /**
      * A table which maps structure pieces to stores.
      *

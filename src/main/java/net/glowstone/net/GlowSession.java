@@ -94,6 +94,7 @@ public class GlowSession extends BasicSession {
      */
     @Getter
     private volatile boolean online;
+
     /**
      * The randomly-generated verify token used in authentication for this session.
      *

@@ -1,6 +1,7 @@
 package net.glowstone.util;
 
 public interface DynamicallyTypedMapWithDoubles<K> extends DynamicallyTypedMapWithFloats<K> {
+
     /**
      * Retrieves an entry as a {@code double}.
      *

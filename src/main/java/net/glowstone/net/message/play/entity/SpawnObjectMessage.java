@@ -23,6 +23,7 @@ public final class SpawnObjectMessage implements Message {
     public static final int EGG = 62;
     public static final int GHAST_FIREBALL = 63;
     public static final int ENDER_DRAGON_FIREBALL = 93;
+
     /**
      * Blaze fireball or Fire Charge.
      */

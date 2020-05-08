@@ -42,45 +42,55 @@ public final class GlowScheduler implements BukkitScheduler {
      */
     static final int PULSE_EVERY = 50;
     private static final int MAX_THREADS = Runtime.getRuntime().availableProcessors();
+
     /**
      * The server this scheduler is managing for.
      */
     private final Server server;
+
     /**
      * The scheduled executor service which backs this worlds.
      */
     private final ScheduledExecutorService executor = Executors
         .newSingleThreadScheduledExecutor(GlowThreadFactory.INSTANCE);
+
     /**
      * Executor to handle execution of async tasks.
      */
     private final ExecutorService asyncTaskExecutor
             = new ThreadPoolExecutor(0, MAX_THREADS, 60L, TimeUnit.SECONDS,
             new LinkedBlockingDeque<>(), GlowThreadFactory.INSTANCE);
+
     /**
      * A list of active tasks.
      */
     private final ConcurrentMap<Integer, GlowTask> tasks = new ConcurrentHashMap<>();
+
     /**
      * World tick scheduler.
      */
     private final WorldScheduler worlds;
+
     /**
      * Tasks to be executed during the tick.
      */
     private final Deque<Runnable> inTickTasks = new ConcurrentLinkedDeque<>();
+
     /**
      * Condition to wait on when processing in-tick tasks.
      */
     private final Object inTickTaskCondition;
+
     /**
      * Runnable to run at end of tick.
      */
     private final Runnable tickEndRun;
+
     /**
      * The primary worlds thread in which pulse() is called.
      */
     private Thread primaryThread;
+
     /**
      * The session registry used to pulse all players.
      */
