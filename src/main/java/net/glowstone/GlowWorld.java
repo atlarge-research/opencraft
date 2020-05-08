@@ -17,7 +17,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -595,7 +597,9 @@ public class GlowWorld implements World {
         if (previous.getWorld() == this && !force) {
             for (int x = previousX - radius; x <= previousX + radius; x++) {
                 for (int z = previousZ - radius; z <= previousZ + radius; z++) {
-                    if (current.getWorld() != this || Math.abs(x - currentX) > radius || Math.abs(z - currentZ) > radius) {
+                    if (current.getWorld() != this
+                            || Math.abs(x - currentX) > radius
+                            || Math.abs(z - currentZ) > radius) {
 
                         GlowChunk.Key key = GlowChunk.Key.of(x, z);
 
@@ -616,7 +620,10 @@ public class GlowWorld implements World {
         if (current.getWorld() == this) {
             for (int x = currentX - radius; x <= currentX + radius; x++) {
                 for (int z = currentZ - radius; z <= currentZ + radius; z++) {
-                    if (previous.getWorld() != this || Math.abs(x - previousX) > radius || Math.abs(z - previousZ) > radius || force) {
+                    if (previous.getWorld() != this
+                            || Math.abs(x - previousX) > radius
+                            || Math.abs(z - previousZ) > radius
+                            || force) {
 
                         GlowChunk.Key key = GlowChunk.Key.of(x, z);
 
