@@ -7,30 +7,17 @@ import org.bukkit.util.NumberConversions;
  */
 public class Coordinates {
     private double x;
-    private double y;
     private double z;
 
     /**
      * Construct a coordinates object from three separate coordinates.
      *
      * @param x The x coordinate.
-     * @param y The y coordinate.
      * @param z The z coordinate.
      */
-    public Coordinates(double x, double y, double z) {
+    public Coordinates(double x, double z) {
         this.x = x;
-        this.y = y;
         this.z = z;
-    }
-
-    /**
-     * Retrieve the location of the block as integer.
-     *
-     * @param coordinate The location of the coordinate that needs to be converted to integer form.
-     * @return The floored double as integer.
-     */
-    public static int getBlockInteger(double coordinate) {
-        return NumberConversions.floor(coordinate);
     }
 
     /**
@@ -49,24 +36,6 @@ public class Coordinates {
      */
     public void setX(double x) {
         this.x = x;
-    }
-
-    /**
-     * Get the y coordinate.
-     *
-     * @return The y coordinate at this location.
-     */
-    public double getY() {
-        return y;
-    }
-
-    /**
-     * Set the y coordinate to a new value.
-     *
-     * @param y The new y coordinate value.
-     */
-    public void setY(double y) {
-        this.y = y;
     }
 
     /**
@@ -93,16 +62,7 @@ public class Coordinates {
      * @return The x coordinate as integer at this location.
      */
     public int getBlockX() {
-        return getBlockInteger(getX());
-    }
-
-    /**
-     * Get the y coordinate as integer.
-     *
-     * @return The y coordinate as integer at this location.
-     */
-    public int getBlockY() {
-        return getBlockInteger(getY());
+        return convertToBlock(getX());
     }
 
     /**
@@ -111,7 +71,7 @@ public class Coordinates {
      * @return The z coordinate as integer at this location.
      */
     public int getBlockZ() {
-        return getBlockInteger(getZ());
+        return convertToBlock(getZ());
     }
 
     /**
@@ -133,79 +93,13 @@ public class Coordinates {
     }
 
     /**
-     * Add the given coordinates to the coordinates of this object.
+     * Calculate the squared distance between these coordinates and the given coordinates.
      *
-     * @param coordinates The coordinates that need to be added.
-     * @return The updated coordinates. No new object will be created.
+     * @param coordinates The coordinates to which the squared distance is computed.
+     * @return The squared distance between these coordinates and the given coordinates.
      */
-    public Coordinates add(Coordinates coordinates) {
-        this.x += coordinates.x;
-        this.y += coordinates.y;
-        this.z += coordinates.z;
-        return this;
-    }
-
-    /**
-     * Add the given separate coordinates to the coordinates of this object.
-     *
-     * @param x The x coordinate that will be added.
-     * @param y The y coordinate that will be added.
-     * @param z The z coordinate that will be added.
-     * @return The updated coordinates. No new object will be created.
-     */
-    public Coordinates add(double x, double y, double z) {
-        this.x += x;
-        this.y += y;
-        this.z += z;
-        return this;
-    }
-
-    /**
-     * Subtract the given coordinates to the coordinates of this object.
-     *
-     * @param coordinates The coordinates that need to be subtracted.
-     * @return The updated coordinates. No new object will be created.
-     */
-    public Coordinates subtract(Coordinates coordinates) {
-        this.x -= coordinates.x;
-        this.y -= coordinates.y;
-        this.z -= coordinates.z;
-        return this;
-    }
-
-    /**
-     * Subtract the given separate coordinates to the coordinates of this object.
-     *
-     * @param x The x coordinate that will be added.
-     * @param y The y coordinate that will be added.
-     * @param z The z coordinate that will be added.
-     * @return The updated coordinates. No new object will be created.
-     */
-    public Coordinates subtract(double x, double y, double z) {
-        this.x -= x;
-        this.y -= y;
-        this.z -= z;
-        return this;
-    }
-
-    /**
-     * Calculate the length of the coordinate vector. This is the same as the distance between these coordinates and
-     * the origin.
-     *
-     * @return The length of the coordinate vector.
-     */
-    public double length() {
-        return Math.sqrt(lengthSquared());
-    }
-
-    /**
-     * Calculate the squared length of the coordinate vector. This is the same as the squared distance between these
-     * coordinates and the origin.
-     *
-     * @return The squared length of the coordinate vector.
-     */
-    public double lengthSquared() {
-        return NumberConversions.square(this.x) + NumberConversions.square(this.y) + NumberConversions.square(this.z);
+    public double squaredDistance(Coordinates coordinates) {
+        return NumberConversions.square(this.x - coordinates.x) + NumberConversions.square(this.z - coordinates.z);
     }
 
     /**
@@ -219,13 +113,12 @@ public class Coordinates {
     }
 
     /**
-     * Calculate the squared distance between these coordinates and the given coordinates.
+     * Retrieve the location of the block as integer.
      *
-     * @param coordinates The coordinates to which the squared distance is computed.
-     * @return The squared distance between these coordinates and the given coordinates.
+     * @param coordinate The location of the coordinate that needs to be converted to integer form.
+     * @return The floored double as integer.
      */
-    public double squaredDistance(Coordinates coordinates) {
-        return NumberConversions.square(this.x - coordinates.x) + NumberConversions.square(this.y - coordinates.y)
-            + NumberConversions.square(this.z - coordinates.z);
+    private static int convertToBlock(double coordinate) {
+        return NumberConversions.floor(coordinate);
     }
 }
