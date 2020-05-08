@@ -13,9 +13,15 @@ workflow:
     - if: $CI_MERGE_REQUEST_ID
 
 stages:
+  - static_analysis
   - build
   - test
   - deploy
+
+lint:
+  stage: static_analysis
+  script:
+    - mvn $MAVEN_CLI_OPTS checkstyle:check
 
 build:
   stage: build
@@ -31,7 +37,16 @@ test:
   dependencies:
     - build
   script:
-    - mvn $MAVEN_CLI_OPTS verify
+    - mvn $MAVEN_CLI_OPTS test
+    - mkdir public
+    - mv target/site/jacoco/index.html public
+  artifacts:
+    paths:
+      - public
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+        - target/failsafe-reports/TEST-*.xml
 
 deploy:
   stage: deploy
