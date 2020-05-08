@@ -4,7 +4,7 @@ import java.util.Objects;
 import org.bukkit.util.NumberConversions;
 
 /**
- * This class represents a 3d location.
+ * This class represents a 2d location.
  */
 public class Coordinates {
     private double x;
