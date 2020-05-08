@@ -1,5 +1,6 @@
 package net.glowstone.entity;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
@@ -19,9 +20,11 @@ import net.glowstone.GlowWorld;
 import net.glowstone.ServerProvider;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.chunk.GlowChunk;
+import net.glowstone.entity.passive.GlowChicken;
 import net.glowstone.inventory.GlowPlayerInventory;
 import net.glowstone.scoreboard.GlowScoreboard;
 import net.glowstone.scoreboard.GlowScoreboardManager;
+import net.glowstone.util.Coordinates;
 import net.glowstone.util.GameRuleManager;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
@@ -163,5 +166,17 @@ public abstract class GlowEntityTest<T extends GlowEntity> {
         assertFalse(messages.isEmpty());
         // Should start with an instance of one of the Spawn*Message classes
         assertTrue(messages.get(0).getClass().getSimpleName().startsWith("Spawn"));
+    }
+
+    @Test
+    public void getCoordinates() {
+        final double x = 32.0;
+        final double y = 64.0;
+        final double z = 31.5;
+        final Coordinates coordinates = new Coordinates(x, z);
+
+        GlowEntity chicken = new GlowChicken(new Location(world, x, y, z));
+
+        assertEquals(coordinates, chicken.getCoordinates());
     }
 }

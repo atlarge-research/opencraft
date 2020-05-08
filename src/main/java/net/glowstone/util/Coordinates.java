@@ -1,5 +1,6 @@
 package net.glowstone.util;
 
+import java.util.Objects;
 import org.bukkit.util.NumberConversions;
 
 /**
@@ -80,6 +81,7 @@ public class Coordinates {
      * @return The x coordinate of the associated chunk.
      */
     public double getChunkX() {
+        // Divide by 16 (chunk size)
         return getBlockX() >> 4;
     }
 
@@ -89,6 +91,7 @@ public class Coordinates {
      * @return The z coordinate of the associated chunk.
      */
     public double getChunkZ() {
+        // Divide by 16 (chunk size)
         return getBlockZ() >> 4;
     }
 
@@ -120,5 +123,29 @@ public class Coordinates {
      */
     private static int convertToBlock(double coordinate) {
         return NumberConversions.floor(coordinate);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Coordinates that = (Coordinates) o;
+        return Double.compare(that.x, x) == 0 && Double.compare(that.z, z) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, z);
+    }
+
+    @Override
+    public String toString() {
+        return "Coordinates{x=" + this.x + ",z=" + this.z + "}";
     }
 }
