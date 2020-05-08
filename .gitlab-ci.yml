@@ -15,7 +15,7 @@ workflow:
 stages:
   - static_analysis
   - build
-  - verify
+  - test
   - deploy
 
 lint:
@@ -32,8 +32,8 @@ build:
       - target/
     expire_in: 1h
 
-verify:
-  stage: verify
+test:
+  stage: test
   dependencies:
     - build
   script:
