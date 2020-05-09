@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 public class LocalizedStringsTest {
+
     /**
      * Keys in strings.properties used in ways other than in LocalizedString instances in
      * GlowstoneMessages, and which GlowstoneMessages should therefore not be expected to cover.

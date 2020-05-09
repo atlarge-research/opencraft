@@ -28,6 +28,7 @@ public class GlowArrow extends GlowProjectile implements Arrow {
     @Getter
     @Setter
     private short life;
+
     /**
      * How long an entity burns after being shot with a burning arrow.
      */

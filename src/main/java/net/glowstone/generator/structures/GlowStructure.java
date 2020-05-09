@@ -21,9 +21,11 @@ public abstract class GlowStructure implements TerrainObject {
     /** The world to generate the structure in. */
     @Getter
     protected final World world;
+
     /** The x coordinate of the root chunk. */
     @Getter
     protected final int chunkX;
+
     /** The z coordinate of the root chunk. */
     @Getter
     protected final int chunkZ;

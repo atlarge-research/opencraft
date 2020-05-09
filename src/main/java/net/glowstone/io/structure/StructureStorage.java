@@ -19,6 +19,7 @@ public final class StructureStorage {
      * structures to actual structures.
      */
     private static final Map<String, StructureStore<?>> idTable = new HashMap<>();
+
     /**
      * A table which maps structures to stores. This is generally used to map structures being
      * stored.

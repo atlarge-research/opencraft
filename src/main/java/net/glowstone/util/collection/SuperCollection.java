@@ -31,6 +31,7 @@ import lombok.Setter;
 public abstract class SuperCollection<E> implements Collection<E> {
 
     private final List<? extends Collection<E>> parents;
+
     /**
      * Current result mode.
      *
@@ -46,6 +47,7 @@ public abstract class SuperCollection<E> implements Collection<E> {
     @Getter
     @Setter
     private ResultMode resultMode = ResultMode.ANY;
+
     /**
      * Determines how this collection will behave to additions.
      *

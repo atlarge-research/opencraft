@@ -17,6 +17,7 @@ public class GlowFurnace extends GlowContainer implements Furnace {
     private short cookTime;
 
     /**
+
      /**
      * Creates an instance for the given block.
      *

@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NonNls;
  */
 @EqualsAndHashCode
 public class LibraryKey implements Comparable<LibraryKey> {
+
     /**
      * The group ID of the library in a maven-style repo. Parts of the group ID must be separated
      * by periods.

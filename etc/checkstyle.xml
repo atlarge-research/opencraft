@@ -14,8 +14,15 @@
     <property name="eachLine" value="true"/>
   </module>
 
+  <module name="LineLength">
+    <property name="fileExtensions" value="java"/>
+    <property name="severity" value="warning"/>
+    <property name="max" value="120"/>
+    <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
+  </module>
+
   <module name="TreeWalker">
-    <module name="Indentation"> 
+    <module name="Indentation">
       <property name="basicOffset" value="4"/>
       <property name="braceAdjustment" value="0"/>
       <property name="caseIndent" value="4"/>
@@ -39,11 +46,6 @@
     </module>
 
     <!-- Code -->
-    <module name="LineLength">
-      <property name="severity" value="warning"/>
-      <property name="max" value="120"/>
-      <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
-    </module>
     <module name="OuterTypeFilename"/>
     <module name="OneTopLevelClass"/>
     <module name="NoLineWrap"/>
@@ -106,11 +108,8 @@
       <property name="severity" value="warning"/>
       <property name="scope" value="public"/>
       <property name="allowMissingParamTags" value="true"/>
-      <property name="allowMissingThrowsTags" value="true"/>
       <property name="allowMissingReturnTag" value="true"/>
-      <property name="minLineCount" value="2"/>
       <property name="allowedAnnotations" value="Override, Test"/>
-      <property name="allowThrowsTagsForSubclasses" value="true"/>
     </module>
     <module name="SingleLineJavadoc">
       <property name="severity" value="warning"/>
@@ -119,11 +118,6 @@
 
     <!-- Imports -->
     <module name="AvoidStarImport"/>
-    <module name="CustomImportOrder">
-      <property name="sortImportsInGroupAlphabetically" value="true"/>
-      <property name="separateLineBetweenGroups" value="true"/>
-      <property name="customImportOrderRules" value="STATIC###THIRD_PARTY_PACKAGE"/>
-    </module>
     <module name="RedundantImport"/>
     <module name="UnusedImports"/>
     <module name="IllegalImport">
@@ -141,13 +135,13 @@
     <module name="RightCurly">
       <property name="id" value="RightCurlySame"/>
       <property name="tokens"
-        value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_DO"/>
+        value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_DO"/>
     </module>
     <module name="RightCurly">
       <property name="id" value="RightCurlyAlone"/>
       <property name="option" value="alone"/>
       <property name="tokens"
-        value="CLASS_DEF, METHOD_DEF, CTOR_DEF, LITERAL_FOR, LITERAL_WHILE, STATIC_INIT, INSTANCE_INIT"/>
+        value="LITERAL_FOR, LITERAL_WHILE, STATIC_INIT, INSTANCE_INIT"/>
     </module>
     <module name="EmptyCatchBlock">
       <property name="exceptionVariableName" value="expected"/>

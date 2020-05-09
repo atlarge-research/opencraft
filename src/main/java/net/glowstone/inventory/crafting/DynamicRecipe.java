@@ -15,6 +15,7 @@ import org.bukkit.inventory.Recipe;
 public class DynamicRecipe implements Recipe {
 
     private ItemMatcher matcher;
+
     /**
      * Gets the result of this recipe, given the input of {@link #matches(ItemStack[])}.
      *

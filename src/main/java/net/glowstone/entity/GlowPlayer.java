@@ -290,6 +290,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     public Location teleportedTo = null;
     @Setter
     public boolean affectsSpawning = true;
+
     /**
      * The time the player joined, in milliseconds, to be saved as last played time.
      *
@@ -297,108 +298,131 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      */
     @Getter
     private long joinTime;
+
     /**
      * The settings sent by the client.
      */
     private ClientSettings settings = ClientSettings.DEFAULT;
+
     /**
      * The lock used to prevent chunks from unloading near the player.
      */
     @Getter
     private ChunkLock chunkLock;
+
     /**
      * The tracker for changes to the currently open inventory.
      */
     private InventoryMonitor invMonitor;
+
     /**
      * The display name of this player, for chat purposes.
      */
     private String displayName;
+
     /**
      * The name a player has in the player list.
      */
     private String playerListName;
+
     /**
      * Cumulative amount of experience points the player has collected.
      */
     @Getter
     private int totalExperience;
+
     /**
      * The current level (or skill point amount) of the player.
      */
     @Getter
     private int level;
+
     /**
      * The progress made to the next level, from 0 to 1.
      */
     @Getter
     private float exp;
+
     /**
      * The human entity's current food level.
      */
     @Getter
     private int foodLevel = 20;
+
     /**
      * The player's current exhaustion level.
      */
     @Getter
     @Setter
     private float exhaustion;
+
     /**
      * The player's current saturation level.
      */
     @Getter
     private float saturation;
+
     /**
      * Whether to perform special scaling of the player's health.
      */
     @Getter
     private boolean healthScaled;
+
     /**
      * The scale at which to display the player's health.
      */
     @Getter
     private double healthScale = 20;
+
     /**
      * If this player has seen the end credits.
      */
     @Getter
     @Setter
     private boolean seenCredits;
+
     /**
      * Recipes this player has unlocked.
      */
     private Collection<Recipe> recipes = new HashSet<>();
+
     /**
      * This player's current time offset.
      */
     private long timeOffset;
+
     /**
      * Whether the time offset is relative.
      */
     @Getter
     private boolean playerTimeRelative = true;
+
     /**
      * The player-specific weather, or null for normal weather.
      */
     private WeatherType playerWeather;
+
     /**
      * The player's compass target.
      */
     @Getter
     private Location compassTarget;
+
     /**
      * Whether this player's sleeping state is ignored when changing time.
      */
     private boolean sleepingIgnored;
+
     /**
      * The bed in which the player currently lies.
      */
     private GlowBlock bed;
+
     /**
      * The bed spawn location of a player.
      */
     private Location bedSpawn;
+
     /**
      * Whether to use the bed spawn even if there is no bed block.
      *
@@ -470,50 +494,61 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             return GlowPlayer.this.getLocale();
         }
     };
+
     /**
      * The location of the sign the player is currently editing, or null.
      */
     private Location signLocation;
+
     /**
      * Whether the player is permitted to fly.
      */
     private boolean canFly;
+
     /**
      * Whether the player is currently flying.
      */
     @Getter
     private boolean flying;
+
     /**
      * The player's base flight speed.
      */
     @Getter
     private float flySpeed = 0.1f;
+
     /**
      * The player's base walking speed.
      */
     @Getter
     private float walkSpeed = 0.2f;
+
     /**
      * The scoreboard the player is currently subscribed to.
      */
     private GlowScoreboard scoreboard;
+
     /**
      * The player's current title, if any.
      */
     private Title.Builder currentTitle = new Title.Builder();
+
     /**
      * The one block the player is currently digging.
      */
     @Getter
     private GlowBlock digging;
+
     /**
      * The number of ticks elapsed since the player started digging.
      */
     private long diggingTicks = 0;
+
     /**
      * The total number of ticks needed to dig the current block.
      */
     private long totalDiggingTicks = Long.MAX_VALUE;
+
     /**
      * The one itemstack the player is currently usage and associated time.
      */
@@ -530,26 +565,32 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     private PlayerResourcePackStatusEvent.Status resourcePackStatus;
     private List<Conversation> conversations = new ArrayList<>();
     private Set<BossBar> bossBars = ConcurrentHashMap.newKeySet();
+
     /**
      * The player's previous chunk x coordinate.
      */
     private int prevCentralX;
+
     /**
      * The player's previous chunk x coordinate.
      */
     private int prevCentralZ;
+
     /**
      * If this is the player's first time getting blocks streamed.
      */
     private boolean firstStream = true;
+
     /**
      * If we should force block streaming regardless of chunk difference.
      */
     public boolean forceStream = false;
+
     /**
      * Current casted fishing hook.
      */
     private final AtomicReference<GlowFishingHook> currentFishingHook = new AtomicReference<>(null);
+
     /**
      * The player's ender pearl cooldown game tick counter.
      * 1 second, or 20 game ticks by default.

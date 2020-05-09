@@ -12,6 +12,7 @@ import org.bukkit.potion.PotionEffectType;
  * Utility methods for dealing with entities.
  */
 public class EntityUtils {
+
     /**
      * Heals an entity by a specific amount.
      *
