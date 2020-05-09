@@ -33,6 +33,16 @@ public final class ConcurrentChannel<Subscriber, Message> implements Channel<Sub
         return callbacks.isEmpty();
     }
 
+    /**
+     * Check whether a specific subscriber is subscribed to the channel.
+     *
+     * @param subscriber the subscriber whom's subscriptions should be checked.
+     * @return whether the subscriber is subscribed to the channel.
+     */
+    public boolean isSubscribed(Subscriber subscriber) {
+        return callbacks.containsKey(subscriber);
+    }
+
     @Override
     public void subscribe(Subscriber subscriber, Consumer<Message> callback) {
         callbacks.put(subscriber, callback);

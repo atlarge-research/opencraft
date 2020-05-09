@@ -15,7 +15,7 @@ public class ConcurrentChannelTest extends ChannelTest {
     }
 
     /**
-     * Verify that subscribing and unsubscribing alters the number of subscriptions.
+     * Verify that subscribing and unsubscribing works.
      */
     @Test
     void subscribeAndUnsubscribeTest() {
@@ -23,9 +23,28 @@ public class ConcurrentChannelTest extends ChannelTest {
         ConcurrentChannel<Subscriber, String> channel = createChannel();
         Subscriber alice = new Subscriber("Alice");
 
+        channel.subscribe(alice, alice::onMessage);
+        assertTrue(channel.isSubscribed(alice));
+
+        channel.unsubscribe(alice);
+        assertFalse(channel.isSubscribed(alice));
+    }
+
+    /**
+     * Verify that subscribing to and unsubscribing from an initially empty channel works.
+     */
+    @Test
+    void emptyTest() {
+
+        ConcurrentChannel<Subscriber, String> channel = createChannel();
+        Subscriber alice = new Subscriber("Alice");
+
+        // The channel should initially be empty.
         assertTrue(channel.isEmpty());
+
         channel.subscribe(alice, alice::onMessage);
         assertFalse(channel.isEmpty());
+
         channel.unsubscribe(alice);
         assertTrue(channel.isEmpty());
     }
