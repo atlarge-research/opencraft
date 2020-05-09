@@ -609,8 +609,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         return currentFishingHook.get();
     }
 
-    private boolean joined;
-
     /**
      * Creates a new player and adds it to the world.
      *
@@ -642,16 +640,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         recipeMonitor = new PlayerRecipeMonitor(this);
 
         updateBossBars();
-
-        joined = false;
-    }
-
-    /**
-     * Checks whether the player has just joined the server.
-     * @return whether he joined.
-     */
-    public boolean hasJoined() {
-        return joined;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -755,7 +743,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         // send initial location
         session.send(new PositionRotationMessage(location));
 
-        session.send((world.getWorldBorder()).createMessage());
+        session.send(world.getWorldBorder().createMessage());
         sendTime();
         setCompassTarget(world.getSpawnLocation()); // set our compass target
 
@@ -769,8 +757,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         if (!server.getResourcePackUrl().isEmpty()) {
             setResourcePack(server.getResourcePackUrl(), server.getResourcePackHash());
         }
-
-        joined = true;
     }
 
     @Override
@@ -1044,8 +1030,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 setCurrentFishingHook(null);
             }
         }
-
-        joined = false;
     }
 
     @Override

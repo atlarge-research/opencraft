@@ -16,11 +16,9 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
 
@@ -29,7 +27,6 @@ import lombok.Setter;
 
 import net.glowstone.EventFactory;
 import net.glowstone.GlowServer;
-import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.entity.meta.profile.GlowPlayerProfile;
 import net.glowstone.io.PlayerDataService.PlayerReader;
@@ -49,7 +46,6 @@ import net.glowstone.net.protocol.LoginProtocol;
 import net.glowstone.net.protocol.PlayProtocol;
 import net.glowstone.net.protocol.ProtocolProvider;
 import net.glowstone.util.UuidUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Statistic;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
@@ -71,10 +67,6 @@ public class GlowSession extends BasicSession {
      */
     @Getter
     private final GlowServer server;
-
-    private List<Pair<GlowChunk.Key, Runnable>> tasks;
-
-    private AtomicBoolean tasksExecuting;
 
     /**
      * The provider of the protocols.
@@ -188,8 +180,6 @@ public class GlowSession extends BasicSession {
         this.server = server;
         this.protocolProvider = protocolProvider;
         this.connectionManager = connectionManager;
-        tasks = new LinkedList<>();
-        tasksExecuting = new AtomicBoolean(false);
         address = super.getAddress();
     }
 
