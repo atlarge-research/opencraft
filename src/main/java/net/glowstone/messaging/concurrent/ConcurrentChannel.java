@@ -35,13 +35,13 @@ public final class ConcurrentChannel<Subscriber, Message> implements Channel<Sub
     }
 
     @Override
-    public void subscribe(Subscriber subscriber, Consumer<Message> callback) {
-        callbacks.put(subscriber, callback);
+    public boolean subscribe(Subscriber subscriber, Consumer<Message> callback) {
+        return callbacks.putIfAbsent(subscriber, callback) == null;
     }
 
     @Override
-    public void unsubscribe(Subscriber subscriber) {
-        callbacks.remove(subscriber);
+    public boolean unsubscribe(Subscriber subscriber) {
+        return callbacks.remove(subscriber) != null;
     }
 
     @Override
