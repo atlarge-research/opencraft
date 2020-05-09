@@ -20,7 +20,7 @@ public abstract class ChannelTest {
     }
 
     /**
-     * Verify that subscribing to and unsubscribing from an initially empty channel correctly updates its state.
+     * Verify that the state of a channel is correctly presented by its 'isEmpty()' method.
      */
     @Test
     void emptyTest() {
@@ -36,19 +36,59 @@ public abstract class ChannelTest {
     }
 
     /**
-     * Verify that a user can subscribe and unsubscribe.
+     * Verify that a user can subscribe to a channel.
      */
     @Test
-    void subscribeUnsubscribeTest() {
+    void subscribeTest() {
 
         Channel<Subscriber, String> channel = createChannel();
         Subscriber alice = new Subscriber("Alice");
 
         channel.subscribe(alice, alice::onMessage);
         assertTrue(channel.isSubscribed(alice));
+    }
+
+    /**
+     * Verify that a correct value is returned on subscription.
+     */
+    @Test
+    void subscribeTwiceTest() {
+
+        Channel<Subscriber, String> channel = createChannel();
+        Subscriber alice = new Subscriber("Alice");
+
+        assertTrue(channel.subscribe(alice, alice::onMessage));
+        assertFalse(channel.subscribe(alice, alice::onMessage));
+    }
+
+    /**
+     * Verify that a user can unsubscribe from a channel.
+     */
+    @Test
+    void unsubscribeTest() {
+
+        Channel<Subscriber, String> channel = createChannel();
+        Subscriber alice = new Subscriber("Alice");
+
+        channel.subscribe(alice, alice::onMessage);
 
         channel.unsubscribe(alice);
         assertFalse(channel.isSubscribed(alice));
+    }
+
+    /**
+     * Verify that a correct value is returned on unsubscription.
+     */
+    @Test
+    void unsubscribeTwiceTest() {
+
+        Channel<Subscriber, String> channel = createChannel();
+        Subscriber alice = new Subscriber("Alice");
+
+        channel.subscribe(alice, alice::onMessage);
+
+        assertTrue(channel.unsubscribe(alice));
+        assertFalse(channel.unsubscribe(alice));
     }
 
     /**
@@ -97,7 +137,7 @@ public abstract class ChannelTest {
     }
 
     /**
-     * Verify that multiple subscribers (all) receive a published message.
+     * Verify that multiple subscribers receive a published message.
      */
     @Test
     void broadcastTest() {
