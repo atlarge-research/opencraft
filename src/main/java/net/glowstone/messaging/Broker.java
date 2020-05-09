@@ -12,6 +12,10 @@ import java.util.function.Consumer;
  */
 public interface Broker<Topic, Subscriber, Message> {
 
+    // TODO: Add exists(Topic topic) method.
+
+    // TODO: Add isSubscribed(Topic topic, Subscriber subscriber) method.
+
     /**
      * Registers the given subscriber to receive messages of the given topic via the given callback.
      *
