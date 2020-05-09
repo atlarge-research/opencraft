@@ -425,6 +425,8 @@ public class GlowWorld implements World {
     @Getter
     private boolean initialized;
 
+    private final Map<GlowPlayer, Location> previousLocations = new WeakHashMap<>();
+
     private Broker<GlowChunk.Key, UUID, Message> messageBroker;
 
     private Executor executor;
@@ -562,14 +564,11 @@ public class GlowWorld implements World {
         saveWorld();
     }
 
-    private final Map<GlowPlayer, Location> previousLocations = new WeakHashMap<>();
-
     /**
      * Update player subscriptions based on their current interest..
      * @param player the player.
      */
     public void updateSubscriptions(GlowPlayer player) {
-
 
         Location current = player.getLocation();
         Location previous = previousLocations.get(player);
@@ -586,8 +585,8 @@ public class GlowWorld implements World {
         int previousX = previous.getBlockX() >> 4;
         int previousZ = previous.getBlockZ() >> 4;
 
-        // TODO: Skip this test if view distance changed.
-        if (!first && previousX == currentX && previousZ == currentZ) {
+
+        if (!first && previousX == currentX && previousZ == currentZ || player.forceStream) {
             return;
         }
 
