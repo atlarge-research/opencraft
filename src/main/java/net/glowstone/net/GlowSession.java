@@ -21,8 +21,10 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
+
 import lombok.Getter;
 import lombok.Setter;
+
 import net.glowstone.EventFactory;
 import net.glowstone.GlowServer;
 import net.glowstone.entity.GlowPlayer;
