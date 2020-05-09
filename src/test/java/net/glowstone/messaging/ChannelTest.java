@@ -36,10 +36,10 @@ public abstract class ChannelTest {
     }
 
     /**
-     * Verify that subscribing and unsubscribing works correctly.
+     * Verify that a user can subscribe and unsubscribe.
      */
     @Test
-    void subscribeAndUnsubscribeTest() {
+    void subscribeUnsubscribeTest() {
 
         Channel<Subscriber, String> channel = createChannel();
         Subscriber alice = new Subscriber("Alice");
@@ -52,10 +52,39 @@ public abstract class ChannelTest {
     }
 
     /**
+     * Verify that multiple users can subscribe and unsubscribe.
+     */
+    @Test
+    void subscribeManyUnsubscribeOneTest() {
+
+        Channel<Subscriber, String> channel = createChannel();
+        Subscriber alice = new Subscriber("Alice");
+        Subscriber bob = new Subscriber("Bob");
+
+        channel.subscribe(alice, alice::onMessage);
+        channel.subscribe(bob, bob::onMessage);
+        assertTrue(channel.isSubscribed(alice));
+        assertTrue(channel.isSubscribed(bob));
+
+        channel.unsubscribe(alice);
+        assertFalse(channel.isSubscribed(alice));
+        assertTrue(channel.isSubscribed(bob));
+    }
+
+    /**
+     * Verify that a message can be published to a channel with no subscribers.
+     */
+    @Test
+    void publishEmptyTest() {
+        Channel<Subscriber, String> channel = createChannel();
+        assertDoesNotThrow(() -> channel.publish("Message"));
+    }
+
+    /**
      * Verify that a subscriber receives a publish message.
      */
     @Test
-    void subscribeAndPublishTest() {
+    void subscribePublishTest() {
 
         Channel<Subscriber, String> channel = createChannel();
         Subscriber alice = new Subscriber("Alice");
@@ -84,14 +113,5 @@ public abstract class ChannelTest {
 
         alice.assertReceived(message);
         bob.assertReceived(message);
-    }
-
-    /**
-     * Verify that a message can be published to a channel with no subscribers.
-     */
-    @Test
-    void publishToEmptyTest() {
-        Channel<Subscriber, String> channel = createChannel();
-        assertDoesNotThrow(() -> channel.publish("Message"));
     }
 }
