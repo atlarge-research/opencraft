@@ -569,11 +569,14 @@ public class GlowWorld implements World {
 
         Location current = player.getLocation();
         Location previous = previousLocations.get(player);
-        boolean first = false;
+
+        // This checks if we need to force a chunk stream, this can happen when the player first
+        // joins the game
+        boolean force = false;
 
         if (previous == null) {
             previous = player.getLocation();
-            first = true;
+            force = true;
         }
 
         int currentX = current.getBlockX() >> 4;
@@ -582,7 +585,8 @@ public class GlowWorld implements World {
         int previousX = previous.getBlockX() >> 4;
         int previousZ = previous.getBlockZ() >> 4;
 
-        if (!first && previousX == currentX && previousZ == currentZ || player.forceStream) {
+        // TODO: Skip this test if view distance changed.
+        if (!force && previousX == currentX && previousZ == currentZ) {
             return;
         }
 
@@ -590,7 +594,7 @@ public class GlowWorld implements World {
 
         GlowSession session = player.getSession();
 
-        if (!first && previous.getWorld() == this) {
+        if (!force && previous.getWorld() == this) {
             for (int x = previousX - radius; x <= previousX + radius; x++) {
                 for (int z = previousZ - radius; z <= previousZ + radius; z++) {
                     if (current.getWorld() != this
@@ -619,7 +623,7 @@ public class GlowWorld implements World {
                     if (previous.getWorld() != this
                             || Math.abs(x - previousX) > radius
                             || Math.abs(z - previousZ) > radius
-                            || first) {
+                            || force) {
 
                         GlowChunk.Key key = GlowChunk.Key.of(x, z);
 
