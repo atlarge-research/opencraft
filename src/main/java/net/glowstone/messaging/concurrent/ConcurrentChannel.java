@@ -24,21 +24,12 @@ public final class ConcurrentChannel<Subscriber, Message> implements Channel<Sub
         this.callbacks = new ConcurrentHashMap<>();
     }
 
-    /**
-     * Check whether the channel is empty.
-     *
-     * @return whether or not their are any subscribers to this channel.
-     */
+    @Override
     public boolean isEmpty() {
         return callbacks.isEmpty();
     }
 
-    /**
-     * Check whether a specific subscriber is subscribed to the channel.
-     *
-     * @param subscriber the subscriber whom's subscriptions should be checked.
-     * @return whether the subscriber is subscribed to the channel.
-     */
+    @Override
     public boolean isSubscribed(Subscriber subscriber) {
         return callbacks.containsKey(subscriber);
     }

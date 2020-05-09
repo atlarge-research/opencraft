@@ -12,6 +12,21 @@ import java.util.function.Consumer;
 public interface Channel<Subscriber, Message> {
 
     /**
+     * Check whether the channel is empty, meaning that there are no subscribers.
+     *
+     * @return whether or not their are any subscribers to this channel.
+     */
+    boolean isEmpty();
+
+    /**
+     * Check whether a specific subscriber is subscribed to the channel.
+     *
+     * @param subscriber the subscriber whom's subscription should be checked.
+     * @return whether the subscriber is subscribed to the channel.
+     */
+    boolean isSubscribed(Subscriber subscriber);
+
+    /**
      * Registers the given subscriber to receive messages via the given callback.
      *
      * @param subscriber the subscriber that would like to receive messages.
