@@ -4,9 +4,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import net.glowstone.messaging.Broker;
+import net.glowstone.messaging.Channel;
 
 /**
- * The concurrent broker uses a concurrent hashmap to store topic-channel pairs. The concurrent
+ * The concurrent broker uses a concurrent hash map to store topic-channel pairs. The concurrent
  * hash map allows multiple publishers and subscribers to access the broker simultaneously.
  *
  * @param <Topic> the type of topics that is allowed to identify channels.
@@ -15,13 +16,27 @@ import net.glowstone.messaging.Broker;
  */
 public final class ConcurrentBroker<Topic, Subscriber, Message> implements Broker<Topic, Subscriber, Message> {
 
-    private final Map<Topic, ConcurrentChannel<Subscriber, Message>> channels;
+    private final Map<Topic, Channel<Subscriber, Message>> channels;
 
     /**
      * Create a concurrent broker.
      */
     public ConcurrentBroker() {
         channels = new ConcurrentHashMap<>();
+    }
+
+    @Override
+    public boolean exists(Topic topic) {
+        return channels.containsKey(topic);
+    }
+
+    @Override
+    public boolean isSubscribed(Topic topic, Subscriber subscriber) {
+        Channel<Subscriber, Message> channel = channels.get(topic);
+        if (channel == null) {
+            return false;
+        }
+        return channel.isSubscribed(subscriber);
     }
 
     @Override

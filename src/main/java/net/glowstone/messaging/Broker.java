@@ -12,9 +12,22 @@ import java.util.function.Consumer;
  */
 public interface Broker<Topic, Subscriber, Message> {
 
-    // TODO: Add exists(Topic topic) method.
+    /**
+     * Check whether the topic exists.
+     *
+     * @param topic the topic that needs to be checked.
+     * @return whether the topic exists.
+     */
+    boolean exists(Topic topic);
 
-    // TODO: Add isSubscribed(Topic topic, Subscriber subscriber) method.
+    /**
+     * Checks whether the subscribers has registered its interest in the topic.
+     *
+     * @param topic the topic of interest.
+     * @param subscriber the subscriber that needs to be checked.
+     * @return whether the subscriber is interested in the topic.
+     */
+    boolean isSubscribed(Topic topic, Subscriber subscriber);
 
     /**
      * Registers the given subscriber to receive messages of the given topic via the given callback.
