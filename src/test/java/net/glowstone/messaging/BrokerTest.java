@@ -21,7 +21,7 @@ public abstract class BrokerTest {
     }
 
     /**
-     * Verify that subscribing to and unsubscribing from an initially empty channel correctly updates its state.
+     * Verify that the state of a broker is correctly reflected by its 'isEmpty()' method.
      */
     @Test
     void emptyTest() {
@@ -37,23 +37,80 @@ public abstract class BrokerTest {
         Assertions.assertTrue(broker.isEmpty());
     }
 
-
     /**
-     * Verify that subscribing to a non-existing topic creates the topic and correctly subscribes the user.
+     * Verify that a user can subscribe to a topic.
      */
     @Test
-    void subscribeNonExistingTopicTest() {
+    void subscribeTest() {
 
         Broker<String, Subscriber, String> broker = createBroker();
         String topic = "Topic";
         Subscriber alice = new Subscriber("Alice");
 
-        assertDoesNotThrow(() -> broker.subscribe(topic, alice, alice::onMessage));
+        broker.subscribe(topic, alice, alice::onMessage);
         assertTrue(broker.isSubscribed(topic, alice));
     }
 
     /**
-     * Verify that unsubscribing from a non-existing topic doesn't cause an exception.
+     * Verify that a correct value is returned on subscription.
+     */
+    @Test
+    void subscribeTwiceTest() {
+
+        Broker<String, Subscriber, String> broker = createBroker();
+        String topic = "Topic";
+        Subscriber alice = new Subscriber("Alice");
+
+        assertTrue(broker.subscribe(topic, alice, alice::onMessage));
+        assertFalse(broker.subscribe(topic, alice, alice::onMessage));
+    }
+
+    /**
+     * Verify that subscribing to a non-existing topic does not cause an exception.
+     */
+    @Test
+    void subscribeNonExistingTopicTest() {
+
+        Broker<String, Subscriber, String> broker = createBroker();
+        Subscriber alice = new Subscriber("Alice");
+
+        assertDoesNotThrow(() -> broker.subscribe("Topic", alice, alice::onMessage));
+    }
+
+    /**
+     * Verify that a user can unsubscribe from a topic.
+     */
+    @Test
+    void unsubscribeTest() {
+
+        Broker<String, Subscriber, String> broker = createBroker();
+        String topic = "Topic";
+        Subscriber alice = new Subscriber("Alice");
+
+        broker.subscribe(topic, alice, alice::onMessage);
+
+        broker.unsubscribe(topic, alice);
+        assertFalse(broker.isSubscribed(topic, alice));
+    }
+
+    /**
+     * Verify that a correct value is returned on unsubscription.
+     */
+    @Test
+    void unsubscribeTwiceTest() {
+
+        Broker<String, Subscriber, String> broker = createBroker();
+        String topic = "Topic";
+        Subscriber alice = new Subscriber("Alice");
+
+        broker.subscribe(topic, alice, alice::onMessage);
+
+        assertTrue(broker.unsubscribe(topic, alice));
+        assertFalse(broker.unsubscribe(topic, alice));
+    }
+
+    /**
+     * Verify that unsubscribing from a non-existing topic does not cause an exception.
      */
     @Test
     void unsubscribeNonExistingTopicTest() {
@@ -65,24 +122,7 @@ public abstract class BrokerTest {
     }
 
     /**
-     * Verify that a single user can subscribe to and unsubscribe from a topic.
-     */
-    @Test
-    void subscribeUnsubscribeTest() {
-
-        Broker<String, Subscriber, String> broker = createBroker();
-        String topic = "Topic";
-        Subscriber alice = new Subscriber("Alice");
-
-        broker.subscribe(topic, alice, alice::onMessage);
-        assertTrue(broker.isSubscribed(topic, alice));
-
-        broker.unsubscribe(topic, alice);
-        assertFalse(broker.isSubscribed(topic, alice));
-    }
-
-    /**
-     * Verify that a multiple users can subscribe to and unsubscribe from a topic.
+     * Verify that multiple users can subscribe to and unsubscribe from a topic.
      */
     @Test
     void subscribeManyUnsubscribeOneTest() {
