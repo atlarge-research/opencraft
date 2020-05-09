@@ -10,12 +10,18 @@ public abstract class BrokerTest {
 
     protected abstract Broker<String, Subscriber, String> createBroker();
 
+    /**
+     * Verify whether a broker is initially created with no topics.
+     */
     @Test
     void initiallyEmptyTest() {
         Broker<String, Subscriber, String> broker = createBroker();
         assertFalse(broker.exists("Topic"));
     }
 
+    /**
+     * Verify that subscribing to a non-existing topic creates the topic and correctly subscribes the user.
+     */
     @Test
     void subscribeNonExistingTopicTest() {
 
@@ -28,6 +34,9 @@ public abstract class BrokerTest {
         assertTrue(broker.isSubscribed(topic, alice));
     }
 
+    /**
+     * Verify that unsubscribing from a non-existing topic doesn't cause an exception.
+     */
     @Test
     void unsubscribeNonExistingTopicTest() {
 
@@ -37,6 +46,9 @@ public abstract class BrokerTest {
         assertDoesNotThrow(() -> broker.unsubscribe("Topic", alice));
     }
 
+    /**
+     * Verify that a single user can subscribe to and unsubscribe from a topic.
+     */
     @Test
     void subscribeUnsubscribeTest() {
 
@@ -51,6 +63,9 @@ public abstract class BrokerTest {
         assertFalse(broker.isSubscribed(topic, alice));
     }
 
+    /**
+     * Verify that a multiple users can subscribe to and unsubscribe from a topic.
+     */
     @Test
     void subscribeManyUnsubscribeOneTest() {
 
@@ -70,12 +85,18 @@ public abstract class BrokerTest {
         assertTrue(broker.isSubscribed(topic, bob));
     }
 
+    /**
+     * Verify that publishing to a non-existing topic doesn't cause an exception.
+     */
     @Test
     void publishNonExistingChannelTest() {
         Broker<String, Subscriber, String> broker = createBroker();
         assertDoesNotThrow(() -> broker.publish("Topic", "Message"));
     }
 
+    /**
+     * Verify that a single subscriber receives a published message.
+     */
     @Test
     void subscribePublishTest() {
 
@@ -90,6 +111,9 @@ public abstract class BrokerTest {
         alice.assertReceived(message);
     }
 
+    /**
+     * Verify that multiple subscribers receive a published message.
+     */
     @Test
     void broadcastTest() {
 
