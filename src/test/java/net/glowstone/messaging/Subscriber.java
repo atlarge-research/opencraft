@@ -45,12 +45,12 @@ public final class Subscriber {
 
     @Override
     public boolean equals(Object other) {
-        return super.equals(other);
+        return other == this;
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return name.hashCode();
     }
 
     @Override
