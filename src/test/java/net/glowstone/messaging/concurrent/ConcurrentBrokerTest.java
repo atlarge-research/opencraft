@@ -4,7 +4,7 @@ import net.glowstone.messaging.Broker;
 import net.glowstone.messaging.BrokerTest;
 import net.glowstone.messaging.Subscriber;
 
-public class ConcurrentBrokerTest extends BrokerTest {
+class ConcurrentBrokerTest extends BrokerTest {
 
     @Override
     protected Broker<String, Subscriber, String> createBroker() {
