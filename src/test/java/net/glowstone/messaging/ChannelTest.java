@@ -8,6 +8,9 @@ public abstract class ChannelTest {
 
     protected abstract Channel<Subscriber, String> createChannel();
 
+    /**
+     * Verify that a subscriber receives a publish message.
+     */
     @Test
     void subscribeAndPublishTest() {
 
@@ -21,6 +24,9 @@ public abstract class ChannelTest {
         alice.assertReceived(message);
     }
 
+    /**
+     * Verify that multiple subscribers receive a published message.
+     */
     @Test
     void broadcastTest() {
 
@@ -37,6 +43,9 @@ public abstract class ChannelTest {
         bob.assertReceived(message);
     }
 
+    /**
+     * Verify that a message can be published to a channel with no subscribers.
+     */
     @Test
     void publishToEmptyTest() {
         Channel<Subscriber, String> channel = createChannel();

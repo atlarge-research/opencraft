@@ -25,16 +25,16 @@ public final class Subscriber {
     /**
      * The callback used to receive messages.
      *
-     * @param message the message to be stored.
+     * @param message the message to be received.
      */
     public void onMessage(String message) {
         future.complete(message);
     }
 
     /**
-     * Check whether the expected value was received.
+     * Verify that the expected message is received before or within 1 second from now.
      *
-     * @param expected the value expected to be received.
+     * @param expected the expected message to be received.
      */
     public void assertReceived(String expected) {
         assertDoesNotThrow(() -> {
