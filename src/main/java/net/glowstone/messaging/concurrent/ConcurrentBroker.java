@@ -26,8 +26,8 @@ public final class ConcurrentBroker<Topic, Subscriber, Message> implements Broke
     }
 
     @Override
-    public boolean exists(Topic topic) {
-        return channels.containsKey(topic);
+    public boolean isEmpty() {
+        return channels.isEmpty();
     }
 
     @Override

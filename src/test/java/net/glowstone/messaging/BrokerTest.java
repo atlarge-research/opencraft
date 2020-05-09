@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public abstract class BrokerTest {
@@ -11,13 +12,31 @@ public abstract class BrokerTest {
     protected abstract Broker<String, Subscriber, String> createBroker();
 
     /**
-     * Verify whether a broker is initially created with no topics.
+     * Verify that a created broker is initially empty.
      */
     @Test
     void initiallyEmptyTest() {
         Broker<String, Subscriber, String> broker = createBroker();
-        assertFalse(broker.exists("Topic"));
+        Assertions.assertTrue(broker.isEmpty());
     }
+
+    /**
+     * Verify that subscribing to and unsubscribing from an initially empty channel correctly updates its state.
+     */
+    @Test
+    void emptyTest() {
+
+        Broker<String, Subscriber, String> broker = createBroker();
+        String topic = "Topic";
+        Subscriber alice = new Subscriber("Alice");
+
+        broker.subscribe(topic, alice, alice::onMessage);
+        assertFalse(broker.isEmpty());
+
+        broker.unsubscribe(topic, alice);
+        Assertions.assertTrue(broker.isEmpty());
+    }
+
 
     /**
      * Verify that subscribing to a non-existing topic creates the topic and correctly subscribes the user.
@@ -30,7 +49,6 @@ public abstract class BrokerTest {
         Subscriber alice = new Subscriber("Alice");
 
         assertDoesNotThrow(() -> broker.subscribe(topic, alice, alice::onMessage));
-        assertTrue(broker.exists(topic));
         assertTrue(broker.isSubscribed(topic, alice));
     }
 

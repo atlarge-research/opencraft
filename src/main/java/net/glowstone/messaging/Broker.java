@@ -13,12 +13,11 @@ import java.util.function.Consumer;
 public interface Broker<Topic, Subscriber, Message> {
 
     /**
-     * Check whether the topic exists.
+     * Check whether the broker manages any subscribers.
      *
-     * @param topic the topic that needs to be checked.
-     * @return whether the topic exists.
+     * @return whether there are any subscribers.
      */
-    boolean exists(Topic topic);
+    boolean isEmpty();
 
     /**
      * Checks whether the subscribers has registered its interest in the topic.
