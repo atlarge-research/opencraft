@@ -188,7 +188,7 @@ public class GlowWorld implements World {
      * @return the entity manager
      */
     @Getter
-    private final EntityManager entityManager = new EntityManager();
+    private final EntityManager entityManager;
 
     /**
      * The chunk generator for this world.
@@ -204,7 +204,7 @@ public class GlowWorld implements World {
      * The game rules used in this world.
      */
     @Getter
-    private final GameRuleManager gameRuleMap = new GameRuleManager();
+    private final GameRuleManager gameRuleMap;
 
     /**
      * The environment.
@@ -226,7 +226,7 @@ public class GlowWorld implements World {
     /**
      * Contains how regular blocks should be pulsed.
      */
-    private final ConcurrentSet<Location> tickMap = new ConcurrentSet<>();
+    private final ConcurrentSet<Location> tickMap;
 
     private final Spigot spigot = new Spigot() {
         @Override
@@ -419,7 +419,7 @@ public class GlowWorld implements World {
      */
     @Getter
     private int maxHeight;
-    private Set<GlowChunk.Key> activeChunksSet = new HashSet<>();
+    private Set<GlowChunk.Key> activeChunksSet;
 
     /**
      * Whether the world has been initialized (i.e. loading/spawn generation is completed).
@@ -433,17 +433,9 @@ public class GlowWorld implements World {
 
     private Executor executor;
 
-    /**
-     * A queue of BlockChangeMessages to be sent.
-     */
     private final Queue<BlockChangeMessage> blockChanges;
 
-    /**
-     * A queue of messages that should be sent after block changes are processed.
-     *
-     * <p>Used for sign updates and other situations where the block must be sent first.
-     */
-    public final List<Pair<GlowChunk.Key, Message>> afterBlockChanges;
+    private final List<Pair<GlowChunk.Key, Message>> afterBlockChanges;
 
     /**
      * Creates a new world from the options in the given WorldCreator.
@@ -466,7 +458,10 @@ public class GlowWorld implements World {
 
         storage = worldStorageProvider;
         storage.setWorld(this);
+        entityManager = new EntityManager();
         populators = generator.getDefaultPopulators(this);
+        gameRuleMap = new GameRuleManager();
+        tickMap = new ConcurrentSet<>();
 
         // set up values from server defaults
         ticksPerAnimalSpawns = server.getTicksPerAnimalSpawns();
@@ -510,6 +505,7 @@ public class GlowWorld implements World {
         setKeepSpawnInMemory(keepSpawnLoaded);
 
         server.getLogger().info("Preparing spawn for " + name + ": done");
+        activeChunksSet = new HashSet<>();
         initialized = true;
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
 
