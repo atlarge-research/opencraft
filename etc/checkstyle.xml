@@ -117,11 +117,17 @@
     </module>
 
     <!-- Imports -->
-    <module name="AvoidStarImport"/>
     <module name="RedundantImport"/>
     <module name="UnusedImports"/>
     <module name="IllegalImport">
       <property name="illegalPkgs" value="net.minecraft.server, org.bukkit.craftbukkit"/>
+    </module>
+    <module name="ImportOrder">
+      <property name="groups" value="*"/>
+      <property name="ordered" value="true"/>
+      <property name="separated" value="true"/>
+      <property name="option" value="top"/>
+      <property name="sortStaticImportsAlphabetically" value="true"/>
     </module>
 
     <!-- Blocks -->
