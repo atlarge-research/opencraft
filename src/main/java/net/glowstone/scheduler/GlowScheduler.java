@@ -1,5 +1,6 @@
 package net.glowstone.scheduler;
 
+import com.atlarge.yscollector.YSCollector;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import net.glowstone.GlowServer;
 import net.glowstone.net.SessionRegistry;
+import net.glowstone.util.config.ServerConfig;
 import org.bukkit.Server;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -190,21 +192,42 @@ public final class GlowScheduler implements BukkitScheduler {
     }
 
     /**
+     * Start the yardstick collector.
+     * @param key the key.
+     * @param help the help message.
+     */
+    private void startMeasurement(String key, String help) {
+        if (ServerConfig.Key.YARDSTICK.equals(true)) {
+            YSCollector.start(key, help);
+        }
+    }
+
+    /**
+     * Stop the yardstick collector.
+     * @param key the key.
+     */
+    private void stopMeasurement(String key) {
+        if (ServerConfig.Key.YARDSTICK.equals(true)) {
+            YSCollector.stop(key);
+        }
+    }
+
+    /**
      * Adds new tasks and updates existing tasks, removing them if necessary.
      */
     // TODO: Add watchdog system to make sure ticks advance
     private void pulse() {
-        com.atlarge.yscollector.YSCollector.start("tick", "The duration of a tick."); // YSCollector
+        startMeasurement("tick", "The duration of a tick."); // YSCollector
         primaryThread = Thread.currentThread();
 
         // Process player packets
-        com.atlarge.yscollector.YSCollector.start("tick_network",
+        startMeasurement("tick_network",
                 "The duration of a tick processing the network"); // YSCollector
         sessionRegistry.pulse();
-        com.atlarge.yscollector.YSCollector.stop("tick_network"); // YSCollector
+        stopMeasurement("tick_network"); // YSCollector
 
         // Run the relevant tasks.
-        com.atlarge.yscollector.YSCollector.start("tick_jobs",
+        startMeasurement("tick_jobs",
                 "Duration of the server tick spent processing jobs"); // YSCollector
         for (Iterator<GlowTask> it = tasks.values().iterator(); it.hasNext();) {
             GlowTask task = it.next();
@@ -223,9 +246,9 @@ public final class GlowScheduler implements BukkitScheduler {
                     // do nothing
             }
         }
-        com.atlarge.yscollector.YSCollector.stop("tick_jobs");
+        stopMeasurement("tick_jobs");
 
-        com.atlarge.yscollector.YSCollector.start("tick_worlds", "Duration of a tick processing worlds");
+        startMeasurement("tick_worlds", "Duration of a tick processing worlds");
         try {
             int currentTick = worlds.beginTick();
             try {
@@ -251,9 +274,9 @@ public final class GlowScheduler implements BukkitScheduler {
             System.out.flush();
             System.err.flush();
         }
-        com.atlarge.yscollector.YSCollector.stop("tick_worlds"); // YSCollector
+        stopMeasurement("tick_worlds"); // YSCollector
 
-        com.atlarge.yscollector.YSCollector.stop("tick"); // YSCollector
+        stopMeasurement("tick"); // YSCollector
     }
 
     @Override
