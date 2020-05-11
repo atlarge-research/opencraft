@@ -5,9 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
-
+/**
+ * The ChannelTest class provides tests for the general use cases of all channels. Preventing a code-duplication and
+ * thereby programming mistakes.
+ */
 public abstract class ChannelTest {
 
+    /**
+     * Create a channel to be used in the general use case tests.
+     *
+     * @return a channel instance of the implementing class.
+     */
     protected abstract Channel<Subscriber, String> createChannel();
 
     /**

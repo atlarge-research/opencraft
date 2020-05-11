@@ -7,8 +7,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+/**
+ * The BrokerTest class provides tests for the general use cases of all brokers. Preventing a code-duplication and
+ * thereby programming mistakes.
+ */
 public abstract class BrokerTest {
 
+    /**
+     * Create a broker to be used in the general use case tests.
+     *
+     * @return a broker instance of the implementing class.
+     */
     protected abstract Broker<String, Subscriber, String> createBroker();
 
     /**
