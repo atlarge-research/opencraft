@@ -2,11 +2,13 @@ package net.glowstone.messaging.concurrent;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import net.glowstone.messaging.Broker;
+import net.glowstone.messaging.Channel;
 
 /**
- * The concurrent broker uses a concurrent hashmap to store topic-channel pairs. The concurrent
+ * The concurrent broker uses a concurrent hash map to store topic-channel pairs. The concurrent
  * hash map allows multiple publishers and subscribers to access the broker simultaneously.
  *
  * @param <Topic> the type of topics that is allowed to identify channels.
@@ -15,7 +17,7 @@ import net.glowstone.messaging.Broker;
  */
 public final class ConcurrentBroker<Topic, Subscriber, Message> implements Broker<Topic, Subscriber, Message> {
 
-    private final Map<Topic, ConcurrentChannel<Subscriber, Message>> channels;
+    private final Map<Topic, Channel<Subscriber, Message>> channels;
 
     /**
      * Create a concurrent broker.
@@ -25,25 +27,43 @@ public final class ConcurrentBroker<Topic, Subscriber, Message> implements Broke
     }
 
     @Override
-    public void subscribe(Topic topic, Subscriber subscriber, Consumer<Message> callback) {
+    public boolean isEmpty() {
+        return channels.isEmpty();
+    }
+
+    @Override
+    public boolean isSubscribed(Topic topic, Subscriber subscriber) {
+        Channel<Subscriber, Message> channel = channels.get(topic);
+        if (channel == null) {
+            return false;
+        }
+        return channel.isSubscribed(subscriber);
+    }
+
+    @Override
+    public boolean subscribe(Topic topic, Subscriber subscriber, Consumer<Message> callback) {
+        AtomicBoolean subscribed = new AtomicBoolean(false);
         channels.compute(topic, (t, channel) -> {
             if (channel == null) {
                 channel = new ConcurrentChannel<>();
             }
-            channel.subscribe(subscriber, callback);
+            subscribed.set(channel.subscribe(subscriber, callback));
             return channel;
         });
+        return subscribed.get();
     }
 
     @Override
-    public void unsubscribe(Topic topic, Subscriber subscriber) {
+    public boolean unsubscribe(Topic topic, Subscriber subscriber) {
+        AtomicBoolean unsubscribed = new AtomicBoolean(false);
         channels.computeIfPresent(topic, (t, channel) -> {
-            channel.unsubscribe(subscriber);
+            unsubscribed.set(channel.unsubscribe(subscriber));
             if (channel.isEmpty()) {
                 return null;
             }
             return channel;
         });
+        return unsubscribed.get();
     }
 
     @Override
