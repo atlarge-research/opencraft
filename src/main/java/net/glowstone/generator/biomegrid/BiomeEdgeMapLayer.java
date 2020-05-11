@@ -45,7 +45,7 @@ public class BiomeEdgeMapLayer extends MapLayer {
         EDGES.put(MEGA_TAIGA_EDGES, null);
         EDGES.put(DESERT_EDGES, Arrays.asList(GlowBiome.getId(ICE_FLATS)));
         EDGES.put(SWAMP1_EDGES, Arrays.asList(GlowBiome.getId(DESERT), GlowBiome.getId(TAIGA_COLD),
-                GlowBiome.getId(ICE_FLATS)));
+            GlowBiome.getId(ICE_FLATS)));
         EDGES.put(SWAMP2_EDGES, Arrays.asList(GlowBiome.getId(JUNGLE)));
     }
 
@@ -78,17 +78,17 @@ public class BiomeEdgeMapLayer extends MapLayer {
                         int leftVal = values[j + (i + 1) * gridSizeX];
                         int rightVal = values[j + 2 + (i + 1) * gridSizeX];
                         if (entry.getValue() == null && (
-                                !map.containsKey(upperVal)
-                                        || !map.containsKey(lowerVal)
-                                        || !map.containsKey(leftVal)
-                                        || !map.containsKey(rightVal))) {
+                            !map.containsKey(upperVal)
+                                || !map.containsKey(lowerVal)
+                                || !map.containsKey(leftVal)
+                                || !map.containsKey(rightVal))) {
                             val = map.get(centerVal);
                             break;
                         } else if (entry.getValue() != null && (
-                                entry.getValue().contains(upperVal)
-                                        || entry.getValue().contains(lowerVal)
-                                        || entry.getValue().contains(leftVal)
-                                        || entry.getValue().contains(rightVal))) {
+                            entry.getValue().contains(upperVal)
+                                || entry.getValue().contains(lowerVal)
+                                || entry.getValue().contains(leftVal)
+                                || entry.getValue().contains(rightVal))) {
                             val = map.get(centerVal);
                             break;
                         }
