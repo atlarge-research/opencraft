@@ -390,6 +390,10 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
      * with any other instances of emptyLIst. Use a new instance of an empty ArrayList instead.
      */
     public enum Key {
+
+        // Yardstick
+        YARDSTICK("yardstick.on", false, Migrate.PROPS, "yardstick-on", Boolean.class::isInstance),
+
         // server
         SERVER_IP("server.ip", "", Migrate.PROPS, "server-ip", String.class::isInstance),
         SERVER_PORT("server.port", DEFAULT_PORT, Migrate.PROPS, "server-port", Validators.PORT),

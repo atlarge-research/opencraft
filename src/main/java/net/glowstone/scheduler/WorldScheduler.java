@@ -13,6 +13,7 @@ import java.util.logging.Level;
 import lombok.Getter;
 import net.glowstone.GlowServer;
 import net.glowstone.GlowWorld;
+import net.glowstone.util.config.ServerConfig;
 
 /**
  * Manager for world thread pool.
@@ -167,8 +168,10 @@ public class WorldScheduler {
             try {
                 while (!isInterrupted() && !tickEnd.isTerminated()) {
                     tickBegin.arriveAndAwaitAdvance();
-                    YSCollector.start("world_" + world.getName() + "_tick",
-                            "World thread: Duration processing tick.");
+                    if (ServerConfig.Key.YARDSTICK.equals(true)) {
+                        YSCollector.start("world_" + world.getName() + "_tick",
+                                "World thread: Duration processing tick.");
+                    }
                     try {
                         world.pulse();
                     } catch (Exception e) {
@@ -177,7 +180,9 @@ public class WorldScheduler {
                     } finally {
                         tickEnd.arriveAndAwaitAdvance();
                     }
-                    YSCollector.stop("world_" + world.getName() + "_tick");
+                    if (ServerConfig.Key.YARDSTICK.equals(true)) {
+                        YSCollector.stop("world_" + world.getName() + "_tick");
+                    }
                 }
             } finally {
                 tickBegin.arriveAndDeregister();
