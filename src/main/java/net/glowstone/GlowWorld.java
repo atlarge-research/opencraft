@@ -9,14 +9,17 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
@@ -32,7 +35,6 @@ import net.glowstone.chunk.ChunkManager;
 import net.glowstone.chunk.ChunkManager.ChunkLock;
 import net.glowstone.chunk.ChunkSection;
 import net.glowstone.chunk.GlowChunk;
-import net.glowstone.chunk.GlowChunk.Key;
 import net.glowstone.chunk.GlowChunkSnapshot.EmptySnapshot;
 import net.glowstone.constants.GameRules;
 import net.glowstone.constants.GlowBiome;
@@ -60,6 +62,7 @@ import net.glowstone.messaging.concurrent.ConcurrentBroker;
 import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
+import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
 import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
 import net.glowstone.util.BlockStateDelegate;
@@ -68,6 +71,7 @@ import net.glowstone.util.RayUtil;
 import net.glowstone.util.TickUtil;
 import net.glowstone.util.collection.ConcurrentSet;
 import net.glowstone.util.config.WorldConfig;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.BlockChangeDelegate;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
@@ -115,6 +119,7 @@ import org.bukkit.metadata.MetadataStoreBase;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.messaging.StandardMessenger;
+import org.bukkit.util.BlockVector;
 import org.bukkit.util.Consumer;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NonNls;
@@ -183,7 +188,7 @@ public class GlowWorld implements World {
      * @return the entity manager
      */
     @Getter
-    private final EntityManager entityManager = new EntityManager();
+    private final EntityManager entityManager;
 
     /**
      * The chunk generator for this world.
@@ -199,7 +204,7 @@ public class GlowWorld implements World {
      * The game rules used in this world.
      */
     @Getter
-    private final GameRuleManager gameRuleMap = new GameRuleManager();
+    private final GameRuleManager gameRuleMap;
 
     /**
      * The environment.
@@ -221,7 +226,7 @@ public class GlowWorld implements World {
     /**
      * Contains how regular blocks should be pulsed.
      */
-    private final ConcurrentSet<Location> tickMap = new ConcurrentSet<>();
+    private final ConcurrentSet<Location> tickMap;
 
     private final Spigot spigot = new Spigot() {
         @Override
@@ -414,7 +419,7 @@ public class GlowWorld implements World {
      */
     @Getter
     private int maxHeight;
-    private Set<Key> activeChunksSet = new HashSet<>();
+    private Set<GlowChunk.Key> activeChunksSet;
 
     /**
      * Whether the world has been initialized (i.e. loading/spawn generation is completed).
@@ -422,11 +427,15 @@ public class GlowWorld implements World {
     @Getter
     private boolean initialized;
 
-    private final Map<GlowPlayer, Location> previousLocations = new WeakHashMap<>();
+    private final Map<GlowPlayer, Location> previousLocations;
 
     private Broker<GlowChunk.Key, UUID, Message> messageBroker;
 
     private Executor executor;
+
+    private final Queue<BlockChangeMessage> blockChanges;
+
+    private final List<Pair<GlowChunk.Key, Message>> afterBlockChanges;
 
     /**
      * Creates a new world from the options in the given WorldCreator.
@@ -449,7 +458,10 @@ public class GlowWorld implements World {
 
         storage = worldStorageProvider;
         storage.setWorld(this);
+        entityManager = new EntityManager();
         populators = generator.getDefaultPopulators(this);
+        gameRuleMap = new GameRuleManager();
+        tickMap = new ConcurrentSet<>();
 
         // set up values from server defaults
         ticksPerAnimalSpawns = server.getTicksPerAnimalSpawns();
@@ -493,12 +505,15 @@ public class GlowWorld implements World {
         setKeepSpawnInMemory(keepSpawnLoaded);
 
         server.getLogger().info("Preparing spawn for " + name + ": done");
+        activeChunksSet = new HashSet<>();
         initialized = true;
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
 
+        previousLocations = new WeakHashMap<>();
         messageBroker = new ConcurrentBroker<>();
-
         executor = Executors.newCachedThreadPool();
+        blockChanges = new ConcurrentLinkedDeque<>();
+        afterBlockChanges = new LinkedList<>();
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -547,6 +562,7 @@ public class GlowWorld implements World {
         updateBlocksInActiveChunks();
         // why update blocks before Players or Entities? if there is a specific reason we should
         // document it here.
+        processBlockChanges();
 
         pulsePlayers(players);
         resetEntities(allEntities);
@@ -673,7 +689,7 @@ public class GlowWorld implements World {
     }
 
     private void updateBlocksInActiveChunks() {
-        for (Key key : activeChunksSet) {
+        for (GlowChunk.Key key : activeChunksSet) {
             int cx = key.getX();
             int cz = key.getZ();
             // check the chunk is loaded
@@ -693,6 +709,8 @@ public class GlowWorld implements World {
                     updateBlocksInSection(chunk, sections[i], i);
                 }
             }
+
+
         }
     }
 
@@ -713,6 +731,69 @@ public class GlowWorld implements World {
                 }
             }
         }
+    }
+
+    /**
+     * Add a block change message to the block changes queue.
+     *
+     * @param message The message to be stored.
+     */
+    public void addBlockChange(BlockChangeMessage message) {
+        blockChanges.add(message);
+    }
+
+    /**
+     * Add a message to the list of after block change messages.
+     *
+     * @param location The location of the block change.
+     * @param message The message to be stored.
+     */
+    public void addAfterBlockChange(Location location, Message message) {
+        Chunk chunk = location.getChunk();
+        GlowChunk.Key key = GlowChunk.Key.of(chunk.getX(), chunk.getZ());
+        afterBlockChanges.add(Pair.of(key, message));
+    }
+
+    /**
+     * Process and send pending BlockChangeMessages for each chunk. Messages are published to the corresponding
+     * chunks to players that are interested.
+     */
+    private void processBlockChanges() {
+
+        Map<GlowChunk.Key, Map<BlockVector, BlockChangeMessage>> chunks = new HashMap<>();
+        while (true) {
+
+            BlockChangeMessage message = blockChanges.poll();
+            if (message == null) {
+                break;
+            }
+
+            GlowChunk.Key key = GlowChunk.Key.of(message.getX() >> 4, message.getZ() >> 4);
+            Map<BlockVector, BlockChangeMessage> map = chunks.computeIfAbsent(key, k -> new HashMap<>());
+            BlockVector vector = new BlockVector(message.getX(), message.getY(), message.getZ());
+            map.put(vector, message);
+        }
+
+        for (Map.Entry<GlowChunk.Key, Map<BlockVector, BlockChangeMessage>> entry : chunks.entrySet()) {
+
+            GlowChunk.Key key = entry.getKey();
+            List<BlockChangeMessage> value = new ArrayList<>(entry.getValue().values());
+
+            if (value.size() == 1) {
+                messageBroker.publish(key, value.get(0));
+            } else if (value.size() > 1) {
+                Message message = new MultiBlockChangeMessage(key.getX(), key.getZ(), value);
+                messageBroker.publish(key, message);
+            }
+        }
+
+        List<Pair<GlowChunk.Key, Message>> postMessages = new ArrayList<>(afterBlockChanges);
+        afterBlockChanges.removeAll(postMessages);
+        postMessages.forEach(pair -> {
+            GlowChunk.Key key = pair.getLeft();
+            Message message = pair.getRight();
+            messageBroker.publish(key, message);
+        });
     }
 
     private void saveWorld() {
@@ -1490,7 +1571,7 @@ public class GlowWorld implements World {
             return false;
         }
 
-        Key key = GlowChunk.Key.of(x, z);
+        GlowChunk.Key key = GlowChunk.Key.of(x, z);
         boolean result = false;
 
         for (GlowPlayer player : getRawPlayers()) {
