@@ -58,7 +58,9 @@ import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
 import net.glowstone.messaging.Broker;
+import net.glowstone.messaging.MessagingSystem;
 import net.glowstone.messaging.brokers.ConcurrentBroker;
+import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
@@ -429,7 +431,7 @@ public class GlowWorld implements World {
 
     private final Map<GlowPlayer, Location> previousLocations;
 
-    private Broker<GlowChunk.Key, UUID, Message> messageBroker;
+    private MessagingSystem<Chunk, Player, Object, Message> messagingSystem;
 
     private Executor executor;
 
@@ -509,8 +511,11 @@ public class GlowWorld implements World {
         initialized = true;
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
 
+        ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
+        Broker<Chunk, Player, Message> broker = new ConcurrentBroker<>();
+        messagingSystem = new MessagingSystem<>(policy, broker);
+
         previousLocations = new WeakHashMap<>();
-        messageBroker = new ConcurrentBroker<>();
         executor = Executors.newCachedThreadPool();
         blockChanges = new ConcurrentLinkedDeque<>();
         afterBlockChanges = new LinkedList<>();
@@ -537,7 +542,10 @@ public class GlowWorld implements World {
         entityManager.getAll().stream()
                 .filter(GlowPlayer.class::isInstance)
                 .map(GlowPlayer.class::cast)
-                .forEach(this::updateSubscriptions);
+                .forEach(player -> {
+                    messagingSystem.update(player, player.getSession()::send);
+                    streamChunks(player);
+                });
 
         List<GlowEntity> allEntities = new ArrayList<>(entityManager.getAll());
         List<GlowPlayer> players = new LinkedList<>();
@@ -578,16 +586,14 @@ public class GlowWorld implements World {
     }
 
     /**
-     * Update player subscriptions based on their current interest..
+     * Stream chunks that have come within viewing distance and unload those that have gone out of sight.
      * @param player the player.
      */
-    public void updateSubscriptions(GlowPlayer player) {
+    public void streamChunks(GlowPlayer player) {
 
         Location current = player.getLocation();
         Location previous = previousLocations.get(player);
 
-        // This checks if we need to force a chunk stream, this can happen when the player first
-        // joins the game
         boolean force = false;
 
         if (previous == null) {
@@ -601,7 +607,6 @@ public class GlowWorld implements World {
         int previousX = previous.getBlockX() >> 4;
         int previousZ = previous.getBlockZ() >> 4;
 
-        // TODO: Skip this test if view distance changed.
         if (!force && previousX == currentX && previousZ == currentZ) {
             return;
         }
@@ -618,16 +623,8 @@ public class GlowWorld implements World {
                             || Math.abs(z - currentZ) > radius) {
 
                         GlowChunk.Key key = GlowChunk.Key.of(x, z);
-
-                        messageBroker.unsubscribe(
-                                key,
-                                player.getUniqueId()
-                        );
-
                         session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
                         player.getChunkLock().release(key);
-
-                        // TODO: Send entity despawn messages
                     }
                 }
             }
@@ -643,12 +640,6 @@ public class GlowWorld implements World {
 
                         GlowChunk.Key key = GlowChunk.Key.of(x, z);
 
-                        messageBroker.subscribe(
-                                key,
-                                player.getUniqueId(),
-                                session::send
-                        );
-
                         getChunkManager().forcePopulation(key.getX(), key.getZ());
                         player.getChunkLock().acquire(key);
 
@@ -660,8 +651,6 @@ public class GlowWorld implements World {
                             session.send(message);
                             chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
                         });
-
-                        // TODO: Send entity spawn messages
                     }
                 }
             }
@@ -777,13 +766,13 @@ public class GlowWorld implements World {
         for (Map.Entry<GlowChunk.Key, Map<BlockVector, BlockChangeMessage>> entry : chunks.entrySet()) {
 
             GlowChunk.Key key = entry.getKey();
-            List<BlockChangeMessage> value = new ArrayList<>(entry.getValue().values());
+            List<BlockChangeMessage> values = new ArrayList<>(entry.getValue().values());
 
-            if (value.size() == 1) {
-                messageBroker.publish(key, value.get(0));
-            } else if (value.size() > 1) {
-                Message message = new MultiBlockChangeMessage(key.getX(), key.getZ(), value);
-                messageBroker.publish(key, message);
+            if (values.size() == 1) {
+                messagingSystem.broadcast(getChunkAt(key.getX(), key.getZ()), values.get(0));
+            } else if (values.size() > 1) {
+                Message message = new MultiBlockChangeMessage(key.getX(), key.getZ(), values);
+                messagingSystem.broadcast(getChunkAt(key.getX(), key.getZ()), message);
             }
         }
 
@@ -792,7 +781,7 @@ public class GlowWorld implements World {
         postMessages.forEach(pair -> {
             GlowChunk.Key key = pair.getLeft();
             Message message = pair.getRight();
-            messageBroker.publish(key, message);
+            messagingSystem.broadcast(getChunkAt(key.getX(), key.getZ()), message);
         });
     }
 
