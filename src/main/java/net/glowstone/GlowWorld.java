@@ -734,16 +734,16 @@ public class GlowWorld implements World {
     }
 
     /**
-     * Add block change message to the block changes queue.
+     * Add a block change message to the block changes queue.
      *
-     * @param message the mesasge to stored.
+     * @param message The message to be stored.
      */
     public void addBlockChange(BlockChangeMessage message) {
         blockChanges.add(message);
     }
 
     /**
-     * Add an message list of after block changes.
+     * Add a message to the list of after block change messages.
      *
      * @param location The location of the block change.
      * @param message The message to be stored.
