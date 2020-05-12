@@ -1,4 +1,4 @@
-package net.glowstone.messaging.concurrent;
+package net.glowstone.messaging.brokers;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

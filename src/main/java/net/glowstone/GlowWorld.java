@@ -58,7 +58,7 @@ import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
 import net.glowstone.messaging.Broker;
-import net.glowstone.messaging.concurrent.ConcurrentBroker;
+import net.glowstone.messaging.brokers.ConcurrentBroker;
 import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
