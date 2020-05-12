@@ -217,18 +217,19 @@ public final class GlowScheduler implements BukkitScheduler {
      */
     // TODO: Add watchdog system to make sure ticks advance
     private void pulse() {
-        startMeasurement("tick", "The duration of a tick."); // YSCollector
+        
+        startMeasurement("tick", "The duration of a tick.");
         primaryThread = Thread.currentThread();
 
         // Process player packets
         startMeasurement("tick_network",
-                "The duration of a tick processing the network"); // YSCollector
+                "The duration of a tick processing the network");
         sessionRegistry.pulse();
-        stopMeasurement("tick_network"); // YSCollector
+        stopMeasurement("tick_network");
 
         // Run the relevant tasks.
         startMeasurement("tick_jobs",
-                "Duration of the server tick spent processing jobs"); // YSCollector
+                "Duration of the server tick spent processing jobs");
         for (Iterator<GlowTask> it = tasks.values().iterator(); it.hasNext();) {
             GlowTask task = it.next();
             switch (task.shouldExecute()) {
@@ -274,9 +275,9 @@ public final class GlowScheduler implements BukkitScheduler {
             System.out.flush();
             System.err.flush();
         }
-        stopMeasurement("tick_worlds"); // YSCollector
+        stopMeasurement("tick_worlds");
 
-        stopMeasurement("tick"); // YSCollector
+        stopMeasurement("tick");
     }
 
     @Override
