@@ -197,7 +197,7 @@ public final class GlowScheduler implements BukkitScheduler {
      * @param help the help message.
      */
     private void startMeasurement(String key, String help) {
-        if (ServerConfig.Key.YARDSTICK.equals(true)) {
+        if (ServerConfig.Key.OPENCRAFT_COLLECTOR.equals(true)) {
             YSCollector.start(key, help);
         }
     }
@@ -207,7 +207,7 @@ public final class GlowScheduler implements BukkitScheduler {
      * @param key the key.
      */
     private void stopMeasurement(String key) {
-        if (ServerConfig.Key.YARDSTICK.equals(true)) {
+        if (ServerConfig.Key.OPENCRAFT_COLLECTOR.equals(true)) {
             YSCollector.stop(key);
         }
     }

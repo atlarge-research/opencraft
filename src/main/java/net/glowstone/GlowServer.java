@@ -552,7 +552,7 @@ public class GlowServer implements Server {
     private static ServerConfig parseArguments(String... args) {
         Map<Key, Object> parameters = new EnumMap<>(Key.class);
         @NonNls String configDirName = "config";
-        @NonNls String configFileName = "glowstone.yml";
+        @NonNls String configFileName = "opencraft.yml";
 
         // Calculate acceptable parameters
         for (int i = 0; i < args.length; i++) {
