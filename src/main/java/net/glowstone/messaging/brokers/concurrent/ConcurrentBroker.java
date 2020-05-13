@@ -26,30 +26,6 @@ public final class ConcurrentBroker<Topic, Subscriber, Message> implements Broke
         channels = new ConcurrentHashMap<>();
     }
 
-    /**
-     * Check whether the broker is empty, meaning that there are no subscribers.
-     *
-     * @return whether there are any subscribers.
-     */
-    boolean isEmpty() {
-        return channels.isEmpty();
-    }
-
-    /**
-     * Check whether a subscriber is subscribed to the topic.
-     *
-     * @param topic the topic of interest.
-     * @param subscriber the subscriber whom's subscription should be checked.
-     * @return whether the subscriber is subscribed to the topic.
-     */
-    boolean isSubscribed(Topic topic, Subscriber subscriber) {
-        ConcurrentChannel<Subscriber, Message> channel = channels.get(topic);
-        if (channel == null) {
-            return false;
-        }
-        return channel.isSubscribed(subscriber);
-    }
-
     @Override
     public void subscribe(Topic topic, Subscriber subscriber, Consumer<Message> callback) {
         channels.compute(topic, (t, channel) -> {

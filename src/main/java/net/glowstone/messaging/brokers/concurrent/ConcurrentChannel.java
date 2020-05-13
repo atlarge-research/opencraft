@@ -11,7 +11,7 @@ import net.glowstone.messaging.Channel;
  * @param <Subscriber> the type of subscribers that is allowed to subscribe to a channel.
  * @param <Message> the type of messages that is allowed to be published to a channel.
  */
-public final class ConcurrentChannel<Subscriber, Message> implements Channel<Subscriber, Message> {
+final class ConcurrentChannel<Subscriber, Message> implements Channel<Subscriber, Message> {
 
     private static final long PARALLELISM_THRESHOLD = 4;
 
@@ -20,7 +20,7 @@ public final class ConcurrentChannel<Subscriber, Message> implements Channel<Sub
     /**
      * Create a concurrent channel.
      */
-    public ConcurrentChannel() {
+    ConcurrentChannel() {
         this.callbacks = new ConcurrentHashMap<>();
     }
 
@@ -31,16 +31,6 @@ public final class ConcurrentChannel<Subscriber, Message> implements Channel<Sub
      */
     boolean isEmpty() {
         return callbacks.isEmpty();
-    }
-
-    /**
-     * Check whether a subscriber is subscribed to the channel.
-     *
-     * @param subscriber the subscriber whom's subscription should be checked.
-     * @return whether the subscriber is subscribed to the channel.
-     */
-    boolean isSubscribed(Subscriber subscriber) {
-        return callbacks.containsKey(subscriber);
     }
 
     @Override
