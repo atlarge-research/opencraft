@@ -1,6 +1,6 @@
 package net.glowstone.util;
 
-public class DeprecatedMethodException extends UnsupportedOperationException{
+public class DeprecatedMethodException extends UnsupportedOperationException {
 
     /**
      * Constructs an DeprecatedMethodException with no detail message.
