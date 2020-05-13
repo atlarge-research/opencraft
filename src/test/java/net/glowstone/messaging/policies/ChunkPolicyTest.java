@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test the chunk policy using a mocked world.
  */
-public class ChunkPolicyTest {
+final class ChunkPolicyTest {
 
     private World world;
     private ChunkPolicy policy;

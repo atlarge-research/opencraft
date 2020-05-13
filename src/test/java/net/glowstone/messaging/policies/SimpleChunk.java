@@ -8,7 +8,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 
-class SimpleChunk implements Chunk {
+final class SimpleChunk implements Chunk {
 
     private final World world;
     private final int x;

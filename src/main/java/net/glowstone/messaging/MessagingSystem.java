@@ -45,7 +45,9 @@ public final class MessagingSystem<Topic, Subscriber, Publisher, Message> {
         if (newTopics.isEmpty()) {
 
             Set<Topic> oldTopics = subscriptions.remove(subscriber);
-            oldTopics.forEach(topic -> broker.unsubscribe(topic, subscriber));
+            if (oldTopics != null) {
+                oldTopics.forEach(topic -> broker.unsubscribe(topic, subscriber));
+            }
 
         } else {
 

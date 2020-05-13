@@ -1,4 +1,4 @@
-package net.glowstone.messaging.brokers;
+package net.glowstone.messaging.brokers.concurrent;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -24,24 +24,33 @@ public final class ConcurrentChannel<Subscriber, Message> implements Channel<Sub
         this.callbacks = new ConcurrentHashMap<>();
     }
 
-    @Override
-    public boolean isEmpty() {
+    /**
+     * Check whether the channel is empty, meaning that there are no subscribers.
+     *
+     * @return whether there are any subscribers to the channel.
+     */
+    boolean isEmpty() {
         return callbacks.isEmpty();
     }
 
-    @Override
-    public boolean isSubscribed(Subscriber subscriber) {
+    /**
+     * Check whether a subscriber is subscribed to the channel.
+     *
+     * @param subscriber the subscriber whom's subscription should be checked.
+     * @return whether the subscriber is subscribed to the channel.
+     */
+    boolean isSubscribed(Subscriber subscriber) {
         return callbacks.containsKey(subscriber);
     }
 
     @Override
-    public boolean subscribe(Subscriber subscriber, Consumer<Message> callback) {
-        return callbacks.putIfAbsent(subscriber, callback) == null;
+    public void subscribe(Subscriber subscriber, Consumer<Message> callback) {
+        callbacks.putIfAbsent(subscriber, callback);
     }
 
     @Override
-    public boolean unsubscribe(Subscriber subscriber) {
-        return callbacks.remove(subscriber) != null;
+    public void unsubscribe(Subscriber subscriber) {
+        callbacks.remove(subscriber);
     }
 
     @Override

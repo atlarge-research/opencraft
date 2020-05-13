@@ -59,7 +59,7 @@ import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
 import net.glowstone.messaging.Broker;
 import net.glowstone.messaging.MessagingSystem;
-import net.glowstone.messaging.brokers.ConcurrentBroker;
+import net.glowstone.messaging.brokers.concurrent.ConcurrentBroker;
 import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;

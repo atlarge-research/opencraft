@@ -23,6 +23,15 @@ public final class Subscriber {
     }
 
     /**
+     * Get the subscriber's name.
+     *
+     * @return the subscriber's name.
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
      * The callback used to receive messages.
      *
      * @param message the message to be received.
