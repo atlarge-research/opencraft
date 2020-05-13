@@ -15,6 +15,7 @@ public abstract class EntityTask implements Comparable<EntityTask> {
     @Getter
     @NonNls
     private final String name;
+
     /**
      * Whether this task is currently being executed.
      *
@@ -23,6 +24,7 @@ public abstract class EntityTask implements Comparable<EntityTask> {
     @Getter
     private boolean executing = false;
     private int duration = 0;
+
     /**
      * Whether this task is paused.
      *

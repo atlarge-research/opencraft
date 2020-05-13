@@ -4,23 +4,27 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.flowpowered.network.Message;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -31,7 +35,6 @@ import net.glowstone.chunk.ChunkManager;
 import net.glowstone.chunk.ChunkManager.ChunkLock;
 import net.glowstone.chunk.ChunkSection;
 import net.glowstone.chunk.GlowChunk;
-import net.glowstone.chunk.GlowChunk.Key;
 import net.glowstone.chunk.GlowChunkSnapshot.EmptySnapshot;
 import net.glowstone.constants.GameRules;
 import net.glowstone.constants.GlowBiome;
@@ -46,7 +49,6 @@ import net.glowstone.entity.EntityManager;
 import net.glowstone.entity.EntityRegistry;
 import net.glowstone.entity.GlowEntity;
 import net.glowstone.entity.GlowLightningStrike;
-import net.glowstone.entity.GlowLivingEntity;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.entity.objects.GlowFallingBlock;
 import net.glowstone.entity.objects.GlowItem;
@@ -55,8 +57,13 @@ import net.glowstone.generator.structures.GlowStructure;
 import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
+import net.glowstone.messaging.Broker;
+import net.glowstone.messaging.concurrent.ConcurrentBroker;
+import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
+import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
+import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
 import net.glowstone.util.BlockStateDelegate;
 import net.glowstone.util.GameRuleManager;
@@ -64,6 +71,7 @@ import net.glowstone.util.RayUtil;
 import net.glowstone.util.TickUtil;
 import net.glowstone.util.collection.ConcurrentSet;
 import net.glowstone.util.config.WorldConfig;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.BlockChangeDelegate;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
@@ -111,6 +119,7 @@ import org.bukkit.metadata.MetadataStoreBase;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.messaging.StandardMessenger;
+import org.bukkit.util.BlockVector;
 import org.bukkit.util.Consumer;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NonNls;
@@ -127,14 +136,17 @@ public class GlowWorld implements World {
      * The metadata store for world objects.
      */
     private static final MetadataStore<World> metadata = new WorldMetadataStore();
+
     /**
      * The length in ticks between autosaves (5 minutes).
      */
     private static final int AUTOSAVE_TIME = TickUtil.minutesToTicks(5);
+
     /**
      * The maximum height of ocean water.
      */
     private static int seaLevel;
+
     /**
      * Get the world's parent server.
      *
@@ -142,11 +154,13 @@ public class GlowWorld implements World {
      */
     @Getter
     private final GlowServer server;
+
     /**
      * The name of this world.
      */
     @Getter
     private final String name;
+
     /**
      * The chunk manager.
      *
@@ -154,6 +168,7 @@ public class GlowWorld implements World {
      */
     @Getter
     private final ChunkManager chunkManager;
+
     /**
      * The storage provider for the world.
      *
@@ -161,48 +176,58 @@ public class GlowWorld implements World {
      */
     @Getter
     private final WorldStorageProvider storage;
+
     /**
      * The world's UUID.
      */
     private final UUID uid;
+
     /**
      * The entity manager.
      *
      * @return the entity manager
      */
     @Getter
-    private final EntityManager entityManager = new EntityManager();
+    private final EntityManager entityManager;
+
     /**
      * The chunk generator for this world.
      */
     private final ChunkGenerator generator;
+
     /**
      * The world populators for this world.
      */
     private final List<BlockPopulator> populators;
+
     /**
      * The game rules used in this world.
      */
     @Getter
-    private final GameRuleManager gameRuleMap = new GameRuleManager();
+    private final GameRuleManager gameRuleMap;
+
     /**
      * The environment.
      */
     @Getter
     private final Environment environment;
+
     /**
      * Whether structure generation is enabled.
      */
     private final boolean generateStructures;
+
     /**
      * The world seed.
      */
     @Getter
     private final long seed;
+
     /**
      * Contains how regular blocks should be pulsed.
      */
-    private final ConcurrentSet<Location> tickMap = new ConcurrentSet<>();
+    private final ConcurrentSet<Location> tickMap;
+
     private final Spigot spigot = new Spigot() {
         @Override
         public void playEffect(Location location, Effect effect) {
@@ -226,138 +251,161 @@ public class GlowWorld implements World {
             return strikeLightningFireEvent(loc, true, isSilent);
         }
     };
-    /*/**
-     * The ScheduledExecutorService the for entity AI tasks threading.
-     */
-    //private final ScheduledExecutorService aiTaskService;
+
     /**
      * The world border.
      */
     @Getter
     private final GlowWorldBorder worldBorder;
+
     /**
      * The functions for this world.
      */
     private final Map<String, CommandFunction> functions;
+
     /**
      * A lock kept on the spawn chunkManager.
      */
     private ChunkLock spawnChunkLock;
+
     /**
      * The world type.
      */
     @Getter
     @Setter
     private WorldType worldType;
+
     /**
      * The spawn position.
      */
     private Location spawnLocation;
+
     /**
      * Whether to keep the spawn chunkManager in memory (prevent them from being unloaded).
      */
-    private boolean keepSpawnLoaded = true;
+    private boolean keepSpawnLoaded;
+
     /**
      * Whether to populate chunkManager when they are anchored.
      */
     private boolean populateAnchoredChunks;
+
     /**
      * Whether PvP is allowed in this world.
      */
     private boolean pvpAllowed = true;
+
     /**
      * Whether animals can spawn in this world.
      */
     private boolean spawnAnimals = true;
+
     /**
      * Whether monsters can spawn in this world.
      */
     private boolean spawnMonsters = true;
+
     /**
      * Whether it is currently raining/snowing on this world.
      */
     private boolean currentlyRaining = true;
+
     /**
      * How many ticks until the rain/snow status is expected to change.
      */
     @Getter
     @Setter
     private int weatherDuration;
+
     /**
      * Whether it is currently thundering on this world.
      */
     @Getter
     private boolean thundering = true;
+
     /**
      * How many ticks until the thundering status is expected to change.
      */
     @Getter
     @Setter
     private int thunderDuration;
+
     /**
      * The rain density on the current world tick.
      */
     @Getter
     private float rainDensity;
+
     /**
      * The sky darkness on the current world tick.
      */
     @Getter
     private float skyDarkness;
+
     /**
      * The age of the world, in ticks.
      */
     @Getter
     @Setter
     private long fullTime;
+
     /**
      * The current world time.
      */
     @Getter
     private long time;
+
     /**
      * The time until the next full-save.
      */
     private int saveTimer = AUTOSAVE_TIME;
+
     /**
      * The check to autosave.
      */
     @Getter
     @Setter
     private boolean autoSave = true;
+
     /**
      * The world's gameplay difficulty.
      */
     @Getter
     private Difficulty difficulty;
+
     /**
      * Ticks between when passive mobs are spawned.
      */
     @Setter
     private int ticksPerAnimalSpawns;
+
     /**
      * Ticks between when hostile mobs are spawned.
      */
     @Setter
     private int ticksPerMonsterSpawns;
+
     /**
      * Per-world spawn limits on hostile mobs.
      */
     @Getter
     @Setter
     private int monsterSpawnLimit;
+
     /**
      * Per-world spawn limits on passive mobs.
      */
     @Getter
     @Setter
     private int animalSpawnLimit;
+
     /**
      * Per-world spawn limits on water mobs (squids).
      */
     @Getter
     @Setter
     private int waterAnimalSpawnLimit;
+
     /**
      * Per-world spawn limits on ambient mobs (bats).
      */
@@ -365,17 +413,29 @@ public class GlowWorld implements World {
     @Setter
     private int ambientSpawnLimit;
     private Map<Integer, GlowStructure> structures;
+
     /**
      * The maximum height at which players may place blocks.
      */
     @Getter
     private int maxHeight;
-    private Set<Key> activeChunksSet = new HashSet<>();
+    private Set<GlowChunk.Key> activeChunksSet;
+
     /**
      * Whether the world has been initialized (i.e. loading/spawn generation is completed).
      */
     @Getter
     private boolean initialized;
+
+    private final Map<GlowPlayer, Location> previousLocations;
+
+    private Broker<GlowChunk.Key, UUID, Message> messageBroker;
+
+    private Executor executor;
+
+    private final Queue<BlockChangeMessage> blockChanges;
+
+    private final List<Pair<GlowChunk.Key, Message>> afterBlockChanges;
 
     /**
      * Creates a new world from the options in the given WorldCreator.
@@ -398,7 +458,10 @@ public class GlowWorld implements World {
 
         storage = worldStorageProvider;
         storage.setWorld(this);
+        entityManager = new EntityManager();
         populators = generator.getDefaultPopulators(this);
+        gameRuleMap = new GameRuleManager();
+        tickMap = new ConcurrentSet<>();
 
         // set up values from server defaults
         ticksPerAnimalSpawns = server.getTicksPerAnimalSpawns();
@@ -442,11 +505,15 @@ public class GlowWorld implements World {
         setKeepSpawnInMemory(keepSpawnLoaded);
 
         server.getLogger().info("Preparing spawn for " + name + ": done");
+        activeChunksSet = new HashSet<>();
         initialized = true;
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
 
-        // pulse AI tasks
-        //aiTaskService = Executors.newScheduledThreadPool(1);
+        previousLocations = new WeakHashMap<>();
+        messageBroker = new ConcurrentBroker<>();
+        executor = Executors.newCachedThreadPool();
+        blockChanges = new ConcurrentLinkedDeque<>();
+        afterBlockChanges = new LinkedList<>();
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -466,6 +533,12 @@ public class GlowWorld implements World {
      * Updates all the entities within this world.
      */
     public void pulse() {
+
+        entityManager.getAll().stream()
+                .filter(GlowPlayer.class::isInstance)
+                .map(GlowPlayer.class::cast)
+                .forEach(this::updateSubscriptions);
+
         List<GlowEntity> allEntities = new ArrayList<>(entityManager.getAll());
         List<GlowPlayer> players = new LinkedList<>();
 
@@ -489,6 +562,7 @@ public class GlowWorld implements World {
         updateBlocksInActiveChunks();
         // why update blocks before Players or Entities? if there is a specific reason we should
         // document it here.
+        processBlockChanges();
 
         pulsePlayers(players);
         resetEntities(allEntities);
@@ -501,6 +575,99 @@ public class GlowWorld implements World {
         handleSleepAndWake(players);
 
         saveWorld();
+    }
+
+    /**
+     * Update player subscriptions based on their current interest..
+     * @param player the player.
+     */
+    public void updateSubscriptions(GlowPlayer player) {
+
+        Location current = player.getLocation();
+        Location previous = previousLocations.get(player);
+
+        // This checks if we need to force a chunk stream, this can happen when the player first
+        // joins the game
+        boolean force = false;
+
+        if (previous == null) {
+            previous = player.getLocation();
+            force = true;
+        }
+
+        int currentX = current.getBlockX() >> 4;
+        int currentZ = current.getBlockZ() >> 4;
+
+        int previousX = previous.getBlockX() >> 4;
+        int previousZ = previous.getBlockZ() >> 4;
+
+        // TODO: Skip this test if view distance changed.
+        if (!force && previousX == currentX && previousZ == currentZ) {
+            return;
+        }
+
+        int radius = Math.min(server.getViewDistance(), 1 + player.getViewDistance());
+
+        GlowSession session = player.getSession();
+
+        if (!force && previous.getWorld() == this) {
+            for (int x = previousX - radius; x <= previousX + radius; x++) {
+                for (int z = previousZ - radius; z <= previousZ + radius; z++) {
+                    if (current.getWorld() != this
+                            || Math.abs(x - currentX) > radius
+                            || Math.abs(z - currentZ) > radius) {
+
+                        GlowChunk.Key key = GlowChunk.Key.of(x, z);
+
+                        messageBroker.unsubscribe(
+                                key,
+                                player.getUniqueId()
+                        );
+
+                        session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
+                        player.getChunkLock().release(key);
+
+                        // TODO: Send entity despawn messages
+                    }
+                }
+            }
+        }
+
+        if (current.getWorld() == this) {
+            for (int x = currentX - radius; x <= currentX + radius; x++) {
+                for (int z = currentZ - radius; z <= currentZ + radius; z++) {
+                    if (previous.getWorld() != this
+                            || Math.abs(x - previousX) > radius
+                            || Math.abs(z - previousZ) > radius
+                            || force) {
+
+                        GlowChunk.Key key = GlowChunk.Key.of(x, z);
+
+                        messageBroker.subscribe(
+                                key,
+                                player.getUniqueId(),
+                                session::send
+                        );
+
+                        getChunkManager().forcePopulation(key.getX(), key.getZ());
+                        player.getChunkLock().acquire(key);
+
+                        boolean skylight = getEnvironment() == Environment.NORMAL;
+
+                        executor.execute(() -> {
+                            GlowChunk chunk = getChunkAt(key.getX(), key.getZ());
+                            Message message = chunk.toMessage(skylight);
+                            session.send(message);
+                            chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
+                        });
+
+                        // TODO: Send entity spawn messages
+                    }
+                }
+            }
+        }
+
+        previousLocations.put(player, current);
     }
 
     private void updateActiveChunkCollection(GlowEntity entity) {
@@ -522,7 +689,7 @@ public class GlowWorld implements World {
     }
 
     private void updateBlocksInActiveChunks() {
-        for (Key key : activeChunksSet) {
+        for (GlowChunk.Key key : activeChunksSet) {
             int cx = key.getX();
             int cz = key.getZ();
             // check the chunk is loaded
@@ -542,6 +709,8 @@ public class GlowWorld implements World {
                     updateBlocksInSection(chunk, sections[i], i);
                 }
             }
+
+
         }
     }
 
@@ -562,6 +731,69 @@ public class GlowWorld implements World {
                 }
             }
         }
+    }
+
+    /**
+     * Add a block change message to the block changes queue.
+     *
+     * @param message The message to be stored.
+     */
+    public void addBlockChange(BlockChangeMessage message) {
+        blockChanges.add(message);
+    }
+
+    /**
+     * Add a message to the list of after block change messages.
+     *
+     * @param location The location of the block change.
+     * @param message The message to be stored.
+     */
+    public void addAfterBlockChange(Location location, Message message) {
+        Chunk chunk = location.getChunk();
+        GlowChunk.Key key = GlowChunk.Key.of(chunk.getX(), chunk.getZ());
+        afterBlockChanges.add(Pair.of(key, message));
+    }
+
+    /**
+     * Process and send pending BlockChangeMessages for each chunk. Messages are published to the corresponding
+     * chunks to players that are interested.
+     */
+    private void processBlockChanges() {
+
+        Map<GlowChunk.Key, Map<BlockVector, BlockChangeMessage>> chunks = new HashMap<>();
+        while (true) {
+
+            BlockChangeMessage message = blockChanges.poll();
+            if (message == null) {
+                break;
+            }
+
+            GlowChunk.Key key = GlowChunk.Key.of(message.getX() >> 4, message.getZ() >> 4);
+            Map<BlockVector, BlockChangeMessage> map = chunks.computeIfAbsent(key, k -> new HashMap<>());
+            BlockVector vector = new BlockVector(message.getX(), message.getY(), message.getZ());
+            map.put(vector, message);
+        }
+
+        for (Map.Entry<GlowChunk.Key, Map<BlockVector, BlockChangeMessage>> entry : chunks.entrySet()) {
+
+            GlowChunk.Key key = entry.getKey();
+            List<BlockChangeMessage> value = new ArrayList<>(entry.getValue().values());
+
+            if (value.size() == 1) {
+                messageBroker.publish(key, value.get(0));
+            } else if (value.size() > 1) {
+                Message message = new MultiBlockChangeMessage(key.getX(), key.getZ(), value);
+                messageBroker.publish(key, message);
+            }
+        }
+
+        List<Pair<GlowChunk.Key, Message>> postMessages = new ArrayList<>(afterBlockChanges);
+        afterBlockChanges.removeAll(postMessages);
+        postMessages.forEach(pair -> {
+            GlowChunk.Key key = pair.getLeft();
+            Message message = pair.getRight();
+            messageBroker.publish(key, message);
+        });
     }
 
     private void saveWorld() {
@@ -749,6 +981,10 @@ public class GlowWorld implements World {
         return RayUtil.getExposure(location, entity.getLocation());
     }
 
+    /**
+     * Gets the value of the moon phase.
+     * @return moon phase value.
+     */
     public double getMoonPhase() {
         // https://minecraft.gamepedia.com/Moon#Phases
         double actualPhase = Math.floor((double) fullTime / TickUtil.TICKS_PER_DAY) % 8;
@@ -778,37 +1014,14 @@ public class GlowWorld implements World {
         return new ArrayList<>(entityManager.getAll(GlowPlayer.class));
     }
 
-    /**
-     * Returns a list of entities within a bounding box centered around a Location.
-     *
-     * <p>Some implementations may impose artificial restrictions on the size of the search bounding
-     * box.
-     *
-     * @param location The center of the bounding box
-     * @param x        1/2 the size of the box along x axis
-     * @param y        1/2 the size of the box along y axis
-     * @param z        1/2 the size of the box along z axis
-     * @return the collection of entities near location. This will always be a non-null collection.
-     */
     @Override
     public Collection<Entity> getNearbyEntities(Location location, double x, double y, double z) {
-        Vector minCorner = new Vector(
-            location.getX() - x, location.getY() - y, location.getZ() - z);
-        Vector maxCorner = new Vector(
-            location.getX() + x, location.getY() + y, location.getZ() + z);
-        BoundingBox searchBox = BoundingBox.fromCorners(minCorner, maxCorner); // TODO: test
-        GlowEntity except = null;
-        return entityManager.getEntitiesInside(searchBox, except);
+        return entityManager.getNearbyEntities(location, x, y, z);
     }
 
     @Override
     public Entity getEntity(UUID uuid) {
-        for (Entity entity : getEntities()) {
-            if (entity.getUniqueId().equals(uuid)) {
-                return entity;
-            }
-        }
-        return null;
+        return entityManager.getEntity(uuid);
     }
 
     @Override
@@ -818,36 +1031,25 @@ public class GlowWorld implements World {
 
     @Override
     public List<LivingEntity> getLivingEntities() {
-        return entityManager.getAll().stream().filter(e -> e instanceof GlowLivingEntity)
-            .map(e -> (GlowLivingEntity) e).collect(Collectors.toCollection(LinkedList::new));
+        return entityManager.getLivingEntities();
     }
 
     @Override
     @Deprecated
     @SuppressWarnings("unchecked")
     public <T extends Entity> Collection<T> getEntitiesByClass(Class<T>... classes) {
-        return (Collection<T>) getEntitiesByClasses(classes);
+        return (Collection<T>) entityManager.getEntitiesByClasses(classes);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public <T extends Entity> Collection<T> getEntitiesByClass(Class<T> cls) {
-        return entityManager.getAll().stream().filter(e -> cls.isAssignableFrom(e.getClass()))
-            .map(e -> (T) e).collect(Collectors.toCollection(ArrayList::new));
+        return entityManager.getEntitiesByClass(cls);
     }
 
     @Override
     public Collection<Entity> getEntitiesByClasses(Class<?>... classes) {
-        ArrayList<Entity> result = new ArrayList<>();
-        for (Entity e : entityManager.getAll()) {
-            for (Class<?> cls : classes) {
-                if (cls.isAssignableFrom(e.getClass())) {
-                    result.add(e);
-                    break;
-                }
-            }
-        }
-        return result;
+        return entityManager.getEntitiesByClasses(classes);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -1369,7 +1571,7 @@ public class GlowWorld implements World {
             return false;
         }
 
-        Key key = GlowChunk.Key.of(x, z);
+        GlowChunk.Key key = GlowChunk.Key.of(x, z);
         boolean result = false;
 
         for (GlowPlayer player : getRawPlayers()) {
@@ -2125,8 +2327,8 @@ public class GlowWorld implements World {
 
     @Override
     public <T> void spawnParticle(Particle particle, List<Player> receivers, Player source,
-                                  double x, double y, double z, int count, double offsetX, double offsetY, double offsetZ,
-                                  double extra, T data) {
+                                  double x, double y, double z, int count, double offsetX, double offsetY,
+                                  double offsetZ, double extra, T data) {
         if (receivers == null) {
             receivers = getPlayers();
         }

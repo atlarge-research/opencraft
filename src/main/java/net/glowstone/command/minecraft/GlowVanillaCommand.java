@@ -34,6 +34,7 @@ import org.jetbrains.annotations.NonNls;
  * used, and the initial values are based on the server's locale.
  */
 public abstract class GlowVanillaCommand extends VanillaCommand {
+
     /**
      * Keys for localizable messages shared by more than one command.
      */

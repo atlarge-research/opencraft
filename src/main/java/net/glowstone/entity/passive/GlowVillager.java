@@ -44,6 +44,7 @@ public class GlowVillager extends GlowAgeable implements Villager {
     @Getter
     @Setter
     private int riches;
+
     /**
      * The trader this villager is currently trading with.
      *
@@ -53,6 +54,7 @@ public class GlowVillager extends GlowAgeable implements Villager {
     @Setter
     private GlowHumanEntity trader;
     private List<MerchantRecipe> recipes = new ArrayList<>();
+
     /**
      * Whether or not this villager is willing to mate.
      *

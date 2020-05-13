@@ -17,6 +17,7 @@ public abstract class GlowStructurePiece {
     protected StructureBoundingBox boundingBox;
     @Getter
     private BlockFace orientation;
+
     /**
      * The NBT data field "GD" described in
      * https://minecraft.gamepedia.com/Generated_structures_data_file_format like this:

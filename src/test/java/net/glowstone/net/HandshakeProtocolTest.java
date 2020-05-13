@@ -7,10 +7,7 @@ import com.flowpowered.network.Message;
 import java.util.Collections;
 import net.glowstone.net.message.handshake.HandshakeMessage;
 import net.glowstone.net.protocol.HandshakeProtocol;
-import net.glowstone.net.protocol.LoginProtocol;
-import net.glowstone.net.protocol.PlayProtocol;
 import net.glowstone.net.protocol.ProtocolProvider;
-import net.glowstone.net.protocol.StatusProtocol;
 import net.glowstone.util.config.ServerConfig;
 
 /**

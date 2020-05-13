@@ -3,7 +3,6 @@ package net.glowstone.chunk;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -14,7 +13,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
-
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,6 +26,7 @@ import net.glowstone.block.blocktype.BlockType;
 import net.glowstone.block.entity.BlockEntity;
 import net.glowstone.entity.GlowEntity;
 import net.glowstone.net.message.play.game.ChunkDataMessage;
+import net.glowstone.util.Coordinates;
 import net.glowstone.util.TickUtil;
 import net.glowstone.util.nbt.CompoundTag;
 import org.bukkit.Chunk;
@@ -48,45 +47,55 @@ public class GlowChunk implements Chunk {
      * The width of a chunk (x axis).
      */
     public static final int WIDTH = 16;
+
     /**
      * The height of a chunk (z axis).
      */
     public static final int HEIGHT = 16;
+
     /**
      * The depth of a chunk (y axis).
      */
     public static final int DEPTH = 256;
+
     /**
      * The Y depth of a single chunk section.
      */
     public static final int SEC_DEPTH = 16;
+
     /**
      * The number of chunk sections in a single chunk column.
      */
     public static final int SEC_COUNT = DEPTH / SEC_DEPTH;
+
     /**
      * The world of this chunk.
      */
     @Getter
     private final GlowWorld world;
+
     /**
      * The x-coordinate of this chunk.
      */
     @Getter
     private final int x;
+
     /**
      * The z-coordinate of this chunk.
      */
     @Getter
     private final int z;
+
     /**
      * The block entities that reside in this chunk.
      */
     private final HashMap<Integer, BlockEntity> blockEntities = new HashMap<>();
+
     /**
      * The entities that reside in this chunk.
      */
     private final Set<GlowEntity> entities = ConcurrentHashMap.newKeySet(4);
+
     /**
      * The array of chunk sections this chunk contains, or null if it is unloaded.
      *
@@ -94,15 +103,18 @@ public class GlowChunk implements Chunk {
      */
     @Getter
     private ChunkSection[] sections;
+
     /**
      * The array of biomes this chunk contains, or null if it is unloaded.
      */
     private byte[] biomes;
+
     /**
      * The height map values values of each column, or null if it is unloaded. The height for a
      * column is one plus the y-index of the highest non-air block in the column.
      */
     private byte[] heightMap;
+
     /**
      * Whether the chunk has been populated by special features. Used in map generation.
      *
@@ -659,6 +671,11 @@ public class GlowChunk implements Chunk {
         return heightMap[z * WIDTH + x] & 0xff;
     }
 
+    /**
+     * Computes the regional difficulty.
+     * Not used at the moment.
+     * @return regional difficulty.
+     */
     public double getRegionalDifficulty() {
         final double moonPhase = world.getMoonPhase();
         final long worldTime = world.getFullTime();
@@ -706,6 +723,11 @@ public class GlowChunk implements Chunk {
         return regionalDifficulty;
     }
 
+    /**
+     * Compute the normalized regional difficulty.
+     * Not used at the moment.
+     * @return normalized regional difficulty.
+     */
     public double getClampedRegionalDifficulty() {
         final double rd = getRegionalDifficulty();
 
@@ -857,6 +879,19 @@ public class GlowChunk implements Chunk {
     }
 
     /**
+     * Get the coordinates of the center chunk.
+     *
+     * @return The x and z coordinates at the center of the chunk.
+     */
+    public Coordinates getCenterCoordinates() {
+        // Multiply by 16 and add 8 to get the center of the chunk.
+        final int x = (this.x << 4) + 8;
+        final int z = (this.z << 4) + 8;
+
+        return new Coordinates(x, z);
+    }
+
+    /**
      * A chunk key represents the X and Z coordinates of a chunk in a manner suitable for use as a
      * key in a hash table or set.
      */
@@ -871,10 +906,12 @@ public class GlowChunk implements Chunk {
          * The x-coordinate.
          */
         private final int x;
+
         /**
          * The z-coordinate.
          */
         private final int z;
+
         /**
          * A pre-computed hash code based on the coordinates.
          */

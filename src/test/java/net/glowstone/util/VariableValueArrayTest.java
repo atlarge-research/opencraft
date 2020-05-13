@@ -25,6 +25,7 @@ public class VariableValueArrayTest {
         block(GRAVEL, 0),
         block(STONE, 0)
     };
+
     /**
      * The expected values for the backing array.
      */

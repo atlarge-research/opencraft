@@ -94,6 +94,7 @@ public class GlowSession extends BasicSession {
      */
     @Getter
     private volatile boolean online;
+
     /**
      * The randomly-generated verify token used in authentication for this session.
      *
@@ -171,7 +172,8 @@ public class GlowSession extends BasicSession {
      * @param connectionManager The connection manager to manage connections for this
      *         session.
      */
-    public GlowSession(GlowServer server, ProtocolProvider protocolProvider, Channel channel, ConnectionManager connectionManager) {
+    public GlowSession(GlowServer server, ProtocolProvider protocolProvider, Channel channel,
+                       ConnectionManager connectionManager) {
         super(channel, protocolProvider.handshake);
         this.server = server;
         this.protocolProvider = protocolProvider;

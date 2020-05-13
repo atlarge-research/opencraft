@@ -48,6 +48,7 @@ public class GlowFishingHookTest extends GlowEntityTest<GlowFishingHook> {
     private GlowBlock block;
 
     private FishingRewardManager fishingRewardManager;
+
     /** Necessary because of an issue with verifyStatic */
     protected Multimap<Class<? extends Event>, Event> eventsFired = ArrayListMultimap.create();
 

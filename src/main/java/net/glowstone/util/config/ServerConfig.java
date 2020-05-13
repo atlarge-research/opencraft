@@ -39,6 +39,7 @@ import org.yaml.snakeyaml.error.YAMLException;
 public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
 
     public static final int DEFAULT_PORT = 25565;
+
     /**
      * The directory configurations are stored in.
      */
@@ -389,6 +390,10 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
      * with any other instances of emptyLIst. Use a new instance of an empty ArrayList instead.
      */
     public enum Key {
+
+        // Yardstick
+        YARDSTICK("yardstick.on", false, Migrate.PROPS, "yardstick-on", Boolean.class::isInstance),
+
         // server
         SERVER_IP("server.ip", "", Migrate.PROPS, "server-ip", String.class::isInstance),
         SERVER_PORT("server.port", DEFAULT_PORT, Migrate.PROPS, "server-port", Validators.PORT),
@@ -634,32 +639,39 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
     }
 
     static class Validators {
+
         /**
          * Checks if the value is positive (over zero).
          */
         static final Predicate<Number> POSITIVE = (number) -> number.doubleValue() > 0;
+
         /**
          * Checks if the value is integer-typed and positive.
          */
         static final Predicate<Integer> POSITIVE_INTEGER = typeCheck(Integer.class).and(
                 POSITIVE);
+
         /**
          * Checks if the value is zero.
          */
         static final Predicate<Number> ZERO = (number) -> number.doubleValue() == 0;
+
         /**
          * Checks if the value is greater than (positive) or equal to zero.
          */
         static final Predicate<Number> ABSOLUTE = POSITIVE.or(ZERO);
+
         /**
          * Checks if the value is integer-typed and either positive or zero.
          */
         static final Predicate<?> NON_NEGATIVE_INTEGER = typeCheck(Integer.class).and(ABSOLUTE);
+
         /**
          * Checks if the value is a valid port number.
          */
         static final Predicate<Integer> PORT = typeCheck(Integer.class)
                 .and(POSITIVE).and((number) -> number < 49152);
+
         /**
          * Checks if the value is a valid {@link WorldType} name.
          */

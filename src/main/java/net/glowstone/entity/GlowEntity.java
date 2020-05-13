@@ -7,7 +7,6 @@ import com.flowpowered.network.Message;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -18,7 +17,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import lombok.Getter;
 import lombok.Setter;
 import net.glowstone.EventFactory;
@@ -45,6 +43,7 @@ import net.glowstone.net.message.play.entity.RelativeEntityPositionMessage;
 import net.glowstone.net.message.play.entity.RelativeEntityPositionRotationMessage;
 import net.glowstone.net.message.play.entity.SetPassengerMessage;
 import net.glowstone.net.message.play.player.InteractEntityMessage;
+import net.glowstone.util.Coordinates;
 import net.glowstone.util.Position;
 import net.glowstone.util.UuidUtils;
 import org.bukkit.Chunk;
@@ -93,100 +92,121 @@ import org.spigotmc.event.player.PlayerSpawnLocationEvent;
  * @author Graham Edgecombe
  */
 public abstract class GlowEntity implements Entity {
+
     /**
      * An ID to use in network messages when the protocol calls for a 32-bit entity ID, but the
      * relevant Object doesn't exist, isn't an Entity, or is in a different World (and thus a
      * different space for 32-bit entity IDs).
      */
     public static final int ENTITY_ID_NOBODY = -1;
+
     /**
      * The metadata store for entities.
      */
     private static final MetadataStore<Entity> bukkitMetadata = new EntityMetadataStore();
     private static final Vector zeroG = new Vector();
+
     /**
      * The server this entity belongs to.
      */
     @Getter
     protected final GlowServer server;
+
     /**
      * The entity's metadata.
      */
     protected final MetadataMap metadata = new MetadataMap(getClass());
+
     /**
      * The current position.
      */
     protected final Location location;
+
     /**
      * The position in the last cycle.
      */
     protected final Location previousLocation;
+
     /**
      * The entity's velocity, applied each tick.
      */
     protected final Vector velocity = new Vector();
+
     /**
      * A list of entities currently riding this entity.
      */
     private final List<Entity> passengers = new ArrayList<>();
+
     /**
      * The original location of this entity.
      */
     @Getter
     private final Location origin;
+
     /**
      * All entities that currently have this entity as leash holder.
      */
     @Getter
     private final List<GlowEntity> leashedEntities = Lists.newArrayList();
+
     /**
      * List of custom String data for the entity.
      */
     @Getter
     private final List<String> customTags = Lists.newArrayList();
+
     /**
      * The world this entity belongs to. Guarded by {@link #worldLock}.
      */
     @Getter
     protected GlowWorld world;
+
     /**
      * Lock to prevent concurrent modifications affected by switching worlds.
      */
     protected final ReadWriteLock worldLock = new ReentrantReadWriteLock();
+
     /**
      * A flag indicating if this entity is currently active.
      */
     protected boolean active = true;
+
     /**
      * This entity's current identifier for its world.
      */
     @Getter
     protected int entityId;
+
     /**
      * Whether the entity should have its position resent as if teleported.
      */
     @Getter
     protected boolean teleported;
+
     /**
      * Whether the entity should have its velocity resent.
      */
     protected boolean velocityChanged;
+
     /**
      * A counter of how long this entity has existed.
      */
     @Getter
     @Setter
     protected int ticksLived;
+
     /**
      * The entity this entity is currently riding.
      */
     @Getter
     protected GlowEntity vehicle;
+
     /**
      * The entity's bounding box, or null if it has no physical presence.
      */
     protected EntityBoundingBox boundingBox;
     protected boolean passengerChanged;
+
     /**
      * Whether this entity was forcibly removed from the world.
      */
@@ -233,48 +253,57 @@ public abstract class GlowEntity implements Entity {
      * This entity's unique id.
      */
     private UUID uuid;
+
     /**
      * An EntityDamageEvent representing the last damage cause on this entity.
      */
     @Getter
     @Setter
     private EntityDamageEvent lastDamageCause;
+
     /**
      * A flag indicting if the entity is on the ground.
      */
     @Getter
     private boolean onGround = false;
+
     /**
      * The distance the entity is currently falling without touching the ground.
      */
     @Getter
     private float fallDistance;
+
     /**
      * How long the entity has been on fire, or 0 if it is not.
      */
     @Getter
     @Setter
     private int fireTicks;
+
     /**
      * Whether gravity applies to the entity.
      */
     @Setter
     private boolean gravity = true;
+
     /**
      * Whether friction applies to the entity.
      */
     @Setter
     private boolean friction = true;
+
     /**
      * Whether this entity is invulnerable.
      */
     @Getter
     @Setter
     private boolean invulnerable;
+
     /**
      * The leash holders uuid of the entity. Will be null after the entities first tick.
      */
     private UUID leashHolderUniqueId;
+
     /**
      * Has the leash holder of the entity changed.
      */
@@ -282,16 +311,19 @@ public abstract class GlowEntity implements Entity {
 
     ////////////////////////////////////////////////////////////////////////////
     // Command sender
+
     /**
      * The leash holder of the entity.
      */
     private GlowEntity leashHolder;
+
     /**
      * The Nether portal cooldown for the entity.
      */
     @Getter
     @Setter
     private int portalCooldown;
+
     /**
      * Whether this entity has operator permissions.
      */
@@ -1179,7 +1211,7 @@ public abstract class GlowEntity implements Entity {
         }
     }
 
-    public void playEffectKnownAndSelf(EntityEffect type) {
+    void playEffectKnownAndSelf(EntityEffect type) {
         if (type.getApplicable().isInstance(this)) {
             EntityStatusMessage message = new EntityStatusMessage(entityId, type);
             if (this instanceof GlowPlayer) {
@@ -1623,6 +1655,15 @@ public abstract class GlowEntity implements Entity {
             return;
         }
         this.leashHolderUniqueId = uniqueId;
+    }
+
+    /**
+     * Get the coordinates of the entity.
+     *
+     * @return The x and z coordinates of the entity.
+     */
+    public Coordinates getCoordinates() {
+        return new Coordinates(location.getX(), location.getZ());
     }
 
     /**

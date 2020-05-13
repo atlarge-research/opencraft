@@ -6,6 +6,11 @@ import net.glowstone.net.message.handshake.HandshakeMessage;
 
 public class HandshakeProtocol extends GlowProtocol {
 
+    /**
+     * Constructor for the handshake protocol.
+     * @param statusProtocol the status protocol.
+     * @param loginProtocol the login protocol.
+     */
     public HandshakeProtocol(StatusProtocol statusProtocol, LoginProtocol loginProtocol) {
         super("HANDSHAKE", 0);
         inbound(0x00, HandshakeMessage.class, HandshakeCodec.class,
