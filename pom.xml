@@ -1,95 +1,96 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
-  <groupId>com.atlarge-research</groupId>
-  <artifactId>opencraft</artifactId>
-  <version>1.0</version>
+  <groupId>net.glowstone</groupId>
+  <artifactId>glowstone</artifactId>
   <packaging>jar</packaging>
-
-  <name>Opencraft</name>
-  <url>https://atlarge-research.com/opencraft/</url>
-  <description>A massively scalable Minecraft server.</description>
+  <version>2018.10.0-SNAPSHOT</version>
+  <name>Glowstone</name>
+  <url>https://www.glowstone.net</url>
+  <description>A fast, customizable and compatible open source Minecraft server.</description>
 
   <properties>
-    <!-- version variables -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <api.version>1.12.2-R5.0-SNAPSHOT</api.version>
     <minecraft.version>1.12.2</minecraft.version>
+    <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <kotlin.version>1.3.50</kotlin.version>
     <powermock.version>2.0.0</powermock.version>
-    <junit.jupiter.version>5.6.2</junit.jupiter.version>
-    <junit.vintage.version>5.6.2</junit.vintage.version>
-    <checkstyle.version>8.29</checkstyle.version>
-    <maven.checkstyle.version>3.1.1</maven.checkstyle.version>
-    <!-- config variables -->
-    <checkstyle.max.validations>0</checkstyle.max.validations>
-    <checkstyle.violation.severity>warning</checkstyle.violation.severity>
-    <maven.build.timestamp.format>yyyyMMdd-HHmm</maven.build.timestamp.format>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <junit.jupiter.version>5.4.0</junit.jupiter.version>
+    <junit.vintage.version>5.4.0</junit.vintage.version>
   </properties>
 
   <repositories>
     <repository>
-      <id>mvn-repo</id>
-      <url>https://raw.github.com/swabbur/Artifacts/master/maven/repository</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
+      <id>glowstone-internal</id>
+      <url>https://repo.glowstone.net/repository/internal/</url>
+    </repository>
+    <repository>
+      <id>glowstone-snapshots</id>
+      <url>https://repo.glowstone.net/repository/snapshots/</url>
     </repository>
   </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>glowstone-upstream</id>
+      <url>https://repo.glowstone.net/content/repositories/releases/</url>
+    </repository>
+    <snapshotRepository>
+      <id>glowstone-upstream</id>
+      <url>https://repo.glowstone.net/content/repositories/snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <dependencies>
     <!-- Yardstick -->
     <dependency>
-      <groupId>com.atlarge</groupId>
-      <artifactId>yscollector</artifactId>
-      <version>0.2</version>
+        <groupId>com.atlarge</groupId>
+        <artifactId>yscollector</artifactId>
+        <version>0.2</version>
     </dependency>
-    <!-- bukkit api implementation-->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>1.7.25</version>
+      <scope>runtime</scope>
+    </dependency>
     <dependency>
       <groupId>net.glowstone</groupId>
       <artifactId>glowkit</artifactId>
       <version>${api.version}</version>
       <scope>compile</scope>
     </dependency>
-    <!-- console text coloring-->
     <dependency>
       <groupId>org.fusesource.jansi</groupId>
       <artifactId>jansi</artifactId>
-      <version>1.18</version>
+      <version>1.17.1</version>
     </dependency>
-    <!-- console input handler -->
     <dependency>
       <groupId>jline</groupId>
       <artifactId>jline</artifactId>
       <version>2.14.6</version>
     </dependency>
-    <!-- extends java.util package -->
     <dependency>
       <groupId>it.unimi.dsi</groupId>
       <artifactId>fastutil</artifactId>
-      <version>8.3.1</version>
+      <version>8.2.2</version>
     </dependency>
-    <!-- Lombok code generation -->
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.12</version>
+      <version>1.18.4</version>
       <scope>provided</scope>
     </dependency>
-    <!-- network utility -->
     <dependency>
       <groupId>com.flowpowered</groupId>
       <artifactId>flow-network</artifactId>
       <version>1.2.8-SNAPSHOT</version>
     </dependency>
-    <!-- uuid library-->
     <dependency>
       <groupId>com.eatthepath</groupId>
       <artifactId>fast-uuid</artifactId>
@@ -99,7 +100,18 @@
     <dependency>
       <groupId>org.jetbrains</groupId>
       <artifactId>annotations</artifactId>
-      <version>19.0.0</version>
+      <version>16.0.2</version>
+    </dependency>
+    <!-- Kotlin -->
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-stdlib</artifactId>
+      <version>${kotlin.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains.kotlin</groupId>
+      <artifactId>kotlin-reflect</artifactId>
+      <version>${kotlin.version}</version>
     </dependency>
     <!-- OpenCL -->
     <dependency>
@@ -116,20 +128,25 @@
     <dependency>
       <groupId>com.tobedevoured.naether</groupId>
       <artifactId>core</artifactId>
-      <version>0.15.6</version>
+      <version>0.15.4</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-artifact</artifactId>
-      <version>3.6.3</version>
+      <version>3.6.0</version>
     </dependency>
     <!-- Tests -->
-    <!-- junit testing utilities -->
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13</version>
-      <scope>test</scope>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.12</version>
+        <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.vintage</groupId>
@@ -155,14 +172,12 @@
       <version>${junit.jupiter.version}</version>
       <scope>test</scope>
     </dependency>
-    <!-- matcher testing utility -->
     <dependency>
       <groupId>org.hamcrest</groupId>
       <artifactId>hamcrest</artifactId>
       <version>2.1</version>
       <scope>test</scope>
     </dependency>
-    <!-- Mocking utility -->
     <dependency>
       <groupId>org.powermock</groupId>
       <artifactId>powermock-core</artifactId>
@@ -184,7 +199,7 @@
   </dependencies>
 
   <build>
-    <finalName>opencraft</finalName>
+    <finalName>glowstone</finalName>
 
     <directory>${project.basedir}/target</directory>
 
@@ -197,7 +212,29 @@
     <defaultGoal>package</defaultGoal>
 
     <plugins>
-      <!-- provides obfuscation mapping between jars -->
+      <!-- Yardstick: Add JAR to the final build -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>install-external</id>
+            <phase>clean</phase>
+            <configuration>
+              <file>${basedir}/lib/yscollector-0.2.jar</file>
+              <repositoryLayout>default</repositoryLayout>
+              <groupId>com.atlarge</groupId>
+              <artifactId>yscollector</artifactId>
+              <version>0.2</version>
+              <packaging>jar</packaging>
+              <generatePom>true</generatePom>
+            </configuration>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>net.md-5</groupId>
         <artifactId>scriptus</artifactId>
@@ -214,25 +251,30 @@
           </execution>
         </executions>
       </plugin>
-      <!-- code quality -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>${maven.checkstyle.version}</version>
+        <version>3.0.0</version>
         <dependencies>
           <dependency>
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
-            <version>${checkstyle.version}</version>
+            <version>8.18</version>
           </dependency>
         </dependencies>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
         <configuration>
           <configLocation>${project.basedir}/etc/checkstyle.xml</configLocation>
-          <maxAllowedViolations>${checkstyle.max.validations}</maxAllowedViolations>
-          <violationSeverity>${checkstyle.violation.severity}</violationSeverity>
+          <headerLocation>${project.basedir}/LICENSE</headerLocation>
         </configuration>
       </plugin>
-      <!-- builds api signature -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -256,7 +298,6 @@
           </ignores>
         </configuration>
       </plugin>
-      <!-- puts dependencies in jar -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -290,7 +331,6 @@
           </execution>
         </executions>
       </plugin>
-      <!-- jar builder -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
@@ -300,9 +340,9 @@
           <archive>
             <manifestEntries>
               <Launcher-Agent-Class>net.glowstone.util.ClassPathAgent</Launcher-Agent-Class>
-              <Main-Class>net.glowstone.Main</Main-Class>
+              <Main-Class>net.glowstone.GlowServer</Main-Class>
               <Implementation-Title>${project.name}</Implementation-Title>
-              <Implementation-Version>${project.version}</Implementation-Version>
+              <Implementation-Version>${project.version}.${describe}</Implementation-Version>
               <Implementation-Vendor>${maven.build.timestamp}</Implementation-Vendor>
               <Specification-Title>Bukkit</Specification-Title>
               <Specification-Version>${api.version}</Specification-Version>
@@ -310,7 +350,6 @@
           </archive>
         </configuration>
       </plugin>
-      <!--  runs test -->
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.0.0-M4</version>
@@ -330,11 +369,10 @@
           <reuseForks>true</reuseForks>
         </configuration>
       </plugin>
-      <!-- generate Lombok code -->
       <plugin>
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok-maven-plugin</artifactId>
-        <version>1.18.12.0</version>
+        <version>1.18.4.0</version>
         <executions>
           <execution>
             <id>delombok</id>
@@ -350,17 +388,14 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.0</version>
-        <configuration>
-          <useIncrementalCompilation>false</useIncrementalCompilation>
-        </configuration>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.0</version>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>3.1.0</version>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>3.1.0</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -381,11 +416,10 @@
         <artifactId>maven-deploy-plugin</artifactId>
         <version>3.0.0-M1</version>
       </plugin>
-      <!-- jacoco coverage reporting-->
       <plugin>
         <groupId>org.jacoco</groupId>
-        <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.3</version>
+	      <artifactId>jacoco-maven-plugin</artifactId>
+	      <version>0.8.3</version>
         <configuration>
           <excludes>
             <exclude>META-INF/versions/**</exclude>
@@ -410,39 +444,19 @@
                 <rule>
                   <element>BUNDLE</element>
                   <limits>
+                    <limit implementation="org.jacoco.report.check.Limit">
+                      <counter>INSTRUCTION</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>0.01</minimum>
+                    </limit>
                     <limit>
                       <counter>COMPLEXITY</counter>
                       <value>COVEREDRATIO</value>
-                      <minimum>0.11</minimum>
+                      <minimum>0.01</minimum>
                     </limit>
                   </limits>
                 </rule>
               </rules>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <!--  customizable artifact cleaner-->
-      <plugin>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>3.1.0</version>
-        <executions>
-          <execution>
-            <id>auto-clean</id>
-            <phase>compile</phase>
-            <goals>
-              <goal>clean</goal>
-            </goals>
-            <configuration>
-              <excludeDefaultDirectories>true</excludeDefaultDirectories>
-              <filesets>
-                <fileset>
-                  <directory>${project.build.directory}</directory>
-                  <includes>
-                    <include>generated-sources/**/*</include>
-                  </includes>
-                </fileset>
-              </filesets>
             </configuration>
           </execution>
         </executions>
@@ -455,16 +469,15 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>3.0.0-M4</version>
+        <version>3.0.0-M3</version>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>${maven.checkstyle.version}</version>
+        <version>3.0.0</version>
         <configuration>
           <configLocation>${project.basedir}/etc/checkstyle.xml</configLocation>
-          <maxAllowedViolations>${checkstyle.max.validations}</maxAllowedViolations>
-          <violationSeverity>${checkstyle.violation.severity}</violationSeverity>
+          <headerLocation>${project.basedir}/LICENSE</headerLocation>
         </configuration>
       </plugin>
     </plugins>
