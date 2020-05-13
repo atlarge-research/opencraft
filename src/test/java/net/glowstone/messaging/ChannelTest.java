@@ -39,7 +39,7 @@ public abstract class ChannelTest {
     /**
      * Verify that a subscribed user receives a published message.
      */
-    @Test
+    @TimeBasedTest
     void subscribePublishTest() throws InterruptedException {
 
         Channel<Subscriber, String> channel = createChannel();
@@ -55,7 +55,7 @@ public abstract class ChannelTest {
     /**
      * Verify that a subscribed user receives multiple published message.
      */
-    @Test
+    @TimeBasedTest
     void subscribePublishMultipleTest() throws InterruptedException {
 
         Channel<Subscriber, String> channel = createChannel();
@@ -75,7 +75,7 @@ public abstract class ChannelTest {
     /**
      * Verify that multiple subscribed users receive a published message.
      */
-    @Test
+    @TimeBasedTest
     void subscribeMultiplePublishTest() throws InterruptedException {
 
         Channel<Subscriber, String> channel = createChannel();
@@ -94,7 +94,7 @@ public abstract class ChannelTest {
     /**
      * Verify that an unsubscribed user does not receive a published message.
      */
-    @Test
+    @TimeBasedTest
     void unsubscribedPublishTest() throws InterruptedException {
 
         Channel<Subscriber, String> channel = createChannel();
@@ -109,7 +109,7 @@ public abstract class ChannelTest {
     /**
      * Verify that a previously subscribed user does not receive a published message.
      */
-    @Test
+    @TimeBasedTest
     void subscribeUnsubscribePublishTest() throws InterruptedException {
 
         Channel<Subscriber, String> channel = createChannel();

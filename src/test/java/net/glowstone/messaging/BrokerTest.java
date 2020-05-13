@@ -53,7 +53,7 @@ public abstract class BrokerTest {
     /**
      * Verify that a subscribed user receives a published message.
      */
-    @Test
+    @TimeBasedTest
     void subscribePublishTest() throws InterruptedException{
 
         Broker<String, Subscriber, String> broker = createBroker();
@@ -70,7 +70,7 @@ public abstract class BrokerTest {
     /**
      * Verify that a subscribed user receives a multiple published message.
      */
-    @Test
+    @TimeBasedTest
     void subscribePublishMultipleTest() throws InterruptedException{
 
         Broker<String, Subscriber, String> broker = createBroker();
@@ -89,7 +89,7 @@ public abstract class BrokerTest {
     /**
      * Verify that multiple subscribed users receive a published message.
      */
-    @Test
+    @TimeBasedTest
     void subscribeMultiplePublishTest() throws InterruptedException{
 
         Broker<String, Subscriber, String> broker = createBroker();
@@ -108,7 +108,7 @@ public abstract class BrokerTest {
     /**
      * Verify that an unsubscribed user does not receive a published message.
      */
-    @Test
+    @TimeBasedTest
     void unsubscribedPublishTest() throws InterruptedException{
 
         Broker<String, Subscriber, String> broker = createBroker();
@@ -124,7 +124,7 @@ public abstract class BrokerTest {
     /**
      * Verify that a previously subscribed user does not receive a published message.
      */
-    @Test
+    @TimeBasedTest
     void subscribeUnsubscribePublishTest() throws InterruptedException{
 
         Broker<String, Subscriber, String> broker = createBroker();
@@ -142,7 +142,7 @@ public abstract class BrokerTest {
     /**
      * Verify that a previously subscribed user does not receive a published message.
      */
-    @Test
+    @TimeBasedTest
     void subscribeMultipleUnsubscribePublishTest() throws InterruptedException{
 
         Broker<String, Subscriber, String> broker = createBroker();
@@ -163,7 +163,7 @@ public abstract class BrokerTest {
     /**
      * Verify that a subscribed user receives a published message from multiple topics.
      */
-    @Test
+    @TimeBasedTest
     void subscribeMultipleTopicsPublishTest() throws InterruptedException{
 
         Broker<String, Subscriber, String> broker = createBroker();
@@ -185,7 +185,7 @@ public abstract class BrokerTest {
     /**
      * Verify that a subscribed user only receives a published message from the correct topic.
      */
-    @Test
+    @TimeBasedTest
     void subscribeSpecificTopicPublishTest() throws InterruptedException{
 
         Broker<String, Subscriber, String> broker = createBroker();
