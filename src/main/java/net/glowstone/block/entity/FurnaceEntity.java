@@ -45,6 +45,7 @@ public class FurnaceEntity extends ContainerEntity {
     public void update(GlowPlayer player) {
         super.update(player);
         GlowWorld world = player.getWorld();
+        // TODO: it is possible that this causes a broadcast message to be sent multiple times.
         world.sendBlockChange(getBlock().getLocation(),
             getBurnTime() > 0 ? Material.BURNING_FURNACE : Material.FURNACE, getBlock().getData());
     }

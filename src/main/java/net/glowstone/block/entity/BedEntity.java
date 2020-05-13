@@ -44,6 +44,7 @@ public class BedEntity extends BlockEntity {
         CompoundTag nbt = new CompoundTag();
         GlowWorld world = player.getWorld();
         saveNbt(nbt);
+        // TODO: it is possible that this causes a broadcast message to be sent multiple times.
         world.sendBlockEntityChange(block.getLocation(), GlowBlockEntity.BED, nbt);
     }
 }
