@@ -2,6 +2,7 @@ package net.glowstone.messaging;
 
 import com.google.common.collect.Sets;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -39,13 +40,23 @@ public final class MessagingSystem<Topic, Subscriber, Publisher, Message> {
      * @param callback the callback that should be used to send messages to the subscriber.
      */
     public void update(Subscriber subscriber, Consumer<Message> callback) {
+
         Set<Topic> newTopics = policy.computeInterestSet(subscriber);
-        Set<Topic> oldTopics = subscriptions.put(subscriber, newTopics);
-        if (oldTopics == null) {
-            newTopics.forEach(topic -> broker.subscribe(topic, subscriber, callback));
+
+        if (newTopics.isEmpty()) {
+
+            Set<Topic> oldTopics = subscriptions.remove(subscriber);
+            oldTopics.forEach(topic -> broker.unsubscribe(topic, subscriber));
+
         } else {
-            Sets.difference(oldTopics, newTopics).forEach(topic -> broker.unsubscribe(topic, subscriber));
-            Sets.difference(newTopics, oldTopics).forEach(topic -> broker.subscribe(topic, subscriber, callback));
+
+            Set<Topic> oldTopics = subscriptions.put(subscriber, newTopics);
+            if (oldTopics == null) {
+                newTopics.forEach(topic -> broker.subscribe(topic, subscriber, callback));
+            } else {
+                Sets.difference(oldTopics, newTopics).forEach(topic -> broker.unsubscribe(topic, subscriber));
+                Sets.difference(newTopics, oldTopics).forEach(topic -> broker.subscribe(topic, subscriber, callback));
+            }
         }
     }
 
