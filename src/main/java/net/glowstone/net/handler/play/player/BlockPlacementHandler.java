@@ -2,6 +2,7 @@ package net.glowstone.net.handler.play.player;
 
 import com.flowpowered.network.MessageHandler;
 import net.glowstone.EventFactory;
+import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.ItemTable;
 import net.glowstone.block.blocktype.BlockType;
@@ -34,7 +35,8 @@ public final class BlockPlacementHandler implements
     }
 
     static void revert(GlowPlayer player, GlowBlock target) {
-        player.sendBlockChange(target.getLocation(), target.getType(), target.getData());
+        GlowWorld world = player.getWorld();
+        world.sendBlockChange(target.getLocation(), target.getType(), target.getData());
         BlockEntity entity = target.getBlockEntity();
         if (entity != null) {
             entity.update(player);

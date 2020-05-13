@@ -2,6 +2,7 @@ package net.glowstone.block.entity;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.GlowBlockState;
 import net.glowstone.block.blocktype.BlockSkull;
@@ -70,8 +71,9 @@ public class SkullEntity extends BlockEntity {
     public void update(GlowPlayer player) {
         super.update(player);
         CompoundTag nbt = new CompoundTag();
+        GlowWorld world = player.getWorld();
         saveNbt(nbt);
-        player.sendBlockEntityChange(getBlock().getLocation(), GlowBlockEntity.SKULL, nbt);
+        world.sendBlockEntityChange(getBlock().getLocation(), GlowBlockEntity.SKULL, nbt);
     }
 
     public void setOwner(GlowPlayerProfile owner) {

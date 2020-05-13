@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.glowstone.EventFactory;
 import net.glowstone.GlowServer;
+import net.glowstone.GlowWorld;
 import net.glowstone.ServerProvider;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.GlowBlockState;
@@ -43,7 +44,8 @@ public class FurnaceEntity extends ContainerEntity {
     @Override
     public void update(GlowPlayer player) {
         super.update(player);
-        player.sendBlockChange(getBlock().getLocation(),
+        GlowWorld world = player.getWorld();
+        world.sendBlockChange(getBlock().getLocation(),
             getBurnTime() > 0 ? Material.BURNING_FURNACE : Material.FURNACE, getBlock().getData());
     }
 

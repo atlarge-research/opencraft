@@ -2566,29 +2566,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         world.addAfterBlockChange(location, message);
     }
 
-    /**
-     * Send a block entity change to the given location.
-     *
-     * @param location The location of the block entity.
-     * @param type The type of block entity being sent.
-     * @param nbt The NBT structure to send to the client.
-     */
-    public void sendBlockEntityChange(Location location, GlowBlockEntity type, CompoundTag nbt) {
-
-        checkNotNull(location, "Location cannot be null");
-        checkNotNull(type, "Type cannot be null");
-        checkNotNull(nbt, "NBT cannot be null");
-
-        Message message = new UpdateBlockEntityMessage(
-                location.getBlockX(),
-                location.getBlockY(),
-                location.getBlockZ(),
-                type.getValue(),
-                nbt
-        );
-        world.addAfterBlockChange(location, message);
-    }
-
     @Override
     public void sendMap(MapView map) {
         GlowMapCanvas mapCanvas = GlowMapCanvas.createAndRender(map, this);
@@ -3554,10 +3531,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         digging.breakNaturally(tool);
         // Send block status to clients
         Location dugLocation = digging.getLocation();
-        // OK to use sequential stream here, because sendBlockChange is async
-        world.getRawPlayers().stream()
-                .filter(player -> player.canSeeChunk(GlowChunk.Key.to(dugLocation.getChunk())))
-                .forEach(player -> player.sendBlockChange(dugLocation, Material.AIR, (byte) 0));
+        world.sendBlockChange(dugLocation, Material.AIR, (byte) 0);
         setDigging(null);
     }
 

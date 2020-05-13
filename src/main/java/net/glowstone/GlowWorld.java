@@ -39,6 +39,7 @@ import net.glowstone.chunk.GlowChunkSnapshot.EmptySnapshot;
 import net.glowstone.constants.GameRules;
 import net.glowstone.constants.GlowBiome;
 import net.glowstone.constants.GlowBiomeClimate;
+import net.glowstone.constants.GlowBlockEntity;
 import net.glowstone.constants.GlowEffect;
 import net.glowstone.constants.GlowParticle;
 import net.glowstone.constants.GlowSound;
@@ -64,6 +65,7 @@ import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
 import net.glowstone.net.message.play.game.UnloadChunkMessage;
+import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
 import net.glowstone.util.BlockStateDelegate;
 import net.glowstone.util.GameRuleManager;
@@ -71,6 +73,7 @@ import net.glowstone.util.RayUtil;
 import net.glowstone.util.TickUtil;
 import net.glowstone.util.collection.ConcurrentSet;
 import net.glowstone.util.config.WorldConfig;
+import net.glowstone.util.nbt.CompoundTag;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.BlockChangeDelegate;
 import org.bukkit.Chunk;
@@ -731,6 +734,36 @@ public class GlowWorld implements World {
                 }
             }
         }
+    }
+
+    public void sendBlockChange(Location loc, Material material, byte data) {
+        int materialId = material.getId();
+        BlockChangeMessage message = new BlockChangeMessage(loc.getBlockX(), loc.getBlockY(), loc
+                .getBlockZ(), materialId, data);
+        addBlockChange(message);
+    }
+
+    /**
+     * Send a block entity change to the given location.
+     *
+     * @param location The location of the block entity.
+     * @param type The type of block entity being sent.
+     * @param nbt The NBT structure to send to the client.
+     */
+    public void sendBlockEntityChange(Location location, GlowBlockEntity type, CompoundTag nbt) {
+
+        checkNotNull(location, "Location cannot be null");
+        checkNotNull(type, "Type cannot be null");
+        checkNotNull(nbt, "NBT cannot be null");
+
+        Message message = new UpdateBlockEntityMessage(
+                location.getBlockX(),
+                location.getBlockY(),
+                location.getBlockZ(),
+                type.getValue(),
+                nbt
+        );
+        addAfterBlockChange(location, message);
     }
 
     /**
