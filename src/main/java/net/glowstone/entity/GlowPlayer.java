@@ -114,6 +114,7 @@ import net.glowstone.net.message.play.player.UseBedMessage;
 import net.glowstone.scoreboard.GlowScoreboard;
 import net.glowstone.scoreboard.GlowTeam;
 import net.glowstone.util.Convert;
+import net.glowstone.util.DeprecatedMethodException;
 import net.glowstone.util.EntityUtils;
 import net.glowstone.util.InventoryUtil;
 import net.glowstone.util.Position;
@@ -2523,26 +2524,12 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
     @Override
     public void sendBlockChange(Location loc, Material material, byte data) {
-        sendBlockChange(loc, material.getId(), data);
+        throw new DeprecatedMethodException("This method should no longer be used");
     }
 
     @Override
     public void sendBlockChange(Location loc, int material, byte data) {
-        sendBlockChange(new BlockChangeMessage(loc.getBlockX(), loc.getBlockY(), loc
-                .getBlockZ(), material, data));
-    }
-
-    /**
-     * Sends the given {@link BlockChangeMessage} if it's in a chunk this player can see.
-     *
-     * @param message the message to send
-     */
-    public void sendBlockChange(BlockChangeMessage message) {
-        // only send message if the chunk is within visible range
-        Key key = GlowChunk.Key.of(message.getX() >> 4, message.getZ() >> 4);
-        if (canSeeChunk(key)) {
-            world.addBlockChange(message);
-        }
+        throw new DeprecatedMethodException("This method should no longer be used");
     }
 
     @Override
@@ -2552,18 +2539,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
     @Override
     public void sendSignChange(Location location, String[] lines) throws IllegalArgumentException {
-
-        checkNotNull(location, "location cannot be null");
-        checkNotNull(lines, "lines cannot be null");
-        checkArgument(lines.length == 4, "lines.length must equal 4");
-
-        Message message = UpdateSignMessage.fromPlainText(
-                location.getBlockX(),
-                location.getBlockY(),
-                location.getBlockZ(),
-                lines
-        );
-        world.addAfterBlockChange(location, message);
+        throw new DeprecatedMethodException("This method should no longer be used");
     }
 
     @Override
@@ -3432,7 +3408,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         digging = block;
     }
 
-    private void sendBlockBreakAnimation(Location location, int destroyStage) {
+    private void broadcastBlockBreakAnimation(GlowBlock block, int destroyStage) {
+        GlowWorld world = block.getWorld();
         Message message = new BlockBreakAnimationMessage(
                 getEntityId(),
                 location.getBlockX(),
@@ -3440,15 +3417,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 location.getBlockZ(),
                 destroyStage
         );
-        world.addAfterBlockChange(location, message);
-    }
-
-    private void broadcastBlockBreakAnimation(GlowBlock block, int destroyStage) {
-        GlowChunk.Key key = GlowChunk.Key.of(block.getX() >> 4, block.getZ() >> 4);
-        block.getWorld().getRawPlayers().stream()
-                .filter(player -> player != this && player.canSeeChunk(key))
-                .forEach(player -> player
-                        .sendBlockBreakAnimation(block.getLocation(), destroyStage));
+        world.addAfterBlockChange(block.getLocation(), message);
     }
 
     private void pulseDigging() {

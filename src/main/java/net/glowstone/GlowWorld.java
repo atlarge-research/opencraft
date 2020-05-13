@@ -736,6 +736,13 @@ public class GlowWorld implements World {
         }
     }
 
+    /**
+     * Send a change for a block to be processed.
+     *
+     * @param loc The location of the material that has to be changed.
+     * @param material The affected material.
+     * @param data Necessary data for the change.
+     */
     public void sendBlockChange(Location loc, Material material, byte data) {
         int materialId = material.getId();
         BlockChangeMessage message = new BlockChangeMessage(loc.getBlockX(), loc.getBlockY(), loc
