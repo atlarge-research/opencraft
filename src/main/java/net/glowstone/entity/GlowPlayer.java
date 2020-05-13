@@ -2545,11 +2545,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         }
     }
 
-    @Deprecated
-    public void sendBlockChangeForce(BlockChangeMessage message) {
-        world.addBlockChange(message);
-    }
-
     @Override
     public boolean sendChunkChange(Location loc, int sx, int sy, int sz, byte[] data) {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -2567,35 +2562,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 location.getBlockY(),
                 location.getBlockZ(),
                 lines
-        );
-        world.addAfterBlockChange(location, message);
-    }
-
-    /**
-     * Send a sign change, similar to {@link #sendSignChange(Location, String[])}, but using
-     * complete TextMessages instead of strings.
-     *
-     * @param sign the sign
-     * @param location the location of the sign
-     * @param lines the new text on the sign or null to clear it
-     * @throws IllegalArgumentException if location is null
-     * @throws IllegalArgumentException if lines is non-null and has a length less than 4
-     */
-    public void sendSignChange(SignEntity sign, Location location, TextMessage[] lines)
-            throws IllegalArgumentException {
-
-        checkNotNull(location, "location cannot be null");
-        checkNotNull(lines, "lines cannot be null");
-        checkArgument(lines.length == 4, "lines.length must equal 4");
-
-        CompoundTag tag = new CompoundTag();
-        sign.saveNbt(tag);
-
-        Message message = new UpdateBlockEntityMessage(location.getBlockX(),
-                location.getBlockY(),
-                location.getBlockZ(),
-                GlowBlockEntity.SIGN.getValue(),
-                tag
         );
         world.addAfterBlockChange(location, message);
     }

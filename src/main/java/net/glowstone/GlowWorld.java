@@ -903,8 +903,7 @@ public class GlowWorld implements World {
     }
 
     public void broadcastBlockChangeInRange(GlowChunk.Key chunkKey, BlockChangeMessage message) {
-        getRawPlayers().stream().filter(player -> player.canSeeChunk(chunkKey))
-            .forEach(player -> player.sendBlockChangeForce(message));
+        addBlockChange(message);
     }
 
     private void maybeStrikeLightningInChunk(int cx, int cz) {
