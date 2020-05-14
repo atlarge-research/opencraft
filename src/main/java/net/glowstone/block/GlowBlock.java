@@ -3,8 +3,10 @@ package net.glowstone.block;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.Getter;
 import net.glowstone.GlowServer;
@@ -16,6 +18,8 @@ import net.glowstone.block.blocktype.BlockRedstoneTorch;
 import net.glowstone.block.blocktype.BlockType;
 import net.glowstone.block.entity.BlockEntity;
 import net.glowstone.chunk.GlowChunk;
+import net.glowstone.entity.physics.BlockBoundingBox;
+import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -56,6 +60,7 @@ public class GlowBlock implements Block {
      */
     private static final MetadataStore<Block> metadata = new BlockMetadataStore();
     private static final Map<GlowBlock, List<Long>> counterMap = new HashMap<>();
+
     @Getter
     private final int x;
     @Getter
@@ -583,6 +588,34 @@ public class GlowBlock implements Block {
         BlockType type = itemTable.getBlock(oldType);
         if (type != null) {
             type.onBlockChanged(this, oldType, oldData, newType, newData);
+        }
+    }
+
+    public BoundingBox getBoundingBox() {
+        Location loc = this.getLocation().clone();
+        switch (this.getType()){
+            case STEP:
+            case WOOD_STEP:
+            case PURPUR_SLAB:
+            case STONE_SLAB2:
+                return BoundingBox.fromCorners(loc.toVector(), loc.add(1, 0.5, 1).toVector());
+            case FENCE:
+            case FENCE_GATE:
+            case NETHER_FENCE:
+            case ACACIA_FENCE_GATE:
+            case ACACIA_FENCE:
+            case BIRCH_FENCE_GATE:
+            case DARK_OAK_FENCE_GATE:
+            case JUNGLE_FENCE_GATE:
+            case SPRUCE_FENCE_GATE:
+            case BIRCH_FENCE:
+            case DARK_OAK_FENCE:
+            case IRON_FENCE:
+            case JUNGLE_FENCE:
+            case SPRUCE_FENCE:
+                return BoundingBox.fromCorners(loc.add(0.4, 0, 0.4).toVector(), loc.add(0.6, 1.5, 0.6).toVector());
+            default:
+                return BoundingBox.fromCorners(loc.toVector(), loc.add(1.0, 1.0, 1.0).toVector());
         }
     }
 

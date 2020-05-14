@@ -7,6 +7,7 @@ import com.flowpowered.network.Message;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -17,11 +18,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import lombok.Getter;
 import lombok.Setter;
 import net.glowstone.EventFactory;
 import net.glowstone.GlowServer;
 import net.glowstone.GlowWorld;
+import net.glowstone.block.GlowBlock;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.meta.MetadataIndex;
 import net.glowstone.entity.meta.MetadataIndex.StatusFlags;
@@ -220,7 +223,7 @@ public abstract class GlowEntity implements Entity {
      * The default value 1 indicates no air drag.
      */
     @Setter
-    protected double airDrag = 1;
+    protected double airDrag = 0.98;
 
     /**
      * Velocity reduction applied each tick in water.
@@ -236,7 +239,7 @@ public abstract class GlowEntity implements Entity {
      * The default value (0,0,0) indicates no gravity acceleration.
      */
     @Setter
-    protected Vector gravityAccel = new Vector(0, 0, 0);
+    protected Vector gravityAccel = new Vector(0, -0.098, 0);
 
     /**
      * The slipperiness multiplier applied according to the block this entity was on.
@@ -247,7 +250,7 @@ public abstract class GlowEntity implements Entity {
      * If drag is applied before appling acceleration while calculating physics.
      */
     @Setter
-    protected boolean applyDragBeforeAccel = false;
+    protected boolean applyDragBeforeAccel = true;
 
     /**
      * This entity's unique id.
@@ -352,13 +355,13 @@ public abstract class GlowEntity implements Entity {
         if (this instanceof GlowPlayer) {
             // initial spawn event, first
             location = EventFactory.getInstance()
-                .callEvent(new PlayerInitialSpawnEvent((Player) this, location))
-                .getSpawnLocation();
+                    .callEvent(new PlayerInitialSpawnEvent((Player) this, location))
+                    .getSpawnLocation();
 
             // then, spawn location event (with location updated from initial spawn event)
             location = EventFactory.getInstance()
-                .callEvent(new PlayerSpawnLocationEvent((Player) this, location))
-                .getSpawnLocation();
+                    .callEvent(new PlayerSpawnLocationEvent((Player) this, location))
+                    .getSpawnLocation();
 
             // Update from modifications done on events.
             Position.copyLocation(location, this.origin);
@@ -421,7 +424,7 @@ public abstract class GlowEntity implements Entity {
             // silently allow setting the same UUID, since
             // it can't be checked with getUniqueId()
             throw new IllegalStateException("UUID of " + this + " is already "
-                + UuidUtils.toString(this.uuid));
+                    + UuidUtils.toString(this.uuid));
         }
     }
 
@@ -516,7 +519,7 @@ public abstract class GlowEntity implements Entity {
         if (!(this instanceof GlowPlayer)) {
             // TODO: Properly test when Enderman teleportation is implemented.
             EntityTeleportEvent event = EventFactory.getInstance().callEvent(
-                new EntityTeleportEvent(this, getLocation(), location));
+                    new EntityTeleportEvent(this, getLocation(), location));
             if (event.isCancelled()) {
                 return false;
             }
@@ -563,10 +566,10 @@ public abstract class GlowEntity implements Entity {
     public boolean isWithinDistance(GlowEntity other) {
         if (other instanceof GlowLivingEntity) {
             return ((GlowLivingEntity) other).getDeathTicks() <= 20
-                && isWithinDistance(other.location);
+                    && isWithinDistance(other.location);
         } else {
             return !other.isDead() && (isWithinDistance(other.location)
-                || other instanceof GlowLightningStrike);
+                    || other instanceof GlowLightningStrike);
         }
     }
 
@@ -580,7 +583,7 @@ public abstract class GlowEntity implements Entity {
         double dx = Math.abs(location.getX() - loc.getX());
         double dz = Math.abs(location.getZ() - loc.getZ());
         return loc.getWorld() == getWorld() && dx <= server.getViewDistance() * GlowChunk.WIDTH
-            && dz <= server.getViewDistance() * GlowChunk.HEIGHT;
+                && dz <= server.getViewDistance() * GlowChunk.HEIGHT;
     }
 
     /**
@@ -616,7 +619,7 @@ public abstract class GlowEntity implements Entity {
         }
 
         if (this instanceof GlowLivingEntity && !isDead() && ((GlowLivingEntity) this).hasAI()
-            && this.getLocation().getChunk().isLoaded()) {
+                && this.getLocation().getChunk().isLoaded()) {
             GlowLivingEntity entity = (GlowLivingEntity) this;
             entity.getTaskManager().pulse();
         }
@@ -629,7 +632,7 @@ public abstract class GlowEntity implements Entity {
             Block currentBlock = location.getBlock();
             if (currentBlock.getType() == Material.ENDER_PORTAL) {
                 EventFactory.getInstance()
-                    .callEvent(new EntityPortalEnterEvent(this, currentBlock.getLocation()));
+                        .callEvent(new EntityPortalEnterEvent(this, currentBlock.getLocation()));
                 if (server.getAllowEnd()) {
                     Location previousLocation = location.clone();
                     boolean success;
@@ -640,9 +643,9 @@ public abstract class GlowEntity implements Entity {
                     }
                     if (success) {
                         EntityPortalExitEvent e = EventFactory.getInstance()
-                            .callEvent(new EntityPortalExitEvent(this, previousLocation,
-                                location
-                                    .clone(), velocity.clone(), new Vector()));
+                                .callEvent(new EntityPortalExitEvent(this, previousLocation,
+                                        location
+                                                .clone(), velocity.clone(), new Vector()));
                         if (!e.getAfter().equals(velocity)) {
                             setVelocity(e.getAfter());
                         }
@@ -653,7 +656,7 @@ public abstract class GlowEntity implements Entity {
 
         if (leashHolderUniqueId != null && ticksLived < 2) {
             Optional<GlowEntity> any = world.getEntityManager().getAll().stream()
-                .filter(e -> leashHolderUniqueId.equals(e.getUniqueId())).findAny();
+                    .filter(e -> leashHolderUniqueId.equals(e.getUniqueId())).findAny();
             if (!any.isPresent()) {
                 world.dropItemNaturally(location, new ItemStack(Material.LEASH));
             }
@@ -683,7 +686,7 @@ public abstract class GlowEntity implements Entity {
             // break leashitch, if the entity is the only one left attached
             // will also destroy all remaining leashes
             if (EntityType.LEASH_HITCH.equals(leashHolder.getType())
-                && leashHolder.leashedEntities.size() == 1) {
+                    && leashHolder.leashedEntities.size() == 1) {
                 leashHolder.remove();
             } else {
                 // break leash
@@ -727,8 +730,8 @@ public abstract class GlowEntity implements Entity {
     public void setRawLocation(Location location, boolean fall) {
         if (location.getWorld() != world) {
             throw new IllegalArgumentException(
-                "Cannot setRawLocation to a different world (got " + location.getWorld()
-                    + ", expected " + world + ")");
+                    "Cannot setRawLocation to a different world (got " + location.getWorld()
+                            + ", expected " + world + ")");
         }
 
         if (Objects.equals(location, previousLocation)) {
@@ -749,10 +752,10 @@ public abstract class GlowEntity implements Entity {
 
         if (hasMoved()) {
             if (!fall || type == Material.LADDER // todo: horses are not affected
-                || type == Material.VINE // todo: horses are not affected
-                || type == Material.WATER || type == Material.STATIONARY_WATER
-                || type == Material.WEB || type == Material.TRAP_DOOR
-                || type == Material.IRON_TRAPDOOR || onGround) {
+                    || type == Material.VINE // todo: horses are not affected
+                    || type == Material.WATER || type == Material.STATIONARY_WATER
+                    || type == Material.WEB || type == Material.TRAP_DOOR
+                    || type == Material.IRON_TRAPDOOR || onGround) {
                 setFallDistance(0);
             } else if (location.getY() < previousLocation.getY() && !isInsideVehicle()) {
                 setFallDistance((float) (fallDistance + previousLocation.getY() - location.getY()));
@@ -819,7 +822,7 @@ public abstract class GlowEntity implements Entity {
         for (GlowEntity leashedEntity : leashedEntities) {
             if (visible && player.canSeeEntity(leashedEntity)) {
                 int attached = player.getEntityId() == this.getEntityId() ? 0
-                    : leashedEntity.getEntityId();
+                        : leashedEntity.getEntityId();
                 int holder = this.getEntityId();
 
                 result.add(new AttachEntityMessage(attached, holder));
@@ -856,7 +859,7 @@ public abstract class GlowEntity implements Entity {
         dz *= 128;
 
         boolean teleport = dx > Short.MAX_VALUE || dy > Short.MAX_VALUE || dz > Short.MAX_VALUE
-            || dx < Short.MIN_VALUE || dy < Short.MIN_VALUE || dz < Short.MIN_VALUE;
+                || dx < Short.MIN_VALUE || dy < Short.MIN_VALUE || dz < Short.MIN_VALUE;
 
         List<Message> result = new LinkedList<>();
 
@@ -870,13 +873,13 @@ public abstract class GlowEntity implements Entity {
             int pitch = Position.getIntPitch(location);
             if (moved) {
                 result.add(new RelativeEntityPositionRotationMessage(entityId,
-                    (short) dx, (short) dy, (short) dz, yaw, pitch));
+                        (short) dx, (short) dy, (short) dz, yaw, pitch));
             } else {
                 result.add(new EntityRotationMessage(entityId, yaw, pitch));
             }
         } else if (moved) {
             result.add(new RelativeEntityPositionMessage(
-                entityId, (short) dx, (short) dy, (short) dz));
+                    entityId, (short) dx, (short) dy, (short) dz));
         }
 
         // send changed metadata
@@ -897,14 +900,14 @@ public abstract class GlowEntity implements Entity {
             List<Integer> passengerIds = new ArrayList<>();
             getPassengers().forEach(e -> passengerIds.add(e.getEntityId()));
             result.add(new SetPassengerMessage(getEntityId(), passengerIds.stream()
-                .mapToInt(Integer::intValue).toArray()));
+                    .mapToInt(Integer::intValue).toArray()));
             passengerChanged = false;
         }
 
         if (leashHolderChanged) {
             int attached =
-                isLeashed() && session.getPlayer().getEntityId() == leashHolder.getEntityId()
-                    ? 0 : this.getEntityId();
+                    isLeashed() && session.getPlayer().getEntityId() == leashHolder.getEntityId()
+                            ? 0 : this.getEntityId();
             int holder = !isLeashed() ? -1 : leashHolder.getEntityId();
 
             // When the leashHolder is not visible, the AttachEntityMessage will be created in
@@ -945,7 +948,7 @@ public abstract class GlowEntity implements Entity {
         Location target = server.getWorlds().get(0).getSpawnLocation();
 
         EntityPortalEvent event = EventFactory.getInstance()
-            .callEvent(new EntityPortalEvent(this, location.clone(), target, null));
+                .callEvent(new EntityPortalEvent(this, location.clone(), target, null));
         if (event.isCancelled()) {
             return false;
         }
@@ -979,7 +982,7 @@ public abstract class GlowEntity implements Entity {
         }
 
         EntityPortalEvent event = EventFactory.getInstance()
-            .callEvent(new EntityPortalEvent(this, location.clone(), target, null));
+                .callEvent(new EntityPortalEvent(this, location.clone(), target, null));
         if (event.isCancelled()) {
             return false;
         }
@@ -1006,9 +1009,9 @@ public abstract class GlowEntity implements Entity {
     public boolean isTouchingMaterial(Material material) {
         if (boundingBox == null) {
             // less accurate calculation if no bounding box is present
-            for (BlockFace face : new BlockFace[] {BlockFace.EAST, BlockFace.WEST, BlockFace.SOUTH,
-                BlockFace.NORTH, BlockFace.DOWN, BlockFace.SELF, BlockFace.NORTH_EAST,
-                BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST}) {
+            for (BlockFace face : new BlockFace[]{BlockFace.EAST, BlockFace.WEST, BlockFace.SOUTH,
+                    BlockFace.NORTH, BlockFace.DOWN, BlockFace.SELF, BlockFace.NORTH_EAST,
+                    BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST}) {
                 if (getLocation().getBlock().getRelative(face).getType() == material) {
                     return true;
                 }
@@ -1049,68 +1052,88 @@ public abstract class GlowEntity implements Entity {
         return boundingBox != null && boundingBox.intersects(box);
     }
 
+    private Vector calculateOverlap(BoundingBox box) {
+        BoundingBox entity = this.boundingBox;
+        double x = 0.0, y = 0.0, z = 0.0;
+
+        Vector minA = entity.minCorner;
+        Vector maxA = entity.maxCorner;
+        Vector minB = box.minCorner;
+        Vector maxB = box.maxCorner;
+
+        double maxXMin = Math.max(minA.getX(), minB.getX());
+        double maxYMin = Math.max(minA.getY(), minB.getY());
+        double maxZMin = Math.max(minA.getZ(), minB.getZ());
+        double minXMax = Math.min(maxA.getX(), maxB.getX());
+        double minYMax = Math.min(maxA.getY(), maxB.getY());
+        double minZMax = Math.min(maxA.getZ(), maxB.getZ());
+//        x = minXMax - maxXMin;
+        y = minYMax - maxYMin;
+//        z = minZMax - maxZMin;
+
+        return new Vector(x, y, z);
+    }
+
     protected void pulsePhysics() {
-        // The pending locaiton and the block at that location
+        // The pending location and the block at that location
         Location pendingLocation = location.clone().add(velocity);
-        Block pendingBlock = pendingLocation.getBlock();
+        GlowBlock glowBlock = this.getWorld().getBlockAt(pendingLocation);
+        GlowBlock glowBlockUnder = this.getWorld().getBlockAt(pendingLocation).getRelative(BlockFace.DOWN);
 
-        if (pendingBlock.getType().isSolid()) {
-            Location pendingLocationX = location.clone().add(velocity.getX(), 0, 0);
-            if (pendingLocationX.getBlock().getType().isSolid()) {
-                velocity.setX(0);
-            }
 
-            Location pendingLocationY = location.clone().add(0, velocity.getY(), 0);
-            if (pendingLocationY.getBlock().getType().isSolid()) {
-                velocity.setY(0);
-            }
-
-            Location pendingLocationZ = location.clone().add(0, 0, velocity.getZ());
-            if (pendingLocationZ.getBlock().getType().isSolid()) {
-                velocity.setZ(0);
-            }
-            if (this instanceof Projectile) {
-                EventFactory.getInstance()
-                    .callEvent(new ProjectileHitEvent((Projectile) this, pendingBlock));
-            }
-            collide(pendingBlock);
-        } else {
-            if (hasFriction()) {
-                // apply friction and gravity
-                if (location.getBlock().getType() == Material.WATER) {
-                    velocity.multiply(liquidDrag);
-                    velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-                } else if (location.getBlock().getType() == Material.LAVA) {
-                    velocity.multiply(liquidDrag - 0.3);
-                    velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-                } else {
-                    if (applyDragBeforeAccel) {
-                        velocity.setY(airDrag * velocity.getY() + getGravityAccel().getY());
-                    } else {
-                        velocity.setY(airDrag * (velocity.getY() + getGravityAccel().getY()));
-                    }
-
-                    if (isOnGround()) {
-                        velocity.setX(velocity.getX() * slipMultiplier);
-                        velocity.setY(0);
-                        velocity.setZ(velocity.getZ() * slipMultiplier);
-                    } else {
-                        velocity.setX(velocity.getX() * airDrag);
-                        velocity.setZ(velocity.getZ() * airDrag);
-                    }
-                }
-            } else if (hasGravity() && !isOnGround()) {
-                switch (location.getBlock().getType()) {
-                    case WATER:
-                    case LAVA:
-                        velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-                        break;
-                    default:
-                        velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-                }
-            }
-            setRawLocation(pendingLocation);
+        this.boundingBox.setCenter(pendingLocation.getX(), pendingLocation.getY(), pendingLocation.getZ());
+        if (glowBlock.getType().isSolid() && this.intersects(glowBlock.getBoundingBox())) {
+            Vector overlap = calculateOverlap(glowBlock.getBoundingBox());
+            pendingLocation = pendingLocation.add(overlap.multiply(1.0));
+            velocity.setY(0);
+            collide(glowBlock);
+        } else if (glowBlockUnder.getType().isSolid() && this.intersects(glowBlockUnder.getBoundingBox())){
+            Vector overlap = calculateOverlap(glowBlockUnder.getBoundingBox());
+            pendingLocation = pendingLocation.add(overlap.multiply(1.0));
+            velocity.setY(0);
+            collide(glowBlock);
         }
+
+        if (this instanceof Projectile) {
+            EventFactory.getInstance()
+                    .callEvent(new ProjectileHitEvent((Projectile) this, glowBlock));
+        }
+        setRawLocation(pendingLocation);
+        if (hasFriction()) {
+//                 apply friction and gravity
+            if (location.getBlock().getType() == Material.WATER) {
+                velocity.multiply(liquidDrag);
+                velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
+            } else if (location.getBlock().getType() == Material.LAVA) {
+                velocity.multiply(liquidDrag - 0.3);
+                velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
+            } else {
+                if (applyDragBeforeAccel) {
+                    velocity.setY(airDrag * velocity.getY() + getGravityAccel().getY());
+                } else {
+                    velocity.setY(airDrag * (velocity.getY() + getGravityAccel().getY()));
+                }
+
+//                    if (isOnGround()) {
+//                        velocity.setX(velocity.getX() * slipMultiplier);
+//                        velocity.setY(0);
+//                        velocity.setZ(velocity.getZ() * slipMultiplier);
+//                    } else {
+//                        velocity.setX(velocity.getX() * airDrag);
+//                        velocity.setZ(velocity.getZ() * airDrag);
+//                    }
+            }
+        }
+//            else if (hasGravity() && !isOnGround()) {
+//                switch (location.getBlock().getType()) {
+//                    case WATER:
+//                    case LAVA:
+//                        velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
+//                        break;
+//                    default:
+//                        velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
+//                }
+//            }
     }
 
     /**
@@ -1167,7 +1190,7 @@ public abstract class GlowEntity implements Entity {
         this.setPassenger(null);
         leaveVehicle();
         ImmutableList.copyOf(this.leashedEntities)
-            .forEach(e -> unleash(e, UnleashReason.HOLDER_GONE));
+                .forEach(e -> unleash(e, UnleashReason.HOLDER_GONE));
 
         if (isLeashed()) {
             unleash(this, UnleashReason.HOLDER_GONE);
@@ -1307,7 +1330,7 @@ public abstract class GlowEntity implements Entity {
         }
 
         if (EventFactory.getInstance()
-            .callEvent(new EntityDismountEvent(passenger, this)).isCancelled()) {
+                .callEvent(new EntityDismountEvent(passenger, this)).isCancelled()) {
             return false;
         }
 
@@ -1319,7 +1342,7 @@ public abstract class GlowEntity implements Entity {
 
         if (this instanceof Vehicle && glowPassenger instanceof LivingEntity) {
             VehicleExitEvent event = EventFactory.getInstance()
-                .callEvent(new VehicleExitEvent((Vehicle) this, (LivingEntity) glowPassenger));
+                    .callEvent(new VehicleExitEvent((Vehicle) this, (LivingEntity) glowPassenger));
             if (event.isCancelled()) {
                 return false;
             }
@@ -1353,13 +1376,13 @@ public abstract class GlowEntity implements Entity {
 
         if (this instanceof Vehicle) {
             VehicleEnterEvent event = EventFactory.getInstance().callEvent(
-                new VehicleEnterEvent((Vehicle) this, passenger));
+                    new VehicleEnterEvent((Vehicle) this, passenger));
             if (event.isCancelled()) {
                 return false;
             }
         }
         EntityMountEvent event = EventFactory.getInstance().callEvent(
-            new EntityMountEvent(passenger, this));
+                new EntityMountEvent(passenger, this));
         if (event.isCancelled()) {
             return false;
         }
@@ -1670,7 +1693,7 @@ public abstract class GlowEntity implements Entity {
      * The metadata store class for entities.
      */
     private static class EntityMetadataStore extends MetadataStoreBase<Entity>
-        implements MetadataStore<Entity> {
+            implements MetadataStore<Entity> {
 
         @Override
         protected String disambiguate(Entity subject, String metadataKey) {
