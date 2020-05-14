@@ -27,20 +27,11 @@ public final class Subscriber {
     private final BlockingQueue<String> messages;
 
     /**
-     * Create a subscriber that can receive a single message.
+     * Create a subscriber that can receive multiple messages.
      */
     public Subscriber(String name) {
         this.name = name;
         messages = new LinkedBlockingQueue<>();
-    }
-
-    /**
-     * Get the subscriber's name.
-     *
-     * @return the subscriber's name.
-     */
-    public String getName() {
-        return name;
     }
 
     /**
@@ -58,12 +49,13 @@ public final class Subscriber {
      * @param expected the expected message to be received.
      */
     public void assertReceived(String expected) throws InterruptedException {
+
         String actual = messages.poll(MAX_DELAY, TimeUnit.MILLISECONDS);
         if (actual == null) {
             fail(name + " expected to receive \"" + expected + "\", but did not receive any message.");
-        } else {
-            assertEquals(expected, actual, name + " expected to receive \"" + expected + "\", but received \"" + actual + "\".");
         }
+
+        assertEquals(expected, actual, name + " expected to receive \"" + expected + "\", but received \"" + actual + "\".");
     }
 
     /**
@@ -83,7 +75,6 @@ public final class Subscriber {
 
             if (!send.remove(received)) {
                 fail(name + " received unexpected message \"" + received + "\".");
-                return;
             }
         }
 
@@ -100,12 +91,13 @@ public final class Subscriber {
      * @param unexpected the message that should not be received.
      */
     public void assertNotReceived(String unexpected) throws InterruptedException {
+
         String actual = messages.poll(MAX_DELAY, TimeUnit.MILLISECONDS);
         if (unexpected.equals(actual)) {
             fail(name + " expected not to receive the message \"" + unexpected + "\", but did.");
-        } else {
-            assertNull(actual, name + " expected not to receive a message, but received \"" + actual + "\".");
         }
+
+        assertNull(actual, name + " expected not to receive a message, but received \"" + actual + "\".");
     }
 
     @Override
@@ -120,6 +112,6 @@ public final class Subscriber {
 
     @Override
     public String toString() {
-        return "Subscriber(name=\"" + name + "\")";
+        return name;
     }
 }

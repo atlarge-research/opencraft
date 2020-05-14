@@ -24,7 +24,7 @@ final class ConcurrentChannelTest extends ChannelTest {
     }
 
     /**
-     * Verify that the state of a channel is correctly presented by its 'isEmpty()' method.
+     * Verify that a channel's 'isEmpty()' method returns the correct value.
      */
     @Test
     void emptyTest() {

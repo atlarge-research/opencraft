@@ -19,7 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Test the chunk policy using a mocked world.
+ * Test the chunk policy using a mocked world and simplified chunks.
  */
 final class ChunkPolicyTest {
 

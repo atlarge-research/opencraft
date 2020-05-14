@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import org.junit.jupiter.api.Test;
 
 /**
- * The ChannelTest class provides tests for the general use cases of all channels. Preventing a code-duplication and
- * thereby programming mistakes.
+ * The ChannelTest class provides tests for the general use cases of all channels. Ensuring that all implementations
+ * provide a minimal amount of functionality, without requiring code-duplication.
  */
 public abstract class ChannelTest {
 

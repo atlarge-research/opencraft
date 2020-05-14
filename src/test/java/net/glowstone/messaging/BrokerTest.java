@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import org.junit.jupiter.api.Test;
 
 /**
- * The BrokerTest class provides tests for the general use cases of all brokers. Preventing a code-duplication and
- * thereby programming mistakes.
+ * The BrokerTest class provides tests for the general use cases of all brokers. Ensuring that all implementations
+ * provide a minimal amount of functionality, without requiring code-duplication.
  */
 public abstract class BrokerTest {
 
@@ -16,18 +16,6 @@ public abstract class BrokerTest {
      * @return a broker instance of the implementing class.
      */
     protected abstract Broker<String, Subscriber, String> createBroker();
-
-    /**
-     * Verify that subscribing to a non-existing topic does not cause an exception.
-     */
-    @Test
-    void subscribeNonExistingTopicTest() {
-
-        Broker<String, Subscriber, String> broker = createBroker();
-        Subscriber alice = new Subscriber("Alice");
-
-        assertDoesNotThrow(() -> broker.subscribe("Topic", alice, alice::onMessage));
-    }
 
     /**
      * Verify that unsubscribing from a non-existing topic does not cause an exception.
@@ -68,7 +56,7 @@ public abstract class BrokerTest {
     }
 
     /**
-     * Verify that a subscribed user receives a multiple published message.
+     * Verify that a subscribed user receives multiple published messages.
      */
     @TimeBasedTest
     void subscribePublishMultipleTest() throws InterruptedException{
@@ -140,7 +128,7 @@ public abstract class BrokerTest {
     }
 
     /**
-     * Verify that a previously subscribed user does not receive a published message.
+     * Verify that an unsubscribing user does not unsubscribe other users.
      */
     @TimeBasedTest
     void subscribeMultipleUnsubscribePublishTest() throws InterruptedException{

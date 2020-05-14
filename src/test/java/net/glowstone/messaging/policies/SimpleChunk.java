@@ -8,12 +8,22 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Entity;
 
+/**
+ * The simplified chunk class represents a chunk without actual content that can be used to test the chunk policy.
+ */
 final class SimpleChunk implements Chunk {
 
     private final World world;
     private final int x;
     private final int z;
 
+    /**
+     * Create a simple chunk.
+     *
+     * @param world the chunk's world.
+     * @param x the chunk's x-coordinate.
+     * @param z the chunk's z - coordinate.
+     */
     SimpleChunk(World world, int x, int z) {
         this.world = world;
         this.x = x;
