@@ -1,12 +1,14 @@
 package net.glowstone.messaging.policies;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.bukkit.Chunk;
@@ -114,8 +116,8 @@ final class ChunkPolicyTest {
     @Test
     void selectChunkTargetTest() {
         Chunk expected = new SimpleChunk(world, 1, 2);
-        Chunk target = policy.selectTarget(expected);
-        assertEquals(expected, target);
+        Iterable<Chunk> targets = policy.selectTargets(expected);
+        assertIterableEquals(Collections.singletonList(expected), targets);
     }
 
     /**
@@ -126,8 +128,8 @@ final class ChunkPolicyTest {
         Chunk expected = new SimpleChunk(world, 1, 2);
         Block block = mock(Block.class);
         when(block.getChunk()).thenReturn(expected);
-        Chunk target = policy.selectTarget(block);
-        assertEquals(expected, target);
+        Iterable<Chunk> targets = policy.selectTargets(block);
+        assertIterableEquals(Collections.singletonList(expected), targets);
     }
 
     /**
@@ -138,8 +140,8 @@ final class ChunkPolicyTest {
         Chunk expected = new SimpleChunk(world, 1, 2);
         Entity entity = mock(Entity.class);
         when(entity.getChunk()).thenReturn(expected);
-        Chunk target = policy.selectTarget(entity);
-        assertEquals(expected, target);
+        Iterable<Chunk> targets = policy.selectTargets(entity);
+        assertIterableEquals(Collections.singletonList(expected), targets);
     }
 
     /**
@@ -148,7 +150,7 @@ final class ChunkPolicyTest {
     @Test
     void selectObjectTargetTest() {
         Object object = new Object();
-        assertThrows(UnsupportedOperationException.class, () -> policy.selectTarget(object));
+        assertThrows(UnsupportedOperationException.class, () -> policy.selectTargets(object));
     }
 
     /**

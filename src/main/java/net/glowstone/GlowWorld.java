@@ -431,7 +431,7 @@ public class GlowWorld implements World {
 
     private final Map<GlowPlayer, Location> previousLocations;
 
-    private MessagingSystem<Chunk, Player, Object, Message> messagingSystem;
+    private MessagingSystem<Chunk, Object, Player, Message> messagingSystem;
 
     private Executor executor;
 

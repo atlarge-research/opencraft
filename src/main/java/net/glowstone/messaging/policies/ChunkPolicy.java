@@ -1,5 +1,6 @@
 package net.glowstone.messaging.policies;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import net.glowstone.messaging.Policy;
@@ -13,7 +14,7 @@ import org.bukkit.entity.Player;
 /**
  * Defines a mapping from players to chunks of interest and from objects to the chunk in which they reside.
  */
-public final class ChunkPolicy implements Policy<Chunk, Player, Object> {
+public final class ChunkPolicy implements Policy<Chunk, Object, Player> {
 
     private final World world;
     private final int viewDistance;
@@ -52,18 +53,21 @@ public final class ChunkPolicy implements Policy<Chunk, Player, Object> {
     }
 
     @Override
-    public Chunk selectTarget(Object publisher) {
+    public Iterable<Chunk> selectTargets(Object publisher) {
 
         if (publisher instanceof Chunk) {
-            return (Chunk) publisher;
+            Chunk chunk = (Chunk) publisher;
+            return Collections.singletonList(chunk);
         }
 
         if (publisher instanceof Block) {
-            return ((Block) publisher).getChunk();
+            Chunk chunk = ((Block) publisher).getChunk();
+            return Collections.singletonList(chunk);
         }
 
         if (publisher instanceof Entity) {
-            return ((Entity) publisher).getChunk();
+            Chunk chunk = ((Entity) publisher).getChunk();
+            return Collections.singletonList(chunk);
         }
 
         throw new UnsupportedOperationException("Cannot select target topic for type: " + publisher.getClass());

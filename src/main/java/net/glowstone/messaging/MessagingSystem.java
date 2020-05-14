@@ -14,9 +14,9 @@ import java.util.function.Consumer;
  * @param <Publisher> the type of publisher that can publish messages.
  * @param <Message> the type of messages that can be published.
  */
-public final class MessagingSystem<Topic, Subscriber, Publisher, Message> {
+public final class MessagingSystem<Topic, Publisher, Subscriber, Message> {
 
-    private final Policy<Topic, Subscriber, Publisher> policy;
+    private final Policy<Topic, Publisher, Subscriber> policy;
     private final Broker<Topic, Subscriber, Message> broker;
     private final Map<Subscriber, Set<Topic>> subscriptions;
 
@@ -26,7 +26,7 @@ public final class MessagingSystem<Topic, Subscriber, Publisher, Message> {
      * @param policy the policy used to update subscriptions and select publishing targets.
      * @param broker the broker used to distribute messages to subscribers.
      */
-    public MessagingSystem(Policy<Topic, Subscriber, Publisher> policy, Broker<Topic, Subscriber, Message> broker) {
+    public MessagingSystem(Policy<Topic, Publisher, Subscriber> policy, Broker<Topic, Subscriber, Message> broker) {
         this.policy = policy;
         this.broker = broker;
         subscriptions = new HashMap<>();
@@ -68,7 +68,7 @@ public final class MessagingSystem<Topic, Subscriber, Publisher, Message> {
      * @param message the message to be published.
      */
     public void broadcast(Publisher publisher, Message message) {
-        Topic topic = policy.selectTarget(publisher);
-        broker.publish(topic, message);
+        Iterable<Topic> topics = policy.selectTargets(publisher);
+        topics.forEach(topic -> broker.publish(topic, message));
     }
 }

@@ -6,10 +6,10 @@ import java.util.Set;
  * The policy interface provides methods which describe how subscribers and publishers relate to a set of topics.
  *
  * @param <Topic> the type of topics that could be of interest.
- * @param <Subscriber> the type of subscribers that have topics of interest.
  * @param <Publisher> the type of publishers that have a target topic.
+ * @param <Subscriber> the type of subscribers that have topics of interest.
  */
-public interface Policy<Topic, Subscriber, Publisher> {
+public interface Policy<Topic, Publisher, Subscriber> {
 
     /**
      * Compute the topics a subscriber is interested in.
@@ -20,10 +20,10 @@ public interface Policy<Topic, Subscriber, Publisher> {
     Set<Topic> computeInterestSet(Subscriber subscriber);
 
     /**
-     * Select a single topic to which the publisher should publish its messages.
+     * Select the topics to which the publisher should publish its message.
      *
-     * @param publisher the publisher who's topic to select.
-     * @return the selected topic.
+     * @param publisher the publisher who's topics to select.
+     * @return the selected topics.
      */
-    Topic selectTarget(Publisher publisher);
+    Iterable<Topic> selectTargets(Publisher publisher);
 }

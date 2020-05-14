@@ -28,9 +28,9 @@ final class MessagingSystemTest {
     private static final Set<String> OLD_TOPICS = Collections.singleton(OLD_TOPIC);
     private static final Set<String> NEW_TOPICS = Collections.singleton(NEW_TOPIC);
 
-    private Policy<String, Subscriber, String> policy;
+    private Policy<String, String, Subscriber> policy;
     private Broker<String, Subscriber, String> broker;
-    private MessagingSystem<String, Subscriber, String, String> system;
+    private MessagingSystem<String, String, Subscriber, String> system;
     private Subscriber alice;
 
     /**
@@ -39,7 +39,7 @@ final class MessagingSystemTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     void beforeEach() {
-        policy = (Policy<String, Subscriber, String>) mock(Policy.class);
+        policy = (Policy<String, String, Subscriber>) mock(Policy.class);
         broker = (Broker<String, Subscriber, String>) mock(Broker.class);
         system = new MessagingSystem<>(policy, broker);
         alice = new Subscriber("Alice");
@@ -116,12 +116,12 @@ final class MessagingSystemTest {
     void broadcastTest() {
 
         String publisher = "Publisher";
-        String topic = "Topic";
+        Iterable<String> topics = Collections.singleton("Topic");
         String message = "Message";
 
-        when(policy.selectTarget(publisher)).thenReturn(topic);
+        when(policy.selectTargets(publisher)).thenReturn(topics);
         system.broadcast(publisher, message);
 
-        verify(broker).publish(topic, message);
+        verify(broker).publish("Topic", message);
     }
 }
