@@ -749,7 +749,7 @@ public class GlowWorld implements World {
      */
     private void processBlockChanges() {
 
-        Map<GlowChunk.Key, Map<BlockVector, BlockChangeMessage>> chunks = new HashMap<>();
+        Map<Chunk, Map<BlockVector, BlockChangeMessage>> chunks = new HashMap<>();
         while (true) {
 
             BlockChangeMessage message = blockChanges.poll();
@@ -757,22 +757,22 @@ public class GlowWorld implements World {
                 break;
             }
 
-            GlowChunk.Key key = GlowChunk.Key.of(message.getX() >> 4, message.getZ() >> 4);
-            Map<BlockVector, BlockChangeMessage> map = chunks.computeIfAbsent(key, k -> new HashMap<>());
+            Chunk chunk = getChunkAt(message.getX() >> 4, message.getZ() >> 4);
+            Map<BlockVector, BlockChangeMessage> map = chunks.computeIfAbsent(chunk, c -> new HashMap<>());
             BlockVector vector = new BlockVector(message.getX(), message.getY(), message.getZ());
             map.put(vector, message);
         }
 
-        for (Map.Entry<GlowChunk.Key, Map<BlockVector, BlockChangeMessage>> entry : chunks.entrySet()) {
+        for (Map.Entry<Chunk, Map<BlockVector, BlockChangeMessage>> entry : chunks.entrySet()) {
 
-            GlowChunk.Key key = entry.getKey();
+            Chunk chunk = entry.getKey();
             List<BlockChangeMessage> values = new ArrayList<>(entry.getValue().values());
 
             if (values.size() == 1) {
-                messagingSystem.broadcast(getChunkAt(key.getX(), key.getZ()), values.get(0));
+                messagingSystem.broadcast(chunk, values.get(0));
             } else if (values.size() > 1) {
-                Message message = new MultiBlockChangeMessage(key.getX(), key.getZ(), values);
-                messagingSystem.broadcast(getChunkAt(key.getX(), key.getZ()), message);
+                Message message = new MultiBlockChangeMessage(chunk.getX(), chunk.getZ(), values);
+                messagingSystem.broadcast(chunk, message);
             }
         }
 
