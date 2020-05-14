@@ -45,6 +45,12 @@
     </repositories>
 
     <dependencies>
+        <!-- ActiveMQ -->
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-broker</artifactId>
+            <version>5.15.12</version>
+        </dependency>
         <!-- Yardstick -->
         <dependency>
             <groupId>com.atlarge</groupId>
