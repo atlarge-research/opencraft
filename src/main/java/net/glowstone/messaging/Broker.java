@@ -1,6 +1,5 @@
 package net.glowstone.messaging;
 
-import java.io.Closeable;
 import java.util.function.Consumer;
 
 /**
@@ -11,7 +10,7 @@ import java.util.function.Consumer;
  * @param <Subscriber> the type of subscribers that is allowed to subscribe to a channel.
  * @param <Message> the type of messages that is allowed to be published to a channel.
  */
-public interface Broker<Topic, Subscriber, Message> extends Closeable {
+public interface Broker<Topic, Subscriber, Message> {
 
     /**
      * Check whether the broker is empty, meaning that there are no subscribers.
