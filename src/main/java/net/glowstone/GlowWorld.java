@@ -54,6 +54,7 @@ import net.glowstone.entity.GlowPlayer;
 import net.glowstone.entity.objects.GlowFallingBlock;
 import net.glowstone.entity.objects.GlowItem;
 import net.glowstone.entity.physics.BoundingBox;
+import net.glowstone.executor.DynamicExecutor;
 import net.glowstone.generator.structures.GlowStructure;
 import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
@@ -70,6 +71,7 @@ import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
 import net.glowstone.util.BlockStateDelegate;
+import net.glowstone.util.Coordinates;
 import net.glowstone.util.GameRuleManager;
 import net.glowstone.util.RayUtil;
 import net.glowstone.util.TickUtil;
@@ -436,7 +438,7 @@ public class GlowWorld implements World {
 
     private MessagingSystem<Chunk, Object, Player, Message> messagingSystem;
 
-    private Executor executor;
+    private DynamicExecutor executor;
 
     private final Queue<BlockChangeMessage> blockChanges;
 
@@ -519,7 +521,7 @@ public class GlowWorld implements World {
         messagingSystem = new MessagingSystem<>(policy, broker);
 
         previousLocations = new WeakHashMap<>();
-        executor = Executors.newCachedThreadPool();
+        executor = new DynamicExecutor();
         blockChanges = new ConcurrentLinkedDeque<>();
         afterBlockChanges = new LinkedList<>();
     }
@@ -597,6 +599,8 @@ public class GlowWorld implements World {
         Location current = player.getLocation();
         Location previous = previousLocations.get(player);
 
+        Coordinates playerCoords = new Coordinates(current.getX(), current.getZ());
+
         boolean force = false;
 
         if (previous == null) {
@@ -617,6 +621,7 @@ public class GlowWorld implements World {
         int radius = Math.min(server.getViewDistance(), 1 + player.getViewDistance());
 
         GlowSession session = player.getSession();
+        executor.clearQueue(); // TODO: Put this at the right location, so it works with multiple players
 
         if (!force && previous.getWorld() == this) {
             for (int x = previousX - radius; x <= previousX + radius; x++) {
@@ -648,12 +653,14 @@ public class GlowWorld implements World {
 
                         boolean skylight = getEnvironment() == Environment.NORMAL;
 
+                        Coordinates chunkCenter = Coordinates.createAtChunkCenter(x, z);
+
                         executor.execute(() -> {
                             GlowChunk chunk = getChunkAt(key.getX(), key.getZ());
                             Message message = chunk.toMessage(skylight);
                             session.send(message);
                             chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
-                        });
+                        }, chunkCenter.squaredDistance(playerCoords));
                     }
                 }
             }

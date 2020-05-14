@@ -884,11 +884,7 @@ public class GlowChunk implements Chunk {
      * @return The x and z coordinates at the center of the chunk.
      */
     public Coordinates getCenterCoordinates() {
-        // Multiply by 16 and add 8 to get the center of the chunk.
-        final int x = (this.x << 4) + 8;
-        final int z = (this.z << 4) + 8;
-
-        return new Coordinates(x, z);
+        return Coordinates.createAtChunkCenter(x, z);
     }
 
     /**
