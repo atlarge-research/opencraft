@@ -39,6 +39,7 @@ import net.glowstone.chunk.GlowChunkSnapshot.EmptySnapshot;
 import net.glowstone.constants.GameRules;
 import net.glowstone.constants.GlowBiome;
 import net.glowstone.constants.GlowBiomeClimate;
+import net.glowstone.constants.GlowBlockEntity;
 import net.glowstone.constants.GlowEffect;
 import net.glowstone.constants.GlowParticle;
 import net.glowstone.constants.GlowSound;
@@ -58,12 +59,15 @@ import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
 import net.glowstone.messaging.Broker;
-import net.glowstone.messaging.concurrent.ConcurrentBroker;
+import net.glowstone.messaging.MessagingSystem;
+import net.glowstone.messaging.brokers.concurrent.ConcurrentBroker;
+import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
 import net.glowstone.net.message.play.game.UnloadChunkMessage;
+import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
 import net.glowstone.util.BlockStateDelegate;
 import net.glowstone.util.GameRuleManager;
@@ -71,6 +75,7 @@ import net.glowstone.util.RayUtil;
 import net.glowstone.util.TickUtil;
 import net.glowstone.util.collection.ConcurrentSet;
 import net.glowstone.util.config.WorldConfig;
+import net.glowstone.util.nbt.CompoundTag;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.BlockChangeDelegate;
 import org.bukkit.Chunk;
@@ -429,7 +434,7 @@ public class GlowWorld implements World {
 
     private final Map<GlowPlayer, Location> previousLocations;
 
-    private Broker<GlowChunk.Key, UUID, Message> messageBroker;
+    private MessagingSystem<Chunk, Object, Player, Message> messagingSystem;
 
     private Executor executor;
 
@@ -509,8 +514,11 @@ public class GlowWorld implements World {
         initialized = true;
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
 
+        ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
+        Broker<Chunk, Player, Message> broker = new ConcurrentBroker<>();
+        messagingSystem = new MessagingSystem<>(policy, broker);
+
         previousLocations = new WeakHashMap<>();
-        messageBroker = new ConcurrentBroker<>();
         executor = Executors.newCachedThreadPool();
         blockChanges = new ConcurrentLinkedDeque<>();
         afterBlockChanges = new LinkedList<>();
@@ -537,7 +545,10 @@ public class GlowWorld implements World {
         entityManager.getAll().stream()
                 .filter(GlowPlayer.class::isInstance)
                 .map(GlowPlayer.class::cast)
-                .forEach(this::updateSubscriptions);
+                .forEach(player -> {
+                    messagingSystem.update(player, player.getSession()::send);
+                    streamChunks(player);
+                });
 
         List<GlowEntity> allEntities = new ArrayList<>(entityManager.getAll());
         List<GlowPlayer> players = new LinkedList<>();
@@ -578,16 +589,14 @@ public class GlowWorld implements World {
     }
 
     /**
-     * Update player subscriptions based on their current interest..
+     * Stream chunks that have come within viewing distance and unload those that have gone out of sight.
      * @param player the player.
      */
-    public void updateSubscriptions(GlowPlayer player) {
+    public void streamChunks(GlowPlayer player) {
 
         Location current = player.getLocation();
         Location previous = previousLocations.get(player);
 
-        // This checks if we need to force a chunk stream, this can happen when the player first
-        // joins the game
         boolean force = false;
 
         if (previous == null) {
@@ -601,7 +610,6 @@ public class GlowWorld implements World {
         int previousX = previous.getBlockX() >> 4;
         int previousZ = previous.getBlockZ() >> 4;
 
-        // TODO: Skip this test if view distance changed.
         if (!force && previousX == currentX && previousZ == currentZ) {
             return;
         }
@@ -618,16 +626,8 @@ public class GlowWorld implements World {
                             || Math.abs(z - currentZ) > radius) {
 
                         GlowChunk.Key key = GlowChunk.Key.of(x, z);
-
-                        messageBroker.unsubscribe(
-                                key,
-                                player.getUniqueId()
-                        );
-
                         session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
                         player.getChunkLock().release(key);
-
-                        // TODO: Send entity despawn messages
                     }
                 }
             }
@@ -643,12 +643,6 @@ public class GlowWorld implements World {
 
                         GlowChunk.Key key = GlowChunk.Key.of(x, z);
 
-                        messageBroker.subscribe(
-                                key,
-                                player.getUniqueId(),
-                                session::send
-                        );
-
                         getChunkManager().forcePopulation(key.getX(), key.getZ());
                         player.getChunkLock().acquire(key);
 
@@ -660,8 +654,6 @@ public class GlowWorld implements World {
                             session.send(message);
                             chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
                         });
-
-                        // TODO: Send entity spawn messages
                     }
                 }
             }
@@ -734,6 +726,43 @@ public class GlowWorld implements World {
     }
 
     /**
+     * Send a change for a block to be processed.
+     *
+     * @param loc The location of the material that has to be changed.
+     * @param material The affected material.
+     * @param data Necessary data for the change.
+     */
+    public void sendBlockChange(Location loc, Material material, byte data) {
+        int materialId = material.getId();
+        BlockChangeMessage message = new BlockChangeMessage(loc.getBlockX(), loc.getBlockY(), loc
+                .getBlockZ(), materialId, data);
+        addBlockChange(message);
+    }
+
+    /**
+     * Send a block entity change to the given location.
+     *
+     * @param location The location of the block entity.
+     * @param type The type of block entity being sent.
+     * @param nbt The NBT structure to send to the client.
+     */
+    public void sendBlockEntityChange(Location location, GlowBlockEntity type, CompoundTag nbt) {
+
+        checkNotNull(location, "Location cannot be null");
+        checkNotNull(type, "Type cannot be null");
+        checkNotNull(nbt, "NBT cannot be null");
+
+        Message message = new UpdateBlockEntityMessage(
+                location.getBlockX(),
+                location.getBlockY(),
+                location.getBlockZ(),
+                type.getValue(),
+                nbt
+        );
+        addAfterBlockChange(location, message);
+    }
+
+    /**
      * Add a block change message to the block changes queue.
      *
      * @param message The message to be stored.
@@ -760,7 +789,7 @@ public class GlowWorld implements World {
      */
     private void processBlockChanges() {
 
-        Map<GlowChunk.Key, Map<BlockVector, BlockChangeMessage>> chunks = new HashMap<>();
+        Map<Chunk, Map<BlockVector, BlockChangeMessage>> chunks = new HashMap<>();
         while (true) {
 
             BlockChangeMessage message = blockChanges.poll();
@@ -768,22 +797,22 @@ public class GlowWorld implements World {
                 break;
             }
 
-            GlowChunk.Key key = GlowChunk.Key.of(message.getX() >> 4, message.getZ() >> 4);
-            Map<BlockVector, BlockChangeMessage> map = chunks.computeIfAbsent(key, k -> new HashMap<>());
+            Chunk chunk = getChunkAt(message.getX() >> 4, message.getZ() >> 4);
+            Map<BlockVector, BlockChangeMessage> map = chunks.computeIfAbsent(chunk, c -> new HashMap<>());
             BlockVector vector = new BlockVector(message.getX(), message.getY(), message.getZ());
             map.put(vector, message);
         }
 
-        for (Map.Entry<GlowChunk.Key, Map<BlockVector, BlockChangeMessage>> entry : chunks.entrySet()) {
+        for (Map.Entry<Chunk, Map<BlockVector, BlockChangeMessage>> entry : chunks.entrySet()) {
 
-            GlowChunk.Key key = entry.getKey();
-            List<BlockChangeMessage> value = new ArrayList<>(entry.getValue().values());
+            Chunk chunk = entry.getKey();
+            List<BlockChangeMessage> values = new ArrayList<>(entry.getValue().values());
 
-            if (value.size() == 1) {
-                messageBroker.publish(key, value.get(0));
-            } else if (value.size() > 1) {
-                Message message = new MultiBlockChangeMessage(key.getX(), key.getZ(), value);
-                messageBroker.publish(key, message);
+            if (values.size() == 1) {
+                messagingSystem.broadcast(chunk, values.get(0));
+            } else if (values.size() > 1) {
+                Message message = new MultiBlockChangeMessage(chunk.getX(), chunk.getZ(), values);
+                messagingSystem.broadcast(chunk, message);
             }
         }
 
@@ -792,7 +821,7 @@ public class GlowWorld implements World {
         postMessages.forEach(pair -> {
             GlowChunk.Key key = pair.getLeft();
             Message message = pair.getRight();
-            messageBroker.publish(key, message);
+            messagingSystem.broadcast(getChunkAt(key.getX(), key.getZ()), message);
         });
     }
 
@@ -903,8 +932,7 @@ public class GlowWorld implements World {
     }
 
     public void broadcastBlockChangeInRange(GlowChunk.Key chunkKey, BlockChangeMessage message) {
-        getRawPlayers().stream().filter(player -> player.canSeeChunk(chunkKey))
-            .forEach(player -> player.sendBlockChangeForce(message));
+        addBlockChange(message);
     }
 
     private void maybeStrikeLightningInChunk(int cx, int cz) {

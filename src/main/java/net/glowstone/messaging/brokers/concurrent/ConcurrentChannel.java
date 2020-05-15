@@ -1,4 +1,4 @@
-package net.glowstone.messaging.concurrent;
+package net.glowstone.messaging.brokers.concurrent;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -11,7 +11,7 @@ import net.glowstone.messaging.Channel;
  * @param <Subscriber> the type of subscribers that is allowed to subscribe to a channel.
  * @param <Message> the type of messages that is allowed to be published to a channel.
  */
-public final class ConcurrentChannel<Subscriber, Message> implements Channel<Subscriber, Message> {
+final class ConcurrentChannel<Subscriber, Message> implements Channel<Subscriber, Message> {
 
     private static final long PARALLELISM_THRESHOLD = 4;
 
@@ -20,28 +20,27 @@ public final class ConcurrentChannel<Subscriber, Message> implements Channel<Sub
     /**
      * Create a concurrent channel.
      */
-    public ConcurrentChannel() {
+    ConcurrentChannel() {
         this.callbacks = new ConcurrentHashMap<>();
     }
 
-    @Override
-    public boolean isEmpty() {
+    /**
+     * Check whether the channel is empty, meaning that there are no subscribers.
+     *
+     * @return whether there are any subscribers to the channel.
+     */
+    boolean isEmpty() {
         return callbacks.isEmpty();
     }
 
     @Override
-    public boolean isSubscribed(Subscriber subscriber) {
-        return callbacks.containsKey(subscriber);
+    public void subscribe(Subscriber subscriber, Consumer<Message> callback) {
+        callbacks.putIfAbsent(subscriber, callback);
     }
 
     @Override
-    public boolean subscribe(Subscriber subscriber, Consumer<Message> callback) {
-        return callbacks.putIfAbsent(subscriber, callback) == null;
-    }
-
-    @Override
-    public boolean unsubscribe(Subscriber subscriber) {
-        return callbacks.remove(subscriber) != null;
+    public void unsubscribe(Subscriber subscriber) {
+        callbacks.remove(subscriber);
     }
 
     @Override

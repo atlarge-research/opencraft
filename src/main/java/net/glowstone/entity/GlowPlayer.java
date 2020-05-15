@@ -43,7 +43,6 @@ import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.ItemTable;
 import net.glowstone.block.blocktype.BlockBed;
-import net.glowstone.block.entity.SignEntity;
 import net.glowstone.block.itemtype.ItemFood;
 import net.glowstone.block.itemtype.ItemType;
 import net.glowstone.chunk.ChunkManager.ChunkLock;
@@ -52,7 +51,6 @@ import net.glowstone.chunk.GlowChunk.Key;
 import net.glowstone.command.LocalizedEnumNames;
 import net.glowstone.constants.GameRules;
 import net.glowstone.constants.GlowAchievement;
-import net.glowstone.constants.GlowBlockEntity;
 import net.glowstone.constants.GlowEffect;
 import net.glowstone.constants.GlowParticle;
 import net.glowstone.constants.GlowSound;
@@ -79,7 +77,6 @@ import net.glowstone.net.message.play.entity.EntityMetadataMessage;
 import net.glowstone.net.message.play.entity.EntityVelocityMessage;
 import net.glowstone.net.message.play.entity.SetPassengerMessage;
 import net.glowstone.net.message.play.game.BlockBreakAnimationMessage;
-import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.net.message.play.game.ChatMessage;
 import net.glowstone.net.message.play.game.ExperienceMessage;
 import net.glowstone.net.message.play.game.HealthMessage;
@@ -99,8 +96,6 @@ import net.glowstone.net.message.play.game.StatisticMessage;
 import net.glowstone.net.message.play.game.TimeMessage;
 import net.glowstone.net.message.play.game.TitleMessage;
 import net.glowstone.net.message.play.game.TitleMessage.Action;
-import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
-import net.glowstone.net.message.play.game.UpdateSignMessage;
 import net.glowstone.net.message.play.game.UserListHeaderFooterMessage;
 import net.glowstone.net.message.play.game.UserListItemMessage;
 import net.glowstone.net.message.play.game.UserListItemMessage.Entry;
@@ -114,13 +109,13 @@ import net.glowstone.net.message.play.player.UseBedMessage;
 import net.glowstone.scoreboard.GlowScoreboard;
 import net.glowstone.scoreboard.GlowTeam;
 import net.glowstone.util.Convert;
+import net.glowstone.util.DeprecatedMethodException;
 import net.glowstone.util.EntityUtils;
 import net.glowstone.util.InventoryUtil;
 import net.glowstone.util.Position;
 import net.glowstone.util.StatisticMap;
 import net.glowstone.util.TextMessage;
 import net.glowstone.util.TickUtil;
-import net.glowstone.util.nbt.CompoundTag;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -2523,31 +2518,12 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
     @Override
     public void sendBlockChange(Location loc, Material material, byte data) {
-        sendBlockChange(loc, material.getId(), data);
+        throw new DeprecatedMethodException("This method should no longer be used");
     }
 
     @Override
     public void sendBlockChange(Location loc, int material, byte data) {
-        sendBlockChange(new BlockChangeMessage(loc.getBlockX(), loc.getBlockY(), loc
-                .getBlockZ(), material, data));
-    }
-
-    /**
-     * Sends the given {@link BlockChangeMessage} if it's in a chunk this player can see.
-     *
-     * @param message the message to send
-     */
-    public void sendBlockChange(BlockChangeMessage message) {
-        // only send message if the chunk is within visible range
-        Key key = GlowChunk.Key.of(message.getX() >> 4, message.getZ() >> 4);
-        if (canSeeChunk(key)) {
-            world.addBlockChange(message);
-        }
-    }
-
-    @Deprecated
-    public void sendBlockChangeForce(BlockChangeMessage message) {
-        world.addBlockChange(message);
+        throw new DeprecatedMethodException("This method should no longer be used");
     }
 
     @Override
@@ -2557,70 +2533,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
     @Override
     public void sendSignChange(Location location, String[] lines) throws IllegalArgumentException {
-
-        checkNotNull(location, "location cannot be null");
-        checkNotNull(lines, "lines cannot be null");
-        checkArgument(lines.length == 4, "lines.length must equal 4");
-
-        Message message = UpdateSignMessage.fromPlainText(
-                location.getBlockX(),
-                location.getBlockY(),
-                location.getBlockZ(),
-                lines
-        );
-        world.addAfterBlockChange(location, message);
-    }
-
-    /**
-     * Send a sign change, similar to {@link #sendSignChange(Location, String[])}, but using
-     * complete TextMessages instead of strings.
-     *
-     * @param sign the sign
-     * @param location the location of the sign
-     * @param lines the new text on the sign or null to clear it
-     * @throws IllegalArgumentException if location is null
-     * @throws IllegalArgumentException if lines is non-null and has a length less than 4
-     */
-    public void sendSignChange(SignEntity sign, Location location, TextMessage[] lines)
-            throws IllegalArgumentException {
-
-        checkNotNull(location, "location cannot be null");
-        checkNotNull(lines, "lines cannot be null");
-        checkArgument(lines.length == 4, "lines.length must equal 4");
-
-        CompoundTag tag = new CompoundTag();
-        sign.saveNbt(tag);
-
-        Message message = new UpdateBlockEntityMessage(location.getBlockX(),
-                location.getBlockY(),
-                location.getBlockZ(),
-                GlowBlockEntity.SIGN.getValue(),
-                tag
-        );
-        world.addAfterBlockChange(location, message);
-    }
-
-    /**
-     * Send a block entity change to the given location.
-     *
-     * @param location The location of the block entity.
-     * @param type The type of block entity being sent.
-     * @param nbt The NBT structure to send to the client.
-     */
-    public void sendBlockEntityChange(Location location, GlowBlockEntity type, CompoundTag nbt) {
-
-        checkNotNull(location, "Location cannot be null");
-        checkNotNull(type, "Type cannot be null");
-        checkNotNull(nbt, "NBT cannot be null");
-
-        Message message = new UpdateBlockEntityMessage(
-                location.getBlockX(),
-                location.getBlockY(),
-                location.getBlockZ(),
-                type.getValue(),
-                nbt
-        );
-        world.addAfterBlockChange(location, message);
+        throw new DeprecatedMethodException("This method should no longer be used");
     }
 
     @Override
@@ -3489,7 +3402,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         digging = block;
     }
 
-    private void sendBlockBreakAnimation(Location location, int destroyStage) {
+    private void broadcastBlockBreakAnimation(GlowBlock block, int destroyStage) {
+        GlowWorld world = block.getWorld();
         Message message = new BlockBreakAnimationMessage(
                 getEntityId(),
                 location.getBlockX(),
@@ -3497,15 +3411,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 location.getBlockZ(),
                 destroyStage
         );
-        world.addAfterBlockChange(location, message);
-    }
-
-    private void broadcastBlockBreakAnimation(GlowBlock block, int destroyStage) {
-        GlowChunk.Key key = GlowChunk.Key.of(block.getX() >> 4, block.getZ() >> 4);
-        block.getWorld().getRawPlayers().stream()
-                .filter(player -> player != this && player.canSeeChunk(key))
-                .forEach(player -> player
-                        .sendBlockBreakAnimation(block.getLocation(), destroyStage));
+        world.addAfterBlockChange(block.getLocation(), message);
     }
 
     private void pulseDigging() {
@@ -3588,10 +3494,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         digging.breakNaturally(tool);
         // Send block status to clients
         Location dugLocation = digging.getLocation();
-        // OK to use sequential stream here, because sendBlockChange is async
-        world.getRawPlayers().stream()
-                .filter(player -> player.canSeeChunk(GlowChunk.Key.to(dugLocation.getChunk())))
-                .forEach(player -> player.sendBlockChange(dugLocation, Material.AIR, (byte) 0));
+        world.sendBlockChange(dugLocation, Material.AIR, (byte) 0);
         setDigging(null);
     }
 
