@@ -639,8 +639,6 @@ public class GlowWorld implements World {
                             || Math.abs(z - currentZ) > radius) {
 
                         GlowChunk.Key key = GlowChunk.Key.of(x, z);
-                        session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
-                        player.getChunkLock().release(key);
 
                         // No need to check if the runnable is for the correct player, since only the runnables of the
                         // player should be contained in the chunk runnables.
