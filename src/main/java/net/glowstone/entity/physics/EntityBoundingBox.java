@@ -42,8 +42,10 @@ public class EntityBoundingBox extends BoundingBox {
      * @return The broadphase of the entity with velocity v
      */
     public BoundingBox getBroadPhase(Vector v) {
+
         Vector min = minCorner;
         Vector max = maxCorner;
+
         BoundingBox broadPhase = new BoundingBox();
 
         broadPhase.minCorner.setX(v.getX() > 0 ? min.getX() : min.getX() + v.getX());
@@ -53,7 +55,6 @@ public class EntityBoundingBox extends BoundingBox {
         broadPhase.maxCorner.setX(v.getX() > 0 ? max.getX() + v.getX() : max.getX() - v.getX());
         broadPhase.maxCorner.setY(v.getY() > 0 ? max.getY() + v.getY() : max.getY() - v.getY());
         broadPhase.maxCorner.setZ(v.getZ() > 0 ? max.getZ() + v.getZ() : max.getZ() - v.getZ());
-
 
         return broadPhase;
     }

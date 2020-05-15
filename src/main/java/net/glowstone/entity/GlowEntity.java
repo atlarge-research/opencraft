@@ -1054,7 +1054,12 @@ public abstract class GlowEntity implements Entity {
     }
 
     private List<BoundingBox> checkBroad() {
-        BoundingBox box = this.boundingBox.getBroadPhase(velocity);
+
+        if (boundingBox == null) {
+            return Collections.emptyList();
+        }
+
+        BoundingBox box = boundingBox.getBroadPhase(velocity);
         Vector min = box.minCorner;
         min.setY(min.getY() - 1);
         Vector max = box.maxCorner;
