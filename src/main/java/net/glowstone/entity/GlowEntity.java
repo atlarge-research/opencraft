@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -1053,91 +1054,138 @@ public abstract class GlowEntity implements Entity {
         return boundingBox != null && boundingBox.intersects(box);
     }
 
-    private List<BoundingBox> checkBroad() {
+    private List<BoundingBox> getIntersectingBoundingBoxes() {
 
         if (boundingBox == null) {
             return Collections.emptyList();
         }
 
-        BoundingBox box = boundingBox.getBroadPhase(velocity);
-        Vector min = box.minCorner;
-        min.setY(min.getY() - 1);
-        Vector max = box.maxCorner;
+        List<BoundingBox> intersectingBoxes = new ArrayList<>();
 
-        List<BoundingBox> boundingBoxes = new ArrayList<>();
-        for (int x = (int) Math.floor(min.getX()); x <= Math.ceil(max.getX()); x++) {
-            for (int y = (int) Math.floor(min.getY()); y <= Math.ceil(max.getY()); y++) {
-                for (int z = (int) Math.floor(min.getZ()); z <= Math.ceil(max.getZ()); z++) {
-                    GlowBlock block = this.getWorld().getBlockAt(x, y, z);
-                    // TODO: Issolid is not entirely correct it includes glass and bedrock
-                    if (block.getType().isSolid() && block.getBoundingBox().intersects(box)) {
-                        boundingBoxes.add(block.getBoundingBox());
+        BoundingBox broadPhaseBox = boundingBox.getBroadPhase(velocity);
+        Vector min = floor(broadPhaseBox.minCorner);
+        Vector max = ceil(broadPhaseBox.maxCorner);
+
+        for (int x = min.getBlockX(); x <= max.getBlockX(); x++) {
+            for (int y = min.getBlockY(); y <= max.getBlockY(); y++) {
+                for (int z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
+
+                    // TODO: isSolid is not entirely correct it includes glass and bedrock
+
+                    GlowBlock block = world.getBlockAt(x, y, z);
+                    Material material = block.getType();
+                    BoundingBox box = block.getBoundingBox();
+
+                    if (material.isSolid() && box.intersects(broadPhaseBox)) {
+                        intersectingBoxes.add(block.getBoundingBox());
                     }
-                    ;
                 }
             }
         }
 
-        return boundingBoxes;
+        return intersectingBoxes;
+    }
+
+    private Vector floor(Vector vector) {
+        return new Vector(
+                Math.floor(vector.getX()),
+                Math.floor(vector.getY()),
+                Math.floor(vector.getZ())
+        );
+    }
+
+    private Vector ceil(Vector vector) {
+        return new Vector(
+                Math.ceil(vector.getX()),
+                Math.ceil(vector.getY()),
+                Math.ceil(vector.getZ())
+        );
+    }
+
+    private Vector project(Vector vector, Vector normal) {
+        double dot = vector.dot(normal);
+        return normal.clone().multiply(dot);
     }
 
     protected void pulsePhysics() {
-        // The pending location and the block at that location
-        Location pendingLocation = location.clone().add(velocity);
-        GlowBlock glowBlock = this.getWorld().getBlockAt(pendingLocation);
 
-        List<BoundingBox> boundingBoxes = checkBroad();
+        Location pendingLocation = location.clone();
+        double elapsedTime = 0.0;
 
-        double minimum = Double.MAX_VALUE;
-        Pair<Double, Vector> closestResult = null;
+        // Break if we won't be moving.
+        while (velocity.length() > 0.001 && elapsedTime < 0.999) {
 
-        for (BoundingBox box : boundingBoxes) {
-            Pair<Double, Vector> result = this.boundingBox.sweptAABB(velocity, box);
-            double collisionTime = result.getLeft();
-            if (collisionTime < minimum) {
-                closestResult = result;
-                minimum = collisionTime;
+            List<BoundingBox> boundingBoxes = getIntersectingBoundingBoxes();
+
+            // Break if there is nothing to collide with.
+            if (boundingBoxes.isEmpty()) {
+                break;
+            }
+
+            Pair<Double, Vector> closest = boundingBoxes.stream()
+                    .map(box -> boundingBox.sweptAABB(velocity, box))
+                    .min(Comparator.comparingDouble(Pair::getLeft))
+                    .get();
+
+            double remainingTime = 1.0f - elapsedTime;
+            double collisionTime = closest.getLeft();
+
+            // Break if we won't reach the collided with box.
+            if (collisionTime > remainingTime) {
+                break;
+            }
+
+            // Increment elapsed time only if we actually adjust the location.
+            elapsedTime += collisionTime;
+
+            // Move up to the collided with box.
+            Vector displacement = velocity.clone().multiply(collisionTime);
+            pendingLocation.add(displacement);
+
+            // Cancel out velocity in the direction of the collided with box.
+            Vector normal = closest.getRight();
+            velocity.subtract(project(velocity, normal));
+
+            // Handle projectile interaction
+            if (this instanceof Projectile) {
+
+                Projectile projectile = (Projectile) this;
+                Block block = pendingLocation.getBlock();
+
+                ProjectileHitEvent event = new ProjectileHitEvent(projectile, block);
+                EventFactory.getInstance().callEvent(event);
+
+                collide(block);
+
+                // TODO: Break here?
             }
         }
 
-        if (closestResult != null) {
-            double collisionTime = closestResult.getLeft();
-            double remainingtime = 1.0d - collisionTime;
-            Vector normal = closestResult.getRight();
-            pendingLocation = location.clone().add(velocity.multiply(collisionTime));
+        // Perform the last step (only step when no collisions occur)
+        Vector displacement = velocity.clone().multiply(1.0 - elapsedTime);
+        pendingLocation.add(displacement);
 
-            if (collisionTime < 1.0d) {
-                if (this instanceof Projectile) {
-                    EventFactory.getInstance().callEvent(new ProjectileHitEvent((Projectile) this, glowBlock));
-                }
-                // slide
-                // TODO: Slide is not functioning correctly, should only move the player on axis where the normal is 0.0
-                // it should also collision check the movement.
-                double dotprod = velocity.dot(normal) * remainingtime;
-
-                velocity.setX(dotprod * normal.getZ());
-                velocity.setY(dotprod * normal.getX());
-                velocity.setZ(dotprod * normal.getX());
-                pendingLocation.add(velocity);
-                collide(pendingLocation.getBlock());
-            }
-        }
         setRawLocation(pendingLocation);
 
         if (hasFriction()) {
-//                 apply friction and gravity
+
+            // apply friction and gravity
             if (location.getBlock().getType() == Material.WATER) {
                 velocity.multiply(liquidDrag);
                 velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
+
             } else if (location.getBlock().getType() == Material.LAVA) {
                 velocity.multiply(liquidDrag - 0.3);
                 velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
+
             } else {
+
                 if (applyDragBeforeAccel) {
                     velocity.setY(airDrag * velocity.getY() + getGravityAccel().getY());
                 } else {
                     velocity.setY(airDrag * (velocity.getY() + getGravityAccel().getY()));
                 }
+
                 if (isOnGround()) {
                     velocity.setX(velocity.getX() * slipMultiplier);
                     velocity.setZ(velocity.getZ() * slipMultiplier);
@@ -1147,16 +1195,6 @@ public abstract class GlowEntity implements Entity {
                 }
             }
         }
-//            else if (hasGravity() && !isOnGround()) {
-//                switch (location.getBlock().getType()) {
-//                    case WATER:
-//                    case LAVA:
-//                        velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-//                        break;
-//                    default:
-//                        velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-//                }
-//            }
     }
 
     /**
