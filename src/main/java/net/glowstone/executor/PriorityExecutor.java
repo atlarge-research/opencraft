@@ -13,7 +13,12 @@ public class PriorityExecutor {
     private final ThreadPoolExecutor executor;
 
     public PriorityExecutor() {
-        executor = new ThreadPoolExecutor(0, Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS, new PriorityBlockingQueue<>());
+        executor = new ThreadPoolExecutor(0,
+            Runtime.getRuntime().availableProcessors(),
+            60L,
+            TimeUnit.SECONDS,
+            new PriorityBlockingQueue<>()
+        );
     }
 
     @SuppressWarnings("unchecked")
