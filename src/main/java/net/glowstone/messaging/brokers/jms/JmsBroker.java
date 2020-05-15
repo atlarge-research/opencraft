@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -20,49 +19,39 @@ import net.glowstone.messaging.Broker;
 
 public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subscriber, Message>, Closeable {
 
-    private final Map<javax.jms.Topic, MessageProducer> publishers;
-    private final Map<javax.jms.Topic, Set<JmsSubscriber<Subscriber>>> subscribers;
-
     private final Connection connection;
     private final Session session;
+    private final JmsSerializer<Message> serializer;
 
     private final Map<Topic, javax.jms.Topic> jmsTopics;
     private final AtomicInteger counter;
 
+    private final Map<javax.jms.Topic, MessageProducer> publishers;
+    private final Map<javax.jms.Topic, Set<JmsSubscriber<Subscriber>>> subscribers;
     private final Lock lock;
-    private final JmsSerializer<Message> serializer;
 
     public JmsBroker(ConnectionFactory connectionFactory, JmsSerializer<Message> serializer) throws JMSException {
 
-        publishers = new HashMap<>();
-        subscribers = new HashMap<>();
-
         connection = connectionFactory.createConnection();
+        connection.start();
         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        this.serializer = serializer;
 
         jmsTopics = new HashMap<>();
         counter = new AtomicInteger();
 
+        publishers = new HashMap<>();
+        subscribers = new HashMap<>();
         lock = new ReentrantLock();
-        this.serializer = serializer;
-
     }
 
-    protected javax.jms.Topic convert(Topic topic) throws JMSException {
-        AtomicReference<JMSException> exception = new AtomicReference<>(null);
-        javax.jms.Topic d = jmsTopics.computeIfAbsent(topic, t -> {
-            try {
-                return generate();
-            } catch (JMSException e) {
-                exception.set(e);
-                return null;
-            }
-        });
-        JMSException e = exception.get();
-        if (e != null) {
-            throw e;
+    private javax.jms.Topic convert(Topic topic) throws JMSException {
+        javax.jms.Topic jmsTopic = jmsTopics.get(topic);
+        if(jmsTopic == null) {
+            jmsTopic = generate();
+            jmsTopics.put(topic, jmsTopic);
         }
-        return d;
+        return jmsTopic;
     }
 
     private javax.jms.Topic generate() throws JMSException {
@@ -145,8 +134,9 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
     @Override
     public void close() {
         try {
-            connection.close();
             session.close();
+            connection.stop();
+            connection.close();
         } catch (JMSException e) {
             throw new RuntimeException("Failed to close JMS broker", e);
         }
