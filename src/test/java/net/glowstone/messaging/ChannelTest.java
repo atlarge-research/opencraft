@@ -1,13 +1,12 @@
 package net.glowstone.messaging;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+
 /**
- * The ChannelTest class provides tests for the general use cases of all channels. Preventing a code-duplication and
- * thereby programming mistakes.
+ * The ChannelTest class provides tests for the general use cases of all channels. Ensuring that all implementations
+ * provide a minimal amount of functionality, without requiring code-duplication.
  */
 public abstract class ChannelTest {
 
@@ -19,104 +18,13 @@ public abstract class ChannelTest {
     protected abstract Channel<Subscriber, String> createChannel();
 
     /**
-     * Verify that a created channel is initially empty.
+     * Verify that a user can unsubscribe from a channel he/she was not subscribed to.
      */
     @Test
-    void initiallyEmptyTest() {
-        Channel<Subscriber, String> channel = createChannel();
-        assertTrue(channel.isEmpty());
-    }
-
-    /**
-     * Verify that the state of a channel is correctly presented by its 'isEmpty()' method.
-     */
-    @Test
-    void emptyTest() {
-
+    void unsubscribeEmptyTest() {
         Channel<Subscriber, String> channel = createChannel();
         Subscriber alice = new Subscriber("Alice");
-
-        channel.subscribe(alice, alice::onMessage);
-        assertFalse(channel.isEmpty());
-
-        channel.unsubscribe(alice);
-        assertTrue(channel.isEmpty());
-    }
-
-    /**
-     * Verify that a user can subscribe to a channel.
-     */
-    @Test
-    void subscribeTest() {
-
-        Channel<Subscriber, String> channel = createChannel();
-        Subscriber alice = new Subscriber("Alice");
-
-        channel.subscribe(alice, alice::onMessage);
-        assertTrue(channel.isSubscribed(alice));
-    }
-
-    /**
-     * Verify that a correct value is returned on subscription.
-     */
-    @Test
-    void subscribeTwiceTest() {
-
-        Channel<Subscriber, String> channel = createChannel();
-        Subscriber alice = new Subscriber("Alice");
-
-        assertTrue(channel.subscribe(alice, alice::onMessage));
-        assertFalse(channel.subscribe(alice, alice::onMessage));
-    }
-
-    /**
-     * Verify that a user can unsubscribe from a channel.
-     */
-    @Test
-    void unsubscribeTest() {
-
-        Channel<Subscriber, String> channel = createChannel();
-        Subscriber alice = new Subscriber("Alice");
-
-        channel.subscribe(alice, alice::onMessage);
-
-        channel.unsubscribe(alice);
-        assertFalse(channel.isSubscribed(alice));
-    }
-
-    /**
-     * Verify that a correct value is returned on unsubscription.
-     */
-    @Test
-    void unsubscribeTwiceTest() {
-
-        Channel<Subscriber, String> channel = createChannel();
-        Subscriber alice = new Subscriber("Alice");
-
-        channel.subscribe(alice, alice::onMessage);
-
-        assertTrue(channel.unsubscribe(alice));
-        assertFalse(channel.unsubscribe(alice));
-    }
-
-    /**
-     * Verify that multiple users can subscribe and unsubscribe.
-     */
-    @Test
-    void subscribeManyUnsubscribeOneTest() {
-
-        Channel<Subscriber, String> channel = createChannel();
-        Subscriber alice = new Subscriber("Alice");
-        Subscriber bob = new Subscriber("Bob");
-
-        channel.subscribe(alice, alice::onMessage);
-        channel.subscribe(bob, bob::onMessage);
-        assertTrue(channel.isSubscribed(alice));
-        assertTrue(channel.isSubscribed(bob));
-
-        channel.unsubscribe(alice);
-        assertFalse(channel.isSubscribed(alice));
-        assertTrue(channel.isSubscribed(bob));
+        assertDoesNotThrow(() -> channel.unsubscribe(alice));
     }
 
     /**
@@ -129,10 +37,10 @@ public abstract class ChannelTest {
     }
 
     /**
-     * Verify that a subscriber receives a publish message.
+     * Verify that a subscribed user receives a published message.
      */
-    @Test
-    void subscribePublishTest() {
+    @TimeBasedTest
+    void subscribePublishTest() throws InterruptedException {
 
         Channel<Subscriber, String> channel = createChannel();
         Subscriber alice = new Subscriber("Alice");
@@ -145,10 +53,30 @@ public abstract class ChannelTest {
     }
 
     /**
-     * Verify that multiple subscribers receive a published message.
+     * Verify that a subscribed user receives multiple published message.
      */
-    @Test
-    void broadcastTest() {
+    @TimeBasedTest
+    void subscribePublishMultipleTest() throws InterruptedException {
+
+        Channel<Subscriber, String> channel = createChannel();
+        Subscriber alice = new Subscriber("Alice");
+        String first = "First";
+        String second = "Second";
+        String third = "Third";
+
+        channel.subscribe(alice, alice::onMessage);
+        channel.publish(first);
+        channel.publish(second);
+        channel.publish(third);
+
+        alice.assertReceivedAll(first, second, third);
+    }
+
+    /**
+     * Verify that multiple subscribed users receive a published message.
+     */
+    @TimeBasedTest
+    void subscribeMultiplePublishTest() throws InterruptedException {
 
         Channel<Subscriber, String> channel = createChannel();
         Subscriber alice = new Subscriber("Alice");
@@ -161,5 +89,37 @@ public abstract class ChannelTest {
 
         alice.assertReceived(message);
         bob.assertReceived(message);
+    }
+
+    /**
+     * Verify that an unsubscribed user does not receive a published message.
+     */
+    @TimeBasedTest
+    void unsubscribedPublishTest() throws InterruptedException {
+
+        Channel<Subscriber, String> channel = createChannel();
+        Subscriber alice = new Subscriber("Alice");
+        String message = "Message";
+
+        channel.publish(message);
+
+        alice.assertNotReceived(message);
+    }
+
+    /**
+     * Verify that a previously subscribed user does not receive a published message.
+     */
+    @TimeBasedTest
+    void subscribeUnsubscribePublishTest() throws InterruptedException {
+
+        Channel<Subscriber, String> channel = createChannel();
+        Subscriber alice = new Subscriber("Alice");
+        String message = "Message";
+
+        channel.subscribe(alice, alice::onMessage);
+        channel.unsubscribe(alice);
+        channel.publish(message);
+
+        alice.assertNotReceived(message);
     }
 }
