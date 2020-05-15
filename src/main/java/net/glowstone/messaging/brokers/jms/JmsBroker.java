@@ -21,7 +21,7 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
 
     private final Connection connection;
     private final Session session;
-    private final JmsSerializer<Message> serializer;
+    private final JmsCodec<Message> serializer;
 
     private final Map<Topic, javax.jms.Topic> jmsTopics;
     private final AtomicInteger counter;
@@ -30,7 +30,7 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
     private final Map<javax.jms.Topic, Set<JmsSubscriber<Subscriber>>> subscribers;
     private final Lock lock;
 
-    public JmsBroker(ConnectionFactory connectionFactory, JmsSerializer<Message> serializer) throws JMSException {
+    public JmsBroker(ConnectionFactory connectionFactory, JmsCodec<Message> serializer) throws JMSException {
 
         connection = connectionFactory.createConnection();
         connection.start();
@@ -68,8 +68,12 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
             javax.jms.Topic jmsTopic = convert(topic);
             MessageConsumer consumer = session.createConsumer(jmsTopic);
             consumer.setMessageListener(jmsMessage -> {
-                Message message = serializer.deserialize(session, jmsMessage);
-                callback.accept(message);
+                try {
+                    Message message = serializer.decode(session, jmsMessage);
+                    callback.accept(message);
+                } catch (JMSException e) {
+                    throw new RuntimeException("Failed to deserialize JMS message", e);
+                }
             });
             JmsSubscriber<Subscriber> sub = new JmsSubscriber<>(consumer, subscriber);
 
@@ -119,9 +123,11 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
         lock.lock();
         try {
             javax.jms.Topic jmsTopic = convert(topic);
-            javax.jms.Message jmsMessage = serializer.serialize(session, message);
             MessageProducer producer = publishers.get(jmsTopic);
-            producer.send(jmsMessage);
+            if (producer != null) {
+                javax.jms.Message jmsMessage = serializer.encode(session, message);
+                producer.send(jmsMessage);
+            }
 
         } catch (JMSException e) {
             throw new RuntimeException("Failed to publish to JMS broker", e);
