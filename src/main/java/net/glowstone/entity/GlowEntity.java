@@ -1106,12 +1106,14 @@ public abstract class GlowEntity implements Entity {
                     EventFactory.getInstance().callEvent(new ProjectileHitEvent((Projectile) this, glowBlock));
                 }
                 // slide
-                double dotprod = (velocity.getX() * normal.getY() + velocity.getY() * normal.getZ() + velocity.getZ() * normal.getY()) * remainingtime;
-                velocity.setX(dotprod * normal.getY());
-                velocity.setY(dotprod * normal.getZ());
+                // TODO: Slide is not functioning correctly, should only move the player on axis where the normal is 0.0
+                // it should also collision check the movement.
+                double dotprod = velocity.dot(normal) * remainingtime;
+
+                velocity.setX(dotprod * normal.getZ());
+                velocity.setY(dotprod * normal.getX());
                 velocity.setZ(dotprod * normal.getX());
-                System.out.println(normal);
-                pendingLocation = location.clone().add(velocity.multiply(collisionTime));
+                pendingLocation.add(velocity);
                 collide(pendingLocation.getBlock());
             }
         }
