@@ -1031,6 +1031,7 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
 
             Vector currentVelocity = getVelocity();
             currentVelocity.add(rayLength.multiply(((amount + 1) / 2d)));
+            currentVelocity.setY(0.2);
             setVelocity(currentVelocity);
         }
 

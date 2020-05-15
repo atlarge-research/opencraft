@@ -49,6 +49,7 @@ import net.glowstone.net.message.play.player.InteractEntityMessage;
 import net.glowstone.util.Coordinates;
 import net.glowstone.util.Position;
 import net.glowstone.util.UuidUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Chunk;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
@@ -1052,53 +1053,70 @@ public abstract class GlowEntity implements Entity {
         return boundingBox != null && boundingBox.intersects(box);
     }
 
-    private Vector calculateOverlap(BoundingBox box) {
-        BoundingBox entity = this.boundingBox;
-        double x = 0.0, y = 0.0, z = 0.0;
+    private List<BoundingBox> checkBroad() {
+        BoundingBox box = this.boundingBox.getBroadPhase(velocity);
+        Vector min = box.minCorner;
+        min.setY(min.getY() - 1);
+        Vector max = box.maxCorner;
 
-        Vector minA = entity.minCorner;
-        Vector maxA = entity.maxCorner;
-        Vector minB = box.minCorner;
-        Vector maxB = box.maxCorner;
+        List<BoundingBox> boundingBoxes = new ArrayList<>();
+        for (int x = (int) Math.floor(min.getX()); x <= Math.ceil(max.getX()); x++) {
+            for (int y = (int) Math.floor(min.getY()); y <= Math.ceil(max.getY()); y++) {
+                for (int z = (int) Math.floor(min.getZ()); z <= Math.ceil(max.getZ()); z++) {
+                    GlowBlock block = this.getWorld().getBlockAt(x, y, z);
+                    // TODO: Issolid is not entirely correct it includes glass and bedrock
+                    if (block.getType().isSolid() && block.getBoundingBox().intersects(box)) {
+                        boundingBoxes.add(block.getBoundingBox());
+                    }
+                    ;
+                }
+            }
+        }
 
-        double maxXMin = Math.max(minA.getX(), minB.getX());
-        double maxYMin = Math.max(minA.getY(), minB.getY());
-        double maxZMin = Math.max(minA.getZ(), minB.getZ());
-        double minXMax = Math.min(maxA.getX(), maxB.getX());
-        double minYMax = Math.min(maxA.getY(), maxB.getY());
-        double minZMax = Math.min(maxA.getZ(), maxB.getZ());
-//        x = minXMax - maxXMin;
-        y = minYMax - maxYMin;
-//        z = minZMax - maxZMin;
-
-        return new Vector(x, y, z);
+        return boundingBoxes;
     }
 
     protected void pulsePhysics() {
         // The pending location and the block at that location
         Location pendingLocation = location.clone().add(velocity);
         GlowBlock glowBlock = this.getWorld().getBlockAt(pendingLocation);
-        GlowBlock glowBlockUnder = this.getWorld().getBlockAt(pendingLocation).getRelative(BlockFace.DOWN);
 
+        List<BoundingBox> boundingBoxes = checkBroad();
 
-        this.boundingBox.setCenter(pendingLocation.getX(), pendingLocation.getY(), pendingLocation.getZ());
-        if (glowBlock.getType().isSolid() && this.intersects(glowBlock.getBoundingBox())) {
-            Vector overlap = calculateOverlap(glowBlock.getBoundingBox());
-            pendingLocation = pendingLocation.add(overlap.multiply(1.0));
-            velocity.setY(0);
-            collide(glowBlock);
-        } else if (glowBlockUnder.getType().isSolid() && this.intersects(glowBlockUnder.getBoundingBox())){
-            Vector overlap = calculateOverlap(glowBlockUnder.getBoundingBox());
-            pendingLocation = pendingLocation.add(overlap.multiply(1.0));
-            velocity.setY(0);
-            collide(glowBlock);
+        double minimum = Double.MAX_VALUE;
+        Pair<Double, Vector> closestResult = null;
+
+        for (BoundingBox box : boundingBoxes) {
+            Pair<Double, Vector> result = this.boundingBox.sweptAABB(velocity, box);
+            double collisionTime = result.getLeft();
+            if (collisionTime < minimum) {
+                closestResult = result;
+                minimum = collisionTime;
+            }
         }
 
-        if (this instanceof Projectile) {
-            EventFactory.getInstance()
-                    .callEvent(new ProjectileHitEvent((Projectile) this, glowBlock));
+        if (closestResult != null) {
+            double collisionTime = closestResult.getLeft();
+            double remainingtime = 1.0d - collisionTime;
+            Vector normal = closestResult.getRight();
+            pendingLocation = location.clone().add(velocity.multiply(collisionTime));
+
+            if (collisionTime < 1.0d) {
+                if (this instanceof Projectile) {
+                    EventFactory.getInstance().callEvent(new ProjectileHitEvent((Projectile) this, glowBlock));
+                }
+                // slide
+                double dotprod = (velocity.getX() * normal.getY() + velocity.getY() * normal.getZ() + velocity.getZ() * normal.getY()) * remainingtime;
+                velocity.setX(dotprod * normal.getY());
+                velocity.setY(dotprod * normal.getZ());
+                velocity.setZ(dotprod * normal.getX());
+                System.out.println(normal);
+                pendingLocation = location.clone().add(velocity.multiply(collisionTime));
+                collide(pendingLocation.getBlock());
+            }
         }
         setRawLocation(pendingLocation);
+
         if (hasFriction()) {
 //                 apply friction and gravity
             if (location.getBlock().getType() == Material.WATER) {
