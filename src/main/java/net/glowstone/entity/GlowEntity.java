@@ -1054,7 +1054,7 @@ public abstract class GlowEntity implements Entity {
         return boundingBox != null && boundingBox.intersects(box);
     }
 
-    private List<BoundingBox> getIntersectingBoundingBoxes() {
+    private List<BoundingBox> getIntersectingBoundingBoxes(EntityBoundingBox boundingBox, Vector velocity) {
 
         if (boundingBox == null) {
             return Collections.emptyList();
@@ -1077,7 +1077,7 @@ public abstract class GlowEntity implements Entity {
                     BoundingBox box = block.getBoundingBox();
 
                     if (material.isSolid() && box.intersects(broadPhaseBox)) {
-                        intersectingBoxes.add(block.getBoundingBox());
+                        intersectingBoxes.add(box);
                     }
                 }
             }
@@ -1115,32 +1115,40 @@ public abstract class GlowEntity implements Entity {
         // Break if we won't be moving.
         while (velocity.length() > 0.001 && elapsedTime < 0.999) {
 
-            List<BoundingBox> boundingBoxes = getIntersectingBoundingBoxes();
-
-            // Break if there is nothing to collide with.
-            if (boundingBoxes.isEmpty()) {
+            if (this.boundingBox == null) {
                 break;
             }
 
-            Pair<Double, Vector> closest = boundingBoxes.stream()
-                    .map(box -> boundingBox.sweptAABB(velocity, box))
+            // Compute the remaining time and velocity during this cycle.
+            double remainingTime = 1.0f - elapsedTime;
+            Vector remainingDisplacement = velocity.clone().multiply(remainingTime);
+
+            // Create a bounding box at the correct location and find the ones it interacts with.
+            EntityBoundingBox pendingBox = this.boundingBox.createCopyAt(pendingLocation);
+            List<BoundingBox> intersectingBoxes = getIntersectingBoundingBoxes(pendingBox, remainingDisplacement);
+
+            // Break if there is nothing to collide with.
+            if (intersectingBoxes.isEmpty()) {
+                break;
+            }
+
+            // Find the closest one.
+            Pair<Double, Vector> closest = intersectingBoxes.stream()
+                    .map(box -> pendingBox.sweptAABB(remainingDisplacement, box))
                     .min(Comparator.comparingDouble(Pair::getLeft))
                     .get();
 
-            double remainingTime = 1.0f - elapsedTime;
+            // Move up to the collided with box.
             double collisionTime = closest.getLeft();
+            Vector displacement = remainingDisplacement.clone().multiply(collisionTime);
+            pendingLocation.add(displacement);
 
-            // Break if we won't reach the collided with box.
-            if (collisionTime > remainingTime) {
+            elapsedTime += collisionTime * remainingTime;
+
+            // Break if we didn't actually collide.
+            if (collisionTime >= 1.0) {
                 break;
             }
-
-            // Increment elapsed time only if we actually adjust the location.
-            elapsedTime += collisionTime;
-
-            // Move up to the collided with box.
-            Vector displacement = velocity.clone().multiply(collisionTime);
-            pendingLocation.add(displacement);
 
             // Cancel out velocity in the direction of the collided with box.
             Vector normal = closest.getRight();
@@ -1166,6 +1174,7 @@ public abstract class GlowEntity implements Entity {
         pendingLocation.add(displacement);
 
         setRawLocation(pendingLocation);
+        updateBoundingBox();
 
         if (hasFriction()) {
 

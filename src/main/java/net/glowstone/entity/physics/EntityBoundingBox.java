@@ -2,6 +2,7 @@ package net.glowstone.entity.physics;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 import java.util.Arrays;
@@ -181,4 +182,15 @@ public class EntityBoundingBox extends BoundingBox {
         maxCorner.setZ(z + depth / 2);
     }
 
+    /**
+     * Create a copy of the current bounding box and center it at the given location.
+     *
+     * @param center the location of the new bounding box.
+     * @return a copy of the current bounding box.
+     */
+    public EntityBoundingBox createCopyAt(Location center) {
+        EntityBoundingBox box = new EntityBoundingBox(width, vertSize, depth);
+        box.setCenter(center.getX(), center.getY(), center.getZ());
+        return box;
+    }
 }
