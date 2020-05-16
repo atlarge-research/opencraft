@@ -1070,8 +1070,6 @@ public abstract class GlowEntity implements Entity {
             for (int y = min.getBlockY(); y <= max.getBlockY(); y++) {
                 for (int z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
 
-                    // TODO: isSolid is not entirely correct it includes glass and bedrock
-
                     GlowBlock block = world.getBlockAt(x, y, z);
                     Material material = block.getType();
                     BoundingBox box = block.getBoundingBox();
@@ -1113,7 +1111,7 @@ public abstract class GlowEntity implements Entity {
         double elapsedTime = 0.0;
 
         // Break if we won't be moving.
-        while (velocity.length() > 0.001 && elapsedTime < 0.999) {
+        while (velocity.length() > 0.0 && elapsedTime < 1.0) {
 
             if (this.boundingBox == null) {
                 break;
