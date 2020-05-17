@@ -1138,7 +1138,8 @@ public abstract class GlowEntity implements Entity {
 
             // Move up to the collided with box.
             double collisionTime = closest.getLeft();
-            Vector displacement = remainingDisplacement.clone().multiply(collisionTime);
+            Vector normal = closest.getRight();
+            Vector displacement = remainingDisplacement.clone().multiply(collisionTime).add(normal.clone().multiply(0.0000000000000001d));
             pendingLocation.add(displacement);
 
             elapsedTime += collisionTime * remainingTime;
@@ -1149,7 +1150,6 @@ public abstract class GlowEntity implements Entity {
             }
 
             // Cancel out velocity in the direction of the collided with box.
-            Vector normal = closest.getRight();
             velocity.subtract(project(velocity, normal));
 
             // Handle projectile interaction
