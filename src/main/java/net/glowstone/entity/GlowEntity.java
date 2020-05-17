@@ -1068,14 +1068,13 @@ public abstract class GlowEntity implements Entity {
         Vector max = ceil(broadPhaseBox.maxCorner);
 
         for (int x = min.getBlockX(); x <= max.getBlockX(); x++) {
-            for (int y = min.getBlockY(); y <= max.getBlockY(); y++) {
+            for (int y = min.getBlockY()-1; y <= max.getBlockY(); y++) {
                 for (int z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
-
                     GlowBlock block = world.getBlockAt(x, y, z);
                     Material material = block.getType();
                     BoundingBox box = block.getBoundingBox();
-
-                    if (material.isSolid() && box.intersects(broadPhaseBox)) {
+                    if(y >= min.getBlockY() || (y == min.getBlockY()-1 && box.getSize().getY() > 1))
+                        if (material.isSolid() && box.intersects(broadPhaseBox)) {
                         intersectingBoxes.add(box);
                     }
                 }
