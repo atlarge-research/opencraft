@@ -110,6 +110,7 @@ public abstract class GlowEntity implements Entity {
      */
     private static final MetadataStore<Entity> bukkitMetadata = new EntityMetadataStore();
     private static final Vector zeroG = new Vector();
+    private static final double THETA =  0.0000000000000001d;
 
     /**
      * The server this entity belongs to.
@@ -1139,7 +1140,8 @@ public abstract class GlowEntity implements Entity {
             // Move up to the collided with box.
             double collisionTime = closest.getLeft();
             Vector normal = closest.getRight();
-            Vector displacement = remainingDisplacement.clone().multiply(collisionTime).add(normal.clone().multiply(0.0000000000000001d));
+            Vector thetaDistance = normal.clone().multiply(THETA);
+            Vector displacement = remainingDisplacement.clone().multiply(collisionTime).add(thetaDistance);
             pendingLocation.add(displacement);
 
             elapsedTime += collisionTime * remainingTime;
