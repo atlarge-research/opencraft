@@ -8,8 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -42,7 +40,8 @@ import net.glowstone.entity.GlowPlayer;
 import net.glowstone.entity.objects.GlowFallingBlock;
 import net.glowstone.entity.objects.GlowItem;
 import net.glowstone.entity.physics.BoundingBox;
-import net.glowstone.entity.physics.EntityBoundingBox;
+import net.glowstone.executor.ChunkRunnable;
+import net.glowstone.executor.PriorityExecutor;
 import net.glowstone.generator.structures.GlowStructure;
 import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
@@ -420,9 +419,9 @@ public class GlowWorld implements World {
 
     private final Map<GlowPlayer, Location> previousLocations;
 
-    private MessagingSystem<Chunk, Object, Player, Message> messagingSystem;
+    private final MessagingSystem<Chunk, Object, Player, Message> messagingSystem;
 
-    private Executor executor;
+    private final PriorityExecutor executor;
 
     private final Queue<BlockChangeMessage> blockChanges;
 
@@ -505,7 +504,7 @@ public class GlowWorld implements World {
         messagingSystem = new MessagingSystem<>(policy, broker);
 
         previousLocations = new WeakHashMap<>();
-        executor = Executors.newCachedThreadPool();
+        executor = new PriorityExecutor();
         blockChanges = new ConcurrentLinkedDeque<>();
         afterBlockChanges = new LinkedList<>();
     }
@@ -528,13 +527,23 @@ public class GlowWorld implements World {
      */
     public void pulse() {
 
-        entityManager.getAll().stream()
-                .filter(GlowPlayer.class::isInstance)
-                .map(GlowPlayer.class::cast)
-                .forEach(player -> {
-                    messagingSystem.update(player, player.getSession()::send);
-                    streamChunks(player);
-                });
+        Collection<ChunkRunnable> chunkRunnables = new ArrayList<>();
+        executor.drainTo(chunkRunnables);
+
+        entityManager.getAll()
+            .stream()
+            .filter(GlowPlayer.class::isInstance)
+            .map(GlowPlayer.class::cast)
+            .forEach(player -> {
+                GlowSession session = player.getSession();
+                messagingSystem.update(player, session::send);
+                int entityId = player.getEntityId();
+
+                Collection<ChunkRunnable> runnables = chunkRunnables.stream()
+                    .filter(runnable -> runnable.hasEntityId(entityId))
+                    .collect(Collectors.toList());
+                streamChunks(player, runnables);
+            });
 
         List<GlowEntity> allEntities = new ArrayList<>(entityManager.getAll());
         List<GlowPlayer> players = new LinkedList<>();
@@ -576,9 +585,13 @@ public class GlowWorld implements World {
 
     /**
      * Stream chunks that have come within viewing distance and unload those that have gone out of sight.
+     *
      * @param player the player.
+     * @param chunkRunnables The runnables that have not been executed by the executor previously. These runnables are
+     *      responsible for encoding and sending the chunk data to the given player. These runnables should only be
+     *      associated with the given player.
      */
-    public void streamChunks(GlowPlayer player) {
+    private void streamChunks(GlowPlayer player, Collection<ChunkRunnable> chunkRunnables) {
 
         Location current = player.getLocation();
         Location previous = previousLocations.get(player);
@@ -612,11 +625,24 @@ public class GlowWorld implements World {
                             || Math.abs(z - currentZ) > radius) {
 
                         GlowChunk.Key key = GlowChunk.Key.of(x, z);
-                        session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
-                        player.getChunkLock().release(key);
+
+                        // No need to check if the runnable is for the correct player, since only the runnables of the
+                        // player should be contained in the chunk runnables.
+                        boolean cancelled = chunkRunnables.removeIf(runnable -> runnable.hasKey(key));
+
+                        if (!cancelled) {
+                            Message message = new UnloadChunkMessage(x, z);
+                            session.send(message);
+                            player.getChunkLock().release(key);
+                        }
                     }
                 }
             }
+        }
+
+        for (ChunkRunnable runnable : chunkRunnables) {
+            runnable.updatePriority();
+            executor.execute(runnable);
         }
 
         if (current.getWorld() == this) {
@@ -634,8 +660,9 @@ public class GlowWorld implements World {
 
                         boolean skylight = getEnvironment() == Environment.NORMAL;
 
-                        executor.execute(() -> {
-                            GlowChunk chunk = getChunkAt(key.getX(), key.getZ());
+                        final GlowChunk chunk = getChunkAt(x, z);
+
+                        executor.execute(player, chunk, () -> {
                             Message message = chunk.toMessage(skylight);
                             session.send(message);
                             chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
