@@ -65,7 +65,6 @@ public class MesaGroundGenerator extends GroundGenerator {
             Biome biome,
             double surfaceNoise
     ) {
-
         initialize(world.getSeed());
 
         int seaLevel = world.getSeaLevel();
@@ -143,7 +142,6 @@ public class MesaGroundGenerator extends GroundGenerator {
                     upper = seaLevel + surfaceHeight + 2;
                     lower = seaLevel - 2;
                 }
-
 
             } else if (deep > 0) {
 
