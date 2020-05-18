@@ -70,7 +70,6 @@ import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
 import net.glowstone.util.BlockStateDelegate;
-import net.glowstone.util.Coordinates;
 import net.glowstone.util.GameRuleManager;
 import net.glowstone.util.RayUtil;
 import net.glowstone.util.TickUtil;
@@ -554,11 +553,12 @@ public class GlowWorld implements World {
             .map(GlowPlayer.class::cast)
             .forEach(player -> {
                 messagingSystem.update(player, player.getSession()::send);
-                streamChunks(player,
-                    chunkRunnables.stream()
-                        .filter(runnable -> runnable.getPlayerId() == player.getEntityId())
-                        .collect(Collectors.toList())
-                );
+                int entityId = player.getEntityId();
+
+                Collection<ChunkRunnable> runnables = chunkRunnables.stream()
+                    .filter(runnable -> runnable.hasEntityId(entityId))
+                    .collect(Collectors.toList());
+                streamChunks(player, runnables);
             });
 
         List<GlowEntity> allEntities = new ArrayList<>(entityManager.getAll());
@@ -601,14 +601,15 @@ public class GlowWorld implements World {
 
     /**
      * Stream chunks that have come within viewing distance and unload those that have gone out of sight.
+     *
      * @param player the player.
+     * @param chunkRunnables The runnables that have not been executed by the executor previously. These runnables are
+     *      responsible for encoding and sending the chunk data to the players.
      */
     public void streamChunks(GlowPlayer player, Collection<ChunkRunnable> chunkRunnables) {
 
         Location current = player.getLocation();
         Location previous = previousLocations.get(player);
-
-        Coordinates playerCoords = new Coordinates(current.getX(), current.getZ());
 
         boolean force = false;
 
@@ -642,7 +643,7 @@ public class GlowWorld implements World {
 
                         // No need to check if the runnable is for the correct player, since only the runnables of the
                         // player should be contained in the chunk runnables.
-                        boolean cancelled = chunkRunnables.removeIf(runnable -> runnable.getChunkKey() == key);
+                        boolean cancelled = chunkRunnables.removeIf(runnable -> runnable.hasKey(key));
 
                         if (!cancelled) {
                             session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
@@ -654,7 +655,7 @@ public class GlowWorld implements World {
         }
 
         for (ChunkRunnable runnable : chunkRunnables) {
-            runnable.updatePriority(playerCoords);
+            runnable.updatePriority();
             executor.execute(runnable);
         }
 
@@ -673,8 +674,9 @@ public class GlowWorld implements World {
 
                         boolean skylight = getEnvironment() == Environment.NORMAL;
 
-                        executor.execute(playerCoords, player.getEntityId(), key, () -> {
-                            GlowChunk chunk = getChunkAt(key.getX(), key.getZ());
+                        final GlowChunk chunk = getChunkAt(key.getX(), key.getZ());
+
+                        executor.execute(player, chunk, () -> {
                             Message message = chunk.toMessage(skylight);
                             session.send(message);
                             chunk.getRawBlockEntities().forEach(entity -> entity.update(player));

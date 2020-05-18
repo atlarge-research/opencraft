@@ -11,21 +11,6 @@ public class Coordinates {
     private double z;
 
     /**
-     * Create a coordinates object located at the center of the specified chunk.
-     *
-     * @param chunkX The x coordinate of the chunk.
-     * @param chunkZ The y coordinate of the chunk.
-     * @return The coordinate object that is located at the center of the chunk.
-     */
-    public static Coordinates createAtChunkCenter(int chunkX, int chunkZ) {
-        // Multiply by 16 and add 8 to get the center of the chunk.
-        final int x = (chunkX << 4) + 8;
-        final int z = (chunkZ << 4) + 8;
-
-        return new Coordinates(x, z);
-    }
-
-    /**
      * Construct a coordinates object from three separate coordinates.
      *
      * @param x The x coordinate.
