@@ -10,7 +10,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -45,13 +44,13 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
     /**
      * Constructor for a JmsBroker, which starts a connection that has to be closed when the server closes.
      *
-     * @param connectionFactory The factory used to create a connection.
+     * @param connection The connection used to create a session.
      * @param codec The needed coded for encoding and decoding messages.
      */
-    public JmsBroker(ConnectionFactory connectionFactory, JmsCodec<Message> codec) throws JMSException {
+    public JmsBroker(Connection connection, JmsCodec<Message> codec) throws JMSException {
 
-        connection = connectionFactory.createConnection();
-        connection.start();
+        this.connection = connection;
+        this.connection.start();
         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         this.codec = codec;
 
