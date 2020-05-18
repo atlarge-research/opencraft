@@ -644,7 +644,8 @@ public class GlowWorld implements World {
                         boolean cancelled = chunkRunnables.removeIf(runnable -> runnable.hasKey(key));
 
                         if (!cancelled) {
-                            session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
+                            Message message = new UnloadChunkMessage(key.getX(), key.getZ());
+                            session.send(message);
                             player.getChunkLock().release(key);
                         }
                     }
