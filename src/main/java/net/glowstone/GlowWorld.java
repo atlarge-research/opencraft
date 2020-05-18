@@ -442,8 +442,6 @@ public class GlowWorld implements World {
 
     private final List<Pair<GlowChunk.Key, Message>> afterBlockChanges;
 
-    private final Collection<ChunkRunnable> chunkRunnables;
-
     /**
      * Creates a new world from the options in the given WorldCreator.
      *
@@ -524,7 +522,6 @@ public class GlowWorld implements World {
         executor = new PriorityExecutor();
         blockChanges = new ConcurrentLinkedDeque<>();
         afterBlockChanges = new LinkedList<>();
-        chunkRunnables = new ArrayList<>();
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -545,6 +542,7 @@ public class GlowWorld implements World {
      */
     public void pulse() {
 
+        Collection<ChunkRunnable> chunkRunnables = new ArrayList<>();
         executor.drainTo(chunkRunnables);
 
         entityManager.getAll()
