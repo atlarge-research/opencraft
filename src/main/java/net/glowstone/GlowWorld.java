@@ -602,9 +602,10 @@ public class GlowWorld implements World {
      *
      * @param player the player.
      * @param chunkRunnables The runnables that have not been executed by the executor previously. These runnables are
-     *      responsible for encoding and sending the chunk data to the players.
+     *      responsible for encoding and sending the chunk data to the given player. These runnables should only be
+     *      associated with the given player.
      */
-    public void streamChunks(GlowPlayer player, Collection<ChunkRunnable> chunkRunnables) {
+    private void streamChunks(GlowPlayer player, Collection<ChunkRunnable> chunkRunnables) {
 
         Location current = player.getLocation();
         Location previous = previousLocations.get(player);
