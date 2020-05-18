@@ -644,7 +644,7 @@ public class GlowWorld implements World {
                         boolean cancelled = chunkRunnables.removeIf(runnable -> runnable.hasKey(key));
 
                         if (!cancelled) {
-                            Message message = new UnloadChunkMessage(key.getX(), key.getZ());
+                            Message message = new UnloadChunkMessage(x, z);
                             session.send(message);
                             player.getChunkLock().release(key);
                         }
@@ -673,7 +673,7 @@ public class GlowWorld implements World {
 
                         boolean skylight = getEnvironment() == Environment.NORMAL;
 
-                        final GlowChunk chunk = getChunkAt(key.getX(), key.getZ());
+                        final GlowChunk chunk = getChunkAt(x, z);
 
                         executor.execute(player, chunk, () -> {
                             Message message = chunk.toMessage(skylight);

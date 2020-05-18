@@ -13,9 +13,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class ChunkRunnable implements Runnable, Comparable<ChunkRunnable> {
 
-    private final Runnable runnable;
     private final GlowPlayer player;
     private final GlowChunk chunk;
+    private final Runnable runnable;
     private double priority;
 
     /**

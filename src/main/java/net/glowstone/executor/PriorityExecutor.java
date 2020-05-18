@@ -30,9 +30,7 @@ public class PriorityExecutor {
      * @throws IllegalArgumentException if one of the following holds:<br> {@code corePoolSize < 0}<br> {@code
      *     keepAliveTime < 0}<br> {@code maximumPoolSize <= 0}<br> {@code maximumPoolSize < corePoolSize}
      */
-    public PriorityExecutor(
-        int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit
-    ) {
+    public PriorityExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit) {
         BlockingQueue<Runnable> queue = new PriorityBlockingQueue<>();
         executor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, queue);
     }
