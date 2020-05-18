@@ -37,11 +37,9 @@ class PriorityExecutorTest {
     private GlowPlayer playerFurther;
     private GlowPlayer playerOrigin;
 
-    /**
-     * Create the PriorityExecutor and the mock objects needed for testing the executor.
-     */
     @BeforeEach
     void setUp() {
+
         priorityExecutor = new PriorityExecutor(1, 1, 60L, TimeUnit.SECONDS);
 
         chunk = mock(GlowChunk.class);
@@ -77,6 +75,7 @@ class PriorityExecutorTest {
      */
     @TimeBasedTest
     void drainTo() throws ExecutionException, InterruptedException, TimeoutException {
+
         AtomicReference<InterruptedException> atomicException = new AtomicReference<>();
         AtomicBoolean executed = new AtomicBoolean(false);
         CompletableFuture<Boolean> executedFurther = new CompletableFuture<>();
@@ -110,6 +109,7 @@ class PriorityExecutorTest {
      */
     @TimeBasedTest
     void execute() throws InterruptedException {
+
         CountDownLatch latch = new CountDownLatch(3);
         AtomicReference<InterruptedException> atomicException = new AtomicReference<>();
         List<Integer> list = Collections.synchronizedList(new ArrayList<>());

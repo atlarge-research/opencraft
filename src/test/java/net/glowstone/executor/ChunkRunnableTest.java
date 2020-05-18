@@ -11,9 +11,6 @@ import net.glowstone.util.Coordinates;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * Tests for verifying that the ChunkRunnable functionality works properly.
- */
 class ChunkRunnableTest {
 
     private GlowPlayer player;
@@ -22,11 +19,9 @@ class ChunkRunnableTest {
     private ChunkRunnable runnable;
     private boolean executed;
 
-    /**
-     * Initialize the required objects and values for each test.
-     */
     @BeforeEach
     void setUp() {
+
         executed = false;
         GlowChunk chunk = mock(GlowChunk.class);
         when(chunk.getCenterCoordinates()).thenReturn(new Coordinates(chunkX, chunkZ));
@@ -45,12 +40,15 @@ class ChunkRunnableTest {
      */
     @Test
     void hasKey() {
+
         final GlowChunk.Key originKey = GlowChunk.Key.of(0, 0);
-        final GlowChunk.Key farKey = GlowChunk.Key.of(1000, 50);
+        final GlowChunk.Key farKeyX = GlowChunk.Key.of(1000, chunkZ);
+        final GlowChunk.Key farKeyZ = GlowChunk.Key.of(chunkX, 850);
         final GlowChunk.Key sameKey = GlowChunk.Key.of(chunkX, chunkZ);
 
         assertFalse(runnable.hasKey(originKey));
-        assertFalse(runnable.hasKey(farKey));
+        assertFalse(runnable.hasKey(farKeyX));
+        assertFalse(runnable.hasKey(farKeyZ));
         assertTrue(runnable.hasKey(sameKey));
     }
 
@@ -59,6 +57,7 @@ class ChunkRunnableTest {
      */
     @Test
     void hasEntityId() {
+
         final int entityId = 42;
         final int incorrectEntityId = 50;
         when(player.getEntityId()).thenReturn(entityId);
@@ -72,6 +71,7 @@ class ChunkRunnableTest {
      */
     @Test
     void updatePriorityCompare() {
+
         GlowChunk otherChunk = mock(GlowChunk.class);
         Coordinates originCoords = new Coordinates(0, 0);
         when(otherChunk.getCenterCoordinates()).thenReturn(originCoords);
@@ -99,6 +99,7 @@ class ChunkRunnableTest {
      */
     @Test
     void run() {
+
         assertFalse(executed);
 
         runnable.run();

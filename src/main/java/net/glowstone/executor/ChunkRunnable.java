@@ -29,7 +29,6 @@ public final class ChunkRunnable implements Runnable, Comparable<ChunkRunnable> 
         this.player = player;
         this.chunk = chunk;
         this.runnable = runnable;
-
         updatePriority();
     }
 
@@ -61,7 +60,6 @@ public final class ChunkRunnable implements Runnable, Comparable<ChunkRunnable> 
     public void updatePriority() {
         Coordinates chunkCenter = chunk.getCenterCoordinates();
         Coordinates playerCoords = player.getCoordinates();
-
         this.priority = chunkCenter.squaredDistance(playerCoords);
     }
 
