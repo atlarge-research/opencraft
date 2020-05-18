@@ -14,29 +14,17 @@ public class GuavaBroker<Topic, Subscriber, Message> implements Broker<Topic, Su
     }
 
     @Override
-    public boolean isEmpty() {
-        return false;
-    }
-
-    @Override
-    public boolean isSubscribed(Topic topic, Subscriber subscriber) {
-        return false;
-    }
-
-    @Override
-    public boolean subscribe(Topic topic, Subscriber subscriber, Consumer<Message> callback) {
+    public void subscribe(Topic topic, Subscriber subscriber, Consumer<Message> callback) {
         GuavaListener<Subscriber, Message> listener = new GuavaListener<>(subscriber, callback);
         EventBus channel = channels.computeIfAbsent(topic, t -> new EventBus());
         channel.register(listener);
-        return channels.containsValue(channel);
     }
 
     @Override
-    public boolean unsubscribe(Topic topic, Subscriber subscriber) {
+    public void unsubscribe(Topic topic, Subscriber subscriber) {
         GuavaListener<Subscriber, Message> listener = new GuavaListener<>(subscriber, null);
         EventBus channel = channels.computeIfAbsent(topic, t -> new EventBus());
         channel.unregister(listener);
-        return !channels.containsValue(channel);
     }
 
     @Override
