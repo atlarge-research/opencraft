@@ -113,10 +113,8 @@ public class MesaGroundGenerator extends GroundGenerator {
             // Reset the surface depth whenever we hit air.
             if (material == Material.AIR) {
                 deep = -1;
-            }
 
-            // Skip all stone.
-            else if (material != Material.STONE) {
+            } else if (material != Material.STONE) {
                 continue;
             }
 
