@@ -57,25 +57,24 @@ public class MesaGroundGenerator extends GroundGenerator {
 
     @Override
     public void generateTerrainColumn(ChunkData chunkData, World world, Random random, int x, int z,
-            Biome biome, double surfaceNoise) {
+                                      Biome biome, double surfaceNoise) {
 
         initialize(world.getSeed());
 
         int seaLevel = world.getSeaLevel();
 
         MaterialData topMat = topMaterial;
-        MaterialData groundMat = groundMaterial;
 
-        int surfaceHeight = Math
-                .max((int) (surfaceNoise / 3.0D + 3.0D + random.nextDouble() * 0.25D), 1);
+        int surfaceHeight = Math.max((int) (surfaceNoise / 3.0D + 3.0D + random.nextDouble() * 0.25D), 1);
         boolean colored = Math.cos(surfaceNoise / 3.0D * Math.PI) <= 0;
         double bryceCanyonHeight = 0;
         if (type == MesaType.BRYCE) {
             int noiseX = (x & 0xFFFFFFF0) + (z & 0xF);
             int noiseZ = (z & 0xFFFFFFF0) + (x & 0xF);
-            double noiseCanyonHeight = Math
-                    .min(Math.abs(surfaceNoise),
-                            canyonHeightNoise.noise(noiseX, noiseZ, 0.5D, 2.0D));
+            double noiseCanyonHeight = Math.min(
+                    Math.abs(surfaceNoise),
+                    canyonHeightNoise.noise(noiseX, noiseZ, 0.5D, 2.0D)
+            );
             if (noiseCanyonHeight > 0) {
                 double heightScale = Math.abs(canyonScaleNoise.noise(noiseX, noiseZ, 0.5D, 2.0D));
                 bryceCanyonHeight = Math.pow(noiseCanyonHeight, 2) * 2.5D;
@@ -93,57 +92,68 @@ public class MesaGroundGenerator extends GroundGenerator {
         z &= 0xF;
 
         int deep = -1;
-        boolean groundSet = false;
+        int upper = 0;
+        int lower = 0;
+        int topHeight = -1;
         for (int y = 255; y >= 0; y--) {
+
+            // Fill in the gaps.
             if (y < (int) bryceCanyonHeight && chunkData.getType(x, y, z) == Material.AIR) {
                 chunkData.setBlock(x, y, z, Material.STONE);
             }
+
+            // Place bedrock.
             if (y <= random.nextInt(5)) {
                 chunkData.setBlock(x, y, z, Material.BEDROCK);
-            } else {
-                Material mat = chunkData.getType(x, y, z);
-                if (mat == Material.AIR) {
-                    deep = -1;
-                } else if (mat != Material.STONE) {
-                    continue;
-                }
-                if (deep == -1) {
-                    groundSet = false;
-                    if (y >= seaLevel - 5 && y <= seaLevel) {
-                        groundMat = groundMaterial;
-                    }
+                continue;
+            }
 
-                    deep = surfaceHeight + Math.max(0, y - seaLevel - 1);
-                    if (y >= seaLevel - 2) {
-                        if (type == MesaType.FOREST && y > seaLevel + 22 + (surfaceHeight
-                                << 1)) {
-                            topMat = colored ? GRASS : COARSE_DIRT;
-                            chunkData.setBlock(x, y, z, topMat);
-                        } else if (y > seaLevel + 2 + surfaceHeight) {
-                            int color = colorLayer[
-                                    (y + (int) Math.round(
-                                            colorNoise.noise(chunkX, chunkZ, 0.5D, 2.0D) * 2.0D))
-                                    % colorLayer.length];
-                            setColoredGroundLayer(chunkData, x, y, z,
-                                    y < seaLevel || y > 128 ? 1 : colored ? color : -1);
-                        } else {
-                            chunkData.setBlock(x, y, z, topMaterial);
-                            groundSet = true;
-                        }
-                    } else {
-                        chunkData.setBlock(x, y, z, groundMat);
-                    }
-                } else if (deep > 0) {
-                    deep--;
-                    if (groundSet) {
-                        chunkData.setBlock(x, y, z, groundMaterial);
-                    } else {
-                        int color = colorLayer[
-                                (y + (int) Math.round(
-                                        colorNoise.noise(chunkX, chunkZ, 0.5D, 2.0D) * 2.0D))
-                                % colorLayer.length];
-                        setColoredGroundLayer(chunkData, x, y, z, color);
-                    }
+            Material material = chunkData.getType(x, y, z);
+
+            // Reset the surface depth whenever we hit air.
+            if (material == Material.AIR) {
+                deep = -1;
+            }
+
+            // Skip all stone.
+            else if (material != Material.STONE) {
+                continue;
+            }
+
+            // If the current block is air.
+            if (deep == -1) {
+
+                deep = surfaceHeight + Math.max(0, y - seaLevel - 1);
+
+                topHeight = y - 1;
+
+                // Select biome
+                if (type == MesaType.FOREST && y > seaLevel + 22 + (surfaceHeight << 1)) {
+                    topMat = colored ? GRASS : COARSE_DIRT;
+                    upper = 255;
+                    lower = seaLevel + surfaceHeight;
+
+                } else {
+                    topMat = topMaterial;
+                    upper = seaLevel + surfaceHeight + 2;
+                    lower = seaLevel - 2;
+                }
+
+
+            } else if (deep > 0) {
+
+                deep--;
+
+                if (y >= lower && y == topHeight && y <= upper) {
+                    chunkData.setBlock(x, y, z, topMat);
+
+                } else if (y >= lower && y >= topHeight - 5 && y <= upper) {
+                    chunkData.setBlock(x, y, z, groundMaterial);
+
+                } else {
+                    int noise = (int) Math.round(colorNoise.noise(chunkX, chunkZ, 0.5D, 2.0D) * 2.0D);
+                    int color = colorLayer[(y + noise) % colorLayer.length];
+                    setColoredGroundLayer(chunkData, x, y, z, color);
                 }
             }
         }
@@ -158,7 +168,7 @@ public class MesaGroundGenerator extends GroundGenerator {
     }
 
     private void setRandomLayerColor(Random random, int minLayerCount, int minLayerHeight,
-            int color) {
+                                     int color) {
         for (int i = 0; i < random.nextInt(4) + minLayerCount; i++) {
             int j = random.nextInt(colorLayer.length);
             int k = 0;
