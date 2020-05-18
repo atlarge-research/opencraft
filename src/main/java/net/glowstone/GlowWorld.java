@@ -550,7 +550,8 @@ public class GlowWorld implements World {
             .filter(GlowPlayer.class::isInstance)
             .map(GlowPlayer.class::cast)
             .forEach(player -> {
-                messagingSystem.update(player, player.getSession()::send);
+                GlowSession session = player.getSession();
+                messagingSystem.update(player, session::send);
                 int entityId = player.getEntityId();
 
                 Collection<ChunkRunnable> runnables = chunkRunnables.stream()
