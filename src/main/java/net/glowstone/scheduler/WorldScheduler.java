@@ -168,7 +168,7 @@ public class WorldScheduler {
             try {
                 while (!isInterrupted() && !tickEnd.isTerminated()) {
                     tickBegin.arriveAndAwaitAdvance();
-                    if (ServerConfig.Key.YARDSTICK.equals(true)) {
+                    if (ServerConfig.Key.OPENCRAFT_COLLECTOR.equals(true)) {
                         YSCollector.start("world_" + world.getName() + "_tick",
                                 "World thread: Duration processing tick.");
                     }
@@ -180,7 +180,7 @@ public class WorldScheduler {
                     } finally {
                         tickEnd.arriveAndAwaitAdvance();
                     }
-                    if (ServerConfig.Key.YARDSTICK.equals(true)) {
+                    if (ServerConfig.Key.OPENCRAFT_COLLECTOR.equals(true)) {
                         YSCollector.stop("world_" + world.getName() + "_tick");
                     }
                 }

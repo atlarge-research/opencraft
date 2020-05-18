@@ -2,6 +2,7 @@ package net.glowstone.block.entity;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.GlowBlockState;
 import net.glowstone.block.entity.state.GlowBed;
@@ -41,7 +42,9 @@ public class BedEntity extends BlockEntity {
     public void update(GlowPlayer player) {
         super.update(player);
         CompoundTag nbt = new CompoundTag();
+        GlowWorld world = player.getWorld();
         saveNbt(nbt);
-        player.sendBlockEntityChange(block.getLocation(), GlowBlockEntity.BED, nbt);
+        // TODO: it is possible that this causes a broadcast message to be sent multiple times.
+        world.sendBlockEntityChange(block.getLocation(), GlowBlockEntity.BED, nbt);
     }
 }
