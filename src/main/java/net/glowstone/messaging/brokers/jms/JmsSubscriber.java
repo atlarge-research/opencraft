@@ -4,11 +4,23 @@ import java.util.Objects;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 
+/**
+ * The subscriber used by a jms broker. The subscriber is connected to a message consumer. These message consumers
+ * can be seen as a subscriber for one specific topic.
+ *
+ * @param <Subscriber> The type of subscribers that is allowed to subscribe to topics.
+ */
 final class JmsSubscriber<Subscriber> {
 
     private final MessageConsumer consumer;
     private final Subscriber subscriber;
 
+    /**
+     * Create a jms subscriber.
+     *
+     * @param consumer A consumer created by jms for a specific topic.
+     * @param subscriber The subscriber connected to the consumer.
+     */
     JmsSubscriber(MessageConsumer consumer, Subscriber subscriber) throws JMSException {
         this.consumer = consumer;
         this.subscriber = subscriber;
