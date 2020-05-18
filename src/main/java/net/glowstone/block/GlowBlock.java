@@ -592,6 +592,7 @@ public class GlowBlock implements Block {
     }
 
     private BoundingBox getFenceBoundingBox(Location loc){
+
         BoundingBox box = BoundingBox.fromCorners(loc.add(0.4, 0, 0.4).toVector(), loc.add(0.6, 1.5, 0.6).toVector());
 
         GlowBlock north = this.getRelative(BlockFace.NORTH);
@@ -609,19 +610,19 @@ public class GlowBlock implements Block {
         boolean eastFence = isFence(east.getType());
 
         if(northFence){
-            box.minCorner.setZ(0.0);
+            box.minCorner.setZ(box.minCorner.getZ() - 0.4);
         }
 
         if(southFence){
-            box.maxCorner.setZ(1.0);
+            box.maxCorner.setZ(box.maxCorner.getZ() + 0.4);
         }
 
         if(westFence){
-            box.minCorner.setX(0.0);
+            box.minCorner.setX(box.minCorner.getX() - 0.4);
         }
 
         if(eastFence){
-            box.maxCorner.setX(1.0);
+            box.maxCorner.setX(box.maxCorner.getX() + 0.4);
         }
 
         return box;
