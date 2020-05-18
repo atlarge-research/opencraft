@@ -938,7 +938,10 @@ public class GlowWorld implements World {
     }
 
     public void broadcastBlockChangeInRange(GlowChunk.Key chunkKey, BlockChangeMessage message) {
-        addBlockChange(message);
+        // TODO: This may cause duplicate messages to be send, this implementation is required when creating a new world
+        getRawPlayers().stream()
+                .filter(player -> player.canSeeChunk(chunkKey))
+                .forEach(player -> addBlockChange(message));
     }
 
     private void maybeStrikeLightningInChunk(int cx, int cz) {
