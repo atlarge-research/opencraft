@@ -21,18 +21,41 @@ public class BoundingBox implements Cloneable {
 
     /**
      * Tests whether two bounding boxes intersect.
+     *
+     * @param a a bounding box
+     * @param b a bounding box
+     * @param tolerance a double that functions as allowed tolerance between blocks before they are deemed to intersect
+     * @return true if {@code a} and {@code b} intersect; false otherwise
+     */
+    public static boolean intersects(BoundingBox a, BoundingBox b, double tolerance) {
+        Vector minA = a.minCorner.clone().subtract(new Vector(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE));
+        Vector maxA = a.maxCorner.clone().add(new Vector(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE));
+        Vector minB = b.minCorner;
+        Vector maxB = b.maxCorner;
+
+        if (maxA.getX() + tolerance < minB.getX() || minA.getX() - tolerance > maxB.getX()) {
+            return false;
+        }
+
+        if (maxA.getY() + tolerance < minB.getY() || minA.getY() - tolerance > maxB.getY()) {
+            return false;
+        }
+
+        if (maxA.getZ() + tolerance < minB.getZ() || minA.getZ() - tolerance > maxB.getZ()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * An overloaded variant of the intersects function that includes a predefined tolerance
      * @param a a bounding box
      * @param b a bounding box
      * @return true if {@code a} and {@code b} intersect; false otherwise
      */
-    public static boolean intersects(BoundingBox a, BoundingBox b) {
-        Vector minA = a.minCorner;
-        Vector maxA = a.maxCorner;
-        Vector minB = b.minCorner;
-        Vector maxB = b.maxCorner;
-        return maxA.getX() >= minB.getX() && minA.getX() <= maxB.getX()
-            && maxA.getY() >= minB.getY() && minA.getY() <= maxB.getY()
-            && maxA.getZ() >= minB.getZ() && minA.getZ() <= maxB.getZ();
+    public static boolean intersects(BoundingBox a, BoundingBox b){
+        return intersects(a, b, Double.MIN_VALUE);
     }
 
     /**

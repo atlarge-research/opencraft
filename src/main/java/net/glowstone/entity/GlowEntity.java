@@ -50,6 +50,7 @@ import net.glowstone.net.message.play.player.InteractEntityMessage;
 import net.glowstone.util.Coordinates;
 import net.glowstone.util.Position;
 import net.glowstone.util.UuidUtils;
+import net.glowstone.util.Vectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Chunk;
 import org.bukkit.EntityEffect;
@@ -110,7 +111,7 @@ public abstract class GlowEntity implements Entity {
      */
     private static final MetadataStore<Entity> bukkitMetadata = new EntityMetadataStore();
     private static final Vector zeroG = new Vector();
-    private static final double THETA =  0.0000000000000001d;
+    private static final double THETA = Double.MIN_VALUE;
 
     /**
      * The server this entity belongs to.
@@ -1021,8 +1022,8 @@ public abstract class GlowEntity implements Entity {
             }
         } else {
             // bounding box-based calculation
-            Vector min = boundingBox.minCorner;
-            Vector max = boundingBox.maxCorner;
+            Vector min = Vectors.floor(boundingBox.minCorner);
+            Vector max = Vectors.ceil(boundingBox.maxCorner);
             for (int x = min.getBlockX(); x <= max.getBlockX(); ++x) {
                 for (int y = min.getBlockY(); y <= max.getBlockY(); ++y) {
                     for (int z = min.getBlockZ(); z <= max.getBlockZ(); ++z) {
@@ -1064,19 +1065,19 @@ public abstract class GlowEntity implements Entity {
         List<BoundingBox> intersectingBoxes = new ArrayList<>();
 
         BoundingBox broadPhaseBox = boundingBox.getBroadPhase(velocity);
-        Vector min = floor(broadPhaseBox.minCorner);
-        Vector max = ceil(broadPhaseBox.maxCorner);
+        Vector min = Vectors.floor(broadPhaseBox.minCorner);
+        Vector max = Vectors.ceil(broadPhaseBox.maxCorner);
 
         for (int x = min.getBlockX(); x <= max.getBlockX(); x++) {
-            for (int y = min.getBlockY()-1; y <= max.getBlockY(); y++) {
+            for (int y = min.getBlockY() - 1; y <= max.getBlockY(); y++) {
                 for (int z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
                     GlowBlock block = world.getBlockAt(x, y, z);
                     Material material = block.getType();
                     BoundingBox box = block.getBoundingBox();
-                    if(y >= min.getBlockY() || (y == min.getBlockY()-1 && box.getSize().getY() > 1))
+                    if (y >= min.getBlockY() || (y == min.getBlockY() - 1 && box.getSize().getY() > 1))
                         if (material.isSolid() && box.intersects(broadPhaseBox)) {
-                        intersectingBoxes.add(box);
-                    }
+                            intersectingBoxes.add(box);
+                        }
                 }
             }
         }
@@ -1084,41 +1085,45 @@ public abstract class GlowEntity implements Entity {
         return intersectingBoxes;
     }
 
-    private Vector floor(Vector vector) {
-        return new Vector(
-                Math.floor(vector.getX()),
-                Math.floor(vector.getY()),
-                Math.floor(vector.getZ())
-        );
+    protected void computeVelocity(){
+        if (hasFriction() && location != null) {
+
+            Material material = location.getBlock().getType();
+
+            // apply friction and gravity
+            if (material == Material.WATER || material == Material.STATIONARY_WATER) {
+                velocity.multiply(liquidDrag);
+                velocity.setY(velocity.getY() + getGravityAccel().getY() / 4.0);
+            } else if (material == Material.LAVA || material == Material.STATIONARY_LAVA) {
+                velocity.multiply(liquidDrag - 0.3);
+                velocity.setY(velocity.getY() + getGravityAccel().getY() / 4.0);
+            } else {
+                velocity.setY(airDrag * velocity.getY() + getGravityAccel().getY());
+
+                double drag = airDrag;
+                if(isOnGround()){
+                    drag = slipMultiplier;
+                }
+
+                velocity.setX(velocity.getX() * drag);
+                velocity.setZ(velocity.getZ() * drag);
+            }
+        }
     }
 
-    private Vector ceil(Vector vector) {
-        return new Vector(
-                Math.ceil(vector.getX()),
-                Math.ceil(vector.getY()),
-                Math.ceil(vector.getZ())
-        );
-    }
-
-    private Vector project(Vector vector, Vector normal) {
-        double dot = vector.dot(normal);
-        return normal.clone().multiply(dot);
-    }
-
-    protected void pulsePhysics() {
-
+    protected void resolveCollisions() {
         Location pendingLocation = location.clone();
         double elapsedTime = 0.0;
 
         // Break if we won't be moving.
-        while (velocity.length() > 0.0 && elapsedTime < 1.0) {
+        while (velocity.length() > 0.0 && elapsedTime < 1.0 && boundingBox != null) {
 
             if (this.boundingBox == null) {
                 break;
             }
 
             // Compute the remaining time and velocity during this cycle.
-            double remainingTime = 1.0f - elapsedTime;
+            double remainingTime = 1.0d - elapsedTime;
             Vector remainingDisplacement = velocity.clone().multiply(remainingTime);
 
             // Create a bounding box at the correct location and find the ones it interacts with.
@@ -1151,7 +1156,7 @@ public abstract class GlowEntity implements Entity {
             }
 
             // Cancel out velocity in the direction of the collided with box.
-            velocity.subtract(project(velocity, normal));
+            velocity.subtract(Vectors.project(velocity, normal));
 
             // Handle projectile interaction
             if (this instanceof Projectile) {
@@ -1164,7 +1169,7 @@ public abstract class GlowEntity implements Entity {
 
                 collide(block);
 
-                // TODO: Break here?
+                // TODO: Break here? it might possible that a projectile removes itself after colliding which could introduce bugs here
             }
         }
 
@@ -1174,35 +1179,11 @@ public abstract class GlowEntity implements Entity {
 
         setRawLocation(pendingLocation);
         updateBoundingBox();
+    }
 
-        if (hasFriction()) {
-
-            // apply friction and gravity
-            if (location.getBlock().getType() == Material.WATER) {
-                velocity.multiply(liquidDrag);
-                velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-
-            } else if (location.getBlock().getType() == Material.LAVA) {
-                velocity.multiply(liquidDrag - 0.3);
-                velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-
-            } else {
-
-                if (applyDragBeforeAccel) {
-                    velocity.setY(airDrag * velocity.getY() + getGravityAccel().getY());
-                } else {
-                    velocity.setY(airDrag * (velocity.getY() + getGravityAccel().getY()));
-                }
-
-                if (isOnGround()) {
-                    velocity.setX(velocity.getX() * slipMultiplier);
-                    velocity.setZ(velocity.getZ() * slipMultiplier);
-                } else {
-                    velocity.setX(velocity.getX() * airDrag);
-                    velocity.setZ(velocity.getZ() * airDrag);
-                }
-            }
-        }
+    protected void pulsePhysics() {
+        computeVelocity();
+        resolveCollisions();
     }
 
     /**

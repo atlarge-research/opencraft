@@ -49,18 +49,30 @@ public class EntityBoundingBox extends BoundingBox {
 
         BoundingBox broadPhase = new BoundingBox();
 
-        broadPhase.minCorner.setX(v.getX() > 0 ? min.getX() : min.getX() + v.getX());
-        broadPhase.minCorner.setY(v.getY() > 0 ? min.getY() : min.getY() + v.getY());
-        broadPhase.minCorner.setZ(v.getZ() > 0 ? min.getZ() : min.getZ() + v.getZ());
+        double tolerance = Double.MIN_VALUE;
 
-        broadPhase.maxCorner.setX(v.getX() > 0 ? max.getX() + v.getX() : max.getX() - v.getX());
-        broadPhase.maxCorner.setY(v.getY() > 0 ? max.getY() + v.getY() : max.getY() - v.getY());
-        broadPhase.maxCorner.setZ(v.getZ() > 0 ? max.getZ() + v.getZ() : max.getZ() - v.getZ());
+        broadPhase.minCorner.setX(v.getX() > tolerance ? min.getX() : min.getX() + v.getX());
+        broadPhase.minCorner.setY(v.getY() > tolerance ? min.getY() : min.getY() + v.getY());
+        broadPhase.minCorner.setZ(v.getZ() > tolerance ? min.getZ() : min.getZ() + v.getZ());
+
+        broadPhase.maxCorner.setX(v.getX() > tolerance ? max.getX() + v.getX() : max.getX() - v.getX());
+        broadPhase.maxCorner.setY(v.getY() > tolerance ? max.getY() + v.getY() : max.getY() - v.getY());
+        broadPhase.maxCorner.setZ(v.getZ() > tolerance ? max.getZ() + v.getZ() : max.getZ() - v.getZ());
 
         return broadPhase;
     }
 
 
+    /**
+     * This function implements swept AABB collision detection as specified in the link below
+     * https://www.gamedev.net/tutorials/programming/general-and-gameplay-programming/swept-aabb-collision-detection-and-response-r3084/
+     *
+     * @param vel The displacement that will be applied to the entityboundingbox
+     * @param staticBox The static box which will be checked for collision
+     * @return A pair containing a double between 0.0 and 1.0 that indicates the amount
+     *         of displacement that can be done without collision
+     *         And a vector containing the normal in the place of collision
+     */
     public Pair<Double, Vector> sweptAABB(Vector vel, BoundingBox staticBox) {
         double xInvEntry, yInvEntry, zInvEntry;
         double xInvExit, yInvExit, zInvExit;

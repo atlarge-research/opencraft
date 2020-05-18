@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.flowpowered.network.Message;
@@ -20,6 +21,7 @@ import net.glowstone.ServerProvider;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.passive.GlowChicken;
+import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.inventory.GlowPlayerInventory;
 import net.glowstone.scoreboard.GlowScoreboard;
 import net.glowstone.scoreboard.GlowScoreboardManager;
@@ -36,6 +38,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemFactory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.util.Vector;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -177,5 +180,12 @@ public abstract class GlowEntityTest<T extends GlowEntity> {
         GlowEntity chicken = new GlowChicken(new Location(world, x, y, z));
 
         assertEquals(coordinates, chicken.getCoordinates());
+    }
+
+    @Test
+    public void testPhysics(){
+        when(world.getBlockAt(any())).thenReturn(block);
+        when(block.getType()).thenReturn(Material.DIRT);
+        entity.pulsePhysics();
     }
 }
