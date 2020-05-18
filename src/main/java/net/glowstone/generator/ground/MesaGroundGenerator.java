@@ -56,8 +56,15 @@ public class MesaGroundGenerator extends GroundGenerator {
     }
 
     @Override
-    public void generateTerrainColumn(ChunkData chunkData, World world, Random random, int x, int z,
-                                      Biome biome, double surfaceNoise) {
+    public void generateTerrainColumn(
+            ChunkData chunkData,
+            World world,
+            Random random,
+            int x,
+            int z,
+            Biome biome,
+            double surfaceNoise
+    ) {
 
         initialize(world.getSeed());
 
@@ -165,8 +172,7 @@ public class MesaGroundGenerator extends GroundGenerator {
         }
     }
 
-    private void setRandomLayerColor(Random random, int minLayerCount, int minLayerHeight,
-                                     int color) {
+    private void setRandomLayerColor(Random random, int minLayerCount, int minLayerHeight, int color) {
         for (int i = 0; i < random.nextInt(4) + minLayerCount; i++) {
             int j = random.nextInt(colorLayer.length);
             int k = 0;
