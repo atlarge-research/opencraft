@@ -15,7 +15,7 @@ public class BoundingBox implements Cloneable {
      * @param other another bounding box
      * @return true if this bounding box and {@code other} intersect; false otherwise
      */
-    public final boolean intersects(BoundingBox other) {
+    public boolean intersects(BoundingBox other) {
         return intersects(this, other);
     }
 

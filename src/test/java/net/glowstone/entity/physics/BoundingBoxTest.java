@@ -1,0 +1,70 @@
+package net.glowstone.entity.physics;
+
+import net.glowstone.util.Vectors;
+import org.bukkit.util.Vector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import static net.glowstone.entity.physics.BoundingBox.intersects;
+import static org.junit.jupiter.api.Assertions.*;
+
+public class BoundingBoxTest {
+
+    BoundingBox box;
+    BoundingBox box1;
+    BoundingBox box2;
+    BoundingBox box3;
+
+    @Before
+    public void setup() {
+        box = BoundingBox.fromCorners(new Vector(0,0,0), new Vector(1,1,1));
+        box1 = BoundingBox.fromCorners(new Vector(-1,-1,-1), new Vector(0.1,0.1,0.1));
+        box2 = BoundingBox.fromCorners(new Vector(-2,-2,-2), new Vector(-1,-1.5,-2));
+        box3 = BoundingBox.fromCorners(new Vector(-1.5,-1.9,-2.5), new Vector(-1,-1.75,-4));
+    }
+
+    @After
+    public void teardown() {
+        box = null;
+        box1 = null;
+        box2 = null;
+        box3 = null;
+    }
+
+    @Test
+    public void intersectTest(){
+        assertTrue(box.intersects(box1));
+        assertTrue(intersects(box1,box, Double.MIN_VALUE));
+    }
+
+    @Test
+    public void intersectTestWithoutIntersect(){
+        assertFalse(box2.intersects(box));
+        assertFalse(intersects(box, box2, Double.MIN_VALUE));
+        assertFalse(box2.intersects(box1));
+        assertFalse(intersects(box1, box2, Double.MIN_VALUE));
+        assertFalse(box2.intersects(box3));
+        assertFalse(intersects(box3, box2, Double.MIN_VALUE));
+    }
+
+    @Test
+    public void positionAndSizeTest(){
+        Vector origin = new Vector(0,0,0);
+        Vector size = new Vector(1,1,1);
+
+        BoundingBox otherBox = BoundingBox.fromPositionAndSize(origin, size);
+        assertTrue(Vectors.equals(otherBox.minCorner, origin));
+        assertTrue(Vectors.equals(otherBox.maxCorner, size));
+    }
+
+    @Test
+    public void copyOfTest(){
+        assertNotEquals(box, BoundingBox.copyOf(box));
+    }
+
+    @Test
+    public void getSizeTest() {
+        assertTrue(Vectors.equals(box.getSize(), new Vector(1,1,1)));
+    }
+}

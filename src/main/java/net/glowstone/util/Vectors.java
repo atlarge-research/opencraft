@@ -24,4 +24,30 @@ public class Vectors {
         double dot = vector.dot(normal);
         return normal.clone().multiply(dot);
     }
+
+    public static boolean equals(Vector vector, Vector otherVector, double epsilon) {
+        double dx = Math.abs(vector.getX() - otherVector.getX());
+
+        if (dx >= epsilon) {
+            return false;
+        }
+
+        double dy = Math.abs(vector.getY() - otherVector.getY());
+
+        if (dy >= epsilon) {
+            return false;
+        }
+
+        double dz = Math.abs(vector.getZ() - otherVector.getZ());
+
+        if (dz >= epsilon) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static boolean equals(Vector vector, Vector otherVector) {
+        return equals(vector,otherVector, Double.MIN_VALUE);
+    }
 }

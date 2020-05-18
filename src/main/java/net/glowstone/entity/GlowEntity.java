@@ -137,6 +137,7 @@ public abstract class GlowEntity implements Entity {
     /**
      * The entity's velocity, applied each tick.
      */
+    @Getter
     protected final Vector velocity = new Vector();
 
     /**
@@ -1056,15 +1057,14 @@ public abstract class GlowEntity implements Entity {
         return boundingBox != null && boundingBox.intersects(box);
     }
 
-    private List<BoundingBox> getIntersectingBoundingBoxes(EntityBoundingBox boundingBox, Vector velocity) {
+    List<BoundingBox> getIntersectingBlockBoundingBoxes(BoundingBox broadPhaseBox) {
 
-        if (boundingBox == null) {
+        if (broadPhaseBox == null) {
             return Collections.emptyList();
         }
 
         List<BoundingBox> intersectingBoxes = new ArrayList<>();
 
-        BoundingBox broadPhaseBox = boundingBox.getBroadPhase(velocity);
         Vector min = Vectors.floor(broadPhaseBox.minCorner);
         Vector max = Vectors.ceil(broadPhaseBox.maxCorner);
 
@@ -1074,7 +1074,7 @@ public abstract class GlowEntity implements Entity {
                     GlowBlock block = world.getBlockAt(x, y, z);
                     Material material = block.getType();
                     BoundingBox box = block.getBoundingBox();
-                    if (y >= min.getBlockY() || (y == min.getBlockY() - 1 && box.getSize().getY() > 1))
+                    if (box != null && (y >= min.getBlockY() || (y == min.getBlockY() - 1 && box.getSize().getY() > 1)))
                         if (material.isSolid() && box.intersects(broadPhaseBox)) {
                             intersectingBoxes.add(box);
                         }
@@ -1085,6 +1085,9 @@ public abstract class GlowEntity implements Entity {
         return intersectingBoxes;
     }
 
+    /**
+     * Computes the velocity that is will be applied to the user this tick
+     */
     protected void computeVelocity(){
         if (hasFriction() && location != null) {
 
@@ -1111,12 +1114,15 @@ public abstract class GlowEntity implements Entity {
         }
     }
 
+    /**
+     * Tests entity collision with the blocks around the entity and generates the response displacement
+     */
     protected void resolveCollisions() {
         Location pendingLocation = location.clone();
         double elapsedTime = 0.0;
 
         // Break if we won't be moving.
-        while (velocity.length() > 0.0 && elapsedTime < 1.0 && boundingBox != null) {
+        while (velocity.length() > 0.0 && elapsedTime < 1.0) {
 
             if (this.boundingBox == null) {
                 break;
@@ -1128,7 +1134,8 @@ public abstract class GlowEntity implements Entity {
 
             // Create a bounding box at the correct location and find the ones it interacts with.
             EntityBoundingBox pendingBox = this.boundingBox.createCopyAt(pendingLocation);
-            List<BoundingBox> intersectingBoxes = getIntersectingBoundingBoxes(pendingBox, remainingDisplacement);
+            BoundingBox broadPhaseBox = pendingBox.getBroadPhase(velocity);
+            List<BoundingBox> intersectingBoxes = getIntersectingBlockBoundingBoxes(broadPhaseBox);
 
             // Break if there is nothing to collide with.
             if (intersectingBoxes.isEmpty()) {
@@ -1181,6 +1188,9 @@ public abstract class GlowEntity implements Entity {
         updateBoundingBox();
     }
 
+    /**
+     * Calculate all the physics that impact the entity
+     */
     protected void pulsePhysics() {
         computeVelocity();
         resolveCollisions();

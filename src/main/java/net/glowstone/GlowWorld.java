@@ -6,19 +6,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.flowpowered.network.Message;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Queue;
-import java.util.Set;
-import java.util.UUID;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -54,6 +42,7 @@ import net.glowstone.entity.GlowPlayer;
 import net.glowstone.entity.objects.GlowFallingBlock;
 import net.glowstone.entity.objects.GlowItem;
 import net.glowstone.entity.physics.BoundingBox;
+import net.glowstone.entity.physics.EntityBoundingBox;
 import net.glowstone.generator.structures.GlowStructure;
 import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
@@ -69,10 +58,7 @@ import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
 import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
-import net.glowstone.util.BlockStateDelegate;
-import net.glowstone.util.GameRuleManager;
-import net.glowstone.util.RayUtil;
-import net.glowstone.util.TickUtil;
+import net.glowstone.util.*;
 import net.glowstone.util.collection.ConcurrentSet;
 import net.glowstone.util.config.WorldConfig;
 import net.glowstone.util.nbt.CompoundTag;
@@ -1620,6 +1606,7 @@ public class GlowWorld implements World {
                                                boolean includeBiomeTempRain) {
         return new EmptySnapshot(x, z, this, includeBiome, includeBiomeTempRain);
     }
+
 
     ////////////////////////////////////////////////////////////////////////////
     // Biomes
