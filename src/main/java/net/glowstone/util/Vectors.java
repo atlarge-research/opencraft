@@ -8,6 +8,11 @@ import org.bukkit.util.Vector;
 public class Vectors {
 
     /**
+     * A private Vectors constructor that ensures that this class is will only be used for static methods
+     */
+    private Vectors(){};
+
+    /**
      * Floors every parameter in the vector
      *
      * @param vector the vector that will be floored

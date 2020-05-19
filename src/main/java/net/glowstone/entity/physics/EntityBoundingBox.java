@@ -48,16 +48,14 @@ public class EntityBoundingBox extends BoundingBox {
         Vector max = maxCorner;
 
         BoundingBox broadPhase = new BoundingBox();
+        
+        broadPhase.minCorner.setX(min.getX() + Math.min(0.0, v.getX()));
+        broadPhase.minCorner.setY(min.getY() + Math.min(0.0, v.getY()));
+        broadPhase.minCorner.setZ(min.getZ() + Math.min(0.0, v.getZ()));
 
-        double tolerance = Double.MIN_VALUE;
-
-        broadPhase.minCorner.setX(v.getX() > tolerance ? min.getX() : min.getX() + v.getX());
-        broadPhase.minCorner.setY(v.getY() > tolerance ? min.getY() : min.getY() + v.getY());
-        broadPhase.minCorner.setZ(v.getZ() > tolerance ? min.getZ() : min.getZ() + v.getZ());
-
-        broadPhase.maxCorner.setX(v.getX() > tolerance ? max.getX() + v.getX() : max.getX() - v.getX());
-        broadPhase.maxCorner.setY(v.getY() > tolerance ? max.getY() + v.getY() : max.getY() - v.getY());
-        broadPhase.maxCorner.setZ(v.getZ() > tolerance ? max.getZ() + v.getZ() : max.getZ() - v.getZ());
+        broadPhase.maxCorner.setX(max.getX() + Math.abs(v.getX()));
+        broadPhase.maxCorner.setY(max.getY() + Math.abs(v.getY()));
+        broadPhase.maxCorner.setZ(max.getZ() + Math.abs(v.getZ()));
 
         return broadPhase;
     }
