@@ -221,7 +221,7 @@ public abstract class GlowEntity implements Entity {
      * Velocity reduction applied each tick in air.
      * For example, if the multiplier is 0.98,
      * the entity will lose 2% of its velocity each physics tick.
-     * The default value 1 indicates no air drag.
+     * The default value 0.98 indicates little airdrag.
      */
     @Setter
     protected double airDrag = 0.98;
