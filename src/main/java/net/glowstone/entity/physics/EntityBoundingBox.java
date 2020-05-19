@@ -74,6 +74,7 @@ public class EntityBoundingBox extends BoundingBox {
      *         And a vector containing the normal in the place of collision
      */
     public Pair<Double, Vector> sweptAABB(Vector vel, BoundingBox staticBox) {
+
         double xInvEntry, yInvEntry, zInvEntry;
         double xInvExit, yInvExit, zInvExit;
         Vector normal = new Vector();
@@ -106,6 +107,7 @@ public class EntityBoundingBox extends BoundingBox {
         double xEntry, yEntry, zEntry;
         double xExit, yExit, zExit;
 
+        // If the velocity is 0 then there is no exit or entry on that axis
         if (vel.getX() == 0.0f) {
             xEntry = Double.NEGATIVE_INFINITY;
             xExit = Double.POSITIVE_INFINITY;
@@ -136,10 +138,12 @@ public class EntityBoundingBox extends BoundingBox {
         normal.setX(0.0d);
         normal.setY(0.0d);
         normal.setZ(0.0d);
+
         if (entryTime > exitTime || xEntry < 0.0d && yEntry < 0.0d  && zEntry < 0.0d|| xEntry > 1.0d || yEntry > 1.0d || zEntry > 1.0d) {
+            // If there are no collision return 1.0d indicating that the full velocity vector can be applied
             return new ImmutablePair<>(1.0d, normal);
         } else {
-            // calculate normal of collided surface
+            // Find the shortest entry distance, take the normal from that collision
             if (zEntry > xEntry) {
                 if (zEntry > yEntry) {
                     if (zInvEntry < 0.0d) {

@@ -9,6 +9,7 @@ public class Vectors {
 
     /**
      * Floors every parameter in the vector
+     *
      * @param vector the vector that will be floored
      * @return A new floored vector
      */
@@ -22,6 +23,7 @@ public class Vectors {
 
     /**
      * Ceils every parameter in the vector
+     *
      * @param vector the vector that will be ceiled
      * @return A new ceiled vector
      */
@@ -34,7 +36,8 @@ public class Vectors {
     }
 
     /**
-     *  Projects a vector onto another vector
+     * Projects a vector onto another vector
+     *
      * @param vector The vector that will be projected
      * @param normal The vector on which the projection will occur
      * @return A projected vector
@@ -46,6 +49,7 @@ public class Vectors {
 
     /**
      * An equals method that allows matching two vectors per parameter with a certain tolerance
+     *
      * @param vector one of the vectors to compare
      * @param otherVector one of the vectors to compare
      * @param tolerance an allowed tolerance
@@ -75,11 +79,12 @@ public class Vectors {
 
     /**
      * An equals method that allows matching two vectors per parameter with a certain tolerance prefilled
+     *
      * @param vector one of the vectors to compare
      * @param otherVector one of the vectors to compare
      * @return A boolean that is true if the vectors are equal within tolerance
      */
     public static boolean equals(Vector vector, Vector otherVector) {
-        return equals(vector,otherVector, Double.MIN_VALUE);
+        return equals(vector, otherVector, Double.MIN_VALUE);
     }
 }
