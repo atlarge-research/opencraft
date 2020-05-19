@@ -1070,24 +1070,23 @@ public abstract class GlowEntity implements Entity {
                     GlowBlock block = world.getBlockAt(x, y, z);
                     Material material = block.getType();
 
-                    if(!material.isSolid()){
+                    if (!material.isSolid()) {
                         break;
                     }
 
                     BoundingBox box = block.getBoundingBox();
 
-                    if(box == null){
+                    if (box == null) {
                         break;
                     }
 
-                    if (box == null || (y == min.getBlockY() - 1 && box.getSize().getY() <= 1.0)){
+                    if (box == null || (y == min.getBlockY() - 1 && box.getSize().getY() <= 1.0)) {
                         break;
                     }
 
-                    if(box.intersects(broadPhaseBox)){
+                    if (box.intersects(broadPhaseBox)) {
                         intersectingBoxes.add(box);
                     }
-
                 }
             }
         }
