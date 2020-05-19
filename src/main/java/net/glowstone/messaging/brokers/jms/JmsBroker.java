@@ -14,7 +14,6 @@ import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
-import javax.jms.Topic;
 import net.glowstone.messaging.Broker;
 
 /**
@@ -55,7 +54,7 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
         session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         this.codec = codec;
 
-        jmsTopics = new HashMap<Topic, javax.jms.Topic>();
+        jmsTopics = new HashMap<>();
         counter = new AtomicInteger();
 
         publishers = new HashMap<>();
@@ -71,9 +70,6 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
      */
     private javax.jms.Topic convert(Topic topic) throws JMSException {
         javax.jms.Topic jmsTopic = jmsTopics.get(topic);
-        jmsTopics.entrySet().forEach(entry->{
-            System.out.println(entry.getKey() + " " + entry.getValue());
-        });
         if (jmsTopic == null) {
             jmsTopic = generate();
             jmsTopics.put(topic, jmsTopic);
@@ -102,7 +98,6 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
      * @return A messageConsumer for a specific jms topic.
      */
     private MessageConsumer createConsumer(javax.jms.Topic jmsTopic, Consumer<Message> callback) throws JMSException {
-        Set<JmsSubscriber<Subscriber>> topicSubscribers = subscribers.get(jmsTopic);
         MessageConsumer consumer = session.createConsumer(jmsTopic);
         consumer.setMessageListener(jmsMessage -> {
             try {
@@ -124,18 +119,19 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
             Set<JmsSubscriber<Subscriber>> topicSubscribers = subscribers.get(jmsTopic);
 
             if (topicSubscribers == null) {
-
-                MessageProducer publisher = session.createProducer(jmsTopic);
-                publishers.put(jmsTopic, publisher);
-
                 topicSubscribers = new HashSet<>();
                 subscribers.put(jmsTopic, topicSubscribers);
             }
-            // TODO: Clean this up and check if this is correct
-            JmsSubscriber<Subscriber> sub = new JmsSubscriber<>(null, subscriber);
-            if(!topicSubscribers.contains(sub)) {
+
+            if (topicSubscribers.isEmpty()) {
+                MessageProducer publisher = session.createProducer(jmsTopic);
+                publishers.put(jmsTopic, publisher);
+            }
+
+            boolean subExists = topicSubscribers.stream().anyMatch(sub -> (sub.getSubscriber() == subscriber));
+            if (!subExists) {
                 MessageConsumer consumer = createConsumer(jmsTopic, callback);
-                sub = new JmsSubscriber<>(consumer, subscriber);
+                JmsSubscriber<Subscriber> sub = new JmsSubscriber<>(consumer, subscriber);
                 topicSubscribers.add(sub);
             }
 
@@ -160,10 +156,8 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
                     publishers.remove(jmsTopic);
                 }
             }
-
         } catch (JMSException e) {
             throw new RuntimeException("Failed to unsubscribe from JMS broker", e);
-
         } finally {
             lock.unlock();
         }

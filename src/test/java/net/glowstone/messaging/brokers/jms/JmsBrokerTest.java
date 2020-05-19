@@ -2,6 +2,7 @@ package net.glowstone.messaging.brokers.jms;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,8 +10,8 @@ import static org.mockito.Mockito.when;
 import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageProducer;
 import javax.jms.Session;
-import net.glowstone.command.minecraft.ToggleDownfallCommand;
 import net.glowstone.messaging.Subscriber;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,11 +27,14 @@ public class JmsBrokerTest {
 
     private Connection connection;
     private JmsCodec jmsCodec;
-    private JmsBroker<String, Subscriber, String>  jmsBroker;
+    private MessageConsumer consumer;
+    private MessageProducer producer;
     private Session session;
+
     private Subscriber alice, bob;
     private javax.jms.Topic topic;
-    MessageConsumer consumer;
+
+    private JmsBroker<String, Subscriber, String>  jmsBroker;
 
 
     /**
@@ -41,22 +45,23 @@ public class JmsBrokerTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     void beforeEach() throws JMSException {
+
         connection = mock(Connection.class);
         jmsCodec = mock(JmsCodec.class);
         consumer = mock(MessageConsumer.class);
+        producer = mock(MessageProducer.class);
         session = mock(Session.class);
-
-        when(connection.createSession(false, Session.AUTO_ACKNOWLEDGE)).thenReturn(session);
-        when(session.createConsumer(any())).thenReturn(consumer);
-
-        jmsBroker = new JmsBroker(connection, jmsCodec);
 
         alice = new Subscriber("Alice");
         bob = new Subscriber("Bob");
         topic = mock(javax.jms.Topic.class);
 
+        when(connection.createSession(Mockito.anyBoolean(), Mockito.anyInt())).thenReturn(session);
+        when(session.createConsumer(any())).thenReturn(consumer);
+        when(session.createProducer(any())).thenReturn(producer);
         when(session.createTopic(any())).thenReturn(topic);
 
+        jmsBroker = new JmsBroker(connection, jmsCodec);
     }
 
     /**
@@ -64,8 +69,15 @@ public class JmsBrokerTest {
      */
     @Test
     void startupTest() throws JMSException {
-        Mockito.verify(connection).start();
-        Mockito.verify(connection).createSession(false, Session.AUTO_ACKNOWLEDGE);
+        verify(connection).start();
+        verify(connection).createSession(Mockito.anyBoolean(), Mockito.anyInt());
+    }
+
+    @Test
+    void closeTest() throws JMSException {
+        jmsBroker.close();
+        Mockito.verify(connection).close();
+        Mockito.verify(session).close();
     }
 
     /**
@@ -83,14 +95,30 @@ public class JmsBrokerTest {
      */
     @Test
     void generateTopicOnceTest() throws JMSException {
+
         jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage);
         jmsBroker.subscribe(TOPIC_ONE, bob, bob::onMessage);
         verify(session, times(1)).createTopic(any());
+
         jmsBroker.subscribe(TOPIC_TWO, alice, alice::onMessage);
         jmsBroker.subscribe(TOPIC_TWO, bob, bob::onMessage);
         verify(session, times(2)).createTopic(any());
     }
 
+    /**
+     * Verify that whenever a new topic is created, a new producer that handles the publishing of messages for that
+     * topic is created (only once).
+     */
+    @Test
+    void createPublisher() throws JMSException {
+        jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage);
+        jmsBroker.subscribe(TOPIC_ONE, bob, bob::onMessage);
+        verify(session, times(1)).createProducer(any());
+    }
+
+    /**
+     * Verify that a consumer is only created once when subscribing multiple times.
+     */
     @Test
     void createConsumerTest() throws JMSException {
         jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage);
@@ -98,6 +126,53 @@ public class JmsBrokerTest {
         verify(session, times(1)).createConsumer(any());
     }
 
+    /**
+     * Verify that if all subscribes unsubscribed from a topic, the corresponding producer (or topic publisher) is
+     * deleted. When a subscriber subscribes to the topic again, a new producer should be created again.
+     */
+    @Test
+    void createNewProducerAfterEmptyTopic() throws JMSException {
+        jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage);
+        jmsBroker.subscribe(TOPIC_ONE, bob, bob::onMessage);
+        jmsBroker.unsubscribe(TOPIC_ONE, alice);
+        jmsBroker.unsubscribe(TOPIC_ONE, bob);
+        jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage);
+        verify(session, times(2)).createProducer(any());
+    }
+
+    /**
+     * Verify that when a subscriber unsubscribes from a topic a new consumer is created correctly. This also
+     * confirms deleting the old consumer is working correctly.
+     */
+    @Test
+    void createNewConsumerAfterUnsubscribeTest() throws JMSException {
+
+        jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage);
+        verify(session, times(1)).createConsumer(any());
+
+        jmsBroker.unsubscribe(TOPIC_ONE, alice);
+        jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage);
+        verify(session, times(2)).createConsumer(any());
+    }
+
+    /**
+     * Verify that when a publisher tries to publish a message to a topic no one is subscribed to nothing happens.
+     */
+    @Test
+    void noMessageSendTest() throws JMSException {
+        jmsBroker.publish(TOPIC_ONE, "publish");
+        verify(producer, never()).send(any());
+    }
+
+    /**
+     * Verify that a message is send when a a publisher publishes a message to a topic that has a subscriber.
+     */
+    @Test
+    void sendMessageTest() throws JMSException {
+        jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage);
+        jmsBroker.publish(TOPIC_ONE, "publish");
+        verify(producer, times(1)).send(any());
+    }
 
 
 
