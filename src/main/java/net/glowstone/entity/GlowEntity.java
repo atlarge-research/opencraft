@@ -1069,13 +1069,25 @@ public abstract class GlowEntity implements Entity {
                 for (int z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
                     GlowBlock block = world.getBlockAt(x, y, z);
                     Material material = block.getType();
-                    BoundingBox box = block.getBoundingBox();
-                    if (box != null && (y >= min.getBlockY()
-                            || (y == min.getBlockY() - 1 && box.getSize().getY() > 1))) {
-                        if (material.isSolid() && box.intersects(broadPhaseBox)) {
-                            intersectingBoxes.add(box);
-                        }
+
+                    if(!material.isSolid()){
+                        break;
                     }
+
+                    BoundingBox box = block.getBoundingBox();
+
+                    if(box == null){
+                        break;
+                    }
+
+                    if (box == null || (y == min.getBlockY() - 1 && box.getSize().getY() <= 1.0)){
+                        break;
+                    }
+
+                    if(box.intersects(broadPhaseBox)){
+                        intersectingBoxes.add(box);
+                    }
+
                 }
             }
         }
@@ -1753,7 +1765,7 @@ public abstract class GlowEntity implements Entity {
      * The metadata store class for entities.
      */
     private static class EntityMetadataStore extends MetadataStoreBase<Entity>
-            implements MetadataStore<Entity> {
+        implements MetadataStore<Entity> {
 
         @Override
         protected String disambiguate(Entity subject, String metadataKey) {
