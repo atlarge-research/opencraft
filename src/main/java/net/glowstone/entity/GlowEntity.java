@@ -224,7 +224,7 @@ public abstract class GlowEntity implements Entity {
      * The default value 0.98 indicates little airdrag.
      */
     @Setter
-    protected double airDrag = 0.98;
+    protected double airDragMultiplier = 0.98;
 
     /**
      * Velocity reduction applied each tick in water.
@@ -1099,9 +1099,9 @@ public abstract class GlowEntity implements Entity {
                 velocity.multiply(liquidDrag - 0.3);
                 velocity.setY(velocity.getY() + getGravityAccel().getY() / 4.0);
             } else {
-                velocity.setY(airDrag * velocity.getY() + getGravityAccel().getY());
+                velocity.setY(airDragMultiplier * velocity.getY() + getGravityAccel().getY());
 
-                double drag = airDrag;
+                double drag = airDragMultiplier;
                 if (isOnGround()) {
                     drag = slipMultiplier;
                 }

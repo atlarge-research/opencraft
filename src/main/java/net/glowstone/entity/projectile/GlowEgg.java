@@ -30,7 +30,7 @@ public class GlowEgg extends GlowProjectile implements Egg {
      */
     public GlowEgg(Location location) {
         super(location);
-        setAirDrag(0.99);
+        setAirDragMultiplier(0.99);
         setGravityAccel(new Vector(0, VERTICAL_GRAVITY_ACCEL, 0));
         setApplyDragBeforeAccel(true);
         setVelocity(location.getDirection().multiply(3));

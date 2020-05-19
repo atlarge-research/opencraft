@@ -67,7 +67,7 @@ public class GlowFallingBlock extends GlowEntity implements FallingBlock {
         }
         this.sourceLocation = location.clone();
         setBoundingBox(0.98, 0.98);
-        setAirDrag(0.98);
+        setAirDragMultiplier(0.98);
         setGravityAccel(new Vector(0, VERTICAL_GRAVITY_ACCEL, 0));
 
         setMaterial(material);
@@ -119,7 +119,7 @@ public class GlowFallingBlock extends GlowEntity implements FallingBlock {
         if (!nextBlock.getBlock().getType().isSolid()) {
             velocity.add(getGravityAccel());
             location.add(getVelocity());
-            velocity.multiply(airDrag);
+            velocity.multiply(airDragMultiplier);
         } else {
             if (supportingBlock(location.getBlock().getType())) {
                 boolean replaceBlock;

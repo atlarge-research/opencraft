@@ -439,7 +439,7 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
     @Override
     protected void pulsePhysics() {
         // drag application
-        movement.multiply(airDrag);
+        movement.multiply(airDragMultiplier);
         // convert movement x/z to a velocity
         Vector velMovement = getVelocityFromMovement();
         velocity.add(velMovement);
