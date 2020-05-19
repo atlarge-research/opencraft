@@ -1,5 +1,7 @@
 package net.glowstone.messaging.brokers.jms;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -9,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
@@ -32,15 +35,14 @@ public class JmsBrokerTest {
     private Session session;
 
     private Subscriber alice, bob;
-    private javax.jms.Topic topic;
+    private javax.jms.Topic topic1, topic2;
 
     private JmsBroker<String, Subscriber, String>  jmsBroker;
 
 
     /**
-     * Create a simple JmsBroker with a mocked connection and codec.
-     * Other classes such as consumer,session and topics are also mocked, because this is needed in order to test the
-     * code correctly.
+     * Create a simple JmsBroker with a mocked connection and codec. Other classes such as consumer, session and
+     * topics are also mocked, because this is needed in order to test the code correctly.
      */
     @BeforeEach
     @SuppressWarnings("unchecked")
@@ -54,12 +56,13 @@ public class JmsBrokerTest {
 
         alice = new Subscriber("Alice");
         bob = new Subscriber("Bob");
-        topic = mock(javax.jms.Topic.class);
+        topic1 = mock(javax.jms.Topic.class);
+        topic2 = mock(javax.jms.Topic.class);
 
         when(connection.createSession(Mockito.anyBoolean(), Mockito.anyInt())).thenReturn(session);
         when(session.createConsumer(any())).thenReturn(consumer);
         when(session.createProducer(any())).thenReturn(producer);
-        when(session.createTopic(any())).thenReturn(topic);
+        when(session.createTopic(any())).thenReturn(topic1, topic2);
 
         jmsBroker = new JmsBroker(connection, jmsCodec);
     }
@@ -73,6 +76,9 @@ public class JmsBrokerTest {
         verify(connection).createSession(Mockito.anyBoolean(), Mockito.anyInt());
     }
 
+    /**
+     * Verify that closing the broker is correct.
+     */
     @Test
     void closeTest() throws JMSException {
         jmsBroker.close();
@@ -127,15 +133,33 @@ public class JmsBrokerTest {
     }
 
     /**
+     * Verify that for each unique topic-subscriber pair a new consumer is created.
+     */
+    @Test
+    void createNewConsumerPerTopic() throws JMSException {
+        jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage);
+        jmsBroker.subscribe(TOPIC_ONE, bob, bob::onMessage);
+
+        jmsBroker.subscribe(TOPIC_TWO, alice, alice::onMessage);
+        jmsBroker.subscribe(TOPIC_TWO, bob, bob::onMessage);
+        jmsBroker.subscribe(TOPIC_TWO, bob, bob::onMessage);
+
+        verify(session, times(4)).createConsumer(any());
+    }
+
+    /**
      * Verify that if all subscribes unsubscribed from a topic, the corresponding producer (or topic publisher) is
      * deleted. When a subscriber subscribes to the topic again, a new producer should be created again.
      */
     @Test
     void createNewProducerAfterEmptyTopic() throws JMSException {
+
         jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage);
         jmsBroker.subscribe(TOPIC_ONE, bob, bob::onMessage);
+
         jmsBroker.unsubscribe(TOPIC_ONE, alice);
         jmsBroker.unsubscribe(TOPIC_ONE, bob);
+
         jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage);
         verify(session, times(2)).createProducer(any());
     }
@@ -165,15 +189,50 @@ public class JmsBrokerTest {
     }
 
     /**
-     * Verify that a message is send when a a publisher publishes a message to a topic that has a subscriber.
+     * Verify that an encoded message is send when a publisher publishes a message to a topic that has a subscriber.
      */
     @Test
     void sendMessageTest() throws JMSException {
+
         jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage);
         jmsBroker.publish(TOPIC_ONE, "publish");
+
+        verify(jmsCodec, times(1)).encode(any(), any());
         verify(producer, times(1)).send(any());
     }
 
+    /**
+     * Verify that if a jms exception is thrown when a topic is created, that an exception is also thrown when
+     * trying to subscribe to such an topic.
+     */
+    @Test
+    void exceptionOnTopicCreationTest() throws JMSException {
+        when(session.createTopic(any())).thenThrow(new JMSException("Can't create topic"));
+        assertThrows(RuntimeException.class, () -> jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage));
+        assertThrows(RuntimeException.class, () -> jmsBroker.unsubscribe(TOPIC_ONE, alice));
+    }
 
+    /**
+     * Verify that if a jms exception is thrown when a consumer is created, that an exception is also thrown when
+     * trying to subscribe to such an topic.
+     */
+    @Test
+    void exceptionOnConsumerCreationTest() throws JMSException {
+        when(session.createConsumer(any())).thenThrow(new JMSException("Can't create consumer"));
+        assertThrows(RuntimeException.class, () -> jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage));
+        assertDoesNotThrow(() -> jmsBroker.unsubscribe(TOPIC_ONE, alice));
+    }
 
+    /**
+     * Verify that when a jms exception is thrown when trying to encode a message, an exception is thrown when
+     * publishing in the broker.
+     */
+    @Test
+    void exceptionOnEncodingTest() throws JMSException {
+
+        when(jmsCodec.encode(any(), any())).thenThrow(new JMSException("Failed to encode message"));
+
+        jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage);
+        assertThrows(RuntimeException.class, () -> jmsBroker.publish(TOPIC_ONE, "publish"));
+    }
 }
