@@ -29,12 +29,6 @@ public class BlockBoundingBoxTest {
         box = new BlockBoundingBox(block);
     }
 
-    @After
-    public void teardown() {
-        block = null;
-        box = null;
-    }
-
     @Test
     public void constructorTest() {
         assertTrue(Vectors.equals(box.minCorner, new Vector(0, 0, 0)));

@@ -61,6 +61,7 @@ public class Vectors {
      * @return A boolean that is true if the vectors are equal within tolerance
      */
     public static boolean equals(Vector vector, Vector otherVector, double tolerance) {
+
         double dx = Math.abs(vector.getX() - otherVector.getX());
 
         if (dx >= tolerance) {

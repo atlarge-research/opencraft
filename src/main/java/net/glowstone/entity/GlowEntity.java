@@ -134,7 +134,6 @@ public abstract class GlowEntity implements Entity {
     /**
      * The entity's velocity, applied each tick.
      */
-    @Getter
     protected final Vector velocity = new Vector();
 
     /**

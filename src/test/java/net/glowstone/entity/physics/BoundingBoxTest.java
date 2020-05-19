@@ -24,14 +24,6 @@ public class BoundingBoxTest {
         box3 = BoundingBox.fromCorners(new Vector(-1.5,-1.9,-2.5), new Vector(-1,-1.75,-4));
     }
 
-    @After
-    public void teardown() {
-        box = null;
-        box1 = null;
-        box2 = null;
-        box3 = null;
-    }
-
     @Test
     public void intersectTest(){
         assertTrue(box.intersects(box1));

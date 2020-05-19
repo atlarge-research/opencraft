@@ -3,7 +3,6 @@ package net.glowstone.entity.physics;
 import net.glowstone.util.Vectors;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -50,14 +49,6 @@ public class EntityBoundingBoxTest {
         box2.setCenter(0, 0, 0);
         box3.setCenter(0, 0, 0);
 
-    }
-
-    @After
-    public void teardown() {
-        box = null;
-        box1 = null;
-        box2 = null;
-        box3 = null;
     }
 
     @Test

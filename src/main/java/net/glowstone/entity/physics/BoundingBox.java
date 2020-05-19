@@ -15,7 +15,7 @@ public class BoundingBox implements Cloneable {
      * @param other another bounding box
      * @return true if this bounding box and {@code other} intersect; false otherwise
      */
-    public boolean intersects(BoundingBox other) {
+    public final boolean intersects(BoundingBox other) {
         return intersects(this, other);
     }
 
@@ -28,8 +28,8 @@ public class BoundingBox implements Cloneable {
      * @return true if {@code a} and {@code b} intersect; false otherwise
      */
     public static boolean intersects(BoundingBox a, BoundingBox b, double tolerance) {
-        Vector minA = a.minCorner.clone().subtract(new Vector(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE));
-        Vector maxA = a.maxCorner.clone().add(new Vector(Double.MIN_VALUE, Double.MIN_VALUE, Double.MIN_VALUE));
+        Vector minA = a.minCorner;
+        Vector maxA = a.maxCorner;
         Vector minB = b.minCorner;
         Vector maxB = b.maxCorner;
 
