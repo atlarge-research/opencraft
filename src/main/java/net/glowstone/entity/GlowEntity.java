@@ -1129,7 +1129,7 @@ public abstract class GlowEntity implements Entity {
     protected Location resolveCollisions() {
 
         Location pendingLocation = location.clone();
-        // The elapsed time is used to track the percentile of velocity that has been travelled within the current tick
+        // The fraction of this tick's time that has been processed. 0.0 indicating none and 1.0 indicating completion.
         double elapsedTime = 0.0;
 
         // Break if we won't be moving.
