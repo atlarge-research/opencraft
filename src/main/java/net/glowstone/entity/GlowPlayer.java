@@ -3407,7 +3407,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 }
             }
 
-            Location position = this.getLocation();
+            Location position = getLocation();
             position.setY(position.getY() + getEyeHeight());
             Block current = position.getBlock();
             Material material = current.getType();
