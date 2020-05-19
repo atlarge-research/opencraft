@@ -17,12 +17,13 @@ import javax.jms.Session;
 import net.glowstone.messaging.Broker;
 
 /**
- * The jms broker uses a connection to communicate between publishers and subscribers. The session is used to create
- * publishers, subscribers and jms topics. A codec is used to encode a message to a jms topic in order to publish a
- * message. When a subscriber then receive the message the codes is again used to decode the same message. A jms
- * topic is mapped to one producer which is used to publish messages to that topic. The jms topic is also mapped with
- * a set of subscribers which are subscribed to that topic. A lock is used to ensure subscribing, unsubscribing and
- * publishing happens safely.
+ * The jms broker uses a connection to communicate between publishers and subscribers. This connection is the clients
+ * link to a JMS provider which often allocates resources outside the JVM. The connection object often serves as a
+ * TCP/IP socket. The session is used to create publishers, subscribers and jms topics. A codec is used to encode a
+ * message to a jms topic in order to publish a message. When a subscriber then receive the message the codes is
+ * again used to decode the same message. A jms topic is mapped to one producer which is used to publish messages to
+ * that topic. The jms topic is also mapped with a set of subscribers which are subscribed to that topic. A lock is
+ * used to ensure subscribing, unsubscribing and publishing happens safely.
  *
  * @param <Topic> The type of topics that is allowed to identify jms topics.
  * @param <Subscriber> The type of subscribers that is allowed to subscribe to topics.
