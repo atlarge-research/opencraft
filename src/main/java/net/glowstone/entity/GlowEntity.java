@@ -1116,6 +1116,7 @@ public abstract class GlowEntity implements Entity {
      * Tests entity collision with the blocks around the entity and generates the response displacement.
      */
     protected void resolveCollisions() {
+
         Location pendingLocation = location.clone();
         double elapsedTime = 0.0;
 
