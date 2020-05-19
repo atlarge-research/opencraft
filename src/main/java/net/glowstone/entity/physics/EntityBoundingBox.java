@@ -5,9 +5,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
-import java.util.Arrays;
-import java.util.Collection;
-
 /**
  * A BoundingBox which changes position over time as an entity moves.
  */
@@ -24,9 +21,9 @@ public class EntityBoundingBox extends BoundingBox {
     /**
      * Creates an instance with the given size.
      *
-     * @param width    the size on the X axis
+     * @param width the size on the X axis
      * @param vertSize the size on the Y axis
-     * @param depth    the size on the Z axis
+     * @param depth the size on the Z axis
      */
     public EntityBoundingBox(double width, double vertSize, double depth) {
         this.width = width;
@@ -39,23 +36,23 @@ public class EntityBoundingBox extends BoundingBox {
      * Calculates the broadPhase of an entity with a given velocity.
      * The broadPhase is used as any collision check box by giving the entire area the velocity includes
      *
-     * @param v the velocity of the entity
+     * @param velocity the velocity of the entity
      * @return The broadphase of the entity with velocity v
      */
-    public BoundingBox getBroadPhase(Vector v) {
+    public BoundingBox getBroadPhase(Vector velocity) {
 
         Vector min = minCorner;
         Vector max = maxCorner;
 
         BoundingBox broadPhase = new BoundingBox();
-        
-        broadPhase.minCorner.setX(min.getX() + Math.min(0.0, v.getX()));
-        broadPhase.minCorner.setY(min.getY() + Math.min(0.0, v.getY()));
-        broadPhase.minCorner.setZ(min.getZ() + Math.min(0.0, v.getZ()));
 
-        broadPhase.maxCorner.setX(max.getX() + Math.abs(v.getX()));
-        broadPhase.maxCorner.setY(max.getY() + Math.abs(v.getY()));
-        broadPhase.maxCorner.setZ(max.getZ() + Math.abs(v.getZ()));
+        broadPhase.minCorner.setX(min.getX() + Math.min(0.0, velocity.getX()));
+        broadPhase.minCorner.setY(min.getY() + Math.min(0.0, velocity.getY()));
+        broadPhase.minCorner.setZ(min.getZ() + Math.min(0.0, velocity.getZ()));
+
+        broadPhase.maxCorner.setX(max.getX() + Math.abs(velocity.getX()));
+        broadPhase.maxCorner.setY(max.getY() + Math.abs(velocity.getY()));
+        broadPhase.maxCorner.setZ(max.getZ() + Math.abs(velocity.getZ()));
 
         return broadPhase;
     }
@@ -68,8 +65,8 @@ public class EntityBoundingBox extends BoundingBox {
      * @param vel The displacement that will be applied to the entityboundingbox
      * @param staticBox The static box which will be checked for collision
      * @return A pair containing a double between 0.0 and 1.0 that indicates the amount
-     *         of displacement that can be done without collision
-     *         And a vector containing the normal in the place of collision
+     * of displacement that can be done without collision
+     * And a vector containing the normal in the place of collision
      */
     public Pair<Double, Vector> sweptAABB(Vector vel, BoundingBox staticBox) {
 
@@ -137,7 +134,7 @@ public class EntityBoundingBox extends BoundingBox {
         normal.setY(0.0d);
         normal.setZ(0.0d);
 
-        if (entryTime > exitTime || xEntry < 0.0d && yEntry < 0.0d  && zEntry < 0.0d|| xEntry > 1.0d || yEntry > 1.0d || zEntry > 1.0d) {
+        if (entryTime > exitTime || xEntry < 0.0d && yEntry < 0.0d && zEntry < 0.0d || xEntry > 1.0d || yEntry > 1.0d || zEntry > 1.0d) {
             // If there are no collision return 1.0d indicating that the full velocity vector can be applied
             return new ImmutablePair<>(1.0d, normal);
         } else {
