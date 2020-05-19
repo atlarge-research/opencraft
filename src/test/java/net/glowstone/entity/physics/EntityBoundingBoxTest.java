@@ -33,10 +33,10 @@ public class EntityBoundingBoxTest {
     }
 
 
-    EntityBoundingBox box;
-    EntityBoundingBox box1;
-    EntityBoundingBox box2;
-    EntityBoundingBox box3;
+    private EntityBoundingBox box;
+    private EntityBoundingBox box1;
+    private EntityBoundingBox box2;
+    private EntityBoundingBox box3;
 
     @Before
     public void setup() {

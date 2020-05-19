@@ -16,9 +16,9 @@ import static org.mockito.Mockito.*;
 public class BlockBoundingBoxTest {
 
     @Mock
-    Block block;
+    private Block block;
 
-    BlockBoundingBox box;
+    private BlockBoundingBox box;
 
     @Before
     public void setup() {

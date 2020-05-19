@@ -11,10 +11,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class BoundingBoxTest {
 
-    BoundingBox box;
-    BoundingBox box1;
-    BoundingBox box2;
-    BoundingBox box3;
+    private BoundingBox box;
+    private BoundingBox box1;
+    private BoundingBox box2;
+    private BoundingBox box3;
 
     @Before
     public void setup() {
