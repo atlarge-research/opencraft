@@ -102,6 +102,11 @@ import org.bukkit.util.Vector;
 public abstract class GlowLivingEntity extends GlowEntity implements LivingEntity {
 
     /**
+     * The height an entity jumps when hit by an entity
+     */
+    private final double ENTITY_JUMP_HEIGHT_ON_HIT = 0.2;
+
+    /**
      * The player that killed this entity, or null if not killed by a player.
      */
     @Getter
@@ -1031,7 +1036,7 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
 
             Vector currentVelocity = getVelocity();
             currentVelocity.add(rayLength.multiply(((amount + 1) / 2d)));
-            currentVelocity.setY(0.2);
+            currentVelocity.setY(ENTITY_JUMP_HEIGHT_ON_HIT);
             setVelocity(currentVelocity);
         }
 
