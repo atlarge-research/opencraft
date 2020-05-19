@@ -18,11 +18,11 @@ import net.glowstone.messaging.Broker;
 
 /**
  * The jms broker uses a connection to communicate between publishers and subscribers. The session is used to create
- * publishers, subscribers and jms topics. A codec is used to encode message to a jms topic to publish a message.
- * When a subscriber then receive the message the codes is again used to decode the same message. A jms topic is
- * mapped to one producer which is used to publish messages to that topic. The jms topic is also mapped with a set of
- * subscribers which are subscribed to that topic. A lock is used to ensure subscribing, unsubscribing and publishing
- * happens safely.
+ * publishers, subscribers and jms topics. A codec is used to encode a message to a jms topic in order to publish a
+ * message. When a subscriber then receive the message the codes is again used to decode the same message. A jms
+ * topic is mapped to one producer which is used to publish messages to that topic. The jms topic is also mapped with
+ * a set of subscribers which are subscribed to that topic. A lock is used to ensure subscribing, unsubscribing and
+ * publishing happens safely.
  *
  * @param <Topic> The type of topics that is allowed to identify jms topics.
  * @param <Subscriber> The type of subscribers that is allowed to subscribe to topics.
@@ -115,9 +115,9 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
 
     @Override
     public void subscribe(Topic topic, Subscriber subscriber, Consumer<Message> callback) {
-
         lock.lock();
         try {
+
             javax.jms.Topic jmsTopic = convert(topic);
             Set<JmsSubscriber<Subscriber>> topicSubscribers = subscribers.get(jmsTopic);
 
@@ -136,11 +136,11 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
                 MessageConsumer consumer = createConsumer(jmsTopic, callback);
                 JmsSubscriber<Subscriber> sub = new JmsSubscriber<>(consumer, subscriber);
                 topicSubscribers.add(sub);
-
             }
 
         } catch (JMSException e) {
             throw new RuntimeException("Failed to subscribe to JMS broker", e);
+
         } finally {
             lock.unlock();
         }
@@ -150,8 +150,10 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
     public void unsubscribe(Topic topic, Subscriber subscriber) {
         lock.lock();
         try {
+
             javax.jms.Topic jmsTopic = convert(topic);
             Set<JmsSubscriber<Subscriber>> topicSubscribers = subscribers.get(jmsTopic);
+
             if (topicSubscribers != null) {
 
                 JmsSubscriber<Subscriber> sub = new JmsSubscriber<>(null, subscriber);
@@ -173,8 +175,10 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
     public void publish(Topic topic, Message message) {
         lock.lock();
         try {
+
             javax.jms.Topic jmsTopic = convert(topic);
             MessageProducer producer = publishers.get(jmsTopic);
+
             if (producer != null) {
                 javax.jms.Message jmsMessage = codec.encode(session, message);
                 producer.send(jmsMessage);

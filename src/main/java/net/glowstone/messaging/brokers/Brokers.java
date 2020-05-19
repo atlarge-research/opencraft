@@ -14,8 +14,6 @@ import org.apache.activemq.ActiveMQConnectionFactory;
  */
 public class Brokers {
 
-    private static ConnectionFactory factory;
-
     /**
      * Create a ConcurrentBroker.
      *
@@ -38,7 +36,7 @@ public class Brokers {
      * @return The ActiveMQ broker.
      */
     public static <Message> JmsBroker newActivemqBroker(String uri, JmsCodec<Message> codec) throws JMSException {
-        factory = new ActiveMQConnectionFactory(uri);
+        ConnectionFactory factory = new ActiveMQConnectionFactory(uri);
         Connection connection = factory.createConnection();
         return new JmsBroker(connection, codec);
     }
