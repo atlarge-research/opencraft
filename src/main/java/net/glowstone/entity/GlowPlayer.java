@@ -3350,51 +3350,81 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * @param block the block to start breaking
      */
     public void setDigging(GlowBlock block) {
+
         if (Objects.equals(block, digging)) {
             return;
         }
+
         if (block == null) {
             totalDiggingTicks = Long.MAX_VALUE;
             // remove the animation
             broadcastBlockBreakAnimation(digging, 10);
+
         } else {
+
             double hardness = block.getMaterialValues().getHardness();
+
             if (hardness >= Float.MAX_VALUE) {
                 // This block can't be broken by digging.
                 setDigging(null);
                 return;
             }
+
             double breakingTimeMultiplier = 5; // default of 5 when using bare hands
             ItemStack tool = getItemInHand();
+
             if (tool != null) {
+
                 Material toolType = tool.getType();
+
                 if (block.getType() == Material.WEB && ToolType.SWORD.matches(toolType)) {
                     breakingTimeMultiplier = 0.1;
+
                 } else if (block.getType() == Material.WOOL && toolType == Material.SHEARS) {
                     breakingTimeMultiplier = 0.3;
+
                 } else {
+
                     ToolType effectiveTool = block.getMaterialValues().getTool();
+
                     if (effectiveTool != null && effectiveTool.matches(toolType)) {
+
                         double miningMultiplier = ToolType.getMiningMultiplier(toolType);
                         int efficiencyLevel = tool.getEnchantmentLevel(Enchantment.DIG_SPEED);
+
                         if (efficiencyLevel > 0) {
                             miningMultiplier += efficiencyLevel * efficiencyLevel + 1;
                         }
+
                         breakingTimeMultiplier = 1.5 / miningMultiplier;
-                    } else if (effectiveTool == null
-                            || !effectiveTool.matches(Material.DIAMOND_PICKAXE)) {
+
+                    } else if (effectiveTool == null || !effectiveTool.matches(Material.DIAMOND_PICKAXE)) {
                         // If the current tool isn't optimal but can still mine the block, the
                         // multiplier is 1.5. Here, we assume for simplicity that this is true of
                         // all non-pickaxe blocks.
-                        // FIXME: Does this always match vanilla?
                         breakingTimeMultiplier = 1.5;
                     }
                 }
             }
-            // TODO: status effects (e.g. Mining Fatigue, Slowness); effect of underwater digging
-            totalDiggingTicks = (long)
-                (breakingTimeMultiplier * hardness * 20.0 + 0.5); // seconds to ticks, round half-up
-            // show other clients the block is beginning to crack
+
+            Location position = getLocation();
+            position.setY(position.getY() + getEyeHeight());
+            Block current = position.getBlock();
+            Material material = current.getType();
+            double penalty = 1; // default of 1 if there is no penalty
+
+            if (material == Material.WATER || material == Material.STATIONARY_WATER) {
+                penalty *= 5;
+            }
+
+            if (!isOnGround()) {
+                penalty *= 5;
+            }
+
+            // TODO: status effects (e.g. Mining Fatigue, Slowness);
+
+            totalDiggingTicks = Math.round(penalty * breakingTimeMultiplier * hardness * 20.0); // seconds to ticks
+
             broadcastBlockBreakAnimation(block, 0);
         }
 
