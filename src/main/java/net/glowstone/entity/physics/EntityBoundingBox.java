@@ -50,9 +50,9 @@ public class EntityBoundingBox extends BoundingBox {
         broadPhase.minCorner.setY(min.getY() + Math.min(0.0, velocity.getY()));
         broadPhase.minCorner.setZ(min.getZ() + Math.min(0.0, velocity.getZ()));
 
-        broadPhase.maxCorner.setX(max.getX() + Math.abs(velocity.getX()));
-        broadPhase.maxCorner.setY(max.getY() + Math.abs(velocity.getY()));
-        broadPhase.maxCorner.setZ(max.getZ() + Math.abs(velocity.getZ()));
+        broadPhase.maxCorner.setX(max.getX() + Math.max(0.0, velocity.getX()));
+        broadPhase.maxCorner.setY(max.getY() + Math.max(0.0, velocity.getY()));
+        broadPhase.maxCorner.setZ(max.getZ() + Math.max(0.0, velocity.getZ()));
 
         return broadPhase;
     }

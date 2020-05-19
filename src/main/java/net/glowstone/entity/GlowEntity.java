@@ -140,7 +140,7 @@ public abstract class GlowEntity implements Entity {
     protected final Location previousLocation;
 
     /**
-     * The entity's velocity, applied each tick.
+         * The entity's velocity, applied each tick.
      */
     protected final Vector velocity = new Vector();
 
@@ -245,7 +245,7 @@ public abstract class GlowEntity implements Entity {
 
     /**
      * Gravity acceleration applied each tick.
-     * The default value (0,0,0) indicates no gravity acceleration.
+     * The default value (0,-0.098,0) approximates Minecraft's gravity well.
      */
     @Setter
     protected Vector gravityAccel = new Vector(0, -0.098, 0);
@@ -254,12 +254,6 @@ public abstract class GlowEntity implements Entity {
      * The slipperiness multiplier applied according to the block this entity was on.
      */
     protected double slipMultiplier = 0.6;
-
-    /**
-     * If drag is applied before appling acceleration while calculating physics.
-     */
-    @Setter
-    protected boolean applyDragBeforeAccel = true;
 
     /**
      * This entity's unique id.

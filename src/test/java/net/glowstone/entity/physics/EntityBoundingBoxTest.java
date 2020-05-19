@@ -18,6 +18,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class EntityBoundingBoxTest {
+
     static class BoundingBoxProvider implements ArgumentsProvider {
 
         @Override
@@ -56,7 +57,7 @@ public class EntityBoundingBoxTest {
         Vector velocity = new Vector(-1.0, -1.0, -1.0);
         BoundingBox broadBox = box.getBroadPhase(velocity);
         Vector expectedMin = new Vector(-1.5, -1, -1.5);
-        Vector expectedMax = new Vector(1.5, 2, 1.5);
+        Vector expectedMax = new Vector(0.5, 1, 0.5);
 
         assertTrue(Vectors.equals(expectedMin, broadBox.minCorner));
         assertTrue(Vectors.equals(expectedMax, broadBox.maxCorner));

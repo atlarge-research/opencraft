@@ -7,6 +7,7 @@ import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
+
 import com.flowpowered.network.Message;
 import java.util.Collections;
 import java.util.List;
@@ -22,7 +23,6 @@ import net.glowstone.entity.objects.GlowPainting;
 import net.glowstone.entity.passive.GlowChicken;
 import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.entity.physics.EntityBoundingBox;
-import net.glowstone.entity.physics.EntityBoundingBoxTest;
 import net.glowstone.entity.projectile.GlowArrow;
 import net.glowstone.inventory.GlowPlayerInventory;
 import net.glowstone.scoreboard.GlowScoreboard;
