@@ -60,7 +60,6 @@ public class GlowItem extends GlowEntity implements Item {
         setBoundingBox(0.25, 0.25);
         setAirDragMultiplier(0.98);
         setGravityAccel(new Vector(0, VERTICAL_GRAVITY_ACCEL, 0));
-        setApplyDragBeforeAccel(true);
         pickupDelay = 20;
     }
 

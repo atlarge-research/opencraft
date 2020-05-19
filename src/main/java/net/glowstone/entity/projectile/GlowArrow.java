@@ -43,7 +43,6 @@ public class GlowArrow extends GlowProjectile implements Arrow {
         super(location);
         setGravityAccel(new Vector(0, -0.05, 0));
         setAirDragMultiplier(0.99);
-        setApplyDragBeforeAccel(true);
         setBoundingBox(0.5, 0.5);
     }
 

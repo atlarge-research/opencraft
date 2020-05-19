@@ -43,7 +43,6 @@ public class GlowEnderPearl extends GlowProjectile implements EnderPearl {
         super(location);
         setAirDragMultiplier(0.99);
         setGravityAccel(new Vector(0, VERTICAL_GRAVITY_ACCEL, 0));
-        setApplyDragBeforeAccel(true);
         setVelocity(location.getDirection().multiply(speed));
         setBoundingBox(0.25, 0.25);
     }
