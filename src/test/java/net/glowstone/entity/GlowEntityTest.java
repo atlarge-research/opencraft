@@ -7,14 +7,11 @@ import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
-
 import com.flowpowered.network.Message;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.logging.Logger;
-
 import net.glowstone.EventFactory;
 import net.glowstone.GlowServer;
 import net.glowstone.GlowWorld;
@@ -55,7 +52,6 @@ import org.mockito.MockitoAnnotations;
 
 /**
  * Superclass for tests of entity classes. Configures necessary mocks for subclasses.
- * <p>
  * TODO: Create subclasses to test all types of entities.
  *
  * @param <T> the class under test
