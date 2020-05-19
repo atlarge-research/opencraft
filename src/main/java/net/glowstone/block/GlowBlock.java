@@ -612,22 +612,22 @@ public class GlowBlock implements Block {
         boolean westFence = isFence(west.getType());
         boolean eastFence = isFence(east.getType());
 
-        double inverseFenceWidth = 0.4;
+        double invertedFenceWidth = 0.4;
 
         if (northFence) {
-            box.minCorner.setZ(box.minCorner.getZ() - inverseFenceWidth);
+            box.minCorner.setZ(box.minCorner.getZ() - invertedFenceWidth);
         }
 
         if (southFence) {
-            box.maxCorner.setZ(box.maxCorner.getZ() + inverseFenceWidth);
+            box.maxCorner.setZ(box.maxCorner.getZ() + invertedFenceWidth);
         }
 
         if (westFence) {
-            box.minCorner.setX(box.minCorner.getX() - inverseFenceWidth);
+            box.minCorner.setX(box.minCorner.getX() - invertedFenceWidth);
         }
 
         if (eastFence) {
-            box.maxCorner.setX(box.maxCorner.getX() + inverseFenceWidth);
+            box.maxCorner.setX(box.maxCorner.getX() + invertedFenceWidth);
         }
 
         return box;
