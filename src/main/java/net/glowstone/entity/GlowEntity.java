@@ -1115,7 +1115,7 @@ public abstract class GlowEntity implements Entity {
     /**
      * Tests entity collision with the blocks around the entity and generates the response displacement.
      */
-    protected void resolveCollisions() {
+    protected Location resolveCollisions() {
 
         Location pendingLocation = location.clone();
         double elapsedTime = 0.0;
@@ -1183,8 +1183,7 @@ public abstract class GlowEntity implements Entity {
         Vector displacement = velocity.clone().multiply(1.0 - elapsedTime);
         pendingLocation.add(displacement);
 
-        setRawLocation(pendingLocation);
-        updateBoundingBox();
+        return pendingLocation;
     }
 
     /**
@@ -1192,7 +1191,9 @@ public abstract class GlowEntity implements Entity {
      */
     protected void pulsePhysics() {
         computeVelocity();
-        resolveCollisions();
+        Location finalLocation = resolveCollisions();
+        setRawLocation(finalLocation);
+        updateBoundingBox();
     }
 
     /**
