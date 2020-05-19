@@ -1,17 +1,15 @@
 package net.glowstone.entity.physics;
 
-import net.glowstone.entity.physics.BlockBoundingBox;
 import net.glowstone.util.Vectors;
 import org.bukkit.block.Block;
 import org.bukkit.util.Vector;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 public class BlockBoundingBoxTest {
 
