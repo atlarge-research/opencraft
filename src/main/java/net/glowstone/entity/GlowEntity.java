@@ -8,7 +8,9 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -22,6 +24,7 @@ import lombok.Setter;
 import net.glowstone.EventFactory;
 import net.glowstone.GlowServer;
 import net.glowstone.GlowWorld;
+import net.glowstone.block.GlowBlock;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.meta.MetadataIndex;
 import net.glowstone.entity.meta.MetadataIndex.StatusFlags;
@@ -46,6 +49,8 @@ import net.glowstone.net.message.play.player.InteractEntityMessage;
 import net.glowstone.util.Coordinates;
 import net.glowstone.util.Position;
 import net.glowstone.util.UuidUtils;
+import net.glowstone.util.Vectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Chunk;
 import org.bukkit.EntityEffect;
 import org.bukkit.Location;
@@ -107,6 +112,13 @@ public abstract class GlowEntity implements Entity {
     private static final Vector zeroG = new Vector();
 
     /**
+     * A list containing all the block faces adjacent to the player.
+     */
+    private static final List<BlockFace> FACES = Arrays.asList(BlockFace.EAST, BlockFace.WEST, BlockFace.SOUTH,
+            BlockFace.NORTH, BlockFace.DOWN, BlockFace.SELF, BlockFace.NORTH_EAST,
+            BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST);
+
+    /**
      * The server this entity belongs to.
      */
     @Getter
@@ -128,7 +140,7 @@ public abstract class GlowEntity implements Entity {
     protected final Location previousLocation;
 
     /**
-     * The entity's velocity, applied each tick.
+         * The entity's velocity, applied each tick.
      */
     protected final Vector velocity = new Vector();
 
@@ -217,10 +229,10 @@ public abstract class GlowEntity implements Entity {
      * Velocity reduction applied each tick in air.
      * For example, if the multiplier is 0.98,
      * the entity will lose 2% of its velocity each physics tick.
-     * The default value 1 indicates no air drag.
+     * The default value 0.98 indicates little airdrag.
      */
     @Setter
-    protected double airDrag = 1;
+    protected double airDragMultiplier = 0.98;
 
     /**
      * Velocity reduction applied each tick in water.
@@ -233,21 +245,15 @@ public abstract class GlowEntity implements Entity {
 
     /**
      * Gravity acceleration applied each tick.
-     * The default value (0,0,0) indicates no gravity acceleration.
+     * The default value (0,-0.098,0) approximates Minecraft's gravity well.
      */
     @Setter
-    protected Vector gravityAccel = new Vector(0, 0, 0);
+    protected Vector gravityAccel = new Vector(0, -0.098, 0);
 
     /**
      * The slipperiness multiplier applied according to the block this entity was on.
      */
     protected double slipMultiplier = 0.6;
-
-    /**
-     * If drag is applied before appling acceleration while calculating physics.
-     */
-    @Setter
-    protected boolean applyDragBeforeAccel = false;
 
     /**
      * This entity's unique id.
@@ -1006,17 +1012,15 @@ public abstract class GlowEntity implements Entity {
     public boolean isTouchingMaterial(Material material) {
         if (boundingBox == null) {
             // less accurate calculation if no bounding box is present
-            for (BlockFace face : new BlockFace[] {BlockFace.EAST, BlockFace.WEST, BlockFace.SOUTH,
-                BlockFace.NORTH, BlockFace.DOWN, BlockFace.SELF, BlockFace.NORTH_EAST,
-                BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST}) {
+            for (BlockFace face : FACES) {
                 if (getLocation().getBlock().getRelative(face).getType() == material) {
                     return true;
                 }
             }
         } else {
             // bounding box-based calculation
-            Vector min = boundingBox.minCorner;
-            Vector max = boundingBox.maxCorner;
+            Vector min = Vectors.floor(boundingBox.minCorner);
+            Vector max = Vectors.ceil(boundingBox.maxCorner);
             for (int x = min.getBlockX(); x <= max.getBlockX(); ++x) {
                 for (int y = min.getBlockY(); y <= max.getBlockY(); ++y) {
                     for (int z = min.getBlockZ(); z <= max.getBlockZ(); ++z) {
@@ -1049,68 +1053,159 @@ public abstract class GlowEntity implements Entity {
         return boundingBox != null && boundingBox.intersects(box);
     }
 
-    protected void pulsePhysics() {
-        // The pending locaiton and the block at that location
-        Location pendingLocation = location.clone().add(velocity);
-        Block pendingBlock = pendingLocation.getBlock();
+    List<BoundingBox> getIntersectingBlockBoundingBoxes(BoundingBox broadPhaseBox) {
 
-        if (pendingBlock.getType().isSolid()) {
-            Location pendingLocationX = location.clone().add(velocity.getX(), 0, 0);
-            if (pendingLocationX.getBlock().getType().isSolid()) {
-                velocity.setX(0);
-            }
-
-            Location pendingLocationY = location.clone().add(0, velocity.getY(), 0);
-            if (pendingLocationY.getBlock().getType().isSolid()) {
-                velocity.setY(0);
-            }
-
-            Location pendingLocationZ = location.clone().add(0, 0, velocity.getZ());
-            if (pendingLocationZ.getBlock().getType().isSolid()) {
-                velocity.setZ(0);
-            }
-            if (this instanceof Projectile) {
-                EventFactory.getInstance()
-                    .callEvent(new ProjectileHitEvent((Projectile) this, pendingBlock));
-            }
-            collide(pendingBlock);
-        } else {
-            if (hasFriction()) {
-                // apply friction and gravity
-                if (location.getBlock().getType() == Material.WATER) {
-                    velocity.multiply(liquidDrag);
-                    velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-                } else if (location.getBlock().getType() == Material.LAVA) {
-                    velocity.multiply(liquidDrag - 0.3);
-                    velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-                } else {
-                    if (applyDragBeforeAccel) {
-                        velocity.setY(airDrag * velocity.getY() + getGravityAccel().getY());
-                    } else {
-                        velocity.setY(airDrag * (velocity.getY() + getGravityAccel().getY()));
-                    }
-
-                    if (isOnGround()) {
-                        velocity.setX(velocity.getX() * slipMultiplier);
-                        velocity.setY(0);
-                        velocity.setZ(velocity.getZ() * slipMultiplier);
-                    } else {
-                        velocity.setX(velocity.getX() * airDrag);
-                        velocity.setZ(velocity.getZ() * airDrag);
-                    }
-                }
-            } else if (hasGravity() && !isOnGround()) {
-                switch (location.getBlock().getType()) {
-                    case WATER:
-                    case LAVA:
-                        velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-                        break;
-                    default:
-                        velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-                }
-            }
-            setRawLocation(pendingLocation);
+        if (broadPhaseBox == null) {
+            return Collections.emptyList();
         }
+
+        List<BoundingBox> intersectingBoxes = new ArrayList<>();
+
+        Vector min = Vectors.floor(broadPhaseBox.minCorner);
+        Vector max = Vectors.ceil(broadPhaseBox.maxCorner);
+
+        for (int x = min.getBlockX(); x <= max.getBlockX(); x++) {
+            for (int y = min.getBlockY() - 1; y <= max.getBlockY(); y++) {
+                for (int z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
+                    GlowBlock block = world.getBlockAt(x, y, z);
+                    Material material = block.getType();
+
+                    if (!material.isSolid()) {
+                        break;
+                    }
+
+                    BoundingBox box = block.getBoundingBox();
+
+                    if (box == null) {
+                        break;
+                    }
+
+                    if (box == null || (y == min.getBlockY() - 1 && box.getSize().getY() <= 1.0)) {
+                        break;
+                    }
+
+                    if (box.intersects(broadPhaseBox)) {
+                        intersectingBoxes.add(box);
+                    }
+                }
+            }
+        }
+
+        return intersectingBoxes;
+    }
+
+    /**
+     * Computes the velocity that is will be applied to the user this tick.
+     */
+    protected void computeVelocity() {
+        if (hasFriction() && location != null) {
+
+            Material material = location.getBlock().getType();
+
+            // apply friction and gravity
+            if (material == Material.WATER || material == Material.STATIONARY_WATER) {
+                velocity.multiply(liquidDrag);
+                velocity.setY(velocity.getY() + getGravityAccel().getY() / 4.0);
+            } else if (material == Material.LAVA || material == Material.STATIONARY_LAVA) {
+                velocity.multiply(liquidDrag - 0.3);
+                velocity.setY(velocity.getY() + getGravityAccel().getY() / 4.0);
+            } else {
+                velocity.setY(airDragMultiplier * velocity.getY() + getGravityAccel().getY());
+
+                double drag = airDragMultiplier;
+                if (isOnGround()) {
+                    drag = slipMultiplier;
+                }
+
+                velocity.setX(velocity.getX() * drag);
+                velocity.setZ(velocity.getZ() * drag);
+            }
+        }
+    }
+
+    /**
+     * Tests entity collision with the blocks around the entity and generates the response displacement.
+     */
+    protected Location resolveCollisions() {
+
+        Location pendingLocation = location.clone();
+        // The fraction of this tick's time that has been processed. 0.0 indicating none and 1.0 indicating completion.
+        double elapsedTime = 0.0;
+
+        // Break if we won't be moving.
+        while (velocity.length() > 0.0 && elapsedTime < 1.0) {
+
+            if (this.boundingBox == null) {
+                break;
+            }
+
+            // Compute the remaining time and velocity during this cycle.
+            double remainingTime = 1.0d - elapsedTime;
+            Vector remainingDisplacement = velocity.clone().multiply(remainingTime);
+
+            // Create a bounding box at the correct location and find the ones it interacts with.
+            EntityBoundingBox pendingBox = this.boundingBox.createCopyAt(pendingLocation);
+            BoundingBox broadPhaseBox = pendingBox.getBroadPhase(velocity);
+            List<BoundingBox> intersectingBoxes = getIntersectingBlockBoundingBoxes(broadPhaseBox);
+
+            // Break if there is nothing to collide with.
+            if (intersectingBoxes.isEmpty()) {
+                break;
+            }
+
+            // Find the closest one.
+            Pair<Double, Vector> closest = intersectingBoxes.stream()
+                    .map(box -> pendingBox.sweptAxisAlignedBoundingBox(remainingDisplacement, box))
+                    .min(Comparator.comparingDouble(Pair::getLeft))
+                    .get();
+
+            // Move up to the collided with box.
+            double collisionTime = closest.getLeft();
+            Vector normal = closest.getRight();
+            Vector displacement = remainingDisplacement.clone().multiply(collisionTime);
+            pendingLocation.add(displacement);
+
+            elapsedTime += collisionTime * remainingTime;
+
+            // Break if we didn't actually collide.
+            if (collisionTime >= 1.0) {
+                break;
+            }
+
+            // Cancel out velocity in the direction of the collided with box.
+            velocity.subtract(Vectors.project(velocity, normal));
+
+            // Handle projectile interaction
+            if (this instanceof Projectile) {
+
+                Projectile projectile = (Projectile) this;
+                Block block = pendingLocation.getBlock();
+
+                ProjectileHitEvent event = new ProjectileHitEvent(projectile, block);
+                EventFactory.getInstance().callEvent(event);
+
+                collide(block);
+
+                // TODO: Break here? it might possible that a projectile removes itself after colliding which
+                //  could introduce bugs here
+            }
+        }
+
+        // Perform the last step (only step when no collisions occur)
+        Vector displacement = velocity.clone().multiply(1.0 - elapsedTime);
+        pendingLocation.add(displacement);
+
+        return pendingLocation;
+    }
+
+    /**
+     * Calculate all the physics that impact the entity.
+     */
+    protected void pulsePhysics() {
+        computeVelocity();
+        Location finalLocation = resolveCollisions();
+        setRawLocation(finalLocation);
+        updateBoundingBox();
     }
 
     /**
@@ -1167,7 +1262,7 @@ public abstract class GlowEntity implements Entity {
         this.setPassenger(null);
         leaveVehicle();
         ImmutableList.copyOf(this.leashedEntities)
-            .forEach(e -> unleash(e, UnleashReason.HOLDER_GONE));
+                .forEach(e -> unleash(e, UnleashReason.HOLDER_GONE));
 
         if (isLeashed()) {
             unleash(this, UnleashReason.HOLDER_GONE);
@@ -1307,7 +1402,7 @@ public abstract class GlowEntity implements Entity {
         }
 
         if (EventFactory.getInstance()
-            .callEvent(new EntityDismountEvent(passenger, this)).isCancelled()) {
+                .callEvent(new EntityDismountEvent(passenger, this)).isCancelled()) {
             return false;
         }
 
@@ -1319,7 +1414,7 @@ public abstract class GlowEntity implements Entity {
 
         if (this instanceof Vehicle && glowPassenger instanceof LivingEntity) {
             VehicleExitEvent event = EventFactory.getInstance()
-                .callEvent(new VehicleExitEvent((Vehicle) this, (LivingEntity) glowPassenger));
+                    .callEvent(new VehicleExitEvent((Vehicle) this, (LivingEntity) glowPassenger));
             if (event.isCancelled()) {
                 return false;
             }
@@ -1353,13 +1448,13 @@ public abstract class GlowEntity implements Entity {
 
         if (this instanceof Vehicle) {
             VehicleEnterEvent event = EventFactory.getInstance().callEvent(
-                new VehicleEnterEvent((Vehicle) this, passenger));
+                    new VehicleEnterEvent((Vehicle) this, passenger));
             if (event.isCancelled()) {
                 return false;
             }
         }
         EntityMountEvent event = EventFactory.getInstance().callEvent(
-            new EntityMountEvent(passenger, this));
+                new EntityMountEvent(passenger, this));
         if (event.isCancelled()) {
             return false;
         }

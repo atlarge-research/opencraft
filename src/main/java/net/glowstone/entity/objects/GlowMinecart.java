@@ -67,7 +67,7 @@ public abstract class GlowMinecart extends GlowVehicle implements Minecart {
     public GlowMinecart(Location location, MinecartType minecartType) {
         super(location);
         setSize(0.98f, 0.7f);
-        setAirDrag(0.95);
+        setAirDragMultiplier(0.95);
         setGravityAccel(new Vector(0, VERTICAL_GRAVITY_ACCEL, 0));
         this.minecartType = minecartType;
     }
