@@ -69,11 +69,14 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
      * @return The jms topic corresponding with the provided generic topic.
      */
     private javax.jms.Topic convert(Topic topic) throws JMSException {
+
         javax.jms.Topic jmsTopic = jmsTopics.get(topic);
+
         if (jmsTopic == null) {
             jmsTopic = generate();
             jmsTopics.put(topic, jmsTopic);
         }
+
         return jmsTopic;
     }
 
@@ -133,11 +136,11 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
                 MessageConsumer consumer = createConsumer(jmsTopic, callback);
                 JmsSubscriber<Subscriber> sub = new JmsSubscriber<>(consumer, subscriber);
                 topicSubscribers.add(sub);
+
             }
 
         } catch (JMSException e) {
             throw new RuntimeException("Failed to subscribe to JMS broker", e);
-
         } finally {
             lock.unlock();
         }
@@ -150,14 +153,17 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
             javax.jms.Topic jmsTopic = convert(topic);
             Set<JmsSubscriber<Subscriber>> topicSubscribers = subscribers.get(jmsTopic);
             if (topicSubscribers != null) {
+
                 JmsSubscriber<Subscriber> sub = new JmsSubscriber<>(null, subscriber);
                 topicSubscribers.remove(sub);
+
                 if (topicSubscribers.isEmpty()) {
                     publishers.remove(jmsTopic);
                 }
             }
         } catch (JMSException e) {
             throw new RuntimeException("Failed to unsubscribe from JMS broker", e);
+
         } finally {
             lock.unlock();
         }
