@@ -49,12 +49,12 @@ public class BoundingBox implements Cloneable {
     }
 
     /**
-     * An overloaded variant of the intersects function that includes a predefined tolerance
+     * An overloaded variant of the intersects function that includes a predefined tolerance.
      * @param a a bounding box
      * @param b a bounding box
      * @return true if {@code a} and {@code b} intersect; false otherwise
      */
-    public static boolean intersects(BoundingBox a, BoundingBox b){
+    public static boolean intersects(BoundingBox a, BoundingBox b) {
         return intersects(a, b, Double.MIN_VALUE);
     }
 

@@ -3,17 +3,17 @@ package net.glowstone.util;
 import org.bukkit.util.Vector;
 
 /**
- * This class adds utility functions for the bukkit vector class
+ * This class adds utility functions for the bukkit vector class.
  */
 public class Vectors {
 
     /**
-     * A private Vectors constructor that ensures that this class is will only be used for static methods
+     * A private Vectors constructor that ensures that this class is will only be used for static methods.
      */
     private Vectors(){}
 
     /**
-     * Floors every parameter in the vector
+     * Floors every parameter in the vector.
      *
      * @param vector the vector that will be floored
      * @return A new floored vector
@@ -27,7 +27,7 @@ public class Vectors {
     }
 
     /**
-     * Ceils every parameter in the vector
+     * Ceils every parameter in the vector.
      *
      * @param vector the vector that will be ceiled
      * @return A new ceiled vector
@@ -41,7 +41,7 @@ public class Vectors {
     }
 
     /**
-     * Projects a vector onto another vector
+     * Projects a vector onto another vector.
      *
      * @param vector The vector that will be projected
      * @param normal The vector on which the projection will occur
@@ -53,7 +53,7 @@ public class Vectors {
     }
 
     /**
-     * An equals method that allows matching two vectors per parameter with a certain tolerance
+     * An equals method that allows matching two vectors per parameter with a certain tolerance.
      *
      * @param vector one of the vectors to compare
      * @param otherVector one of the vectors to compare
@@ -83,7 +83,7 @@ public class Vectors {
     }
 
     /**
-     * An equals method that allows matching two vectors per parameter with a certain tolerance prefilled
+     * An equals method that allows matching two vectors per parameter with a certain tolerance prefilled.
      *
      * @param vector one of the vectors to compare
      * @param otherVector one of the vectors to compare

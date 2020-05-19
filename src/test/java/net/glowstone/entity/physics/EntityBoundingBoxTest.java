@@ -87,7 +87,7 @@ public class EntityBoundingBoxTest {
     public void sweptAABBNegativeVelNoHitTest(BoundingBox collisionBox) {
         EntityBoundingBox localBox = new EntityBoundingBox(1.0, 1.0);
         localBox.setCenter(5, 0, 5);
-        double distance = localBox.sweptAABB(new Vector(0.1, -1, 0.1), collisionBox).getLeft();
+        double distance = localBox.sweptAxisAlignedBoundingBox(new Vector(0.1, -1, 0.1), collisionBox).getLeft();
         assertEquals(distance, 1.0, Double.MIN_VALUE);
     }
 
@@ -96,7 +96,7 @@ public class EntityBoundingBoxTest {
     public void sweptAABBNegativeVelHitVectorTest(BoundingBox collisionBox) {
         EntityBoundingBox localBox = new EntityBoundingBox(1.0, 1.0);
         localBox.setCenter(0, 2, 0);
-        double distance = localBox.sweptAABB(new Vector(0, -2, 0), collisionBox).getLeft();
+        double distance = localBox.sweptAxisAlignedBoundingBox(new Vector(0, -2, 0), collisionBox).getLeft();
         assertTrue(distance < 1.0);
     }
 
@@ -105,7 +105,7 @@ public class EntityBoundingBoxTest {
     public void sweptAABBPositiveVectorTest(BoundingBox collisionBox) {
         EntityBoundingBox localBox = new EntityBoundingBox(1.0, 1.0);
         localBox.setCenter(0, -2, 0);
-        double distance = localBox.sweptAABB(new Vector(0, 2, 0), collisionBox).getLeft();
+        double distance = localBox.sweptAxisAlignedBoundingBox(new Vector(0, 2, 0), collisionBox).getLeft();
         assertTrue(distance < 1.0);
     }
 
@@ -114,7 +114,7 @@ public class EntityBoundingBoxTest {
     public void sweptAABBNoVelocityVectorTest(BoundingBox collisionBox) {
         EntityBoundingBox localBox = new EntityBoundingBox(1.0, 1.0);
         localBox.setCenter(0, -2, 0);
-        double distance = localBox.sweptAABB(new Vector(0, 0, 0), collisionBox).getLeft();
+        double distance = localBox.sweptAxisAlignedBoundingBox(new Vector(0, 0, 0), collisionBox).getLeft();
         assertEquals(1.0, distance, Double.MIN_VALUE);
     }
 
@@ -123,7 +123,7 @@ public class EntityBoundingBoxTest {
     public void sweptAABBXVelTest(BoundingBox collisionBox) {
         EntityBoundingBox localBox = new EntityBoundingBox(1.0, 1.0);
         localBox.setCenter(-2, 0, 0);
-        double distance = localBox.sweptAABB(new Vector(2, 0, 0), collisionBox).getLeft();
+        double distance = localBox.sweptAxisAlignedBoundingBox(new Vector(2, 0, 0), collisionBox).getLeft();
         assertTrue(distance < 1.0);
     }
 
@@ -132,7 +132,7 @@ public class EntityBoundingBoxTest {
     public void sweptAABBYVelTest(BoundingBox collisionBox) {
         EntityBoundingBox localBox = new EntityBoundingBox(1.0, 1.0);
         localBox.setCenter(0, 0, -2);
-        double distance = localBox.sweptAABB(new Vector(0, 0, 2), collisionBox).getLeft();
+        double distance = localBox.sweptAxisAlignedBoundingBox(new Vector(0, 0, 2), collisionBox).getLeft();
         assertTrue(distance < 1.0);
     }
 

@@ -3,10 +3,8 @@ package net.glowstone.block;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import lombok.Getter;
 import net.glowstone.GlowServer;
@@ -18,7 +16,6 @@ import net.glowstone.block.blocktype.BlockRedstoneTorch;
 import net.glowstone.block.blocktype.BlockType;
 import net.glowstone.block.entity.BlockEntity;
 import net.glowstone.chunk.GlowChunk;
-import net.glowstone.entity.physics.BlockBoundingBox;
 import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import org.bukkit.Location;
@@ -35,6 +32,7 @@ import org.bukkit.metadata.MetadataStore;
 import org.bukkit.metadata.MetadataStoreBase;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.util.Vector;
 
 /**
  * Represents a single block in a world.
@@ -591,55 +589,63 @@ public class GlowBlock implements Block {
         }
     }
 
-    private BoundingBox getFenceBoundingBox(Location loc){
+    /**
+     * Generates the correct bounding box for a fence block.
+     *
+     * @param location The location of the block
+     * @return The correct fence boundingbox
+     */
+    private BoundingBox getFenceBoundingBox(Location location) {
 
-        BoundingBox box = BoundingBox.fromCorners(loc.add(0.4, 0, 0.4).toVector(), loc.add(0.6, 1.5, 0.6).toVector());
+        Vector min = location.clone().add(0.4, 0, 0.4).toVector();
+        Vector max = location.clone().add(0.6, 1.5, 0.6).toVector();
 
-        GlowBlock north = this.getRelative(BlockFace.NORTH);
-        GlowBlock south = this.getRelative(BlockFace.SOUTH);
-        GlowBlock west = this.getRelative(BlockFace.WEST);
-        GlowBlock east = this.getRelative(BlockFace.EAST);
+        BoundingBox box = BoundingBox.fromCorners(min, max);
 
-        //      north          -z
-        //  west     east   -x    +x
-        //      south          +z
+        GlowBlock north = getRelative(BlockFace.NORTH);
+        GlowBlock south = getRelative(BlockFace.SOUTH);
+        GlowBlock west = getRelative(BlockFace.WEST);
+        GlowBlock east = getRelative(BlockFace.EAST);
 
         boolean northFence = isFence(north.getType());
         boolean southFence = isFence(south.getType());
         boolean westFence = isFence(west.getType());
         boolean eastFence = isFence(east.getType());
 
-        if(northFence){
-            box.minCorner.setZ(box.minCorner.getZ() - 0.4);
+        double inverseFenceWidth = 0.4;
+
+        if (northFence) {
+            box.minCorner.setZ(box.minCorner.getZ() - inverseFenceWidth);
         }
 
-        if(southFence){
-            box.maxCorner.setZ(box.maxCorner.getZ() + 0.4);
+        if (southFence) {
+            box.maxCorner.setZ(box.maxCorner.getZ() + inverseFenceWidth);
         }
 
-        if(westFence){
-            box.minCorner.setX(box.minCorner.getX() - 0.4);
+        if (westFence) {
+            box.minCorner.setX(box.minCorner.getX() - inverseFenceWidth);
         }
 
-        if(eastFence){
-            box.maxCorner.setX(box.maxCorner.getX() + 0.4);
+        if (eastFence) {
+            box.maxCorner.setX(box.maxCorner.getX() + inverseFenceWidth);
         }
 
         return box;
 
     }
 
-    public boolean isFence(Material material){
-        switch (material){
+    /**
+     * Returns a boolean specifying whether or not the material is of type fence.
+     *
+     * @param material The material that needs to be identified as fence or not
+     * @return true if the material is a fence, false otherwise
+     */
+    public boolean isFence(Material material) {
+        switch (material) {
             case FENCE:
             case FENCE_GATE:
             case NETHER_FENCE:
-            case ACACIA_FENCE_GATE:
             case ACACIA_FENCE:
-            case BIRCH_FENCE_GATE:
-            case DARK_OAK_FENCE_GATE:
-            case JUNGLE_FENCE_GATE:
-            case SPRUCE_FENCE_GATE:
             case BIRCH_FENCE:
             case DARK_OAK_FENCE:
             case IRON_FENCE:
@@ -651,9 +657,14 @@ public class GlowBlock implements Block {
         }
     }
 
+    /**
+     * Returns the bounding box corresponding to this glow block.
+     *
+     * @return The bounding box
+     */
     public BoundingBox getBoundingBox() {
         Location loc = this.getLocation().clone();
-        switch (this.getType()){
+        switch (this.getType()) {
             case STEP:
             case WOOD_STEP:
             case PURPUR_SLAB:
@@ -682,8 +693,7 @@ public class GlowBlock implements Block {
     /**
      * Increments the count of recent state changes. Used to implement redstone-torch burnout.
      *
-     * @param timeout the number of game ticks before this state change is no longer considered
-     *     recent
+     * @param timeout the number of game ticks before this state change is no longer considered recent
      */
     public void count(int timeout) {
         GlowBlock target = this;

@@ -65,103 +65,113 @@ public class EntityBoundingBox extends BoundingBox {
      * @param vel The displacement that will be applied to the entityboundingbox
      * @param staticBox The static box which will be checked for collision
      * @return A pair containing a double between 0.0 and 1.0 that indicates the amount
-     * of displacement that can be done without collision
-     * And a vector containing the normal in the place of collision
+     *      of displacement that can be done without collision
+     *      And a vector containing the normal in the place of collision
      */
-    public Pair<Double, Vector> sweptAABB(Vector vel, BoundingBox staticBox) {
+    public Pair<Double, Vector> sweptAxisAlignedBoundingBox(Vector vel, BoundingBox staticBox) {
 
-        double xInvEntry, yInvEntry, zInvEntry;
-        double xInvExit, yInvExit, zInvExit;
+        double invEntryX;
+        double invEntryY;
+        double invEntryZ;
+        double invExitX;
+        double invExitY;
+        double invExitZ;
+
         Vector normal = new Vector();
 
         // find the distance between the objects on the near and far sides for both x,y and z
         if (vel.getX() > 0.0f) {
-            xInvEntry = staticBox.minCorner.getX() - this.maxCorner.getX();
-            xInvExit = staticBox.maxCorner.getX() - this.minCorner.getX();
+            invEntryX = staticBox.minCorner.getX() - this.maxCorner.getX();
+            invExitX = staticBox.maxCorner.getX() - this.minCorner.getX();
         } else {
-            xInvEntry = staticBox.maxCorner.getX() - this.minCorner.getX();
-            xInvExit = staticBox.minCorner.getX() - this.maxCorner.getX();
+            invEntryX = staticBox.maxCorner.getX() - this.minCorner.getX();
+            invExitX = staticBox.minCorner.getX() - this.maxCorner.getX();
         }
 
         if (vel.getY() > 0.0f) {
-            yInvEntry = staticBox.minCorner.getY() - this.maxCorner.getY();
-            yInvExit = staticBox.maxCorner.getY() - this.minCorner.getY();
+            invEntryY = staticBox.minCorner.getY() - this.maxCorner.getY();
+            invExitY = staticBox.maxCorner.getY() - this.minCorner.getY();
         } else {
-            yInvEntry = staticBox.maxCorner.getY() - this.minCorner.getY();
-            yInvExit = staticBox.minCorner.getY() - this.maxCorner.getY();
+            invEntryY = staticBox.maxCorner.getY() - this.minCorner.getY();
+            invExitY = staticBox.minCorner.getY() - this.maxCorner.getY();
         }
 
         if (vel.getZ() > 0.0f) {
-            zInvEntry = staticBox.minCorner.getZ() - this.maxCorner.getZ();
-            zInvExit = staticBox.maxCorner.getZ() - this.minCorner.getZ();
+            invEntryZ = staticBox.minCorner.getZ() - this.maxCorner.getZ();
+            invExitZ = staticBox.maxCorner.getZ() - this.minCorner.getZ();
         } else {
-            zInvEntry = staticBox.maxCorner.getZ() - this.minCorner.getZ();
-            zInvExit = staticBox.minCorner.getZ() - this.maxCorner.getZ();
+            invEntryZ = staticBox.maxCorner.getZ() - this.minCorner.getZ();
+            invExitZ = staticBox.minCorner.getZ() - this.maxCorner.getZ();
         }
 
-        double xEntry, yEntry, zEntry;
-        double xExit, yExit, zExit;
+        double entryX;
+        double entryY;
+        double entryZ;
+        double exitX;
+        double exitY;
+        double exitZ;
 
         // If the velocity is 0 then there is no exit or entry on that axis
         if (vel.getX() == 0.0f) {
-            xEntry = Double.NEGATIVE_INFINITY;
-            xExit = Double.POSITIVE_INFINITY;
+            entryX = Double.NEGATIVE_INFINITY;
+            exitX = Double.POSITIVE_INFINITY;
         } else {
-            xEntry = xInvEntry / vel.getX();
-            xExit = xInvExit / vel.getX();
+            entryX = invEntryX / vel.getX();
+            exitX = invExitX / vel.getX();
         }
 
         if (vel.getY() == 0.0f) {
-            yEntry = Double.NEGATIVE_INFINITY;
-            yExit = Double.POSITIVE_INFINITY;
+            entryY = Double.NEGATIVE_INFINITY;
+            exitY = Double.POSITIVE_INFINITY;
         } else {
-            yEntry = yInvEntry / vel.getY();
-            yExit = yInvExit / vel.getY();
+            entryY = invEntryY / vel.getY();
+            exitY = invExitY / vel.getY();
         }
 
         if (vel.getZ() == 0.0f) {
-            zEntry = Double.NEGATIVE_INFINITY;
-            zExit = Double.POSITIVE_INFINITY;
+            entryZ = Double.NEGATIVE_INFINITY;
+            exitZ = Double.POSITIVE_INFINITY;
         } else {
-            zEntry = zInvEntry / vel.getZ();
-            zExit = zInvExit / vel.getZ();
+            entryZ = invEntryZ / vel.getZ();
+            exitZ = invExitZ / vel.getZ();
         }
 
-        double entryTime = Math.max(xEntry, Math.max(yEntry, zEntry));
-        double exitTime = Math.min(xExit, Math.min(yExit, zExit));
+        double entryTime = Math.max(entryX, Math.max(entryY, entryZ));
+        double exitTime = Math.min(exitX, Math.min(exitY, exitZ));
 
         normal.setX(0.0d);
         normal.setY(0.0d);
         normal.setZ(0.0d);
 
-        if (entryTime > exitTime || xEntry < 0.0d && yEntry < 0.0d && zEntry < 0.0d || xEntry > 1.0d || yEntry > 1.0d || zEntry > 1.0d) {
+        if (entryTime > exitTime || entryX < 0.0d && entryY < 0.0d && entryZ < 0.0d
+                || entryX > 1.0d || entryY > 1.0d || entryZ > 1.0d) {
             // If there are no collision return 1.0d indicating that the full velocity vector can be applied
             return new ImmutablePair<>(1.0d, normal);
         } else {
             // Find the shortest entry distance, take the normal from that collision
-            if (zEntry > xEntry) {
-                if (zEntry > yEntry) {
-                    if (zInvEntry < 0.0d) {
+            if (entryZ > entryX) {
+                if (entryZ > entryY) {
+                    if (invEntryZ < 0.0d) {
                         normal.setZ(1.0d);
                     } else {
                         normal.setZ(-1.0d);
                     }
                 } else {
-                    if (yInvEntry < 0.0d) {
+                    if (invEntryY < 0.0d) {
                         normal.setY(1.0d);
                     } else {
                         normal.setY(-1.0d);
                     }
                 }
             } else {
-                if (xEntry > yEntry) {
-                    if (xInvEntry < 0.0d) {
+                if (entryX > entryY) {
+                    if (invEntryX < 0.0d) {
                         normal.setX(1.0d);
                     } else {
                         normal.setX(-1.0d);
                     }
                 } else {
-                    if (yInvEntry < 0.0d) {
+                    if (invEntryY < 0.0d) {
                         normal.setY(1.0d);
                     } else {
                         normal.setY(-1.0d);

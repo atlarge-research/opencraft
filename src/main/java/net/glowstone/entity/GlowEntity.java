@@ -7,7 +7,6 @@ import com.flowpowered.network.Message;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,7 +18,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import lombok.Getter;
 import lombok.Setter;
 import net.glowstone.EventFactory;
@@ -418,7 +416,7 @@ public abstract class GlowEntity implements Entity {
      *
      * @param uuid The new UUID. Must not be null.
      * @throws IllegalArgumentException if the passed UUID is null.
-     * @throws IllegalStateException    if a UUID has already been set.
+     * @throws IllegalStateException if a UUID has already been set.
      */
     public void setUniqueId(UUID uuid) {
         checkNotNull(uuid, "uuid must not be null");
@@ -729,7 +727,7 @@ public abstract class GlowEntity implements Entity {
      * Sets this entity's location.
      *
      * @param location The new location.
-     * @param fall     Whether to calculate fall damage or not.
+     * @param fall Whether to calculate fall damage or not.
      */
     public void setRawLocation(Location location, boolean fall) {
         if (location.getWorld() != world) {
@@ -1014,8 +1012,8 @@ public abstract class GlowEntity implements Entity {
         if (boundingBox == null) {
             // less accurate calculation if no bounding box is present
             for (BlockFace face : new BlockFace[]{BlockFace.EAST, BlockFace.WEST, BlockFace.SOUTH,
-                    BlockFace.NORTH, BlockFace.DOWN, BlockFace.SELF, BlockFace.NORTH_EAST,
-                    BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST}) {
+                BlockFace.NORTH, BlockFace.DOWN, BlockFace.SELF, BlockFace.NORTH_EAST,
+                BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST}) {
                 if (getLocation().getBlock().getRelative(face).getType() == material) {
                     return true;
                 }
@@ -1073,10 +1071,12 @@ public abstract class GlowEntity implements Entity {
                     GlowBlock block = world.getBlockAt(x, y, z);
                     Material material = block.getType();
                     BoundingBox box = block.getBoundingBox();
-                    if (box != null && (y >= min.getBlockY() || (y == min.getBlockY() - 1 && box.getSize().getY() > 1)))
+                    if (box != null && (y >= min.getBlockY()
+                            || (y == min.getBlockY() - 1 && box.getSize().getY() > 1))) {
                         if (material.isSolid() && box.intersects(broadPhaseBox)) {
                             intersectingBoxes.add(box);
                         }
+                    }
                 }
             }
         }
@@ -1085,9 +1085,9 @@ public abstract class GlowEntity implements Entity {
     }
 
     /**
-     * Computes the velocity that is will be applied to the user this tick
+     * Computes the velocity that is will be applied to the user this tick.
      */
-    protected void computeVelocity(){
+    protected void computeVelocity() {
         if (hasFriction() && location != null) {
 
             Material material = location.getBlock().getType();
@@ -1103,7 +1103,7 @@ public abstract class GlowEntity implements Entity {
                 velocity.setY(airDrag * velocity.getY() + getGravityAccel().getY());
 
                 double drag = airDrag;
-                if(isOnGround()){
+                if (isOnGround()) {
                     drag = slipMultiplier;
                 }
 
@@ -1114,7 +1114,7 @@ public abstract class GlowEntity implements Entity {
     }
 
     /**
-     * Tests entity collision with the blocks around the entity and generates the response displacement
+     * Tests entity collision with the blocks around the entity and generates the response displacement.
      */
     protected void resolveCollisions() {
         Location pendingLocation = location.clone();
@@ -1143,7 +1143,7 @@ public abstract class GlowEntity implements Entity {
 
             // Find the closest one.
             Pair<Double, Vector> closest = intersectingBoxes.stream()
-                    .map(box -> pendingBox.sweptAABB(remainingDisplacement, box))
+                    .map(box -> pendingBox.sweptAxisAlignedBoundingBox(remainingDisplacement, box))
                     .min(Comparator.comparingDouble(Pair::getLeft))
                     .get();
 
@@ -1174,7 +1174,8 @@ public abstract class GlowEntity implements Entity {
 
                 collide(block);
 
-                // TODO: Break here? it might possible that a projectile removes itself after colliding which could introduce bugs here
+                // TODO: Break here? it might possible that a projectile removes itself after colliding which
+                //  could introduce bugs here
             }
         }
 
@@ -1187,7 +1188,7 @@ public abstract class GlowEntity implements Entity {
     }
 
     /**
-     * Calculate all the physics that impact the entity
+     * Calculate all the physics that impact the entity.
      */
     protected void pulsePhysics() {
         computeVelocity();
