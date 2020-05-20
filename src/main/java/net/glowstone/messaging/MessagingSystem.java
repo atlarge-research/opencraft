@@ -64,7 +64,11 @@ public final class MessagingSystem<Topic, Publisher, Subscriber, Message> {
                 newTopics.forEach(topic -> broker.subscribe(topic, subscriber, filteredCallback));
             } else {
                 Sets.difference(oldTopics, newTopics).forEach(topic -> broker.unsubscribe(topic, subscriber));
-                Sets.difference(newTopics, oldTopics).forEach(topic -> broker.subscribe(topic, subscriber, filteredCallback));
+                Sets.difference(newTopics, oldTopics).forEach(topic -> broker.subscribe(
+                        topic,
+                        subscriber,
+                        filteredCallback
+                ));
             }
         }
     }
