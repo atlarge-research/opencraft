@@ -20,7 +20,7 @@ public class Brokers {
      * @param <Topic> The type of topics that is allowed to identify channels.
      * @param <Subscriber> The type of subscribers that is allowed to subscribe to a channel.
      * @param <Message> The type of messages that is allowed to be published to a channel.
-     * @return
+     * @return The concurrent broker.
      */
     public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newConcurrentBroker() {
         return new ConcurrentBroker<>();
@@ -32,10 +32,15 @@ public class Brokers {
      *
      * @param uri The link used to connect to the ActiveMQ server.
      * @param codec The codec that has to be used for encoding and decoding messages.
+     * @param <Topic> The type of topics that is allowed to identify jms topics.
+     * @param <Subscriber> The type of subscribers that is allowed to subscribe to topics.
      * @param <Message> The type of messages that is allowed to be published to a jms topic.
      * @return The ActiveMQ broker.
      */
-    public static <Message> JmsBroker newActivemqBroker(String uri, JmsCodec<Message> codec) throws JMSException {
+    public static <Topic, Subscriber, Message> JmsBroker<Topic, Subscriber, Message> newActivemqBroker(
+            String uri,
+            JmsCodec<Message> codec
+    ) throws JMSException {
         ConnectionFactory factory = new ActiveMQConnectionFactory(uri);
         Connection connection = factory.createConnection();
         return new JmsBroker(connection, codec);

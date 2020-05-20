@@ -33,17 +33,18 @@ public class ProtocolCodec implements JmsCodec<Message> {
     public javax.jms.Message encode(Session session, Message message) throws JMSException {
 
         Class<? extends Message> clazz = message.getClass();
-        Codec.CodecRegistration reg = protocol.getCodecRegistration(clazz);
-        if (reg == null) {
+        Codec.CodecRegistration registration = protocol.getCodecRegistration(clazz);
+        if (registration == null) {
             throw new EncoderException("Unknown message type: " + clazz + ".");
         }
 
         ByteBuf headerBuf = allocator.buffer(8);
-        ByteBufUtils.writeVarInt(headerBuf, reg.getOpcode());
+        ByteBufUtils.writeVarInt(headerBuf, registration.getOpcode());
 
         ByteBuf messageBuf = allocator.buffer();
         try {
-            messageBuf = reg.getCodec().encode(messageBuf, message);
+            Codec codec = registration.getCodec();
+            messageBuf = codec.encode(messageBuf, message);
         } catch (IOException e) {
             throw new RuntimeException("Could not encode the message", e);
         }
@@ -70,7 +71,7 @@ public class ProtocolCodec implements JmsCodec<Message> {
         int length = (int) bytesMessage.getBodyLength();
 
         byte[] bytes = new byte[length];
-        int read = bytesMessage.readBytes(bytes, length);
+        int read = bytesMessage.readBytes(bytes);
 
         if (read == -1) {
             throw new RuntimeException("Reached end of stream");
@@ -80,8 +81,7 @@ public class ProtocolCodec implements JmsCodec<Message> {
             throw new RuntimeException("Did not read enough bytes");
         }
 
-        ByteBuf buffer = allocator.buffer(length);
-        buffer.writeBytes(bytes);
+        ByteBuf buffer = Unpooled.wrappedBuffer(bytes);
 
         Codec<?> codec;
         Message decoded;

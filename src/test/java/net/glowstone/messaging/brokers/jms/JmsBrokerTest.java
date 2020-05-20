@@ -45,7 +45,6 @@ public class JmsBrokerTest {
      * topics are also mocked, because this is needed in order to test the code correctly.
      */
     @BeforeEach
-    @SuppressWarnings("unchecked")
     void beforeEach() throws JMSException {
 
         connection = mock(Connection.class);
@@ -116,7 +115,7 @@ public class JmsBrokerTest {
      * topic is created (only once).
      */
     @Test
-    void createPublisher() throws JMSException {
+    void createProducer() throws JMSException {
         jmsBroker.subscribe(TOPIC_ONE, alice, alice::onMessage);
         jmsBroker.subscribe(TOPIC_ONE, bob, bob::onMessage);
         verify(session, times(1)).createProducer(any());
