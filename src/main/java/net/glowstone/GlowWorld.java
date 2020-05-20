@@ -66,7 +66,6 @@ import net.glowstone.messaging.filters.PlayerFilter;
 import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
-import net.glowstone.net.message.play.game.BlockBreakAnimationMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
 import net.glowstone.net.message.play.game.UnloadChunkMessage;
