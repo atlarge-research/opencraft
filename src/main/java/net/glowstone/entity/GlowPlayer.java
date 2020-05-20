@@ -3416,8 +3416,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             ItemStack helmet = getEquipment().getHelmet();
             double penalty = 1; // default of 1 if there is no penalty
 
-            if ((material == Material.WATER || material == Material.STATIONARY_WATER) &&
-                    !helmet.getEnchantments().containsKey(Enchantment.WATER_WORKER)) {
+            if ((material == Material.WATER || material == Material.STATIONARY_WATER)
+                    && !helmet.getEnchantments().containsKey(Enchantment.WATER_WORKER)) {
                 penalty *= 5;
 
             } else if (material == Material.LAVA || material == Material.STATIONARY_LAVA) {
