@@ -39,11 +39,9 @@ final class MessagingSystemTest {
     @BeforeEach
     @SuppressWarnings("unchecked")
     void beforeEach() {
-
-        Filter<Subscriber, String> filter = (subscriber, message) -> true;
-
         policy = (Policy<String, String, Subscriber>) mock(Policy.class);
         broker = (Broker<String, Subscriber, String>) mock(Broker.class);
+        Filter<Subscriber, String> filter = (subscriber, message) -> true;
         system = new MessagingSystem<>(policy, broker, filter);
         alice = new Subscriber("Alice");
     }
