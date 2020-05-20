@@ -43,7 +43,7 @@ public class Brokers {
     ) throws JMSException {
         ConnectionFactory factory = new ActiveMQConnectionFactory(uri);
         Connection connection = factory.createConnection();
-        return new JmsBroker(connection, codec);
+        return new JmsBroker<>(connection, codec);
     }
 
     /**
