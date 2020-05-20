@@ -15,8 +15,8 @@ import org.junit.jupiter.api.Test;
  */
 class PlayerFilterTest {
 
-    PlayerFilter filter;
-    Player player;
+    private PlayerFilter filter;
+    private Player player;
 
     @BeforeEach
     void beforeEach() {
