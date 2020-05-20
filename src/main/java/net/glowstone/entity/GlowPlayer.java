@@ -3434,7 +3434,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 penalty *= 5;
             }
 
-            // TODO: status effects (e.g. Mining Fatigue, Slowness);
+            // TODO: status effects
 
             totalDiggingTicks = Math.round(penalty * breakingTimeMultiplier * hardness * 20.0); // seconds to ticks
 
