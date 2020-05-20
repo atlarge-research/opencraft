@@ -190,6 +190,8 @@ import org.bukkit.map.MapView;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.messaging.StandardMessenger;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
 import org.json.simple.JSONObject;
@@ -3411,10 +3413,21 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             position.setY(position.getY() + getEyeHeight());
             Block current = position.getBlock();
             Material material = current.getType();
+            ItemStack helmet = getEquipment().getHelmet();
             double penalty = 1; // default of 1 if there is no penalty
 
-            if (material == Material.WATER || material == Material.STATIONARY_WATER) {
+            if ((material == Material.WATER || material == Material.STATIONARY_WATER) &&
+                    !helmet.getEnchantments().containsKey(Enchantment.WATER_WORKER)) {
                 penalty *= 5;
+
+            } else if (material == Material.LAVA || material == Material.STATIONARY_LAVA) {
+                penalty *= 5;
+            }
+
+            for (PotionEffect potion : getActivePotionEffects()) {
+                if (potion.getType() == PotionEffectType.SLOW_DIGGING) {
+                    penalty *= Math.pow(3, potion.getAmplifier());
+                }
             }
 
             if (!isOnGround()) {
