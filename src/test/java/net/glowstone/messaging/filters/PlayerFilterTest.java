@@ -2,6 +2,7 @@ package net.glowstone.messaging.filters;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.flowpowered.network.Message;
 import net.glowstone.net.message.play.game.BlockBreakAnimationMessage;
@@ -26,9 +27,19 @@ class PlayerFilterTest {
     }
 
     @Test
-    void filterBlockBreakAnimationTest() {
+    void filterAuthoredBlockBreakAnimationTest() {
+        when(player.getEntityId()).thenReturn(1);
         BlockBreakAnimationMessage message = mock(BlockBreakAnimationMessage.class);
+        when(message.getId()).thenReturn(1);
         assertFalse(filter.filter(player, message));
+    }
+
+    @Test
+    void filterOtherBlockBreakAnimationTest() {
+        when(player.getEntityId()).thenReturn(1);
+        BlockBreakAnimationMessage message = mock(BlockBreakAnimationMessage.class);
+        when(message.getId()).thenReturn(2);
+        assertTrue(filter.filter(player, message));
     }
 
     @Test

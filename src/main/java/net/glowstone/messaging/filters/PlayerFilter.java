@@ -18,7 +18,8 @@ public class PlayerFilter implements Filter<Player, Message> {
         }
 
         if (message instanceof BlockBreakAnimationMessage) {
-            return false;
+            int authorId = ((BlockBreakAnimationMessage) message).getId();
+            return authorId != player.getEntityId();
         }
 
         return true;
