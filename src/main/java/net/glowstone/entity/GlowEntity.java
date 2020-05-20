@@ -1101,28 +1101,25 @@ public abstract class GlowEntity implements Entity {
         if (hasFriction() && location != null) {
 
             Material material = location.getBlock().getType();
-            Vector localVelocity = getVelocity().clone();
 
             // apply friction and gravity
             if (material == Material.WATER || material == Material.STATIONARY_WATER) {
-                localVelocity.multiply(liquidDrag);
-                localVelocity.setY(localVelocity.getY() + getGravityAccel().getY() / 4.0);
+                velocity.multiply(liquidDrag);
+                velocity.setY(velocity.getY() + getGravityAccel().getY() / 4.0);
             } else if (material == Material.LAVA || material == Material.STATIONARY_LAVA) {
-                localVelocity.multiply(liquidDrag - 0.3);
-                localVelocity.setY(localVelocity.getY() + getGravityAccel().getY() / 4.0);
+                velocity.multiply(liquidDrag - 0.3);
+                velocity.setY(velocity.getY() + getGravityAccel().getY() / 4.0);
             } else {
-                localVelocity.setY(airDragMultiplier * localVelocity.getY() + getGravityAccel().getY());
+                velocity.setY(airDragMultiplier * velocity.getY() + getGravityAccel().getY());
 
                 double drag = airDragMultiplier;
                 if (isOnGround()) {
                     drag = slipMultiplier;
                 }
 
-                localVelocity.setX(localVelocity.getX() * drag);
-                localVelocity.setZ(localVelocity.getZ() * drag);
+                velocity.setX(velocity.getX() * drag);
+                velocity.setZ(velocity.getZ() * drag);
             }
-
-            setVelocity(localVelocity);
         }
     }
 
