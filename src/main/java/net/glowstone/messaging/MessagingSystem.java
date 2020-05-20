@@ -18,6 +18,7 @@ public final class MessagingSystem<Topic, Publisher, Subscriber, Message> {
 
     private final Policy<Topic, Publisher, Subscriber> policy;
     private final Broker<Topic, Subscriber, Message> broker;
+    private final Filter<Subscriber, Message> filter;
     private final Map<Subscriber, Set<Topic>> subscriptions;
 
     /**
@@ -26,9 +27,14 @@ public final class MessagingSystem<Topic, Publisher, Subscriber, Message> {
      * @param policy the policy used to update subscriptions and select publishing targets.
      * @param broker the broker used to distribute messages to subscribers.
      */
-    public MessagingSystem(Policy<Topic, Publisher, Subscriber> policy, Broker<Topic, Subscriber, Message> broker) {
+    public MessagingSystem(
+            Policy<Topic, Publisher, Subscriber> policy,
+            Broker<Topic, Subscriber, Message> broker,
+            Filter<Subscriber, Message> filter
+    ) {
         this.policy = policy;
         this.broker = broker;
+        this.filter = filter;
         subscriptions = new HashMap<>();
     }
 
@@ -51,12 +57,14 @@ public final class MessagingSystem<Topic, Publisher, Subscriber, Message> {
 
         } else {
 
+            Consumer<Message> filteredCallback = createFilteredCallback(subscriber, callback);
+
             Set<Topic> oldTopics = subscriptions.put(subscriber, newTopics);
             if (oldTopics == null) {
-                newTopics.forEach(topic -> broker.subscribe(topic, subscriber, callback));
+                newTopics.forEach(topic -> broker.subscribe(topic, subscriber, filteredCallback));
             } else {
                 Sets.difference(oldTopics, newTopics).forEach(topic -> broker.unsubscribe(topic, subscriber));
-                Sets.difference(newTopics, oldTopics).forEach(topic -> broker.subscribe(topic, subscriber, callback));
+                Sets.difference(newTopics, oldTopics).forEach(topic -> broker.subscribe(topic, subscriber, filteredCallback));
             }
         }
     }
@@ -70,5 +78,13 @@ public final class MessagingSystem<Topic, Publisher, Subscriber, Message> {
     public void broadcast(Publisher publisher, Message message) {
         Iterable<Topic> topics = policy.selectTargets(publisher);
         topics.forEach(topic -> broker.publish(topic, message));
+    }
+
+    private Consumer<Message> createFilteredCallback(Subscriber subscriber, Consumer<Message> callback) {
+        return message -> {
+            if (filter.filter(subscriber, message)) {
+                callback.accept(message);
+            }
+        };
     }
 }

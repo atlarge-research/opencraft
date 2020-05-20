@@ -30,6 +30,7 @@ final class MessagingSystemTest {
 
     private Policy<String, String, Subscriber> policy;
     private Broker<String, Subscriber, String> broker;
+    private Filter<Subscriber, String> filter;
     private MessagingSystem<String, String, Subscriber, String> system;
     private Subscriber alice;
 
@@ -41,7 +42,9 @@ final class MessagingSystemTest {
     void beforeEach() {
         policy = (Policy<String, String, Subscriber>) mock(Policy.class);
         broker = (Broker<String, Subscriber, String>) mock(Broker.class);
-        system = new MessagingSystem<>(policy, broker);
+        filter = (Filter<Subscriber, String>) mock(Filter.class);
+        when(filter.filter(any(), any())).thenReturn(true);
+        system = new MessagingSystem<>(policy, broker, filter);
         alice = new Subscriber("Alice");
     }
 
