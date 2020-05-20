@@ -11,6 +11,7 @@ import net.glowstone.Explosion;
 import net.glowstone.net.message.play.entity.SpawnObjectMessage;
 import org.bukkit.Effect;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.TNTPrimed;
@@ -24,6 +25,8 @@ public class GlowTntPrimed extends GlowExplosive implements TNTPrimed {
     private int fuseTicks;
     @Setter
     private Entity source;
+
+    private ThreadLocalRandom rand;
 
     /**
      * Get the player that ignited the TNT.
@@ -53,19 +56,21 @@ public class GlowTntPrimed extends GlowExplosive implements TNTPrimed {
     public GlowTntPrimed(Location location, Entity source) {
         super(location, Explosion.POWER_TNT);
         setSize(0.98f, 0.98f);
+        setGravityAccel(new Vector(0, -0.03, 0));
 
         fuseTicks = 0;
-        ThreadLocalRandom rand = ThreadLocalRandom.current();
+        rand = ThreadLocalRandom.current();
         int multiplier = rand.nextBoolean() ? 1 : -1;
         double x = 0;
         double z = 0;
-        double mag = rand.nextDouble(0, 0.02);
+        double mag = rand.nextDouble(0, 0.15);
         if (rand.nextBoolean()) {
             x = multiplier * mag;
         } else {
             z = multiplier * mag;
         }
-        setVelocity(new Vector(x, 0.2, z));
+//        location.add(0, 0.2, 0);
+        setVelocity(new Vector(x, 0.25, z));
         this.source = source;
     }
 
@@ -92,8 +97,10 @@ public class GlowTntPrimed extends GlowExplosive implements TNTPrimed {
         fuseTicks--;
         if (fuseTicks <= 0) {
             explode();
-        } else {
-            world.playEffect(location.clone().add(0, 0.5, 0), Effect.SMOKE, 0);
+        } else if(fuseTicks % 5 == 0){
+            double delta = rand.nextDouble(0, 0.15);
+            Location startLocation = location.clone().toCenterLocation().add(delta, 0.5, -delta);
+            world.spawnParticle(Particle.SMOKE_NORMAL, startLocation,0, 0, 0.15d, 0);
         }
     }
 

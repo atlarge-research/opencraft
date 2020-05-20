@@ -9,7 +9,7 @@ import org.bukkit.entity.EntityType;
 public class GlowDonkey extends GlowChestedHorse<GlowHorseInventory> implements Donkey {
 
     public GlowDonkey(Location location) {
-        super(location, EntityType.DONKEY, 15);
+        super(location, EntityType.DONKEY, 95);
     }
 
     @Override

@@ -1294,13 +1294,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
     @Override
     public void setVelocity(Vector velocity) {
-        PlayerVelocityEvent event = EventFactory.getInstance()
-                .callEvent(new PlayerVelocityEvent(this, velocity));
-        if (!event.isCancelled()) {
-            velocity = event.getVelocity();
-            super.setVelocity(velocity);
-            session.send(new EntityVelocityMessage(getEntityId(), velocity));
-        }
+        super.setVelocity(velocity);
+//        session.send(new EntityVelocityMessage(getEntityId(), velocity));
     }
 
     /**

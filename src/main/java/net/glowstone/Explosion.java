@@ -11,13 +11,17 @@ import javax.annotation.Nullable;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.blocktype.BlockTnt;
 import net.glowstone.entity.GlowEntity;
+import net.glowstone.entity.GlowExplosive;
+import net.glowstone.entity.GlowLivingEntity;
 import net.glowstone.entity.GlowPlayer;
+import net.glowstone.entity.objects.GlowItem;
+import net.glowstone.entity.projectile.GlowProjectile;
 import net.glowstone.net.message.play.game.ExplosionMessage;
 import net.glowstone.net.message.play.game.ExplosionMessage.Record;
 import net.glowstone.util.RayUtil;
-import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -303,14 +307,21 @@ public final class Explosion {
                 continue;
             }
 
-            if (entity instanceof LivingEntity) {
-                LivingEntity livingEntity = (LivingEntity) entity;
-                Vector rayLength = RayUtil.getVelocityRay(distanceToHead(livingEntity));
+            if (entity instanceof GlowEntity && !(entity instanceof GlowItem)) {
+                GlowEntity glowEntity = (GlowEntity) entity;
+                Vector rayLength;
+                if(entity instanceof  GlowLivingEntity){
+                    rayLength = RayUtil.getVelocityRay(distanceToHead((GlowLivingEntity) glowEntity));
+                } else {
+                    rayLength = RayUtil.getVelocityRay(vectorTo(glowEntity));
+                }
                 rayLength.multiply(exposure);
 
                 Vector currentVelocity = entity.getVelocity();
                 currentVelocity.add(rayLength);
                 entity.setVelocity(currentVelocity);
+
+                continue;
             }
         }
     }
@@ -353,6 +364,10 @@ public final class Explosion {
         return RayUtil.getRayBetween(location, entity.getLocation()).length();
     }
 
+    private Vector vectorTo(Entity entity) {
+        return RayUtil.getRayBetween(entity.getLocation(),location);
+    }
+
     private double distanceToSquared(Entity entity) {
         return RayUtil.getRayBetween(location, entity.getLocation()).lengthSquared();
     }
@@ -370,10 +385,10 @@ public final class Explosion {
 
         if (power >= 2.0F && breakBlocks) {
             // send huge explosion
-            world.spigot().playEffect(location, Effect.EXPLOSION_HUGE);
+            world.spawnParticle(Particle.EXPLOSION_HUGE,location.clone().toCenterLocation(), 1);
         } else {
             // send large explosion
-            world.spigot().playEffect(location, Effect.EXPLOSION_LARGE);
+            world.spawnParticle(Particle.EXPLOSION_LARGE, location.clone().toCenterLocation(), 1);
         }
     }
 
