@@ -10,6 +10,9 @@ import org.bukkit.entity.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verify that the PlayerFilter filters the correct typed and valued messages.
+ */
 class PlayerFilterTest {
 
     PlayerFilter filter;
@@ -21,11 +24,17 @@ class PlayerFilterTest {
         player = mock(Player.class);
     }
 
+    /**
+     * Verify that null messages are properly filtered.
+     */
     @Test
     void filterNullTest() {
         assertFalse(filter.filter(player, null));
     }
 
+    /**
+     * Verify that BlockBreakAnimationMessages are filtered, such that the original author does not receive it.
+     */
     @Test
     void filterAuthoredBlockBreakAnimationTest() {
         when(player.getEntityId()).thenReturn(1);
@@ -34,6 +43,9 @@ class PlayerFilterTest {
         assertFalse(filter.filter(player, message));
     }
 
+    /**
+     * Verify that BlockBreakAnimationMessages are not filtered from non-author players.
+     */
     @Test
     void filterOtherBlockBreakAnimationTest() {
         when(player.getEntityId()).thenReturn(1);
@@ -42,6 +54,9 @@ class PlayerFilterTest {
         assertTrue(filter.filter(player, message));
     }
 
+    /**
+     * Verify that messages are not filtered by default.
+     */
     @Test
     void filterMessageBaseTest() {
         Message message = mock(Message.class);
