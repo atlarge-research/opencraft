@@ -3411,27 +3411,23 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
             Location position = getLocation();
             position.setY(position.getY() + getEyeHeight());
-            Block current = position.getBlock();
-            Material material = current.getType();
-            ItemStack helmet = getEquipment().getHelmet();
+            Block headBlock = position.getBlock();
             double penalty = 1.0; // default of 1 if there is no penalty
 
-            if (material == Material.WATER || material == Material.STATIONARY_WATER) {
-                Map<Enchantment, Integer> map = helmet.getEnchantments();
-                if (!map.containsKey(Enchantment.WATER_WORKER)) {
+            if (headBlock.isLiquid()) {
+                ItemStack helmet = getEquipment().getHelmet();
+                Map<Enchantment, Integer> enchantments = helmet.getEnchantments();
+                if (!enchantments.containsKey(Enchantment.WATER_WORKER)) {
                     penalty *= 5.0;
                 }
-
-            } else if (material == Material.LAVA || material == Material.STATIONARY_LAVA) {
-                penalty *= 5.0;
             }
 
             for (PotionEffect potion : getActivePotionEffects()) {
+
                 if (potion.getType() == PotionEffectType.SLOW_DIGGING) {
                     penalty *= Math.pow(3.0, potion.getAmplifier());
-                }
 
-                if (potion.getType() == PotionEffectType.FAST_DIGGING) {
+                } else if (potion.getType() == PotionEffectType.FAST_DIGGING) {
                     penalty /= (1.0 + 0.2 * potion.getAmplifier());
                 }
             }
