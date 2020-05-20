@@ -12,6 +12,15 @@ public class PlayerFilter implements Filter<Player, Message> {
 
     @Override
     public boolean filter(Player player, Message message) {
-        return !(message instanceof BlockBreakAnimationMessage);
+
+        if (message == null) {
+            return false;
+        }
+
+        if (message instanceof BlockBreakAnimationMessage) {
+            return false;
+        }
+
+        return true;
     }
 }
