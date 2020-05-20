@@ -162,6 +162,7 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
                     }
                 }
             }
+            
         } catch (JMSException e) {
             throw new RuntimeException("Failed to unsubscribe from JMS broker", e);
 
