@@ -10,7 +10,7 @@ class DyconitCollection {
     private Map<GlowChunk.Key, Dyconit> chunkList;
 
     DyconitCollection() {
-        chunkList = Maps.newHashMap();
+        chunkList = Maps.newConcurrentMap();
     }
 
     Dyconit retrieveDyconit(GlowChunk.Key key) {

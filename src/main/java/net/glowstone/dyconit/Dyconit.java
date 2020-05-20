@@ -14,7 +14,7 @@ class Dyconit {
     Map<Player, Subscription> subscriptions;
 
     Dyconit(Player player) {
-        subscriptions = Maps.newHashMap();
+        subscriptions = Maps.newConcurrentMap();
         addSubscription(player);
     }
 
@@ -47,10 +47,9 @@ class Dyconit {
     }
 
     void addMessage(Player player, UpdateMessage message) {
+        System.out.println(message.toString());
         if (subscriptions.containsKey(player)) {
-            synchronized (subscriptions.get(player).messageQueue) {
                 subscriptions.get(player).messageQueue.add(message);
-            }
         }
     }
 }
