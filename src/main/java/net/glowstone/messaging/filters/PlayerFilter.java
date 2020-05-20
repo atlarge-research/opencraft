@@ -5,6 +5,9 @@ import net.glowstone.messaging.Filter;
 import net.glowstone.net.message.play.game.BlockBreakAnimationMessage;
 import org.bukkit.entity.Player;
 
+/**
+ * The player filter prevents players from receiving messages the Minecraft client does not expect.
+ */
 public class PlayerFilter implements Filter<Player, Message> {
 
     @Override
