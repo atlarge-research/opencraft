@@ -771,6 +771,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             }
         }
         super.damage(amount, source, cause);
+
+        // TODO: status effects
     }
 
     @Override
@@ -3438,8 +3440,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             if (!isOnGround()) {
                 penalty *= underwaterModifier;
             }
-
-            // TODO: status effects
 
             totalDiggingTicks = Math.round(penalty * breakingTimeMultiplier * hardness * 20.0); // seconds to ticks
 
