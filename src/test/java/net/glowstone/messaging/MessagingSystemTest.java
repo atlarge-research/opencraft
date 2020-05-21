@@ -41,7 +41,8 @@ final class MessagingSystemTest {
     void beforeEach() {
         policy = (Policy<String, String, Subscriber>) mock(Policy.class);
         broker = (Broker<String, Subscriber, String>) mock(Broker.class);
-        system = new MessagingSystem<>(policy, broker);
+        Filter<Subscriber, String> filter = (subscriber, message) -> true;
+        system = new MessagingSystem<>(policy, broker, filter);
         alice = new Subscriber("Alice");
     }
 

@@ -59,8 +59,10 @@ import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
 import net.glowstone.messaging.Broker;
+import net.glowstone.messaging.Filter;
 import net.glowstone.messaging.MessagingSystem;
 import net.glowstone.messaging.brokers.concurrent.ConcurrentBroker;
+import net.glowstone.messaging.filters.PlayerFilter;
 import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
@@ -516,7 +518,8 @@ public class GlowWorld implements World {
 
         ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
         Broker<Chunk, Player, Message> broker = new ConcurrentBroker<>();
-        messagingSystem = new MessagingSystem<>(policy, broker);
+        Filter<Player, Message> filter = new PlayerFilter();
+        messagingSystem = new MessagingSystem<>(policy, broker, filter);
 
         previousLocations = new WeakHashMap<>();
         executor = new PriorityExecutor();
@@ -550,8 +553,10 @@ public class GlowWorld implements World {
             .filter(GlowPlayer.class::isInstance)
             .map(GlowPlayer.class::cast)
             .forEach(player -> {
+
                 GlowSession session = player.getSession();
                 messagingSystem.update(player, session::send);
+
                 int entityId = player.getEntityId();
 
                 Collection<ChunkRunnable> runnables = chunkRunnables.stream()
