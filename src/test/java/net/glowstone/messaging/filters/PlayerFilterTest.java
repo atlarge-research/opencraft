@@ -15,6 +15,8 @@ import org.junit.jupiter.api.Test;
  */
 class PlayerFilterTest {
 
+    private static final int PLAYER_ID = 1;
+
     private PlayerFilter filter;
     private Player player;
 
@@ -22,14 +24,7 @@ class PlayerFilterTest {
     void beforeEach() {
         filter = new PlayerFilter();
         player = mock(Player.class);
-    }
-
-    /**
-     * Verify that null messages are properly filtered.
-     */
-    @Test
-    void filterNullTest() {
-        assertFalse(filter.filter(player, null));
+        when(player.getEntityId()).thenReturn(PLAYER_ID);
     }
 
     /**
@@ -37,9 +32,7 @@ class PlayerFilterTest {
      */
     @Test
     void filterAuthoredBlockBreakAnimationTest() {
-        when(player.getEntityId()).thenReturn(1);
-        BlockBreakAnimationMessage message = mock(BlockBreakAnimationMessage.class);
-        when(message.getId()).thenReturn(1);
+        BlockBreakAnimationMessage message = new BlockBreakAnimationMessage(PLAYER_ID, 0, 0, 0, 0);
         assertFalse(filter.filter(player, message));
     }
 
@@ -48,9 +41,7 @@ class PlayerFilterTest {
      */
     @Test
     void filterOtherBlockBreakAnimationTest() {
-        when(player.getEntityId()).thenReturn(1);
-        BlockBreakAnimationMessage message = mock(BlockBreakAnimationMessage.class);
-        when(message.getId()).thenReturn(2);
+        BlockBreakAnimationMessage message = new BlockBreakAnimationMessage(PLAYER_ID + 1, 0, 0, 0, 0);
         assertTrue(filter.filter(player, message));
     }
 
