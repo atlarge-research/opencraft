@@ -19,6 +19,7 @@ import net.glowstone.entity.projectile.GlowProjectile;
 import net.glowstone.net.message.play.game.ExplosionMessage;
 import net.glowstone.net.message.play.game.ExplosionMessage.Record;
 import net.glowstone.util.RayUtil;
+import net.glowstone.util.Vectors;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -49,6 +50,7 @@ public final class Explosion {
     public static final int POWER_WITHER_CREATION = 7;
     public static final int POWER_ENDER_CRYSTAL = 6;
     public static final int EXPLOSION_VISIBILITY_RADIUS = 64;
+    public static final double EXPLOSION_RADIUS = 7;
     private static final List<Vector> RAY_DIRECTIONS = new ArrayList<>();
 
     static {
@@ -308,14 +310,21 @@ public final class Explosion {
             }
 
             if (entity instanceof GlowEntity && !(entity instanceof GlowItem)) {
+
                 GlowEntity glowEntity = (GlowEntity) entity;
                 Vector rayLength;
+
                 if(entity instanceof  GlowLivingEntity){
-                    rayLength = RayUtil.getVelocityRay(distanceToHead((GlowLivingEntity) glowEntity));
+                    rayLength = distanceToHead((GlowLivingEntity) glowEntity);
                 } else {
-                    rayLength = RayUtil.getVelocityRay(vectorTo(glowEntity));
+                    rayLength = vectorTo(glowEntity);
                 }
-                rayLength.multiply(exposure);
+
+                if(rayLength.length() > EXPLOSION_RADIUS){
+                    continue;
+                }
+
+                rayLength = Vectors.clamp(rayLength.multiply(exposure), 1.0);
 
                 Vector currentVelocity = entity.getVelocity();
                 currentVelocity.add(rayLength);

@@ -62,6 +62,46 @@ public class VectorsTest {
     }
 
     @Test
+    public void clampTestPositiveClamped() {
+        Vector vector = new Vector(0.0, 4.0, 3.0);
+        Vector projected = Vectors.clamp(vector, 1.0);
+
+        assertEquals(projected.getX(), 0.0, EPSILON);
+        assertEquals(projected.getY(), 0.8, EPSILON);
+        assertEquals(projected.getZ(), 0.6, EPSILON);
+    }
+
+    @Test
+    public void clampTestPositiveNotClamped() {
+        Vector vector = new Vector(0.0, 0.8, 0.6);
+        Vector projected = Vectors.clamp(vector, 1.0);
+
+        assertEquals(projected.getX(), 0.0, EPSILON);
+        assertEquals(projected.getY(), 0.8, EPSILON);
+        assertEquals(projected.getZ(), 0.6, EPSILON);
+    }
+
+    @Test
+    public void clampTestNegativeClamped() {
+        Vector vector = new Vector(0.0, -4.0, -3.0);
+        Vector projected = Vectors.clamp(vector, 1.0);
+
+        assertEquals(projected.getX(), 0.0, EPSILON);
+        assertEquals(projected.getY(), -0.8, EPSILON);
+        assertEquals(projected.getZ(), -0.6, EPSILON);
+    }
+
+    @Test
+    public void clampTestNegativeNotClamped() {
+        Vector vector = new Vector(0.0, -0.8, -0.6);
+        Vector projected = Vectors.clamp(vector, 1.0);
+
+        assertEquals(projected.getX(), 0.0, EPSILON);
+        assertEquals(projected.getY(), -0.8, EPSILON);
+        assertEquals(projected.getZ(), -0.6, EPSILON);
+    }
+
+    @Test
     public void equalsTest() {
         Vector vector = new Vector(0.1, 1.0, -0.9);
         Vector otherVector = new Vector(0.2 / 2.0, 2.0 / 2.0, -1.8 / 2.0);
