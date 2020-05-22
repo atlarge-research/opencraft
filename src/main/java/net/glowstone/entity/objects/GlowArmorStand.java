@@ -370,8 +370,8 @@ public class GlowArmorStand extends GlowLivingEntity implements ArmorStand {
     }
 
     @Override
-    public List<Message> createUpdateMessage(GlowSession session) {
-        List<Message> messages = super.createUpdateMessage(session);
+    public List<Message> createUpdateMessage() {
+        List<Message> messages = super.createUpdateMessage();
         if (needsKill) {
             messages.add(new DestroyEntitiesMessage(Collections.singletonList(entityId)));
         }

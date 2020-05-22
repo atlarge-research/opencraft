@@ -810,45 +810,46 @@ public abstract class GlowEntity implements Entity {
      * Creates a List of {@link Message} which can be sent to a client directly after the entity is
      * spawned.
      *
-     * @param session Session to update this entity for
      * @return A message which can spawn this entity.
      */
-    public List<Message> createAfterSpawnMessage(GlowSession session) {
-        List<Message> result = Lists.newArrayList();
+    public List<Message> createAfterSpawnMessage() {
+        return Collections.emptyList();
 
-        GlowPlayer player = session.getPlayer();
-        if (player == null) {
-            // Player disconnected while this task was pending
-            return result;
-        }
-        boolean visible = player.canSeeEntity(this);
-        for (GlowEntity leashedEntity : leashedEntities) {
-            if (visible && player.canSeeEntity(leashedEntity)) {
-                int attached = player.getEntityId() == this.getEntityId() ? 0
-                    : leashedEntity.getEntityId();
-                int holder = this.getEntityId();
-
-                result.add(new AttachEntityMessage(attached, holder));
-            }
-        }
-
-        if (isLeashed() && visible && player.canSeeEntity(leashHolder)) {
-            int attached = player.getEntityId() == this.getEntityId() ? 0 : this.getEntityId();
-            int holder = leashHolder.getEntityId();
-
-            result.add(new AttachEntityMessage(attached, holder));
-        }
-
-        return result;
+//        List<Message> result = Lists.newArrayList();
+//
+//        GlowPlayer player = session.getPlayer();
+//        if (player == null) {
+//            // Player disconnected while this task was pending
+//            return result;
+//        }
+//        boolean visible = player.canSeeEntity(this);
+//        for (GlowEntity leashedEntity : leashedEntities) {
+//            if (visible && player.canSeeEntity(leashedEntity)) {
+//                int attached = player.getEntityId() == this.getEntityId() ? 0
+//                    : leashedEntity.getEntityId();
+//                int holder = this.getEntityId();
+//
+//                result.add(new AttachEntityMessage(attached, holder));
+//            }
+//        }
+//
+//        if (isLeashed() && visible && player.canSeeEntity(leashHolder)) {
+//            int attached = player.getEntityId() == this.getEntityId() ? 0 : this.getEntityId();
+//            int holder = leashHolder.getEntityId();
+//
+//            result.add(new AttachEntityMessage(attached, holder));
+//        }
+//
+//        return result;
     }
 
     /**
      * Creates a {@link Message} which can be sent to a client to update this entity.
      *
-     * @param session Session to update this entity for
      * @return A message which can update this entity.
      */
-    public List<Message> createUpdateMessage(GlowSession session) {
+    public List<Message> createUpdateMessage() {
+
         double x = location.getX();
         double y = location.getY();
         double z = location.getZ();
@@ -907,18 +908,18 @@ public abstract class GlowEntity implements Entity {
             passengerChanged = false;
         }
 
-        if (leashHolderChanged) {
-            int attached =
-                isLeashed() && session.getPlayer().getEntityId() == leashHolder.getEntityId()
-                    ? 0 : this.getEntityId();
-            int holder = !isLeashed() ? -1 : leashHolder.getEntityId();
-
-            // When the leashHolder is not visible, the AttachEntityMessage will be created in
-            // createAfterSpawnMessage()
-            if (!isLeashed() || session.getPlayer().canSeeEntity(leashHolder)) {
-                result.add(new AttachEntityMessage(attached, holder));
-            }
-        }
+//        if (leashHolderChanged) {
+//            int attached =
+//                isLeashed() && session.getPlayer().getEntityId() == leashHolder.getEntityId()
+//                    ? 0 : this.getEntityId();
+//            int holder = !isLeashed() ? -1 : leashHolder.getEntityId();
+//
+//            // When the leashHolder is not visible, the AttachEntityMessage will be created in
+//            // createAfterSpawnMessage()
+//            if (!isLeashed() || session.getPlayer().canSeeEntity(leashHolder)) {
+//                result.add(new AttachEntityMessage(attached, holder));
+//            }
+//        }
 
         return result;
     }

@@ -507,8 +507,8 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
     }
 
     @Override
-    public List<Message> createUpdateMessage(GlowSession session) {
-        List<Message> messages = super.createUpdateMessage(session);
+    public List<Message> createUpdateMessage() {
+        List<Message> messages = super.createUpdateMessage();
 
         messages.addAll(equipmentMonitor.getChanges().stream()
                 .map(change -> new EntityEquipmentMessage(entityId, change.slot, change.item))

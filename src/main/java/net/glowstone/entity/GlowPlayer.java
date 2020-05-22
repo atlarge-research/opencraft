@@ -953,12 +953,11 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         try {
             // update or remove entities
             List<GlowEntity> destroyEntities = new LinkedList<>();
-            for (Iterator<GlowEntity> it = knownEntities.iterator(); it.hasNext(); ) {
-                GlowEntity entity = it.next();
+            for (GlowEntity entity : knownEntities) {
                 if (!isWithinDistance(entity) || entity.isRemoved()) {
                     destroyEntities.add(entity);
                 } else {
-                    entity.createUpdateMessage(session).forEach(session::send);
+                    entity.createUpdateMessage().forEach(session::send);
                 }
             }
             if (!destroyEntities.isEmpty()) {
@@ -986,8 +985,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                                             worldLock.readLock().unlock();
                                         }
                                         entity.createSpawnMessage().forEach(session::send);
-                                        entity.createAfterSpawnMessage(session)
-                                                .forEach(session::send);
+                                        entity.createAfterSpawnMessage().forEach(session::send);
                                     })));
         } finally {
             worldLock.writeLock().unlock();

@@ -132,7 +132,7 @@ public class GlowLightningStrike extends GlowWeather implements LightningStrike 
     }
 
     @Override
-    public List<Message> createUpdateMessage(GlowSession session) {
+    public List<Message> createUpdateMessage() {
         return Collections.emptyList();
     }
 
