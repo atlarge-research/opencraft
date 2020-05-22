@@ -30,7 +30,7 @@ public class ItemSpawn extends ItemType {
             CompoundTag tag = meta.getEntityTag();
 
             if (face == BlockFace.UP && against.getBoundingBoxes().stream().anyMatch(box -> box.getSize().getY() > 1.0)) {
-            location.add(0, 0.5, 0);
+                location.add(0, 0.5, 0);
             }
 
             if (type != null) {
