@@ -1,8 +1,7 @@
 package net.glowstone.messaging.brokers.guava;
 
-import com.google.common.eventbus.EventBus;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import net.glowstone.messaging.Broker;
 
@@ -15,7 +14,7 @@ import net.glowstone.messaging.Broker;
  * @param <Message> the type of messages that is allowed to be published to a channel.
  */
 @SuppressWarnings("UnstableApiUsage")
-public class GuavaBroker<Topic, Subscriber, Message> implements Broker<Topic, Subscriber, Message> {
+public final class GuavaBroker<Topic, Subscriber, Message> implements Broker<Topic, Subscriber, Message> {
 
     private final Map<Topic, GuavaChannel<Subscriber, Message>> channels;
 
@@ -23,14 +22,14 @@ public class GuavaBroker<Topic, Subscriber, Message> implements Broker<Topic, Su
      * Constructing a new guava broker.
      */
     public GuavaBroker() {
-        channels = new HashMap<>();
+        channels = new ConcurrentHashMap<>();
     }
 
     @Override
     public void subscribe(Topic topic, Subscriber subscriber, Consumer<Message> callback) {
         channels.compute(topic, (t, channel) -> {
             if (channel == null) {
-                channel = new GuavaChannel<>(new EventBus());
+                channel = new GuavaChannel<>();
             }
             channel.subscribe(subscriber, callback);
             return channel;

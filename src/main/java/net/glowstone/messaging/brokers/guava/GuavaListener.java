@@ -4,12 +4,12 @@ import com.google.common.eventbus.Subscribe;
 import java.util.function.Consumer;
 
 /**
- *The guava listener is used for the callback function.
+ * The guava listener is used for the callback function.
  *
- * @param <Message> the type of messages that is allowed to be published to a channel.
+ * @param <Message> the type of messages that can be listened for.
  */
 @SuppressWarnings("UnstableApiUsage")
-public class GuavaListener<Message> {
+public final class GuavaListener<Message> {
 
     private final Consumer<Message> callback;
 
@@ -22,7 +22,7 @@ public class GuavaListener<Message> {
     }
 
     @Subscribe
-    public void handler(Message message) {
+    public void onMessage(Message message) {
         callback.accept(message);
     }
 }
