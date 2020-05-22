@@ -8,7 +8,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
 import net.glowstone.messaging.Broker;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * The guava broker uses a concurrent hash map to store topic-eventBus pairs. The concurrent
@@ -22,8 +21,8 @@ import org.apache.commons.lang3.tuple.Pair;
 @SuppressWarnings("UnstableApiUsage")
 public class GuavaBroker<Topic, Subscriber, Message> implements Broker<Topic, Subscriber, Message> {
 
-    private final Map<Topic, Pair<EventBus, Integer>> channels;
-    private final Map<Pair<Topic, Subscriber>, GuavaListener<Subscriber, Message>> subscribers;
+    private final Map<Topic, EventBus> channels;
+    private final Map<Topic, Map<Subscriber, GuavaListener<Message>>> subscribers;
 
     private final Lock writeLock;
     private final Lock readLock;
@@ -47,28 +46,21 @@ public class GuavaBroker<Topic, Subscriber, Message> implements Broker<Topic, Su
         writeLock.lock();
         try {
 
-            GuavaListener<Subscriber, Message> listener = new GuavaListener<>(subscriber, callback);
+            GuavaListener<Message> listener = new GuavaListener<>(callback);
 
-            EventBus channel;
-            Pair<EventBus, Integer> eventbus;
-            int size;
-
-            if (channels.containsKey(topic)) {
-                eventbus = channels.remove(topic);
-                channel = eventbus.getLeft();
-                size = eventbus.getRight() + 1;
-                eventbus = Pair.of(channel, size);
-
+            Map<Subscriber, GuavaListener<Message>> listeners = subscribers.computeIfAbsent(
+                topic,
+                t -> new HashMap<>()
+            );
+            EventBus eventBus;
+            if (listeners.isEmpty()) {
+                eventBus = new EventBus();
+                channels.put(topic, eventBus);
             } else {
-                channel = new EventBus();
-                eventbus = Pair.of(channel, 1);
+                eventBus = channels.get(topic);
             }
-
-            channels.put(topic, eventbus);
-            channel.register(listener);
-
-            Pair<Topic, Subscriber> pair = Pair.of(topic, subscriber);
-            subscribers.put(pair, listener);
+            listeners.put(subscriber, listener);
+            eventBus.register(listener);
 
         } finally {
             writeLock.unlock();
@@ -81,30 +73,27 @@ public class GuavaBroker<Topic, Subscriber, Message> implements Broker<Topic, Su
         writeLock.lock();
         try {
 
-            Pair<Topic, Subscriber> pair = Pair.of(topic, subscriber);
-            GuavaListener<Subscriber, Message> listener = subscribers.getOrDefault(pair, null);
-
-            EventBus channel;
-            Pair<EventBus, Integer> eventbus;
-            int size;
-
-            if (channels.containsKey(topic) && listener != null) {
-                eventbus = channels.remove(topic);
-                channel = eventbus.getLeft();
-                size = eventbus.getRight() - 1;
-                eventbus = Pair.of(channel, size);
-
+            Map<Subscriber, GuavaListener<Message>> listeners = subscribers.computeIfAbsent(
+                topic,
+                t -> new HashMap<>()
+            );
+            GuavaListener<Message> listener = listeners.get(subscriber);
+            EventBus eventBus = channels.get(topic);
+            if (listener != null) {
                 try {
-                    channel.unregister(listener);
+                    eventBus.unregister(listener);
 
                 } catch (IllegalArgumentException ignored) {
                     // Don't need to do anything when a listener is not used.
                 }
+                listeners.remove(subscriber);
 
-                if (size > 0) {
-                    channels.put(topic, eventbus);
+                if (listeners.isEmpty()) {
+                    subscribers.remove(topic);
+                    channels.remove(topic);
                 }
             }
+
         } finally {
             writeLock.unlock();
         }
@@ -114,8 +103,7 @@ public class GuavaBroker<Topic, Subscriber, Message> implements Broker<Topic, Su
     public void publish(Topic topic, Message message) {
         readLock.lock();
         try {
-            Pair<EventBus, Integer> pair = channels.getOrDefault(topic, Pair.of(new EventBus(), 0));
-            EventBus channel = pair.getLeft();
+            EventBus channel = channels.computeIfAbsent(topic, t -> new EventBus());
             channel.post(message);
 
         } finally {
