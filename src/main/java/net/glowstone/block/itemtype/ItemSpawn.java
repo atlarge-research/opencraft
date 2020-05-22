@@ -11,7 +11,6 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -30,10 +29,9 @@ public class ItemSpawn extends ItemType {
             EntityType type = meta.getSpawnedType();
             CompoundTag tag = meta.getEntityTag();
 
-            // TODO: check for fence/wall
-            //if (face == BlockFace.UP && against instanceof BlockFence) {
-            //location.add(0, 0.5, 0);
-            //}
+            if (face == BlockFace.UP && against.getBoundingBoxes().stream().anyMatch(box -> box.getSize().getY() > 1.0)) {
+            location.add(0, 0.5, 0);
+            }
 
             if (type != null) {
                 GlowEntity entity = against.getWorld()

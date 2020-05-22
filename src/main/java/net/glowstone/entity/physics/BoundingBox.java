@@ -89,6 +89,20 @@ public class BoundingBox implements Cloneable {
     }
 
     /**
+     * Creates a bounding box that is centered just as far from the minimum corner as from the maximum corner.
+     * @param pos The position to start from
+     * @param xzSize The x and z axis size
+     * @param ySize The height of the bounding box
+     * @return The bounding box
+     */
+    public static BoundingBox fromCenterAndSize(Vector pos, double xzSize, double ySize) {
+        BoundingBox box = new BoundingBox();
+        box.minCorner.copy(pos.clone().add(new Vector(0.5 - xzSize / 2.0, 0.0, 0.5 - xzSize / 2.0)));
+        box.maxCorner.copy(pos.clone().add(new Vector(0.5 + xzSize / 2.0, ySize, 0.5 + xzSize / 2.0)));
+        return box;
+    }
+
+    /**
      * Returns a deep copy of a BoundingBox.
      * @param original the BoundingBox to copy
      * @return a copy of {@code original}

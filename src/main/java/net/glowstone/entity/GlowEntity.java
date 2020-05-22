@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import net.glowstone.EventFactory;
@@ -106,7 +107,7 @@ public abstract class GlowEntity implements Entity {
     public static final int ENTITY_ID_NOBODY = -1;
 
     /**
-     * The offset to be used during collision
+     * The offset to be used during collision.
      */
     public static final double COLLISION_OFFSET = 0.00001;
 
@@ -1058,40 +1059,29 @@ public abstract class GlowEntity implements Entity {
         return boundingBox != null && boundingBox.intersects(box);
     }
 
-    List<BoundingBox> getIntersectingBlockBoundingBoxes(BoundingBox broadPhaseBox) {
+    /**
+     * Get all block bounding boxes that are within range of the given BoundingBox.
+     *
+     * @param broadPhaseBox The BoundingBox to be used as block range
+     * @return All boundingboxes from blocks that intersect with the give BoundingBox
+     */
+    List<BoundingBox> getIntersectingBlockBoundingBoxes(final BoundingBox broadPhaseBox) {
 
         if (broadPhaseBox == null) {
             return Collections.emptyList();
         }
 
-        List<BoundingBox> intersectingBoxes = new ArrayList<>();
+        Vector min = broadPhaseBox.minCorner;
+        min.setY(min.getY() - 1);
+        Vector max = broadPhaseBox.maxCorner;
 
-        Vector min = Vectors.floor(broadPhaseBox.minCorner);
-        Vector max = Vectors.ceil(broadPhaseBox.maxCorner);
+        List<GlowBlock> glowBlocks = world.getOverlappingBlocks(min, max);
 
-        for (int x = min.getBlockX(); x <= max.getBlockX(); x++) {
-            for (int y = min.getBlockY() - 1; y <= max.getBlockY(); y++) {
-                for (int z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
-                    GlowBlock block = world.getBlockAt(x, y, z);
-                    Material material = block.getType();
-
-                    if (!material.isSolid()) {
-                        continue;
-                    }
-
-                    BoundingBox box = block.getBoundingBox();
-
-                    if (box == null || (y == min.getBlockY() - 1 && box.getSize().getY()  <= 1.0)) {
-                        continue;
-                    }
-
-
-                    if (BoundingBox.intersects(broadPhaseBox, box)) {
-                        intersectingBoxes.add(box);
-                    }
-                }
-            }
-        }
+        List<BoundingBox> intersectingBoxes = glowBlocks.stream()
+                .map(GlowBlock::getBoundingBoxes)
+                .flatMap(List::stream)
+                .filter(box -> box.intersects(broadPhaseBox))
+                .collect(Collectors.toList());
 
         return intersectingBoxes;
     }

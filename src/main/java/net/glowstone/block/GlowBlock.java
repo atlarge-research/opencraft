@@ -1,7 +1,9 @@
 package net.glowstone.block;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +29,10 @@ import org.bukkit.block.PistonMoveReaction;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.Button;
 import org.bukkit.material.Diode;
+import org.bukkit.material.Gate;
 import org.bukkit.material.Lever;
+import org.bukkit.material.Skull;
+import org.bukkit.material.Stairs;
 import org.bukkit.metadata.MetadataStore;
 import org.bukkit.metadata.MetadataStoreBase;
 import org.bukkit.metadata.MetadataValue;
@@ -595,50 +600,181 @@ public class GlowBlock implements Block {
      * @param location The location of the block
      * @return The correct fence boundingbox
      */
-    private BoundingBox getFenceBoundingBox(Location location) {
+    private List<BoundingBox> getFenceGateBoundingBox(Location location) {
 
-        Vector min = location.clone().add(0.4, 0, 0.4).toVector();
-        Vector max = location.clone().add(0.6, 1.5, 0.6).toVector();
+        double invertedFenceWidth = 1.0 / 4.0;
+        BoundingBox box = BoundingBox.fromCenterAndSize(location.toVector(), invertedFenceWidth, 1.5);
 
-        BoundingBox box = BoundingBox.fromCorners(min, max);
+        Gate gate = (Gate) this.getState().getData();
+        BlockFace gateFace = gate.getFacing();
 
-        GlowBlock north = getRelative(BlockFace.NORTH);
-        GlowBlock south = getRelative(BlockFace.SOUTH);
-        GlowBlock west = getRelative(BlockFace.WEST);
-        GlowBlock east = getRelative(BlockFace.EAST);
 
-        double invertedFenceWidth = 0.4;
+        if (gate.isOpen()) {
+            return Collections.emptyList();
+        }
 
-        if (isFence(north.getType())) {
+        if (gateFace == BlockFace.NORTH || gateFace == BlockFace.SOUTH) {
             box.minCorner.setZ(box.minCorner.getZ() - invertedFenceWidth);
-        }
-
-        if (isFence(south.getType())) {
             box.maxCorner.setZ(box.maxCorner.getZ() + invertedFenceWidth);
+            return Arrays.asList(box);
         }
 
-        if (isFence(west.getType())) {
+        if (gateFace == BlockFace.WEST || gateFace == BlockFace.EAST) {
             box.minCorner.setX(box.minCorner.getX() - invertedFenceWidth);
-        }
-
-        if (isFence(east.getType())) {
             box.maxCorner.setX(box.maxCorner.getX() + invertedFenceWidth);
+            return Arrays.asList(box);
         }
 
-        return box;
-
+        return Arrays.asList(box);
     }
 
     /**
-     * Returns a boolean specifying whether or not the material is of type fence.
+     * Generates the correct bounding box for a fence block.
      *
-     * @param material The material that needs to be identified as fence or not
-     * @return true if the material is a fence, false otherwise
+     * @param location The location of the block
+     * @return The correct fence boundingbox
      */
-    public boolean isFence(Material material) {
-        switch (material) {
-            case FENCE:
+    private List<BoundingBox> getFenceBoundingBox(Location location) {
+
+        double invertedFenceWidth = 1.0 / 4.0;
+        BoundingBox boxX = BoundingBox.fromCenterAndSize(location.toVector(), invertedFenceWidth, 1.5);
+        BoundingBox boxZ = BoundingBox.fromCenterAndSize(location.toVector(), invertedFenceWidth, 1.5);
+
+        if (canConnectFence(BlockFace.NORTH)) {
+            boxX.minCorner.setZ(boxX.minCorner.getZ() - invertedFenceWidth);
+        }
+
+        if (canConnectFence(BlockFace.SOUTH)) {
+            boxX.maxCorner.setZ(boxX.maxCorner.getZ() + invertedFenceWidth);
+        }
+
+        if (canConnectFence(BlockFace.WEST)) {
+            boxZ.minCorner.setX(boxZ.minCorner.getX() - invertedFenceWidth);
+        }
+
+        if (canConnectFence(BlockFace.EAST)) {
+            boxZ.maxCorner.setX(boxZ.maxCorner.getX() + invertedFenceWidth);
+        }
+
+        return Arrays.asList(boxX, boxZ);
+    }
+
+    /**
+     * Generates the correct bounding box for a fence block.
+     *
+     * @param location The location of the block
+     * @return The correct fence boundingbox
+     */
+    private List<BoundingBox> getPaneBoundingBox(Location location) {
+
+        double paneWidth = 1.0 / 8.0;
+
+        BoundingBox boxX = BoundingBox.fromCenterAndSize(location.toVector(), paneWidth, 1.0);
+        BoundingBox boxZ = BoundingBox.fromCenterAndSize(location.toVector(), paneWidth, 1.0);
+
+        if (canConnectPane(BlockFace.NORTH)) {
+            boxX.minCorner.setZ(boxX.minCorner.getZ() - paneWidth);
+        }
+
+        if (canConnectPane(BlockFace.SOUTH)) {
+            boxX.maxCorner.setZ(boxX.maxCorner.getZ() + paneWidth);
+        }
+
+        if (canConnectPane(BlockFace.WEST)) {
+            boxZ.minCorner.setX(boxZ.minCorner.getX() - paneWidth);
+        }
+
+        if (canConnectPane(BlockFace.EAST)) {
+            boxZ.maxCorner.setX(boxZ.maxCorner.getX() + paneWidth);
+        }
+
+        return Arrays.asList(boxX, boxZ);
+    }
+
+    /**
+     * Generates the correct bounding box for a fence block.
+     *
+     * @param location The location of the block
+     * @return The correct fence boundingbox
+     */
+    private List<BoundingBox> getWallBoundingBox(Location location) {
+
+        double invertedWallWidth = 6.0 / 16.0;
+        double invertedWallPostWidth = 1.0 / 4.0;
+
+        BoundingBox boxX = BoundingBox.fromCenterAndSize(location.toVector(), invertedWallWidth, 1.5);
+        BoundingBox boxZ = BoundingBox.fromCenterAndSize(location.toVector(), invertedWallWidth, 1.5);
+        BoundingBox middle = BoundingBox.fromCenterAndSize(location.toVector(), invertedWallPostWidth, 1.5);
+
+        ArrayList boxes = new ArrayList();
+        boxes.addAll(Arrays.asList(boxX, boxZ));
+
+        int connectedX = 0;
+        int connectedZ = 0;
+
+        if (canConnectWall(BlockFace.NORTH)) {
+            connectedZ++;
+            boxX.minCorner.setZ(boxX.minCorner.getZ() - invertedWallWidth);
+        }
+
+        if (canConnectWall(BlockFace.SOUTH)) {
+            connectedZ++;
+            boxX.maxCorner.setZ(boxX.maxCorner.getZ() + invertedWallWidth);
+        }
+
+        if (canConnectWall(BlockFace.WEST)) {
+            connectedX++;
+            boxZ.minCorner.setX(boxZ.minCorner.getX() - invertedWallWidth);
+        }
+
+        if (canConnectWall(BlockFace.EAST)) {
+            connectedX++;
+            boxZ.maxCorner.setX(boxZ.maxCorner.getX() + invertedWallWidth);
+        }
+
+        if (connectedX > 0 && connectedZ > 0) {
+            boxes.add(middle);
+        } else if (connectedX == 1 || connectedZ == 1) {
+            boxes.add(middle);
+        }
+
+        return boxes;
+    }
+
+    public boolean isViableFenceGate(BlockFace face) {
+        GlowBlock block = getRelative(face);
+        switch (block.getType()) {
             case FENCE_GATE:
+            case ACACIA_FENCE_GATE:
+            case BIRCH_FENCE_GATE:
+            case DARK_OAK_FENCE_GATE:
+            case JUNGLE_FENCE_GATE:
+            case SPRUCE_FENCE_GATE:
+                BlockFace gateFace = ((Gate) block.getState().getData()).getFacing();
+                BlockFace oppositeGateFace = face.getOppositeFace();
+                return gateFace != face && oppositeGateFace != gateFace;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Returns a boolean specifying whether or not the block is of type fence.
+     *
+     * @param face The face of the block that has to be checked
+     * @return true if the block is a fence, false otherwise
+     */
+    public boolean canConnectFence(BlockFace face) {
+        GlowBlock block = getRelative(face);
+        switch (block.getType()) {
+            case FENCE_GATE:
+            case ACACIA_FENCE_GATE:
+            case BIRCH_FENCE_GATE:
+            case DARK_OAK_FENCE_GATE:
+            case JUNGLE_FENCE_GATE:
+            case SPRUCE_FENCE_GATE:
+                return isViableFenceGate(face);
+            case FENCE:
             case NETHER_FENCE:
             case ACACIA_FENCE:
             case BIRCH_FENCE:
@@ -648,8 +784,158 @@ public class GlowBlock implements Block {
             case SPRUCE_FENCE:
                 return true;
             default:
-                return false;
+                return block.getType().isOccluding();
         }
+    }
+
+    /**
+     * Returns a boolean specifying whether or not the block is of type Wall.
+     *
+     * @param face The face of the block that has to be checked
+     * @return true if the block is a where a wall can connect to, false otherwise
+     */
+    public boolean canConnectWall(BlockFace face) {
+        GlowBlock block = getRelative(face);
+        switch (block.getType()) {
+            case FENCE_GATE:
+            case ACACIA_FENCE_GATE:
+            case BIRCH_FENCE_GATE:
+            case DARK_OAK_FENCE_GATE:
+            case JUNGLE_FENCE_GATE:
+            case SPRUCE_FENCE_GATE:
+                return isViableFenceGate(face);
+            case COBBLE_WALL:
+                return true;
+            default:
+                return block.getType().isOccluding();
+        }
+    }
+
+    /**
+     * Returns a boolean specifying whether or not the block is of type fence.
+     *
+     * @param face The face of the block that has to be checked
+     * @return true if the block is a fence, false otherwise
+     */
+    public boolean canConnectPane(BlockFace face) {
+        GlowBlock block = getRelative(face);
+        switch (block.getType()) {
+            case THIN_GLASS:
+            case STAINED_GLASS_PANE:
+            case IRON_FENCE:
+                return true;
+            default:
+                return block.getType().isOccluding();
+        }
+    }
+
+    /**
+     * Builds the skull bounding box which is dependent on position and facing.
+     *
+     * @param loc  The location of the skull
+     * @param face The direction the skull is facing
+     * @return The bounding box for the skull
+     */
+    public List<BoundingBox> getSkullBoundingBox(Location loc, BlockFace face) {
+
+        if (face == BlockFace.UP) {
+            return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 0.5, 0.5));
+        }
+
+        Location skullLoc = loc.clone().add(0, 0.25, 0);
+
+        if (face == BlockFace.SOUTH) {
+            skullLoc.add(0, 0, -0.25);
+        } else if (face == BlockFace.NORTH) {
+            skullLoc.add(0, 0, 0.25);
+        } else if (face == BlockFace.WEST) {
+            skullLoc.add(0.25, 0, 0);
+        } else if (face == BlockFace.EAST) {
+            skullLoc.add(-0.25, 0, 0);
+        }
+
+        return Arrays.asList(BoundingBox.fromCenterAndSize(skullLoc.toVector(), 0.5, 0.5));
+    }
+
+    /**
+     * Returns the bounding box for the stair by checking the stair data and its surroundings.
+     *
+     * @param loc The location of the stair
+     * @param stairs The stair data
+     * @return The bounding box of the stair
+     */
+    public List<BoundingBox> getStairsBoundingBox(Location loc, Stairs stairs) {
+        BoundingBox base;
+        BoundingBox head = null;
+
+        if (stairs.isInverted()) {
+            base = BoundingBox.fromCenterAndSize(loc.add(0, 0.5, 0).toVector(), 1.0, 0.5);
+        } else {
+            base = BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 0.5);
+        }
+
+        BlockFace face = stairs.getAscendingDirection();
+
+        Vector origin = loc.clone().toVector();
+        Vector originHalfX = loc.clone().add(0.5, 0.0, 0.0).toVector();
+        Vector originHalfZ = loc.clone().add(0.0, 0.0, 0.5).toVector();
+
+        Vector south = loc.clone().add(1.0, 1.0, 0.5).toVector();
+        Vector full = loc.clone().add(1.0, 1.0, 1.0).toVector();
+        Vector west = loc.clone().add(0.5, 1.0, 1.0).toVector();
+
+        if (face == BlockFace.NORTH) {
+            head = BoundingBox.fromCorners(origin, south);
+        } else if (face == BlockFace.SOUTH) {
+            head = BoundingBox.fromCorners(originHalfZ, full);
+        } else if (face == BlockFace.WEST) {
+            head = BoundingBox.fromCorners(origin, west);
+        } else if (face == BlockFace.EAST) {
+            head = BoundingBox.fromCorners(originHalfX, full);
+        }
+
+        //TODO: Implement stair corners with the getStairFaceMethod
+
+        if (head != null) {
+            return Arrays.asList(head, base);
+        } else {
+            return Arrays.asList(base);
+        }
+    }
+
+    private BlockFace getStairFace(boolean ascending) {
+        if (ascending) {
+            return ((Stairs) this.getState().getData()).getAscendingDirection();
+        } else {
+            return ((Stairs) this.getState().getData()).getDescendingDirection();
+        }
+    }
+
+    /**
+     * Returns the cauldron bounding box.
+     *
+     * @param loc The location of the cauldron
+     * @return Returns the bounding boxes necessary to construct the cauldron collision
+     */
+    public List<BoundingBox> getCauldronBoundingBox(Location loc, double internalHeight) {
+
+        double cauldronWidth = 2.0 / 16.0;
+        Vector min = loc.clone().toVector();
+        Vector maxZ = loc.clone().add(cauldronWidth, 1.0, 1.0).toVector();
+        Vector maxX = loc.clone().add(1.0, 1.0, cauldronWidth).toVector();
+
+        Vector minX = loc.clone().add(1.0 - cauldronWidth, 1.0, 0.0).toVector();
+        Vector minZ = loc.clone().add(0.0, 1.0, 1.0 - cauldronWidth).toVector();
+        Vector maxXZ = loc.clone().add(1.0, 1.0, 1.0).toVector();
+
+        return Arrays.asList(
+                BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, internalHeight),
+                BoundingBox.fromCorners(min, maxX),
+                BoundingBox.fromCorners(min, maxZ),
+                BoundingBox.fromCorners(minX, maxXZ),
+                BoundingBox.fromCorners(minZ, maxXZ)
+        );
+
     }
 
     /**
@@ -657,32 +943,99 @@ public class GlowBlock implements Block {
      *
      * @return The bounding box
      */
-    public BoundingBox getBoundingBox() {
+    public List<BoundingBox> getBoundingBoxes() {
         Location loc = this.getLocation().clone();
         switch (this.getType()) {
             case STEP:
             case WOOD_STEP:
             case PURPUR_SLAB:
             case STONE_SLAB2:
-                return BoundingBox.fromCorners(loc.toVector(), loc.add(1, 0.5, 1).toVector());
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 0.5));
             case FENCE:
-            case FENCE_GATE:
             case NETHER_FENCE:
-            case ACACIA_FENCE_GATE:
             case ACACIA_FENCE:
+            case BIRCH_FENCE:
+            case DARK_OAK_FENCE:
+            case JUNGLE_FENCE:
+            case SPRUCE_FENCE:
+                return getFenceBoundingBox(loc);
+            case COBBLE_WALL:
+                return getWallBoundingBox(loc);
+            case FENCE_GATE:
+            case ACACIA_FENCE_GATE:
             case BIRCH_FENCE_GATE:
             case DARK_OAK_FENCE_GATE:
             case JUNGLE_FENCE_GATE:
             case SPRUCE_FENCE_GATE:
-            case BIRCH_FENCE:
-            case DARK_OAK_FENCE:
+                return getFenceGateBoundingBox(loc);
+            case SNOW:
+                double snowHeight = this.getState().getData().getData() * 1.0 / 7.0;
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, snowHeight));
+            case ENCHANTMENT_TABLE:
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 3.0 / 4.0));
+            case CHEST:
+            case ENDER_CHEST:
+            case TRAPPED_CHEST:
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 15.0 / 16.0, 7.0 / 8.0));
+            case BED_BLOCK:
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 9.0 / 16.0));
+            case DAYLIGHT_DETECTOR:
+            case DAYLIGHT_DETECTOR_INVERTED:
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 3.0 / 8.0));
+            case FLOWER_POT:
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 3.0 / 8.0, 3.0 / 8.0));
+            case SOUL_SAND:
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 7.0 / 8.0));
+            case ENDER_PORTAL_FRAME:
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 13.0 / 16.0));
+            case WATER_LILY:
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 1.0 / 64.0));
+            case CAKE_BLOCK:
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 7.0 / 8.0, 7.0 / 16.0));
+            case CAULDRON:
+                return getCauldronBoundingBox(loc, 5.0 / 16.0);
+            case HOPPER:
+                return getCauldronBoundingBox(loc, 9.0 / 16.0);
+            case BREWING_STAND:
+                return Arrays.asList(
+                        BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 1.0 / 8.0),
+                        BoundingBox.fromCenterAndSize(loc.toVector(), 2.0 / 16.0, 7.0 / 8.0)
+                );
+            case THIN_GLASS:
+            case STAINED_GLASS_PANE:
             case IRON_FENCE:
-            case JUNGLE_FENCE:
-            case SPRUCE_FENCE:
-            case COBBLE_WALL:
-                return getFenceBoundingBox(loc);
+                return getPaneBoundingBox(loc);
+            case TRAP_DOOR:
+            case IRON_TRAPDOOR:
+            case REDSTONE_COMPARATOR:
+            case REDSTONE_COMPARATOR_OFF:
+            case REDSTONE_COMPARATOR_ON:
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 1.0 / 8.0));
+            case CARPET:
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 1.0 / 16.0));
+            case SKULL:
+                return getSkullBoundingBox(loc, ((Skull) this.getState().getData()).getFacing());
+            case ACACIA_STAIRS:
+            case BIRCH_WOOD_STAIRS:
+            case DARK_OAK_STAIRS:
+            case JUNGLE_WOOD_STAIRS:
+            case SPRUCE_WOOD_STAIRS:
+            case WOOD_STAIRS:
+            case COBBLESTONE_STAIRS:
+            case SANDSTONE_STAIRS:
+            case BRICK_STAIRS:
+            case NETHER_BRICK_STAIRS:
+            case SMOOTH_STAIRS:
+            case QUARTZ_STAIRS:
+            case PURPUR_STAIRS:
+            case RED_SANDSTONE_STAIRS:
+                return getStairsBoundingBox(loc, ((Stairs) this.getState().getData()));
             default:
-                return BoundingBox.fromCorners(loc.toVector(), loc.add(1.0, 1.0, 1.0).toVector());
+                if (this.getType().isSolid()) {
+                    return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 1.0));
+                } else {
+                    return Collections.emptyList();
+                }
         }
     }
 
