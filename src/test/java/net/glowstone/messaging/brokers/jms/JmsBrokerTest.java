@@ -11,13 +11,12 @@ import static org.mockito.Mockito.when;
 
 import javax.jms.Connection;
 import javax.jms.JMSException;
-import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
 import javax.jms.Session;
 import net.glowstone.messaging.Subscriber;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 /**
