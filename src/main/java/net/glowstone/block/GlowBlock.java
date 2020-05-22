@@ -646,6 +646,7 @@ public class GlowBlock implements Block {
             case IRON_FENCE:
             case JUNGLE_FENCE:
             case SPRUCE_FENCE:
+            case COBBLE_WALL:
                 return true;
             default:
                 return false;

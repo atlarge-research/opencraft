@@ -1170,7 +1170,7 @@ public abstract class GlowEntity implements Entity {
             }
 
             // Cancel out velocity in the direction of the collided with box.
-            velocity.subtract(Vectors.project(velocity, normal));
+            velocity.subtract(Vectors.project(velocity, normal).add(normal.multiply(Double.MIN_VALUE)));
 
             // Handle projectile interaction
             if (this instanceof Projectile) {
