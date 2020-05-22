@@ -41,7 +41,8 @@ public class ItemFlintAndSteel extends ItemTool {
         if (face == BlockFace.UP || face == BlockFace.DOWN) {
             target = target.getRelative(face);
             int limit = 0;
-            while (target.getType() == Material.AIR && limit < 23) {
+            // TODO: Make sure the whole nether portal is filled with portals
+            while ((target.getType() == Material.AIR) && limit < 23) {
                 target.setType(Material.PORTAL);
                 target = target.getRelative(face);
                 limit++;

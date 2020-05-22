@@ -655,6 +655,28 @@ public abstract class GlowEntity implements Entity {
                     }
                 }
             }
+            if (currentBlock.getType() == Material.PORTAL) {
+                EventFactory.getInstance()
+                        .callEvent(new EntityPortalEnterEvent(this, currentBlock.getLocation()));
+                if (server.getAllowNether()) {
+                    Location previousLocation = location.clone();
+                    boolean success;
+                    if (getWorld().getEnvironment() == Environment.NETHER) {
+                        success = teleportToSpawn();
+                    } else {
+                        success = teleportToNether();
+                    }
+                    if (success) {
+                        EntityPortalExitEvent e = EventFactory.getInstance()
+                                .callEvent(new EntityPortalExitEvent(this, previousLocation,
+                                        location
+                                                .clone(), velocity.clone(), new Vector()));
+                        if (!e.getAfter().equals(velocity)) {
+                            setVelocity(e.getAfter());
+                        }
+                    }
+                }
+            }
         }
 
         if (leashHolderUniqueId != null && ticksLived < 2) {
@@ -986,6 +1008,37 @@ public abstract class GlowEntity implements Entity {
 
         EntityPortalEvent event = EventFactory.getInstance()
             .callEvent(new EntityPortalEvent(this, location.clone(), target, null));
+        if (event.isCancelled()) {
+            return false;
+        }
+        target = event.getTo();
+
+        teleport(target);
+        return true;
+    }
+
+    /**
+     * Teleport this entity to the End. If no End world is loaded this does nothing.
+     *
+     * @return {@code true} if the teleport was successful.
+     */
+    protected boolean teleportToNether() {
+        if (!server.getAllowNether()) {
+            return false;
+        }
+        Location target = null;
+        for (World world : server.getWorlds()) {
+            if (world.getEnvironment() == Environment.NETHER) {
+                target = world.getSpawnLocation();
+                break;
+            }
+        }
+        if (target == null) {
+            return false;
+        }
+
+        EntityPortalEvent event = EventFactory.getInstance()
+                .callEvent(new EntityPortalEvent(this, location.clone(), target, null));
         if (event.isCancelled()) {
             return false;
         }
