@@ -27,8 +27,9 @@ public final class GuavaChannel<Subscriber, Message> implements Channel<Subscrib
     }
 
     /**
-     * Checks if the map is empty.
-     * @return whether the map is empty.
+     * Checks if the channel is empty.
+     *
+     * @return whether the channel is empty.
      */
     public boolean isEmpty() {
         return listeners.isEmpty();
