@@ -51,6 +51,18 @@
             <artifactId>guava</artifactId>
             <version>21.0</version>
         </dependency>
+        <!-- Java Message Service -->
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jms_1.1_spec</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+        <!-- ActiveMQ -->
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-broker</artifactId>
+            <version>5.15.12</version>
+        </dependency>
         <!-- Yardstick -->
         <dependency>
             <groupId>com.atlarge</groupId>

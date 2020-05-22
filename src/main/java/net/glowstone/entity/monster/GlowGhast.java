@@ -17,6 +17,8 @@ public class GlowGhast extends GlowMonster implements Ghast {
     public GlowGhast(Location loc) {
         super(loc, EntityType.GHAST, 10);
         setBoundingBox(4, 4);
+        setGravity(false);
+        setAirDragMultiplier(0.2);
     }
 
     public boolean isAttacking() {

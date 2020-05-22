@@ -1,4 +1,4 @@
-package net.glowstone.messaging;
+package net.glowstone.messaging.brokers.guava;
 
 import com.google.common.eventbus.Subscribe;
 import java.util.Objects;
@@ -20,11 +20,11 @@ public class GuavaListener<Subscriber, Message> {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GuavaListener<?, ?> that = (GuavaListener<?, ?>) o;
-        return Objects.equals(subscriber, that.subscriber);
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        GuavaListener<?, ?> that = (GuavaListener<?, ?>) object;
+        return Objects.equals(this.subscriber, that.subscriber);
     }
 
     @Override
