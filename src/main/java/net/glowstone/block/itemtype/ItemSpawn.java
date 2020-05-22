@@ -11,6 +11,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -36,7 +37,7 @@ public class ItemSpawn extends ItemType {
 
             if (type != null) {
                 GlowEntity entity = against.getWorld()
-                    .spawn(location.add(0.5, 0, 0.5), EntityRegistry.getEntity(type),
+                    .spawn(location.add(0.5, GlowEntity.COLLISION_OFFSET, 0.5), EntityRegistry.getEntity(type),
                         SpawnReason.SPAWNER_EGG);
                 if (tag != null) {
                     EntityStorage.load(entity, tag);

@@ -106,6 +106,11 @@ public abstract class GlowEntity implements Entity {
     public static final int ENTITY_ID_NOBODY = -1;
 
     /**
+     * The offset to be used during collision
+     */
+    public static final double COLLISION_OFFSET = 0.00001;
+
+    /**
      * The metadata store for entities.
      */
     private static final MetadataStore<Entity> bukkitMetadata = new EntityMetadataStore();
@@ -1145,6 +1150,7 @@ public abstract class GlowEntity implements Entity {
             BoundingBox broadPhaseBox = pendingBox.getBroadPhase(velocity);
             List<BoundingBox> intersectingBoxes = getIntersectingBlockBoundingBoxes(broadPhaseBox);
 
+
             // Break if there is nothing to collide with.
             if (intersectingBoxes.isEmpty()) {
                 break;
@@ -1160,7 +1166,7 @@ public abstract class GlowEntity implements Entity {
             double collisionTime = closest.getLeft();
             Vector normal = closest.getRight();
             Vector displacement = remainingDisplacement.clone().multiply(collisionTime);
-            pendingLocation.add(displacement);
+            pendingLocation.add(displacement).add(normal.clone().multiply(COLLISION_OFFSET));
 
             elapsedTime += collisionTime * remainingTime;
 
@@ -1170,9 +1176,11 @@ public abstract class GlowEntity implements Entity {
             }
 
             // Cancel out velocity in the direction of the collided with box.
-            velocity.subtract(Vectors.project(velocity, normal).add(normal.multiply(Double.MIN_VALUE)));
+            velocity.subtract(Vectors.project(velocity, normal));
+
 
             // Handle projectile interaction
+
             if (this instanceof Projectile) {
 
                 Projectile projectile = (Projectile) this;

@@ -646,7 +646,6 @@ public class GlowBlock implements Block {
             case IRON_FENCE:
             case JUNGLE_FENCE:
             case SPRUCE_FENCE:
-            case COBBLE_WALL:
                 return true;
             default:
                 return false;
@@ -680,6 +679,7 @@ public class GlowBlock implements Block {
             case IRON_FENCE:
             case JUNGLE_FENCE:
             case SPRUCE_FENCE:
+            case COBBLE_WALL:
                 return getFenceBoundingBox(loc);
             default:
                 return BoundingBox.fromCorners(loc.toVector(), loc.add(1.0, 1.0, 1.0).toVector());
