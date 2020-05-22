@@ -131,11 +131,11 @@ public class EntityBoundingBoxTest {
 
     @Test
     public void bigEntityGroundCollisionTest(){
+        
         EntityBoundingBox spiderBox = new EntityBoundingBox(1.4, 0.9);
         spiderBox.setCenter(0.5,1,0.5);
 
         Vector velocity = new Vector(0, -1, 0);
-
         BoundingBox block1 = BoundingBox.fromCorners(new Vector(1, 1, 1), new Vector(0, 0, 0));
 
         Pair<Double, Vector> collision1 = spiderBox.sweptAxisAlignedBoundingBox(velocity, block1);
