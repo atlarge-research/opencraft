@@ -14,13 +14,16 @@ public class ItemBanner extends ItemType {
     @Override
     public void rightClickBlock(GlowPlayer player, GlowBlock target, BlockFace face,
         ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
+
+        ItemTable instance = ItemTable.instance();
         if (face == BlockFace.UP) {
-            setPlaceAs(ItemTable.instance().getBlock(Material.STANDING_BANNER));
-        } else if (face == BlockFace.DOWN) {
-            return;
+            setPlaceAs(instance.getBlock(Material.STANDING_BANNER));
+        } else if (face != BlockFace.DOWN) {
+            setPlaceAs(instance.getBlock(Material.WALL_BANNER));
         } else {
-            setPlaceAs(ItemTable.instance().getBlock(Material.WALL_BANNER));
+            return;
         }
+
         super.rightClickBlock(player, target, face, holding, clickedLoc, hand);
     }
 }
