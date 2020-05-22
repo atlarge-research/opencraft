@@ -3,6 +3,7 @@ package net.glowstone.messaging.brokers.guava;
 import com.google.common.eventbus.EventBus;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
@@ -24,7 +25,8 @@ public class GuavaBroker<Topic, Subscriber, Message> implements Broker<Topic, Su
     private final Map<Topic, Pair<EventBus, Integer>> channels;
     private final Map<Pair<Topic, Subscriber>, GuavaListener<Subscriber, Message>> subscribers;
 
-    private final ReadWriteLock lock;
+    private final Lock writeLock;
+    private final Lock readLock;
 
     /**
      * Constructing a new guava broker.
@@ -34,78 +36,90 @@ public class GuavaBroker<Topic, Subscriber, Message> implements Broker<Topic, Su
         channels = new HashMap<>();
         subscribers = new HashMap<>();
 
-        lock = new ReentrantReadWriteLock();
+        ReadWriteLock lock = new ReentrantReadWriteLock();
+        writeLock = lock.writeLock();
+        readLock = lock.readLock();
     }
 
     @Override
     public void subscribe(Topic topic, Subscriber subscriber, Consumer<Message> callback) {
 
-        lock.writeLock().lock();
+        writeLock.lock();
+        try {
 
-        GuavaListener<Subscriber, Message> listener = new GuavaListener<>(subscriber, callback);
-        Pair<Topic, Subscriber> pair = Pair.of(topic, subscriber);
-        subscribers.put(pair, listener);
+            GuavaListener<Subscriber, Message> listener = new GuavaListener<>(subscriber, callback);
 
-        EventBus channel;
-        Pair<EventBus, Integer> eventbus;
-        int size;
+            EventBus channel;
+            Pair<EventBus, Integer> eventbus;
+            int size;
 
-        if (channels.containsKey(topic)) {
-            eventbus = channels.remove(topic);
-            channel = eventbus.getLeft();
-            size = eventbus.getRight() + 1;
-            eventbus = Pair.of(channel, size);
+            if (channels.containsKey(topic)) {
+                eventbus = channels.remove(topic);
+                channel = eventbus.getLeft();
+                size = eventbus.getRight() + 1;
+                eventbus = Pair.of(channel, size);
 
-        } else {
-            channel = new EventBus();
-            eventbus = Pair.of(channel, 1);
+            } else {
+                channel = new EventBus();
+                eventbus = Pair.of(channel, 1);
+            }
+
+            channels.put(topic, eventbus);
+            channel.register(listener);
+
+            Pair<Topic, Subscriber> pair = Pair.of(topic, subscriber);
+            subscribers.put(pair, listener);
+
+        } finally {
+            writeLock.unlock();
         }
-
-        channels.put(topic, eventbus);
-        channel.register(listener);
-
-        lock.writeLock().unlock();
     }
 
     @Override
     public void unsubscribe(Topic topic, Subscriber subscriber) {
 
-        lock.writeLock().lock();
+        writeLock.lock();
+        try {
 
-        Pair<Topic, Subscriber> pair = Pair.of(topic, subscriber);
-        GuavaListener<Subscriber, Message> listener = subscribers.getOrDefault(pair, null);
+            Pair<Topic, Subscriber> pair = Pair.of(topic, subscriber);
+            GuavaListener<Subscriber, Message> listener = subscribers.getOrDefault(pair, null);
 
-        EventBus channel;
-        Pair<EventBus, Integer> eventbus;
-        int size;
+            EventBus channel;
+            Pair<EventBus, Integer> eventbus;
+            int size;
 
-        if (channels.containsKey(topic) && listener != null) {
-            eventbus = channels.remove(topic);
-            channel = eventbus.getLeft();
-            size = eventbus.getRight() - 1;
-            eventbus = Pair.of(channel, size);
+            if (channels.containsKey(topic) && listener != null) {
+                eventbus = channels.remove(topic);
+                channel = eventbus.getLeft();
+                size = eventbus.getRight() - 1;
+                eventbus = Pair.of(channel, size);
 
-            try {
-                channel.unregister(listener);
+                try {
+                    channel.unregister(listener);
 
-            } catch (IllegalArgumentException ignored) {
-                // Don't need to do anything when a listener is not used.
+                } catch (IllegalArgumentException ignored) {
+                    // Don't need to do anything when a listener is not used.
+                }
+
+                if (size > 0) {
+                    channels.put(topic, eventbus);
+                }
             }
-
-            if (size > 0) {
-                channels.put(topic, eventbus);
-            }
+        } finally {
+            writeLock.unlock();
         }
-
-        lock.writeLock().unlock();
     }
 
     @Override
     public void publish(Topic topic, Message message) {
-        lock.readLock().lock();
-        Pair<EventBus, Integer> pair = channels.getOrDefault(topic, Pair.of(new EventBus(), 0));
-        EventBus channel = pair.getLeft();
-        channel.post(message);
-        lock.readLock().unlock();
+        readLock.lock();
+        try {
+            Pair<EventBus, Integer> pair = channels.getOrDefault(topic, Pair.of(new EventBus(), 0));
+            EventBus channel = pair.getLeft();
+            channel.post(message);
+
+        } finally {
+            readLock.unlock();
+        }
     }
 }
