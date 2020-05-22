@@ -22,8 +22,8 @@ public final class GuavaChannel<Subscriber, Message> implements Channel<Subscrib
      * Constructor for a guava channel.
      */
     public GuavaChannel() {
-        this.eventBus = new EventBus();
-        this.listeners = new ConcurrentHashMap<>();
+        eventBus = new EventBus();
+        listeners = new ConcurrentHashMap<>();
     }
 
     /**
@@ -45,13 +45,13 @@ public final class GuavaChannel<Subscriber, Message> implements Channel<Subscrib
 
     @Override
     public void unsubscribe(Subscriber subscriber) {
-        try {
-            GuavaListener<Message> listener = listeners.remove(subscriber);
-            if (listener != null) {
+        GuavaListener<Message> listener = listeners.remove(subscriber);
+        if (listener != null) {
+            try {
                 eventBus.unregister(listener);
+            } catch (IllegalArgumentException ignored) {
+                // We don't need to do anything if we want to unsubscribe a subscriber that is not subscribed
             }
-        } catch (IllegalArgumentException ignored) {
-            // We don't need to do anything if we want to unsubscribe a subscriber that is not subscribed
         }
     }
 

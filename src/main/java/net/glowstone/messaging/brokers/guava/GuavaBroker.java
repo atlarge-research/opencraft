@@ -13,7 +13,6 @@ import net.glowstone.messaging.Broker;
  * @param <Subscriber> the type of subscribers that is allowed to subscribe to a channel.
  * @param <Message> the type of messages that is allowed to be published to a channel.
  */
-@SuppressWarnings("UnstableApiUsage")
 public final class GuavaBroker<Topic, Subscriber, Message> implements Broker<Topic, Subscriber, Message> {
 
     private final Map<Topic, GuavaChannel<Subscriber, Message>> channels;
