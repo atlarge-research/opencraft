@@ -626,6 +626,24 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     // Internals
 
     /**
+     * Get chunks previously within view distance of the player.
+     *
+     * @return a set of chunks.
+     */
+    public Set<Chunk> getPreviousChunks() {
+        return previousChunks;
+    }
+
+    /**
+     * Get the chunks currently within view distance of the player.
+     *
+     * @return a set of chunks.
+     */
+    public Set<Chunk> getKnownChunks() {
+        return knownChunks;
+    }
+
+    /**
      * Read the location from a PlayerReader for entity initialization.
      *
      * <p>Will fall back to a reasonable default rather than returning null.
@@ -993,6 +1011,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         }
     }
 
+    /**
+     * Spawn and destroy entities that come within or out of the player's view distance.
+     */
     public void spawnEntities() {
 
         // Remove entities that are no longer visible
