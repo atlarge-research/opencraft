@@ -45,7 +45,6 @@ import net.glowstone.block.blocktype.BlockBed;
 import net.glowstone.block.itemtype.ItemFood;
 import net.glowstone.block.itemtype.ItemType;
 import net.glowstone.chunk.ChunkManager.ChunkLock;
-import net.glowstone.chunk.GlowChunk;
 import net.glowstone.chunk.GlowChunk.Key;
 import net.glowstone.command.LocalizedEnumNames;
 import net.glowstone.constants.GameRules;
@@ -565,7 +564,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     /**
      * If we should force block streaming regardless of chunk difference.
      */
-    public boolean forceStream = false;
+    public boolean viewDistanceChanged = false;
 
     /**
      * Current casted fishing hook.
@@ -976,7 +975,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         int centralZ = location.getBlockZ() >> 4;
         int radius = Math.min(server.getViewDistance(), 1 + settings.getViewDistance());
 
-        if (forceStream || prevCentralX != centralX || prevCentralZ != centralZ) {
+        if (viewDistanceChanged || prevCentralX != centralX || prevCentralZ != centralZ) {
 
             previousChunks.clear();
             previousChunks.addAll(knownChunks);
@@ -1294,7 +1293,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         if (!newLocale.equalsIgnoreCase(this.settings.getLocale())) {
             EventFactory.getInstance().callEvent(new PlayerLocaleChangeEvent(this, newLocale));
         }
-        forceStream = settings.getViewDistance() != this.settings.getViewDistance()
+        viewDistanceChanged = settings.getViewDistance() != this.settings.getViewDistance()
                 && settings.getViewDistance() + 1 <= server.getViewDistance();
         this.settings = settings;
         metadata.set(MetadataIndex.PLAYER_SKIN_PARTS, settings.getSkinFlags());
