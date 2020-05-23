@@ -825,10 +825,8 @@ public abstract class GlowEntity implements Entity {
 //        boolean visible = player.canSeeEntity(this);
 //        for (GlowEntity leashedEntity : leashedEntities) {
 //            if (visible && player.canSeeEntity(leashedEntity)) {
-//                int attached = player.getEntityId() == this.getEntityId() ? 0
-//                    : leashedEntity.getEntityId();
+//                int attached = player.getEntityId() == this.getEntityId() ? 0 : leashedEntity.getEntityId();
 //                int holder = this.getEntityId();
-//
 //                result.add(new AttachEntityMessage(attached, holder));
 //            }
 //        }
@@ -836,7 +834,6 @@ public abstract class GlowEntity implements Entity {
 //        if (isLeashed() && visible && player.canSeeEntity(leashHolder)) {
 //            int attached = player.getEntityId() == this.getEntityId() ? 0 : this.getEntityId();
 //            int holder = leashHolder.getEntityId();
-//
 //            result.add(new AttachEntityMessage(attached, holder));
 //        }
 //

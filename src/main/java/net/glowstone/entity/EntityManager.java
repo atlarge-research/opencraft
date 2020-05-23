@@ -70,6 +70,18 @@ public class EntityManager implements Iterable<GlowEntity> {
     }
 
     /**
+     * Get all player entities.
+     *
+     * @return a list of player entities.
+     */
+    public List<GlowPlayer> getPlayers() {
+        return entities.values().stream()
+                .filter(GlowPlayer.class::isInstance)
+                .map(GlowPlayer.class::cast)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Gets an entity by its uuid.
      * @param uuid The uuid.
      * @return The entity, or {@code null} if it could not be found.

@@ -593,8 +593,11 @@ public class GlowWorld implements World {
 
         pulsePlayers(players);
 
+        // TODO: Prevent players from moving between words while processing entities.
+        players.forEach(GlowPlayer::updateKnownChunks);
         broadcastEntityRemovals();
         broadcastEntityUpdates();
+        players.forEach(GlowPlayer::spawnEntities);
 
         resetEntities(allEntities);
         worldBorder.pulse();
@@ -606,6 +609,20 @@ public class GlowWorld implements World {
         handleSleepAndWake(players);
 
         saveWorld();
+    }
+
+    private void broadcastEntityUpdates() {
+
+        Map<Chunk, List<Message>> messages = new HashMap<>();
+        List<GlowEntity> entities = new ArrayList<>(entityManager.getAll());
+        entities.forEach(entity -> {
+            Chunk chunk = entity.getChunk();
+            List<Message> updateMessages = entity.createUpdateMessage();
+            List<Message> chunkMessages = messages.computeIfAbsent(chunk, c -> new ArrayList<>());
+            chunkMessages.addAll(updateMessages);
+        });
+
+        messages.forEach((chunk, chunkMessages) -> chunkMessages.forEach(message -> messagingSystem.broadcast(chunk, message)));
     }
 
     private void broadcastEntityRemovals() {
@@ -623,20 +640,6 @@ public class GlowWorld implements World {
             Message message = new DestroyEntitiesMessage(ids);
             messagingSystem.broadcast(chunk, message);
         });
-    }
-
-    private void broadcastEntityUpdates() {
-
-        Map<Chunk, List<Message>> messages = new HashMap<>();
-        List<GlowEntity> entities = new ArrayList<>(entityManager.getAll());
-        entities.forEach(entity -> {
-            Chunk chunk = entity.getChunk();
-            List<Message> updateMessages = entity.createUpdateMessage();
-            List<Message> chunkMessages = messages.computeIfAbsent(chunk, c -> new ArrayList<>());
-            chunkMessages.addAll(updateMessages);
-        });
-
-        messages.forEach((chunk, chunkMessages) -> chunkMessages.forEach(message -> messagingSystem.broadcast(chunk, message)));
     }
 
     /**
