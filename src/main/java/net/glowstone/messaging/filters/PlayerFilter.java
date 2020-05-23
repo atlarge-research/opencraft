@@ -41,25 +41,25 @@ public class PlayerFilter implements Filter<Player, Message> {
         } else if (message instanceof RelativeEntityPositionMessage) {
             id = ((RelativeEntityPositionMessage) message).getId();
 
-        } else if (message instanceof EntityMetadataMessage) { // Spawn
+        } else if (message instanceof EntityMetadataMessage) {
             id = ((EntityMetadataMessage) message).getId();
 
-        } else if (message instanceof EntityEquipmentMessage) { // Spawn
+        } else if (message instanceof EntityEquipmentMessage) {
             id = ((EntityEquipmentMessage) message).getId();
 
-        } else if (message instanceof EntityHeadRotationMessage) { // Spawn
+        } else if (message instanceof EntityHeadRotationMessage) {
             id = ((EntityHeadRotationMessage) message).getId();
 
-        }  else if (message instanceof SpawnPlayerMessage) { // spawn
+        }  else if (message instanceof SpawnPlayerMessage) {
             id = ((SpawnPlayerMessage) message).getId();
 
-        } else if (message instanceof UseBedMessage) { // Spawn
+        } else if (message instanceof UseBedMessage) {
             id = ((UseBedMessage) message).getId();
 
-        } else if (message instanceof EntityVelocityMessage) { // Spawn + setVelocity
+        } else if (message instanceof EntityVelocityMessage) { // setVelocity filtered
             id = ((EntityVelocityMessage) message).getId();
 
-        } else if (message instanceof SetPassengerMessage) { // Pulse
+        } else if (message instanceof SetPassengerMessage) { // pulse filtered
             id = ((SetPassengerMessage) message).getEntityId();
         }
 

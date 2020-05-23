@@ -963,8 +963,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         }
 
         if (passengerChanged) {
-            session.send(new SetPassengerMessage(getEntityId(), getPassengers().stream()
-                    .mapToInt(Entity::getEntityId).toArray()));
+            int[] ids = getPassengers().stream().mapToInt(Entity::getEntityId).toArray();
+            Message message = new SetPassengerMessage(getEntityId(), ids);
+            session.send(message);
         }
         getAttributeManager().sendMessages(session);
 
