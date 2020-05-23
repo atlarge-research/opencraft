@@ -12,7 +12,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 /**
  * A factory class to for creating multiple types of brokers.
  */
-public class Brokers {
+public final class Brokers {
 
     /**
      * Create a ConcurrentBroker.
