@@ -862,8 +862,12 @@ public abstract class GlowEntity implements Entity {
         dy *= 128;
         dz *= 128;
 
-        boolean teleport = dx > Short.MAX_VALUE || dy > Short.MAX_VALUE || dz > Short.MAX_VALUE
-            || dx < Short.MIN_VALUE || dy < Short.MIN_VALUE || dz < Short.MIN_VALUE;
+        boolean teleport = dx > Short.MAX_VALUE
+                || dy > Short.MAX_VALUE
+                || dz > Short.MAX_VALUE
+                || dx < Short.MIN_VALUE
+                || dy < Short.MIN_VALUE
+                || dz < Short.MIN_VALUE;
 
         List<Message> result = new LinkedList<>();
 
@@ -876,14 +880,19 @@ public abstract class GlowEntity implements Entity {
             int yaw = Position.getIntYaw(location);
             int pitch = Position.getIntPitch(location);
             if (moved) {
-                result.add(new RelativeEntityPositionRotationMessage(entityId,
-                    (short) dx, (short) dy, (short) dz, yaw, pitch));
+                result.add(new RelativeEntityPositionRotationMessage(
+                        entityId,
+                        (short) dx,
+                        (short) dy,
+                        (short) dz,
+                        yaw,
+                        pitch
+                ));
             } else {
                 result.add(new EntityRotationMessage(entityId, yaw, pitch));
             }
         } else if (moved) {
-            result.add(new RelativeEntityPositionMessage(
-                entityId, (short) dx, (short) dy, (short) dz));
+            result.add(new RelativeEntityPositionMessage(entityId, (short) dx, (short) dy, (short) dz));
         }
 
         // send changed metadata
@@ -898,13 +907,15 @@ public abstract class GlowEntity implements Entity {
         }
 
         if (passengerChanged) {
+
             // A player can be a passenger of any arbitrary entity, e.g. a boat
             // In case the current session belongs to this player passenger
             // We need to send the self_id
-            List<Integer> passengerIds = new ArrayList<>();
-            getPassengers().forEach(e -> passengerIds.add(e.getEntityId()));
-            result.add(new SetPassengerMessage(getEntityId(), passengerIds.stream()
-                .mapToInt(Integer::intValue).toArray()));
+
+            int[] passengerIds = getPassengers().stream()
+                    .mapToInt(Entity::getEntityId)
+                    .toArray();
+            result.add(new SetPassengerMessage(getEntityId(), passengerIds));
             passengerChanged = false;
         }
 

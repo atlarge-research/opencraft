@@ -956,8 +956,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             for (GlowEntity entity : knownEntities) {
                 if (!isWithinDistance(entity) || entity.isRemoved()) {
                     destroyEntities.add(entity);
-                } else {
-                    entity.createUpdateMessage().forEach(session::send);
                 }
             }
             if (!destroyEntities.isEmpty()) {
