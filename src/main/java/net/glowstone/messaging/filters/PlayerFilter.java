@@ -21,7 +21,7 @@ import org.bukkit.entity.Player;
 /**
  * The player filter prevents players from receiving messages the Minecraft client does not expect.
  */
-public class PlayerFilter implements Filter<Player, Message> {
+public final class PlayerFilter implements Filter<Player, Message> {
 
     private final Map<Class<? extends Message>, Function<Message, Integer>> getters;
 
