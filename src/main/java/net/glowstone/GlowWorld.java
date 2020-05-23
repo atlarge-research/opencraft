@@ -621,7 +621,7 @@ public class GlowWorld implements World {
         boolean force = false;
 
         if (previous == null) {
-            previous = player.getLocation();
+            previous = current;
             force = true;
         }
 
@@ -677,7 +677,7 @@ public class GlowWorld implements World {
 
                         GlowChunk.Key key = GlowChunk.Key.of(x, z);
 
-                        getChunkManager().forcePopulation(key.getX(), key.getZ());
+                        getChunkManager().forcePopulation(x, z);
                         player.getChunkLock().acquire(key);
 
                         boolean skylight = getEnvironment() == Environment.NORMAL;

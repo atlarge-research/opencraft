@@ -40,7 +40,7 @@ public class PriorityExecutor {
      * internally.
      */
     public PriorityExecutor() {
-        this(0, Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS);
+        this(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS);
     }
 
     /**
