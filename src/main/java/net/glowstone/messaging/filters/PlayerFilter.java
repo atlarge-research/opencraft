@@ -56,10 +56,10 @@ public class PlayerFilter implements Filter<Player, Message> {
         } else if (message instanceof UseBedMessage) {
             id = ((UseBedMessage) message).getId();
 
-        } else if (message instanceof EntityVelocityMessage) { // setVelocity filtered
+        } else if (message instanceof EntityVelocityMessage) {
             id = ((EntityVelocityMessage) message).getId();
 
-        } else if (message instanceof SetPassengerMessage) { // pulse filtered
+        } else if (message instanceof SetPassengerMessage) {
             id = ((SetPassengerMessage) message).getEntityId();
         }
 
