@@ -546,60 +546,51 @@ public class GlowWorld implements World {
      */
     public void pulse() {
 
+        List<GlowEntity> entities = entityManager.getAll();
+        List<GlowPlayer> players = entityManager.getPlayers();
+
+        // Update the messaging system
+        players.forEach(player -> {
+            GlowSession session = player.getSession();
+            messagingSystem.update(player, session::send);
+        });
+
+        // Stream chunks
         Collection<ChunkRunnable> chunkRunnables = new ArrayList<>();
         executor.drainTo(chunkRunnables);
 
-        entityManager.getAll()
-            .stream()
-            .filter(GlowPlayer.class::isInstance)
-            .map(GlowPlayer.class::cast)
-            .forEach(player -> {
-
-                GlowSession session = player.getSession();
-                messagingSystem.update(player, session::send);
-
-                int entityId = player.getEntityId();
-
-                Collection<ChunkRunnable> runnables = chunkRunnables.stream()
-                    .filter(runnable -> runnable.hasEntityId(entityId))
+        players.forEach(player -> {
+            int id = player.getEntityId();
+            Collection<ChunkRunnable> runnables = chunkRunnables.stream()
+                    .filter(runnable -> runnable.hasEntityId(id))
                     .collect(Collectors.toList());
-                streamChunks(player, runnables);
-            });
+            streamChunks(player, runnables);
+        });
 
-        List<GlowEntity> allEntities = new ArrayList<>(entityManager.getAll());
-        List<GlowPlayer> players = new LinkedList<>();
-
-        activeChunksSet.clear();
-
-        // We should pulse our tickmap, so blocks get updated.
+        // Apply random tick
         pulseTickMap();
 
-        // pulse players last so they actually see that other entities have
-        // moved. unfortunately pretty hacky. not a problem for players b/c
-        // their position is modified by session ticking.
-        for (GlowEntity entity : allEntities) {
-            if (entity instanceof GlowPlayer) {
-                players.add((GlowPlayer) entity);
-                updateActiveChunkCollection(entity);
-            } else {
-                entity.pulse();
-            }
-        }
+        // Update known chunks
+        players.forEach(GlowPlayer::updateKnownChunks);
 
+        // Update active chunks
+        activeChunksSet.clear();
+        players.forEach(this::updateActiveChunkCollection);
+
+        // Update entities and blocks
+        entities.forEach(GlowEntity::pulse);
         updateBlocksInActiveChunks();
-        // why update blocks before Players or Entities? if there is a specific reason we should
-        // document it here.
         processBlockChanges();
 
-        pulsePlayers(players);
-
-        // TODO: Prevent players from moving between words while processing entities.
-        players.forEach(GlowPlayer::updateKnownChunks);
+        // Handle entity spawns, despawns, and transitions
         broadcastEntityRemovals();
         broadcastEntityUpdates();
         players.forEach(GlowPlayer::spawnEntities);
 
-        resetEntities(allEntities);
+        // Reset entities
+        entities.forEach(GlowEntity::reset);
+
+        // ...
         worldBorder.pulse();
 
         updateWorldTime();
@@ -614,7 +605,7 @@ public class GlowWorld implements World {
     private void broadcastEntityUpdates() {
 
         Map<Chunk, List<Message>> messages = new HashMap<>();
-        List<GlowEntity> entities = new ArrayList<>(entityManager.getAll());
+        List<GlowEntity> entities = entityManager.getAll();
         entities.forEach(entity -> {
             Chunk chunk = entity.getChunk();
             List<Message> updateMessages = entity.createUpdateMessage();
@@ -627,7 +618,7 @@ public class GlowWorld implements World {
 
     private void broadcastEntityRemovals() {
 
-        List<GlowEntity> entities = new ArrayList<>(entityManager.getAll());
+        List<GlowEntity> entities = entityManager.getAll();
 
         Map<Chunk, List<Integer>> removals = entities.stream()
                 .filter(GlowEntity::isRemoved)
@@ -940,14 +931,6 @@ public class GlowWorld implements World {
         if (gameRuleMap.getBoolean(GameRules.DO_DAYLIGHT_CYCLE)) {
             time = (time + 1) % TickUtil.TICKS_PER_DAY;
         }
-    }
-
-    private void resetEntities(List<GlowEntity> entities) {
-        entities.forEach(GlowEntity::reset);
-    }
-
-    private void pulsePlayers(List<GlowPlayer> players) {
-        players.stream().filter(Objects::nonNull).forEach(GlowEntity::pulse);
     }
 
     private void handleSleepAndWake(List<GlowPlayer> players) {

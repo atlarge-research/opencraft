@@ -65,8 +65,8 @@ public class EntityManager implements Iterable<GlowEntity> {
      *
      * @return A collection of entities.
      */
-    public Collection<GlowEntity> getAll() {
-        return entities.values();
+    public List<GlowEntity> getAll() {
+        return new ArrayList<>(entities.values());
     }
 
     /**
