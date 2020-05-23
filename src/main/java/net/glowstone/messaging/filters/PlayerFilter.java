@@ -1,6 +1,8 @@
 package net.glowstone.messaging.filters;
 
 import com.flowpowered.network.Message;
+import java.util.Map;
+import java.util.function.Function;
 import net.glowstone.messaging.Filter;
 import net.glowstone.net.message.play.entity.EntityEquipmentMessage;
 import net.glowstone.net.message.play.entity.EntityHeadRotationMessage;
@@ -21,48 +23,39 @@ import org.bukkit.entity.Player;
  */
 public class PlayerFilter implements Filter<Player, Message> {
 
+    private final Map<Class<? extends Message>, Function<Message, Integer>> getters;
+
+    /**
+     * Create a player filter.
+     */
+    public PlayerFilter() {
+
+        ClassGetterMapBuilder<Message, Integer> builder = new ClassGetterMapBuilder<>();
+        builder.add(BlockBreakAnimationMessage.class, BlockBreakAnimationMessage::getId);
+        builder.add(EntityTeleportMessage.class, EntityTeleportMessage::getId);
+        builder.add(RelativeEntityPositionRotationMessage.class, RelativeEntityPositionRotationMessage::getId);
+        builder.add(EntityRotationMessage.class, EntityRotationMessage::getId);
+        builder.add(RelativeEntityPositionMessage.class, RelativeEntityPositionMessage::getId);
+        builder.add(EntityMetadataMessage.class, EntityMetadataMessage::getId);
+        builder.add(EntityEquipmentMessage.class, EntityEquipmentMessage::getId);
+        builder.add(EntityHeadRotationMessage.class, EntityHeadRotationMessage::getId);
+        builder.add(SpawnPlayerMessage.class, SpawnPlayerMessage::getId);
+        builder.add(UseBedMessage.class, UseBedMessage::getId);
+        builder.add(EntityVelocityMessage.class, EntityVelocityMessage::getId);
+        builder.add(SetPassengerMessage.class, SetPassengerMessage::getEntityId);
+
+        getters = builder.getImmutableMap();
+    }
+
     @Override
     public boolean filter(Player player, Message message) {
-
-        int id = -1;
-
-        if (message instanceof BlockBreakAnimationMessage) {
-            id = ((BlockBreakAnimationMessage) message).getId();
-
-        } else if (message instanceof EntityTeleportMessage) {
-            id = ((EntityTeleportMessage) message).getId();
-
-        } else if (message instanceof RelativeEntityPositionRotationMessage) {
-            id = ((RelativeEntityPositionRotationMessage) message).getId();
-
-        } else if (message instanceof EntityRotationMessage) {
-            id = ((EntityRotationMessage) message).getId();
-
-        } else if (message instanceof RelativeEntityPositionMessage) {
-            id = ((RelativeEntityPositionMessage) message).getId();
-
-        } else if (message instanceof EntityMetadataMessage) {
-            id = ((EntityMetadataMessage) message).getId();
-
-        } else if (message instanceof EntityEquipmentMessage) {
-            id = ((EntityEquipmentMessage) message).getId();
-
-        } else if (message instanceof EntityHeadRotationMessage) {
-            id = ((EntityHeadRotationMessage) message).getId();
-
-        }  else if (message instanceof SpawnPlayerMessage) {
-            id = ((SpawnPlayerMessage) message).getId();
-
-        } else if (message instanceof UseBedMessage) {
-            id = ((UseBedMessage) message).getId();
-
-        } else if (message instanceof EntityVelocityMessage) {
-            id = ((EntityVelocityMessage) message).getId();
-
-        } else if (message instanceof SetPassengerMessage) {
-            id = ((SetPassengerMessage) message).getEntityId();
+        Class<?> type = message.getClass();
+        Function<Message, Integer> getter = getters.get(type);
+        if (getter != null) {
+            int playerId = player.getEntityId();
+            int authorId = getter.apply(message);
+            return playerId != authorId;
         }
-
-        return id != player.getEntityId();
+        return true;
     }
 }
