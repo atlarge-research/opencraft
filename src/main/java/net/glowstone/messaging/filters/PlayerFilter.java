@@ -11,7 +11,9 @@ import net.glowstone.net.message.play.entity.EntityVelocityMessage;
 import net.glowstone.net.message.play.entity.RelativeEntityPositionMessage;
 import net.glowstone.net.message.play.entity.RelativeEntityPositionRotationMessage;
 import net.glowstone.net.message.play.entity.SetPassengerMessage;
+import net.glowstone.net.message.play.entity.SpawnPlayerMessage;
 import net.glowstone.net.message.play.game.BlockBreakAnimationMessage;
+import net.glowstone.net.message.play.player.UseBedMessage;
 import org.bukkit.entity.Player;
 
 /**
@@ -47,6 +49,12 @@ public class PlayerFilter implements Filter<Player, Message> {
 
         } else if (message instanceof EntityHeadRotationMessage) { // Spawn
             id = ((EntityHeadRotationMessage) message).getId();
+
+        }  else if (message instanceof SpawnPlayerMessage) { // spawn
+            id = ((SpawnPlayerMessage) message).getId();
+
+        } else if (message instanceof UseBedMessage) { // Spawn
+            id = ((UseBedMessage) message).getId();
 
         } else if (message instanceof EntityVelocityMessage) { // Spawn + setVelocity
             id = ((EntityVelocityMessage) message).getId();

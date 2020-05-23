@@ -807,40 +807,6 @@ public abstract class GlowEntity implements Entity {
     public abstract List<Message> createSpawnMessage();
 
     /**
-     * Creates a List of {@link Message} which can be sent to a client directly after the entity is
-     * spawned.
-     *
-     * @return A message which can spawn this entity.
-     */
-    public List<Message> createAfterSpawnMessage() {
-        return Collections.emptyList();
-
-//        List<Message> result = Lists.newArrayList();
-//
-//        GlowPlayer player = session.getPlayer();
-//        if (player == null) {
-//            // Player disconnected while this task was pending
-//            return result;
-//        }
-//        boolean visible = player.canSeeEntity(this);
-//        for (GlowEntity leashedEntity : leashedEntities) {
-//            if (visible && player.canSeeEntity(leashedEntity)) {
-//                int attached = player.getEntityId() == this.getEntityId() ? 0 : leashedEntity.getEntityId();
-//                int holder = this.getEntityId();
-//                result.add(new AttachEntityMessage(attached, holder));
-//            }
-//        }
-//
-//        if (isLeashed() && visible && player.canSeeEntity(leashHolder)) {
-//            int attached = player.getEntityId() == this.getEntityId() ? 0 : this.getEntityId();
-//            int holder = leashHolder.getEntityId();
-//            result.add(new AttachEntityMessage(attached, holder));
-//        }
-//
-//        return result;
-    }
-
-    /**
      * Creates a {@link Message} which can be sent to a client to update this entity.
      *
      * @return A message which can update this entity.

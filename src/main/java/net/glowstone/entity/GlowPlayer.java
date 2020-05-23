@@ -1059,7 +1059,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                             }
 
                             entity.createSpawnMessage().forEach(session::send);
-                            entity.createAfterSpawnMessage().forEach(session::send);
                         }));
     }
 
