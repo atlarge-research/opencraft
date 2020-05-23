@@ -65,6 +65,7 @@ import net.glowstone.messaging.brokers.concurrent.ConcurrentBroker;
 import net.glowstone.messaging.filters.PlayerFilter;
 import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.GlowSession;
+import net.glowstone.net.message.play.entity.DestroyEntitiesMessage;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
@@ -592,6 +593,7 @@ public class GlowWorld implements World {
 
         pulsePlayers(players);
 
+        broadcastEntityRemovals();
         broadcastEntityUpdates();
 
         resetEntities(allEntities);
@@ -604,6 +606,23 @@ public class GlowWorld implements World {
         handleSleepAndWake(players);
 
         saveWorld();
+    }
+
+    private void broadcastEntityRemovals() {
+
+        List<GlowEntity> entities = new ArrayList<>(entityManager.getAll());
+
+        Map<Chunk, List<Integer>> removals = entities.stream()
+                .filter(GlowEntity::isRemoved)
+                .collect(Collectors.groupingBy(
+                        GlowEntity::getChunk,
+                        Collectors.mapping(GlowEntity::getEntityId, Collectors.toList())
+                ));
+
+        removals.forEach((chunk, ids) -> {
+            Message message = new DestroyEntitiesMessage(ids);
+            messagingSystem.broadcast(chunk, message);
+        });
     }
 
     private void broadcastEntityUpdates() {

@@ -951,21 +951,32 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         // updating them.
         worldLock.writeLock().lock();
         try {
-            // update or remove entities
+
+            // remove entities
+            List<GlowEntity> removeEntities = new LinkedList<>();
             List<GlowEntity> destroyEntities = new LinkedList<>();
             for (GlowEntity entity : knownEntities) {
+
                 if (!isWithinDistance(entity) || entity.isRemoved()) {
+                    removeEntities.add(entity);
+                }
+
+                if (!isWithinDistance(entity)) {
                     destroyEntities.add(entity);
                 }
             }
+
+            for (GlowEntity entity : removeEntities) {
+                knownEntities.remove(entity);
+            }
+
             if (!destroyEntities.isEmpty()) {
-                List<Integer> destroyIds = new ArrayList<>(destroyEntities.size());
-                for (GlowEntity entity : destroyEntities) {
-                    knownEntities.remove(entity);
-                    destroyIds.add(entity.getEntityId());
-                }
+                List<Integer> destroyIds = removeEntities.stream()
+                        .map(GlowEntity::getEntityId)
+                        .collect(Collectors.toList());
                 session.send(new DestroyEntitiesMessage(destroyIds));
             }
+
             // add entities
             knownChunks.forEach(key ->
                     world.getChunkAt(key.getX(), key.getZ()).getRawEntities().stream()
@@ -985,6 +996,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                                         entity.createSpawnMessage().forEach(session::send);
                                         entity.createAfterSpawnMessage().forEach(session::send);
                                     })));
+
         } finally {
             worldLock.writeLock().unlock();
         }
