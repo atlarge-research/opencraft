@@ -6,11 +6,11 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * A builder for an immutable class-to-getter map. The actual mapping is performed between explicit types and getters,
- * meaning that it does not consider super- or subtypes.
+ * A builder for an immutable class-to-getter map. The mapping is performed between explicit types and getters, meaning
+ * that it does not consider super- or subtypes.
  *
  * @param <Base> the base type of classes added to the map.
- * @param <Value> the return type of the getters added to the map.
+ * @param <Value> the return type of getters added to the map.
  */
 final class ClassGetterMapBuilder<Base, Value> {
 
@@ -24,9 +24,9 @@ final class ClassGetterMapBuilder<Base, Value> {
     }
 
     /**
-     * Get the build map.
+     * Get an immutable copy of the map in its current state.
      *
-     * @return an immutable view of the map.
+     * @return an immutable copy of the map.
      */
     Map<Class<? extends Base>, Function<Base, Value>> getImmutableMap() {
         return Collections.unmodifiableMap(getters);

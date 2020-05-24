@@ -43,7 +43,7 @@ public class ProtocolCodec implements JmsCodec<Message> {
 
         ByteBuf messageBuf = allocator.buffer();
         try {
-            Codec codec = registration.getCodec();
+            Codec<Message> codec = registration.getCodec();
             messageBuf = codec.encode(messageBuf, message);
         } catch (IOException e) {
             throw new RuntimeException("Could not encode the message", e);
