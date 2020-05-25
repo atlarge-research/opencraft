@@ -324,15 +324,7 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
 
     @Override
     public int drainTo(@NotNull Collection<? super Element> collection) {
-        lock.lock();
-        try {
-            int count = elements.size();
-            collection.addAll(elements);
-            elements.clear();
-            return count;
-        } finally {
-            lock.unlock();
-        }
+        return drainTo(collection, elements.size());
     }
 
     @Override
