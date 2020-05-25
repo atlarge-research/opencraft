@@ -65,6 +65,7 @@ public class ItemFlintAndSteel extends ItemTool {
      */
     private boolean isPortal(GlowBlock block, BlockFace verticalFace) {
         // TODO: Support portals of various sizes.
+        Material obsidian = Material.OBSIDIAN;
         BlockFace direction = getHorizontalPortalDirection(block);
         if (direction == null) {
             return false;
@@ -72,25 +73,25 @@ public class ItemFlintAndSteel extends ItemTool {
 
         BlockFace oppositeFace = verticalFace.getOppositeFace();
         GlowBlock oppositeBlock = block.getRelative(oppositeFace);
-        if (oppositeBlock.getType() != Material.OBSIDIAN || oppositeBlock.getRelative(direction).getType() != Material.OBSIDIAN) {
+        if (oppositeBlock.getType() != obsidian || oppositeBlock.getRelative(direction).getType() != obsidian) {
             return false;
         }
 
-        for (int i = 1; i <=3; i++) {
+        for (int i = 1; i <= 3; i++) {
 
-            if(block.getRelative(direction, 2).getType() != Material.OBSIDIAN){
+            if (block.getRelative(direction, 2).getType() != obsidian) {
                 return false;
             }
 
             BlockFace oppositeDirection = direction.getOppositeFace();
-            if(block.getRelative(oppositeDirection).getType() != Material.OBSIDIAN){
+            if (block.getRelative(oppositeDirection).getType() != obsidian) {
                 return false;
             }
 
             block = block.getRelative(verticalFace);
         }
 
-        if (block.getType() != Material.OBSIDIAN || block.getRelative(direction).getType() != Material.OBSIDIAN) {
+        if (block.getType() != obsidian || block.getRelative(direction).getType() != obsidian) {
             return false;
         }
 
@@ -107,7 +108,7 @@ public class ItemFlintAndSteel extends ItemTool {
         if (face == BlockFace.UP || face == BlockFace.DOWN) {
 
             target = target.getRelative(face);
-            if (!isPortal(target, face)){
+            if (!isPortal(target, face)) {
                 return;
             }
 
@@ -115,7 +116,7 @@ public class ItemFlintAndSteel extends ItemTool {
             GlowBlock sideBlock = target.getRelative(direction);
 
             byte data;
-            if(direction == BlockFace.EAST || direction == BlockFace.WEST){
+            if (direction == BlockFace.EAST || direction == BlockFace.WEST) {
                 data = 1;
             } else {
                 data = 2;
@@ -123,10 +124,8 @@ public class ItemFlintAndSteel extends ItemTool {
 
             // TODO: Support portals of various sizes.
             while (target.getType() == Material.AIR) {
-                target.setType(Material.PORTAL);
-                target.setData(data);
-                sideBlock.setType(Material.PORTAL);
-                sideBlock.setData(data);
+                target.setType(Material.PORTAL, data, false);
+                sideBlock.setType(Material.PORTAL, data, false);
                 target = target.getRelative(face);
                 sideBlock = sideBlock.getRelative(face);
             }

@@ -647,7 +647,7 @@ public abstract class GlowEntity implements Entity {
             }
 
             portalTicks++;
-            if(portalTicks >= 80) {
+            if (portalTicks >= 80) {
                 portalTicks = 0;
                 interactWithPortal(currentBlock);
             }
@@ -679,14 +679,14 @@ public abstract class GlowEntity implements Entity {
 
         boolean success = false;
 
-        if(portal.getType() == Material.ENDER_PORTAL && server.getAllowEnd()){
+        if (portal.getType() == Material.ENDER_PORTAL && server.getAllowEnd()) {
             EventFactory.getInstance().callEvent(portalEnterEvent);
             if (getWorld().getEnvironment() == Environment.THE_END) {
                 success = teleportToSpawn();
             } else {
                 success = teleportToEnd();
             }
-        } else if(portal.getType() == Material.PORTAL && server.getAllowNether()) {
+        } else if (portal.getType() == Material.PORTAL && server.getAllowNether()) {
             EventFactory.getInstance().callEvent(portalEnterEvent);
             if (getWorld().getEnvironment() == Environment.NETHER) {
                 success = teleportToSpawn();

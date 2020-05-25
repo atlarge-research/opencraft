@@ -615,6 +615,7 @@ public class GlowWorld implements World {
 
         Location current = player.getLocation();
         Location previous = player.previousAreaOfInterest.location;
+        int viewDistance = player.getViewDistance();
 
         boolean force = false;
 
@@ -633,7 +634,7 @@ public class GlowWorld implements World {
             return;
         }
 
-        int radius = Math.min(server.getViewDistance(), 1 + player.getViewDistance());
+        int radius = Math.min(server.getViewDistance(), 1 + viewDistance);
 
         GlowSession session = player.getSession();
 
@@ -693,6 +694,7 @@ public class GlowWorld implements World {
         }
 
         player.previousAreaOfInterest.location = current;
+        player.previousAreaOfInterest.viewDistance = viewDistance;
     }
 
     private void updateActiveChunkCollection(GlowEntity entity) {
