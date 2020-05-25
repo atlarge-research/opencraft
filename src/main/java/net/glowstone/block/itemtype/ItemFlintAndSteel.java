@@ -1,12 +1,10 @@
 package net.glowstone.block.itemtype;
 
 import net.glowstone.EventFactory;
-import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.ItemTable;
 import net.glowstone.block.blocktype.BlockTnt;
 import net.glowstone.entity.GlowPlayer;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.block.BlockIgniteEvent;
@@ -60,12 +58,13 @@ public class ItemFlintAndSteel extends ItemTool {
     }
 
     /**
-     * Checks if there is a 2x3 portal.
+     * Checks if there is a 2x3 portal. A portal should be surrounded by obsidian for it to work.
      * @param block A block in a corner of the portal
      * @param verticalFace Whether we have to build the portal up or down.
      * @return If this is a valid portal.
      */
     private boolean isPortal(GlowBlock block, BlockFace verticalFace) {
+        // TODO: Support portals of various sizes.
         BlockFace direction = getHorizontalPortalDirection(block);
         if (direction == null) {
             return false;
@@ -98,6 +97,12 @@ public class ItemFlintAndSteel extends ItemTool {
         return true;
     }
 
+    /**
+     * When a player tries to fire an obsidian block, this method checks if there is a valid nether portal and fills it
+     * with portal blocks.
+     * @param target The block that is clicked on.
+     * @param face The face that is clicked on (The vertical direction).
+     */
     private void fireNetherPortal(GlowBlock target, BlockFace face) {
         if (face == BlockFace.UP || face == BlockFace.DOWN) {
 
@@ -109,16 +114,22 @@ public class ItemFlintAndSteel extends ItemTool {
             BlockFace direction = getHorizontalPortalDirection(target);
             GlowBlock sideBlock = target.getRelative(direction);
 
-            GlowWorld world = target.getWorld();
-            int limit = 0;
+            byte data;
+            if(direction == BlockFace.EAST || direction == BlockFace.WEST){
+                data = 1;
+            } else {
+                data = 2;
+            }
 
-            while ((target.getType() == Material.AIR) && limit < 4) {
+            // TODO: Support portals of various sizes.
+            while (target.getType() == Material.AIR) {
                 target.setType(Material.PORTAL);
+                target.setData(data);
                 sideBlock.setType(Material.PORTAL);
+                sideBlock.setData(data);
                 target = target.getRelative(face);
                 sideBlock = sideBlock.getRelative(face);
-                limit++;
-            }
+            }git 
 
         }
     }
