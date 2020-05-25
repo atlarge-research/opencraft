@@ -887,28 +887,6 @@ public class GlowBlock implements Block {
         Vector south = loc.clone().add(1.0, 1.0, 0.5).toVector();
         Vector full = loc.clone().add(1.0, 1.0, 1.0).toVector();
         Vector west = loc.clone().add(0.5, 1.0, 1.0).toVector();
-        Vector west = loc.clone().add(0.5, 1.0, 1.0).toVector();
-        Vector west = loc.clone().add(0.5, 1.0, 1.0).toVector();
-
-        GlowBlock behind = this.getRelative(this.getStairFace(true));
-        GlowBlock front = this.getRelative(this.getStairFace(true));
-
-        boolean behindIsStairs = behind.isStairs();
-        boolean frontIsStairs = front.isStairs();
-
-        List<BlockFace> perpendicular = Arrays.asList(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST, BlockFace.EAST);
-        perpendicular.remove(face);
-        perpendicular.remove(face.getOppositeFace());
-
-        BlockFace behindDirection = BlockFace.UP;
-        if (behindIsStairs){
-            behindDirection = behind.getStairFace(true);
-        }
-
-        BlockFace frontDirection = BlockFace.UP;
-        if (frontIsStairs){
-            frontDirection = front.getStairFace(true);
-        }
 
         if (face == BlockFace.NORTH) {
             head = BoundingBox.fromCorners(origin, south);
@@ -923,33 +901,12 @@ public class GlowBlock implements Block {
         //TODO: Implement stair corners with the getStairFaceMethod
 
         if (head != null) {
-            world.spawnParticle(Particle.HEART, head.minCorner.toLocation(world), 1, 0, 0,0);
-            world.spawnParticle(Particle.VILLAGER_HAPPY, head.maxCorner.toLocation(world), 1, 0,0,0);
             return Arrays.asList(head, base);
         } else {
             return Arrays.asList(base);
         }
     }
 
-    private BlockFace getStairFace(boolean ascending) {
-        if (ascending) {
-            return ((Stairs) this.getState().getData()).getAscendingDirection();
-        } else {
-            return ((Stairs) this.getState().getData()).getDescendingDirection();
-        }
-    }
-
-    public boolean isStairs() {
-        switch (this.getType()) {
-            case STEP:
-            case WOOD_STEP:
-            case PURPUR_SLAB:
-            case STONE_SLAB2:
-                return true;
-            default:
-                return false;
-        }
-    }
 
     /**
      * Returns the cauldron bounding box.
