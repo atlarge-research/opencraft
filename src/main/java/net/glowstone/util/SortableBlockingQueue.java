@@ -324,7 +324,7 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
 
     @Override
     public int drainTo(@NotNull Collection<? super Element> collection) {
-        return drainTo(collection, elements.size());
+        return drainTo(collection, Integer.MAX_VALUE);
     }
 
     @Override
