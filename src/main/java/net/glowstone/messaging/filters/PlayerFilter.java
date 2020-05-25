@@ -29,22 +29,20 @@ public final class PlayerFilter implements Filter<Player, Message> {
      * Create a player filter.
      */
     public PlayerFilter() {
-
-        ClassGetterMapBuilder<Message, Integer> builder = new ClassGetterMapBuilder<>();
-        builder.add(BlockBreakAnimationMessage.class, BlockBreakAnimationMessage::getId);
-        builder.add(EntityTeleportMessage.class, EntityTeleportMessage::getId);
-        builder.add(RelativeEntityPositionRotationMessage.class, RelativeEntityPositionRotationMessage::getId);
-        builder.add(EntityRotationMessage.class, EntityRotationMessage::getId);
-        builder.add(RelativeEntityPositionMessage.class, RelativeEntityPositionMessage::getId);
-        builder.add(EntityMetadataMessage.class, EntityMetadataMessage::getId);
-        builder.add(EntityEquipmentMessage.class, EntityEquipmentMessage::getId);
-        builder.add(EntityHeadRotationMessage.class, EntityHeadRotationMessage::getId);
-        builder.add(SpawnPlayerMessage.class, SpawnPlayerMessage::getId);
-        builder.add(UseBedMessage.class, UseBedMessage::getId);
-        builder.add(EntityVelocityMessage.class, EntityVelocityMessage::getId);
-        builder.add(SetPassengerMessage.class, SetPassengerMessage::getEntityId);
-
-        getters = builder.getImmutableMap();
+        getters = new ClassToGetterMapBuilder<Message, Integer>()
+                .put(BlockBreakAnimationMessage.class, BlockBreakAnimationMessage::getId)
+                .put(EntityTeleportMessage.class, EntityTeleportMessage::getId)
+                .put(RelativeEntityPositionRotationMessage.class, RelativeEntityPositionRotationMessage::getId)
+                .put(EntityRotationMessage.class, EntityRotationMessage::getId)
+                .put(RelativeEntityPositionMessage.class, RelativeEntityPositionMessage::getId)
+                .put(EntityMetadataMessage.class, EntityMetadataMessage::getId)
+                .put(EntityEquipmentMessage.class, EntityEquipmentMessage::getId)
+                .put(EntityHeadRotationMessage.class, EntityHeadRotationMessage::getId)
+                .put(SpawnPlayerMessage.class, SpawnPlayerMessage::getId)
+                .put(UseBedMessage.class, UseBedMessage::getId)
+                .put(EntityVelocityMessage.class, EntityVelocityMessage::getId)
+                .put(SetPassengerMessage.class, SetPassengerMessage::getEntityId)
+                .build();
     }
 
     @Override

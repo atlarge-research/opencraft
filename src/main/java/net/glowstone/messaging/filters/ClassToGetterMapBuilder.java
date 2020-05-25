@@ -1,7 +1,6 @@
 package net.glowstone.messaging.filters;
 
-import java.util.Collections;
-import java.util.HashMap;
+import com.google.common.collect.ImmutableMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -12,24 +11,15 @@ import java.util.function.Function;
  * @param <Base> the base type of classes added to the map.
  * @param <Value> the return type of getters added to the map.
  */
-final class ClassGetterMapBuilder<Base, Value> {
+final class ClassToGetterMapBuilder<Base, Value> {
 
-    private final Map<Class<? extends Base>, Function<Base, Value>> getters;
+    private final ImmutableMap.Builder<Class<? extends Base>, Function<Base, Value>> builder;
 
     /**
      * Create a class-to-getter map builder.
      */
-    ClassGetterMapBuilder() {
-        getters = new HashMap<>();
-    }
-
-    /**
-     * Get an immutable copy of the map in its current state.
-     *
-     * @return an immutable copy of the map.
-     */
-    Map<Class<? extends Base>, Function<Base, Value>> getImmutableMap() {
-        return Collections.unmodifiableMap(getters);
+    ClassToGetterMapBuilder() {
+        builder = new ImmutableMap.Builder<>();
     }
 
     /**
@@ -39,10 +29,20 @@ final class ClassGetterMapBuilder<Base, Value> {
      * @param getter the getter that should be stored.
      * @param <Type> the type of value the getter is called on.
      */
-    <Type extends Base> void add(Class<Type> type, Function<Type, Value> getter) {
-        getters.put(type, message -> {
+    <Type extends Base> ClassToGetterMapBuilder<Base, Value> put(Class<Type> type, Function<Type, Value> getter) {
+        builder.put(type, message -> {
             Type typedMessage = type.cast(message);
             return getter.apply(typedMessage);
         });
+        return this;
+    }
+
+    /**
+     * Create an immutable copy of the map in its current state.
+     *
+     * @return an immutable copy of the map.
+     */
+    Map<Class<? extends Base>, Function<Base, Value>> build() {
+        return builder.build();
     }
 }
