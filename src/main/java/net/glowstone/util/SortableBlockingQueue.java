@@ -208,8 +208,10 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
         lock.lock();
         try {
             while (elements.isEmpty()) {
-                notEmpty.await();
-                // TODO: Add timeout
+                boolean signalled = notEmpty.await(timeout, unit);
+                if (!signalled) {
+                    return null;
+                }
             }
             int index = elements.size() - 1;
             return elements.remove(index);

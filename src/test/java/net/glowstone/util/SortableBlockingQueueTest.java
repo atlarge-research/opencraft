@@ -237,14 +237,14 @@ class SortableBlockingQueueTest {
         new Thread(() -> {
             try {
                 latch.countDown();
-                Integer element = queue.poll(50L, TimeUnit.MILLISECONDS);
+                Integer element = queue.poll(100L, TimeUnit.MILLISECONDS);
                 future.complete(element);
             } catch (InterruptedException exception) {
                 future.completeExceptionally(exception);
             }
         }).start();
         latch.await();
-        TimeUnit.MILLISECONDS.sleep(100);
+        TimeUnit.MILLISECONDS.sleep(50L);
         queue.add(1);
         assertEquals(1, future.get());
     }
@@ -254,7 +254,6 @@ class SortableBlockingQueueTest {
      *
      * @throws InterruptedException thrown whenever the poll method is interrupted by another thread.
      */
-    @Disabled
     @TimeBasedTest
     void pollTimeoutEmptyTest() throws InterruptedException {
         assertNull(queue.poll(50L, TimeUnit.MILLISECONDS));
