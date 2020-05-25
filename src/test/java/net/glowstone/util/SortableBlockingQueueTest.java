@@ -327,11 +327,12 @@ class SortableBlockingQueueTest {
      */
     @Test
     void addMoreTest() {
-        queue.add(1);
-        queue.addAll(Arrays.asList(2, 3));
+        queue.addAll(Arrays.asList(1, 2));
+        queue.addAll(Arrays.asList(3, 4));
         assertTrue(queue.contains(1));
         assertTrue(queue.contains(2));
         assertTrue(queue.contains(3));
+        assertTrue(queue.contains(4));
     }
 
     /**

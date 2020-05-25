@@ -10,8 +10,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import org.jetbrains.annotations.NotNull;
@@ -26,8 +25,7 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
 
     private final Comparator<Element> comparator;
     private final List<Element> elements;
-    private final Lock readLock;
-    private final Lock writeLock;
+    private final Lock lock;
     private final Condition notEmpty;
 
     /**
@@ -38,10 +36,21 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
     public SortableBlockingQueue(Comparator<Element> comparator) {
         this.comparator = comparator.reversed();
         elements = new ArrayList<>();
-        ReadWriteLock lock = new ReentrantReadWriteLock();
-        readLock = lock.readLock();
-        writeLock = lock.writeLock();
-        notEmpty = writeLock.newCondition();
+        lock = new ReentrantLock();
+        notEmpty = this.lock.newCondition();
+    }
+
+
+    /**
+     * Sort the elements in the queue.
+     */
+    public void sort() {
+        lock.lock();
+        try {
+            elements.sort(comparator);
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
@@ -51,167 +60,13 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
      * @param removals the elements that should be removed from the queue.
      */
     public void update(Collection<Element> additions, Collection<Element> removals) {
-        writeLock.lock();
+        lock.lock();
         try {
             removeAll(removals);
             addAll(additions);
             sort();
         } finally {
-            writeLock.unlock();
-        }
-    }
-
-    /**
-     * Sort the elements in the queue.
-     */
-    public void sort() {
-        writeLock.lock();
-        try {
-            elements.sort(comparator);
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    @Override
-    public boolean add(@NotNull Element element) {
-        writeLock.lock();
-        try {
-            elements.add(element);
-            if (elements.size() == 1) {
-                notEmpty.signalAll();
-            }
-            return true;
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    @Override
-    public boolean offer(@NotNull Element element) {
-        writeLock.lock();
-        try {
-            elements.add(element);
-            if (elements.size() == 1) {
-                notEmpty.signalAll();
-            }
-            return true;
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    @Override
-    public Element remove() {
-        writeLock.lock();
-        try {
-            if (elements.isEmpty()) {
-                throw new NoSuchElementException();
-            }
-            int index = elements.size() - 1;
-            return elements.remove(index);
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    @Override
-    public Element poll() {
-        writeLock.lock();
-        try {
-            if (elements.isEmpty()) {
-                return null;
-            }
-            int index = elements.size() - 1;
-            return elements.remove(index);
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    @Override
-    public Element element() {
-        readLock.lock();
-        try {
-            if (elements.isEmpty()) {
-                throw new NoSuchElementException();
-            }
-            int index = elements.size() - 1;
-            return elements.get(index);
-        } finally {
-            readLock.unlock();
-        }
-    }
-
-    @Override
-    public Element peek() {
-        readLock.lock();
-        try {
-            if (elements.isEmpty()) {
-                return null;
-            }
-            int index = elements.size() - 1;
-            return elements.get(index);
-        } finally {
-            readLock.unlock();
-        }
-    }
-
-    @Override
-    public void put(@NotNull Element element) {
-        writeLock.lock();
-        try {
-            elements.add(element);
-            if (elements.size() == 1) {
-                notEmpty.signalAll();
-            }
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    @Override
-    public boolean offer(Element element, long timeout, @NotNull TimeUnit unit) {
-        writeLock.lock();
-        try {
-            elements.add(element);
-            if (elements.size() == 1) {
-                notEmpty.signalAll();
-            }
-            return true;
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    @NotNull
-    @Override
-    public Element take() throws InterruptedException {
-        writeLock.lock();
-        try {
-            while (elements.isEmpty()) {
-                notEmpty.await();
-            }
-            int index = elements.size() - 1;
-            return elements.remove(index);
-        } finally {
-            writeLock.unlock();
-        }
-    }
-
-    @Nullable
-    @Override
-    public Element poll(long timeout, @NotNull TimeUnit unit) throws InterruptedException {
-        writeLock.lock();
-        try {
-            while (elements.isEmpty()) {
-                notEmpty.await();
-                // TODO: Add timeout
-            }
-            int index = elements.size() - 1;
-            return elements.remove(index);
-        } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 
@@ -221,28 +76,62 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
     }
 
     @Override
-    public boolean remove(Object object) {
-        writeLock.lock();
+    public int size() {
+        lock.lock();
         try {
-            return elements.remove(object);
+            return elements.size();
         } finally {
-            writeLock.unlock();
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public boolean isEmpty() {
+        lock.lock();
+        try {
+            return elements.isEmpty();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public boolean contains(Object object) {
+        lock.lock();
+        try {
+            return elements.contains(object);
+        } finally {
+            lock.unlock();
         }
     }
 
     @Override
     public boolean containsAll(@NotNull Collection<?> collection) {
-        readLock.lock();
+        lock.lock();
         try {
             return elements.containsAll(collection);
         } finally {
-            readLock.unlock();
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public boolean add(@NotNull Element element) {
+        lock.lock();
+        try {
+            elements.add(element);
+            if (elements.size() == 1) {
+                notEmpty.signalAll();
+            }
+            return true;
+        } finally {
+            lock.unlock();
         }
     }
 
     @Override
     public boolean addAll(@NotNull Collection<? extends Element> collection) {
-        writeLock.lock();
+        lock.lock();
         try {
             boolean shouldSignal = elements.isEmpty();
             boolean changed = elements.addAll(collection);
@@ -252,142 +141,201 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
             }
             return changed;
         } finally {
-            writeLock.unlock();
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public boolean offer(@NotNull Element element) {
+        return add(element);
+    }
+
+    @Override
+    public boolean offer(Element element, long timeout, @NotNull TimeUnit unit) {
+        return add(element);
+    }
+
+    @Override
+    public void put(@NotNull Element element) {
+        add(element);
+    }
+
+    @Override
+    public Element element() {
+        lock.lock();
+        try {
+            if (elements.isEmpty()) {
+                throw new NoSuchElementException();
+            }
+            int index = elements.size() - 1;
+            return elements.get(index);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public Element peek() {
+        lock.lock();
+        try {
+            if (elements.isEmpty()) {
+                return null;
+            }
+            int index = elements.size() - 1;
+            return elements.get(index);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public Element poll() {
+        lock.lock();
+        try {
+            if (elements.isEmpty()) {
+                return null;
+            }
+            int index = elements.size() - 1;
+            return elements.remove(index);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Nullable
+    @Override
+    public Element poll(long timeout, @NotNull TimeUnit unit) throws InterruptedException {
+        lock.lock();
+        try {
+            while (elements.isEmpty()) {
+                notEmpty.await();
+                // TODO: Add timeout
+            }
+            int index = elements.size() - 1;
+            return elements.remove(index);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public Element remove() {
+        lock.lock();
+        try {
+            if (elements.isEmpty()) {
+                throw new NoSuchElementException();
+            }
+            int index = elements.size() - 1;
+            return elements.remove(index);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    @Override
+    public boolean remove(Object object) {
+        lock.lock();
+        try {
+            return elements.remove(object);
+        } finally {
+            lock.unlock();
         }
     }
 
     @Override
     public boolean removeAll(@NotNull Collection<?> collection) {
-        writeLock.lock();
+        lock.lock();
         try {
             return elements.removeAll(collection);
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public boolean removeIf(Predicate<? super Element> predicate) {
-        writeLock.lock();
+        lock.lock();
         try {
             return elements.removeIf(predicate);
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public boolean retainAll(@NotNull Collection<?> collection) {
-        writeLock.lock();
+        lock.lock();
         try {
             return elements.retainAll(collection);
         } finally {
-            writeLock.unlock();
+            lock.unlock();
+        }
+    }
+
+    @NotNull
+    @Override
+    public Element take() throws InterruptedException {
+        lock.lock();
+        try {
+            while (elements.isEmpty()) {
+                notEmpty.await();
+            }
+            int index = elements.size() - 1;
+            return elements.remove(index);
+        } finally {
+            lock.unlock();
         }
     }
 
     @Override
     public void clear() {
-        writeLock.lock();
+        lock.lock();
         try {
             elements.clear();
         } finally {
-            writeLock.unlock();
-        }
-    }
-
-    @Override
-    public int size() {
-        readLock.lock();
-        try {
-            return elements.size();
-        } finally {
-            readLock.unlock();
-        }
-    }
-
-    @Override
-    public boolean isEmpty() {
-        readLock.lock();
-        try {
-            return elements.isEmpty();
-        } finally {
-            readLock.unlock();
-        }
-    }
-
-    @Override
-    public boolean contains(Object object) {
-        readLock.lock();
-        try {
-            return elements.contains(object);
-        } finally {
-            readLock.unlock();
-        }
-    }
-
-    /**
-     * Returns an iterator over the elements in this collection.  There are no guarantees concerning the order in which
-     * the elements are returned (unless this collection is an instance of some class that provides a guarantee). The
-     * returned iterator is not thread-safe.
-     *
-     * @return an <tt>Iterator</tt> over the elements in this collection
-     */
-    @NotNull
-    @Override
-    public Iterator<Element> iterator() {
-        return elements.iterator();
-    }
-
-    @Override
-    public void forEach(Consumer<? super Element> consumer) {
-        readLock.lock();
-        try {
-            elements.forEach(consumer);
-        } finally {
-            readLock.unlock();
+            lock.unlock();
         }
     }
 
     @NotNull
     @Override
     public Object[] toArray() {
-        readLock.lock();
+        lock.lock();
         try {
             return elements.toArray();
         } finally {
-            readLock.unlock();
+            lock.unlock();
         }
     }
 
     @NotNull
     @Override
     public <T> T[] toArray(@NotNull T[] ts) {
-        readLock.lock();
+        lock.lock();
         try {
             //noinspection SuspiciousToArrayCall
             return elements.toArray(ts);
         } finally {
-            readLock.unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public int drainTo(@NotNull Collection<? super Element> collection) {
-        writeLock.lock();
+        lock.lock();
         try {
             int count = elements.size();
             collection.addAll(elements);
             elements.clear();
             return count;
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public int drainTo(@NotNull Collection<? super Element> collection, int max) {
-        writeLock.lock();
+        lock.lock();
         try {
             int count = 0;
             for (int index = elements.size() - 1; index >= 0 && count < max; index--) {
@@ -397,7 +345,23 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
             }
             return count;
         } finally {
-            writeLock.unlock();
+            lock.unlock();
+        }
+    }
+
+    @NotNull
+    @Override
+    public Iterator<Element> iterator() {
+        return elements.iterator();
+    }
+
+    @Override
+    public void forEach(Consumer<? super Element> consumer) {
+        lock.lock();
+        try {
+            elements.forEach(consumer);
+        } finally {
+            lock.unlock();
         }
     }
 }
