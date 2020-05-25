@@ -882,19 +882,6 @@ public abstract class GlowEntity implements Entity {
             passengerChanged = false;
         }
 
-//        if (leashHolderChanged) {
-//            int attached =
-//                isLeashed() && session.getPlayer().getEntityId() == leashHolder.getEntityId()
-//                    ? 0 : this.getEntityId();
-//            int holder = !isLeashed() ? -1 : leashHolder.getEntityId();
-//
-//            // When the leashHolder is not visible, the AttachEntityMessage will be created in
-//            // createAfterSpawnMessage()
-//            if (!isLeashed() || session.getPlayer().canSeeEntity(leashHolder)) {
-//                result.add(new AttachEntityMessage(attached, holder));
-//            }
-//        }
-
         return result;
     }
 
