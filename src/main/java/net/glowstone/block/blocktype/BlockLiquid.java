@@ -124,11 +124,11 @@ public abstract class BlockLiquid extends BlockType {
             return;
         }
         GlowBlockState state = block.getState();
-        if (calculateTarget(block.getRelative(DOWN), DOWN, true)) {
+        if (calculateTarget(block, block.getRelative(DOWN), DOWN, true)) {
             if (!block.getRelative(UP).isLiquid()
                 && state.getRawData() == STRENGTH_SOURCE) {
                 for (BlockFace face : SIDES) {
-                    calculateTarget(block.getRelative(face), face, true);
+                    calculateTarget(block, block.getRelative(face), face, true);
                 }
             }
         } else {
@@ -137,8 +137,8 @@ public abstract class BlockLiquid extends BlockType {
             for (int j = 1; j < 6; j++) {
                 // from each horizontal face
                 for (BlockFace face : SIDES) {
-                    if (calculateTarget(block.getRelative(face, j).getRelative(DOWN), face,
-                        false) && calculateTarget(block.getRelative(face), face, true)) {
+                    if (calculateTarget(block, block.getRelative(face, j), face,
+                        false) && calculateTarget(block, block.getRelative(face), face, true)) {
                         state.setFlowed(true);
                     }
                 }
@@ -148,13 +148,13 @@ public abstract class BlockLiquid extends BlockType {
                 }
             }
             for (BlockFace face : SIDES) {
-                calculateTarget(block.getRelative(face), face, true);
+                calculateTarget(block, block.getRelative(face), face, true);
             }
             state.setFlowed(true);
         }
     }
 
-    private boolean calculateTarget(GlowBlock target, BlockFace direction, boolean flow) {
+    private boolean calculateTarget(GlowBlock block, GlowBlock target, BlockFace direction, boolean flow) {
         // Don't flow inside unloaded chunks
         if (!target.getChunk().isLoaded()) {
             return false;
@@ -167,10 +167,10 @@ public abstract class BlockLiquid extends BlockType {
             }
             return true;
         }
-        if (target.isLiquid()) {
+        if (target.isLiquid() && block.isLiquid()) {
             // let's mix
             if (flow) {
-                mix(target, direction, target.getRelative(direction.getOppositeFace()).getType(),
+                mix(block, target, direction, target.getRelative(direction.getOppositeFace()).getType(),
                     target.getType());
             }
             return true;
@@ -206,7 +206,7 @@ public abstract class BlockLiquid extends BlockType {
         toBlock.getWorld().requestPulse(toBlock);
     }
 
-    private void mix(GlowBlock target, BlockFace direction, Material flowingMaterial,
+    private void mix(GlowBlock block, GlowBlock target, BlockFace direction, Material flowingMaterial,
         Material targetMaterial) {
         if (flowingMaterial == Material.WATER && targetMaterial == Material.LAVA) {
             if (target.getState().getRawData() == STRENGTH_SOURCE) {
@@ -223,6 +223,29 @@ public abstract class BlockLiquid extends BlockType {
             if (direction == NORTH || direction == SOUTH || direction == EAST
                 || direction == WEST) {
                 target.setType(Material.COBBLESTONE);
+            }
+        }
+        if (flowingMaterial == Material.WATER && targetMaterial == Material.WATER) {
+            if (direction == NORTH || direction == SOUTH || direction == EAST
+                    || direction == WEST) {
+                int count = 0;
+                for (BlockFace face : SIDES) {
+                    GlowBlock neighbour = target.getRelative(face);
+                    if (neighbour.getType() == Material.WATER) {
+                        if (neighbour.getState().getRawData() == 0) {
+                            count++;
+                        }
+                    }
+                }
+                if (count > 1) {
+                    target.setType(Material.WATER, (byte) 0, true);
+                } else {
+                    int blockData = block.getState().getRawData();
+                    int targetData = target.getState().getRawData();
+                    if (blockData + 1 < targetData) {
+                        target.setType(Material.WATER, (byte) (blockData + 1), true);
+                    }
+                }
             }
         }
     }
