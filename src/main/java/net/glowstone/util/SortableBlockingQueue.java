@@ -17,7 +17,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The sortable blocking queue is a blocking queue implementation that allows for its elements to be sorted.
+ * The sortable blocking queue is a blocking queue implementation that allows for its elements to be sorted. The queue
+ * does not guarantee the order of elements when insertions are performed in between sort calls.
  *
  * @param <Element> the type of elements that can be stored in the queue.
  */
@@ -39,7 +40,6 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
         lock = new ReentrantLock();
         notEmpty = this.lock.newCondition();
     }
-
 
     /**
      * Sort the elements in the queue.
