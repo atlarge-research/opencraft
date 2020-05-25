@@ -34,6 +34,7 @@ import net.glowstone.entity.meta.MetadataMap.Entry;
 import net.glowstone.entity.objects.GlowItemFrame;
 import net.glowstone.entity.objects.GlowLeashHitch;
 import net.glowstone.entity.objects.GlowPainting;
+import net.glowstone.entity.physics.BlockBoundingBox;
 import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.entity.physics.EntityBoundingBox;
 import net.glowstone.net.GlowSession;
@@ -1078,7 +1079,7 @@ public abstract class GlowEntity implements Entity {
         List<GlowBlock> glowBlocks = world.getOverlappingBlocks(min, max);
 
         List<BoundingBox> intersectingBoxes = glowBlocks.stream()
-                .map(GlowBlock::getBoundingBoxes)
+                .map(BlockBoundingBox::getBoundingBoxes)
                 .flatMap(List::stream)
                 .filter(box -> box.intersects(broadPhaseBox))
                 .collect(Collectors.toList());

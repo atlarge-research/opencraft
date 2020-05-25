@@ -4,6 +4,7 @@ import net.glowstone.block.GlowBlock;
 import net.glowstone.entity.EntityRegistry;
 import net.glowstone.entity.GlowEntity;
 import net.glowstone.entity.GlowPlayer;
+import net.glowstone.entity.physics.BlockBoundingBox;
 import net.glowstone.inventory.GlowMetaSpawn;
 import net.glowstone.io.entity.EntityStorage;
 import net.glowstone.util.nbt.CompoundTag;
@@ -29,8 +30,10 @@ public class ItemSpawn extends ItemType {
             EntityType type = meta.getSpawnedType();
             CompoundTag tag = meta.getEntityTag();
 
-            if (face == BlockFace.UP && against.getBoundingBoxes().stream().anyMatch(box -> box.getSize().getY() > 1.0)) {
-                location.add(0, 0.5, 0);
+            if (face == BlockFace.UP) {
+                if (BlockBoundingBox.getBoundingBoxes(against).stream().anyMatch(box -> box.getSize().getY() > 1.0)) {
+                    location.add(0, 0.5, 0);
+                }
             }
 
             if (type != null) {

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import net.glowstone.EventFactory;
 import net.glowstone.block.GlowBlock;
@@ -14,6 +15,7 @@ import net.glowstone.block.itemtype.ItemType;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.entity.physics.BlockBoundingBox;
+import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.i18n.ConsoleMessages;
 import net.glowstone.i18n.GlowstoneMessages;
 import net.glowstone.util.SoundInfo;
@@ -356,9 +358,10 @@ public class BlockType extends ItemType {
         }
 
         if (getMaterial().isSolid()) {
-            BlockBoundingBox box = new BlockBoundingBox(target);
-            List<Entity> entities = target.getWorld().getEntityManager()
-                .getEntitiesInside(box, null);
+            List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(target);
+            GlowBlock finalTarget = target;
+            List<Entity> entities = boxes.stream().map(box -> finalTarget.getWorld().getEntityManager()
+                .getEntitiesInside(box, null)).flatMap(List::stream).collect(Collectors.toList());
             for (Entity e : entities) {
                 if (e instanceof LivingEntity) {
                     return;
