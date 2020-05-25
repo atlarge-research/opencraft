@@ -416,16 +416,16 @@ public class BlockBoundingBox {
             case SPRUCE_FENCE_GATE:
                 return getFenceGateBoundingBox(loc, block);
             case SNOW:
-                double snowHeight = block.getState().getData().getData() * 1.0 / 7.0;
+                double snowHeight = block.getState().getRawData() * 1.0 / 7.0;
                 return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, snowHeight));
             case ENCHANTMENT_TABLE:
                 return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 3.0 / 4.0));
             case CHEST:
             case ENDER_CHEST:
             case TRAPPED_CHEST:
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 15.0 / 16.0, 7.0 / 8.0));
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 14.0 / 16.0, 7.0 / 8.0));
             case CACTUS:
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 15.0 / 16.0, 1.0));
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 14.0 / 16.0, 1.0));
             case BED_BLOCK:
                 return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 9.0 / 16.0));
             case DAYLIGHT_DETECTOR:
