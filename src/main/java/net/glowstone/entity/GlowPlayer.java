@@ -205,6 +205,16 @@ import org.json.simple.JSONObject;
 @DelegateDeserialization(GlowOfflinePlayer.class)
 public class GlowPlayer extends GlowHumanEntity implements Player {
 
+    public class AreaOfInterest {
+        public Location location;
+        public int viewDistance;
+
+        public AreaOfInterest(Location location, int viewDistance) {
+            this.location = location;
+            this.viewDistance = viewDistance;
+        }
+    }
+
     /**
      * Max distance of a fishing hook.
      */
@@ -590,6 +600,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         return currentFishingHook.get();
     }
 
+    public AreaOfInterest previousAreaOfInterest;
+
     /**
      * Creates a new player and adds it to the world.
      *
@@ -619,6 +631,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         invMonitor = new InventoryMonitor(getOpenInventory());
         server.getPlayerStatisticIoService().readStatistics(this);
         recipeMonitor = new PlayerRecipeMonitor(this);
+
+        previousAreaOfInterest = new AreaOfInterest(null, getViewDistance());
 
         updateBossBars();
     }

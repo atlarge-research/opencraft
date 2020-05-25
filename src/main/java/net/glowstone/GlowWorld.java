@@ -614,7 +614,7 @@ public class GlowWorld implements World {
     private void streamChunks(GlowPlayer player, Collection<ChunkRunnable> chunkRunnables) {
 
         Location current = player.getLocation();
-        Location previous = previousLocations.get(player);
+        Location previous = player.previousAreaOfInterest.location;
 
         boolean force = false;
 
@@ -692,7 +692,7 @@ public class GlowWorld implements World {
             }
         }
 
-        previousLocations.put(player, current);
+        player.previousAreaOfInterest.location = current;
     }
 
     private void updateActiveChunkCollection(GlowEntity entity) {
