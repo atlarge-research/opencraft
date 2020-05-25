@@ -38,7 +38,6 @@ import net.glowstone.entity.objects.GlowLeashHitch;
 import net.glowstone.entity.passive.GlowWolf;
 import net.glowstone.entity.projectile.GlowProjectile;
 import net.glowstone.inventory.EquipmentMonitor;
-import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.AnimateEntityMessage;
 import net.glowstone.net.message.play.entity.EntityEffectMessage;
 import net.glowstone.net.message.play.entity.EntityEquipmentMessage;

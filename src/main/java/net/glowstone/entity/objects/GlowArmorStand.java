@@ -14,7 +14,6 @@ import net.glowstone.entity.meta.MetadataIndex.ArmorStandFlags;
 import net.glowstone.entity.meta.MetadataIndex.StatusFlags;
 import net.glowstone.inventory.ClothType;
 import net.glowstone.inventory.GlowEntityEquipment;
-import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.DestroyEntitiesMessage;
 import net.glowstone.net.message.play.entity.EntityEquipmentMessage;
 import net.glowstone.net.message.play.entity.EntityMetadataMessage;

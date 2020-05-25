@@ -14,7 +14,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
@@ -583,8 +582,8 @@ public class GlowWorld implements World {
         processBlockChanges();
 
         // Handle entity spawns, despawns, and transitions
-        broadcastEntityRemovals();
-        broadcastEntityUpdates();
+        broadcastEntityRemovals(entities);
+        broadcastEntityUpdates(entities);
         players.forEach(GlowPlayer::spawnEntities);
 
         // Reset entities
@@ -602,10 +601,10 @@ public class GlowWorld implements World {
         saveWorld();
     }
 
-    private void broadcastEntityUpdates() {
+    private void broadcastEntityUpdates(Collection<GlowEntity> entities) {
 
         Map<Chunk, List<Message>> messages = new HashMap<>();
-        List<GlowEntity> entities = entityManager.getAll();
+
         entities.forEach(entity -> {
             Chunk chunk = entity.getChunk();
             List<Message> updateMessages = entity.createUpdateMessage();
@@ -613,12 +612,12 @@ public class GlowWorld implements World {
             chunkMessages.addAll(updateMessages);
         });
 
-        messages.forEach((chunk, chunkMessages) -> chunkMessages.forEach(message -> messagingSystem.broadcast(chunk, message)));
+        messages.forEach((chunk, chunkMessages) -> {
+            chunkMessages.forEach(message -> messagingSystem.broadcast(chunk, message));
+        });
     }
 
-    private void broadcastEntityRemovals() {
-
-        List<GlowEntity> entities = entityManager.getAll();
+    private void broadcastEntityRemovals(Collection<GlowEntity> entities) {
 
         Map<Chunk, List<Integer>> removals = entities.stream()
                 .filter(GlowEntity::isRemoved)

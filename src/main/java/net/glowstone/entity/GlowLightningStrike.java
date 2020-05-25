@@ -10,7 +10,6 @@ import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.constants.GameRules;
 import net.glowstone.entity.physics.BoundingBox;
-import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.SpawnLightningStrikeMessage;
 import org.bukkit.Location;
 import org.bukkit.Material;

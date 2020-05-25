@@ -35,8 +35,6 @@ import net.glowstone.entity.objects.GlowLeashHitch;
 import net.glowstone.entity.objects.GlowPainting;
 import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.entity.physics.EntityBoundingBox;
-import net.glowstone.net.GlowSession;
-import net.glowstone.net.message.play.entity.AttachEntityMessage;
 import net.glowstone.net.message.play.entity.EntityMetadataMessage;
 import net.glowstone.net.message.play.entity.EntityRotationMessage;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
