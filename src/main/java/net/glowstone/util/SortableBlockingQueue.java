@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
  */
 public final class SortableBlockingQueue<Element> implements BlockingQueue<Element> {
 
-    private final Comparator<Element> comparator;
+    private final Comparator<Element> reverseComparator;
     private final List<Element> elements;
     private final Lock lock;
     private final Condition notEmpty;
@@ -34,7 +34,7 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
      * @param comparator the comparator that should be used for sorting elements.
      */
     public SortableBlockingQueue(Comparator<Element> comparator) {
-        this.comparator = comparator.reversed();
+        reverseComparator = comparator.reversed();
         elements = new ArrayList<>();
         lock = new ReentrantLock();
         notEmpty = this.lock.newCondition();
@@ -47,7 +47,7 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
     public void sort() {
         lock.lock();
         try {
-            elements.sort(comparator);
+            elements.sort(reverseComparator);
         } finally {
             lock.unlock();
         }

@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import net.glowstone.messaging.TimeBasedTest;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
