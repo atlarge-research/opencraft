@@ -129,7 +129,7 @@ public class ItemFlintAndSteel extends ItemTool {
                 sideBlock.setData(data);
                 target = target.getRelative(face);
                 sideBlock = sideBlock.getRelative(face);
-            }git 
+            }
 
         }
     }
