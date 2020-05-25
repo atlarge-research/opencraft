@@ -22,6 +22,7 @@ import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -31,8 +32,11 @@ import org.bukkit.material.Button;
 import org.bukkit.material.Diode;
 import org.bukkit.material.Gate;
 import org.bukkit.material.Lever;
+import org.bukkit.material.MaterialData;
 import org.bukkit.material.Skull;
 import org.bukkit.material.Stairs;
+import org.bukkit.material.Step;
+import org.bukkit.material.WoodenStep;
 import org.bukkit.metadata.MetadataStore;
 import org.bukkit.metadata.MetadataStoreBase;
 import org.bukkit.metadata.MetadataValue;
@@ -883,6 +887,28 @@ public class GlowBlock implements Block {
         Vector south = loc.clone().add(1.0, 1.0, 0.5).toVector();
         Vector full = loc.clone().add(1.0, 1.0, 1.0).toVector();
         Vector west = loc.clone().add(0.5, 1.0, 1.0).toVector();
+        Vector west = loc.clone().add(0.5, 1.0, 1.0).toVector();
+        Vector west = loc.clone().add(0.5, 1.0, 1.0).toVector();
+
+        GlowBlock behind = this.getRelative(this.getStairFace(true));
+        GlowBlock front = this.getRelative(this.getStairFace(true));
+
+        boolean behindIsStairs = behind.isStairs();
+        boolean frontIsStairs = front.isStairs();
+
+        List<BlockFace> perpendicular = Arrays.asList(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.WEST, BlockFace.EAST);
+        perpendicular.remove(face);
+        perpendicular.remove(face.getOppositeFace());
+
+        BlockFace behindDirection = BlockFace.UP;
+        if (behindIsStairs){
+            behindDirection = behind.getStairFace(true);
+        }
+
+        BlockFace frontDirection = BlockFace.UP;
+        if (frontIsStairs){
+            frontDirection = front.getStairFace(true);
+        }
 
         if (face == BlockFace.NORTH) {
             head = BoundingBox.fromCorners(origin, south);
@@ -897,6 +923,8 @@ public class GlowBlock implements Block {
         //TODO: Implement stair corners with the getStairFaceMethod
 
         if (head != null) {
+            world.spawnParticle(Particle.HEART, head.minCorner.toLocation(world), 1, 0, 0,0);
+            world.spawnParticle(Particle.VILLAGER_HAPPY, head.maxCorner.toLocation(world), 1, 0,0,0);
             return Arrays.asList(head, base);
         } else {
             return Arrays.asList(base);
@@ -908,6 +936,18 @@ public class GlowBlock implements Block {
             return ((Stairs) this.getState().getData()).getAscendingDirection();
         } else {
             return ((Stairs) this.getState().getData()).getDescendingDirection();
+        }
+    }
+
+    public boolean isStairs() {
+        switch (this.getType()) {
+            case STEP:
+            case WOOD_STEP:
+            case PURPUR_SLAB:
+            case STONE_SLAB2:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -939,6 +979,30 @@ public class GlowBlock implements Block {
     }
 
     /**
+     * Returns the appropriate slab bounding box.
+     *
+     * @param loc The location of the block
+     * @return The List of boundingboxes for the block
+     */
+    public List<BoundingBox> getSlabBoundingBox(Location loc) {
+        MaterialData data = this.getState().getData();
+
+        boolean inverted;
+
+        if (data instanceof Step) {
+            inverted = ((Step) data).isInverted();
+        } else {
+            inverted = ((WoodenStep) data).isInverted();
+        }
+
+        if (inverted) {
+            return Arrays.asList(BoundingBox.fromCenterAndSize(loc.add(0.0, 0.5, 0.0).toVector(), 1.0, 0.5));
+        } else {
+            return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 0.5));
+        }
+    }
+
+    /**
      * Returns the bounding box corresponding to this glow block.
      *
      * @return The bounding box
@@ -950,7 +1014,7 @@ public class GlowBlock implements Block {
             case WOOD_STEP:
             case PURPUR_SLAB:
             case STONE_SLAB2:
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 0.5));
+                return getSlabBoundingBox(loc);
             case FENCE:
             case NETHER_FENCE:
             case ACACIA_FENCE:
@@ -977,6 +1041,8 @@ public class GlowBlock implements Block {
             case ENDER_CHEST:
             case TRAPPED_CHEST:
                 return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 15.0 / 16.0, 7.0 / 8.0));
+            case CACTUS:
+                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 15.0 / 16.0, 1.0));
             case BED_BLOCK:
                 return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 9.0 / 16.0));
             case DAYLIGHT_DETECTOR:
