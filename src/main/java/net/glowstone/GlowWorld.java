@@ -61,8 +61,12 @@ import net.glowstone.io.entity.EntityStorage;
 import net.glowstone.messaging.Broker;
 import net.glowstone.messaging.Filter;
 import net.glowstone.messaging.MessagingSystem;
+<<<<<<< HEAD
 import net.glowstone.messaging.brokers.ConcurrentBroker;
 import net.glowstone.messaging.channels.ConcurrentChannel;
+=======
+import net.glowstone.messaging.brokers.Brokers;
+>>>>>>> development
 import net.glowstone.messaging.filters.PlayerFilter;
 import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.GlowSession;
@@ -437,6 +441,7 @@ public class GlowWorld implements World {
 
     private final Map<GlowPlayer, Location> previousLocations;
 
+    private final Broker<Chunk, Player, Message> broker;
     private final MessagingSystem<Chunk, Object, Player, Message> messagingSystem;
 
     private final PriorityExecutor executor;
@@ -2500,6 +2505,13 @@ public class GlowWorld implements World {
 
     public void cancelPulse(Location location) {
         tickMap.remove(location);
+    }
+
+    /**
+     * Shutdown the world by closing its message broker.
+     */
+    public void shutdown() {
+        broker.close();
     }
 
     @Override

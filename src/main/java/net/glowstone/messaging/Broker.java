@@ -1,5 +1,6 @@
 package net.glowstone.messaging;
 
+import java.io.Closeable;
 import java.util.function.Consumer;
 
 /**
@@ -10,12 +11,11 @@ import java.util.function.Consumer;
  * @param <Subscriber> the type of subscribers that is allowed to subscribe to a channel.
  * @param <Message> the type of messages that is allowed to be published to a channel.
  */
-public interface Broker<Topic, Subscriber, Message> {
+public interface Broker<Topic, Subscriber, Message> extends Closeable {
 
     /**
      * Register the subscriber to receive messages of the given topic via the callback.
      * Do not update the value if the subscriber is already subscribed.
-     *
      *
      * @param topic the topic in which the subscriber is interested.
      * @param subscriber the subscriber that would like to receive messages.
@@ -38,4 +38,11 @@ public interface Broker<Topic, Subscriber, Message> {
      * @param message the message to be published to subscribers.
      */
     void publish(Topic topic, Message message);
+
+    /**
+     * Closes this broker and releases any system resources associated with it. If the stream is already closed then
+     * invoking this method has no effect.
+     */
+    @Override
+    void close();
 }

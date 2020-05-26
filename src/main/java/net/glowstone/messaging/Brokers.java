@@ -14,7 +14,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 /**
  * A factory class to for creating multiple types of brokers.
  */
-public class Brokers {
+public final class Brokers {
 
     /**
      * Create a ConcurrentBroker.
@@ -51,7 +51,7 @@ public class Brokers {
      * @param <Message> The type of messages that is allowed to be published to a jms topic.
      * @return The ActiveMQ broker.
      */
-    public static <Topic, Subscriber, Message> JmsBroker<Topic, Subscriber, Message> newActivemqBroker(
+    public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newActivemqBroker(
             String uri,
             JmsCodec<Message> codec
     ) throws JMSException {
