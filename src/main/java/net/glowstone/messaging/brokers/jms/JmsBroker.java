@@ -1,6 +1,5 @@
 package net.glowstone.messaging.brokers.jms;
 
-import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;

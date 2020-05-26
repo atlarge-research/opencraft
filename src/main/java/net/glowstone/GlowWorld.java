@@ -62,7 +62,6 @@ import net.glowstone.messaging.Broker;
 import net.glowstone.messaging.Filter;
 import net.glowstone.messaging.MessagingSystem;
 import net.glowstone.messaging.brokers.Brokers;
-import net.glowstone.messaging.brokers.concurrent.ConcurrentBroker;
 import net.glowstone.messaging.filters.PlayerFilter;
 import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.GlowSession;
