@@ -71,6 +71,7 @@ import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
 import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
+import net.glowstone.util.AreaOfInterest;
 import net.glowstone.util.BlockStateDelegate;
 import net.glowstone.util.GameRuleManager;
 import net.glowstone.util.RayUtil;
@@ -614,7 +615,8 @@ public class GlowWorld implements World {
     private void streamChunks(GlowPlayer player, Collection<ChunkRunnable> chunkRunnables) {
 
         Location current = player.getLocation();
-        Location previous = player.previousAreaOfInterest.getLocation();
+        AreaOfInterest areaOfInterest = player.getPreviousAreaOfInterest();
+        Location previous = areaOfInterest.getLocation();
         int viewDistance = player.getViewDistance();
 
         boolean force = false;
@@ -693,8 +695,8 @@ public class GlowWorld implements World {
             }
         }
 
-        player.previousAreaOfInterest.setLocation(current);
-        player.previousAreaOfInterest.setViewDistance(viewDistance);
+        areaOfInterest.setLocation(current);
+        areaOfInterest.setViewDistance(viewDistance);
     }
 
     private void updateActiveChunkCollection(GlowEntity entity) {

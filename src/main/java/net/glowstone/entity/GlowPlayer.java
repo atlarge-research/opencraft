@@ -591,7 +591,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         return currentFishingHook.get();
     }
 
-    public final AreaOfInterest previousAreaOfInterest;
+    @Getter
+    private final AreaOfInterest previousAreaOfInterest;
 
     /**
      * Creates a new player and adds it to the world.
