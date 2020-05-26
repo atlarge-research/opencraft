@@ -29,5 +29,4 @@ public abstract class ChannelBroker<Topic, Subscriber, Message> implements Broke
     protected Channel<Subscriber, Message> createChannel() {
         return channelFactory.create();
     }
-
 }
