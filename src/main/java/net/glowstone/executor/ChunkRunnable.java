@@ -1,7 +1,9 @@
 package net.glowstone.executor;
 
+import com.flowpowered.network.Message;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
+import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.util.Coordinates;
 import org.jetbrains.annotations.NotNull;
 
@@ -61,6 +63,30 @@ public final class ChunkRunnable implements Runnable, Comparable<ChunkRunnable> 
         Coordinates chunkCenter = chunk.getCenterCoordinates();
         Coordinates playerCoords = player.getCoordinates();
         this.priority = chunkCenter.squaredDistance(playerCoords);
+    }
+
+    double getPriority() {
+        return priority;
+    }
+
+    public void sendUnloadMessage() {
+        Message message = new UnloadChunkMessage(chunk.getX(), chunk.getZ());
+        player.getSession().send(message);
+        GlowChunk.Key key = GlowChunk.Key.of(chunk.getX(), chunk.getZ());
+        player.getChunkLock().release(key);
+    }
+
+    public boolean shouldBeUnloaded() {
+
+        int radius = Math.min(player.getWorld().getServer().getViewDistance(), 1 + player.getViewDistance());
+
+        Coordinates playerCoords = player.getCoordinates();
+        int chunkX = chunk.getX();
+        int chunkZ = chunk.getZ();
+
+        return player.getWorld() != chunk.getWorld()
+                || Math.abs(playerCoords.getChunkX() - chunkX) > radius
+                || Math.abs(playerCoords.getChunkZ() - chunkZ) > radius;
     }
 
     @Override

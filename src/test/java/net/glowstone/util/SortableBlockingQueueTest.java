@@ -37,21 +37,6 @@ class SortableBlockingQueueTest {
     }
 
     /**
-     * Verify that elements are added, removed, and sorted on update.
-     */
-    @Test
-    void updateTest() {
-        queue.offer(3);
-        queue.offer(1);
-        queue.offer(2);
-        queue.update(Collections.singleton(4), Collections.singleton(1));
-        assertEquals(2, queue.poll());
-        assertEquals(3, queue.poll());
-        assertEquals(4, queue.poll());
-        assertTrue(queue.isEmpty());
-    }
-
-    /**
      * Verify that the queue is sorted in ascending order.
      */
     @Test

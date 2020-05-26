@@ -54,17 +54,14 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
     }
 
     /**
-     * Update the queue by adding and removing elements and then sorting them.
+     * Execute a transaction while the queue is locked.
      *
-     * @param additions the elements that should be added to the queue.
-     * @param removals the elements that should be removed from the queue.
+     * @param consumer The transaction that needs to be executed.
      */
-    public void update(Collection<Element> additions, Collection<Element> removals) {
+    public void transaction(Consumer<SortableBlockingQueue<Element>> consumer) {
         lock.lock();
         try {
-            removeAll(removals);
-            addAll(additions);
-            sort();
+            consumer.accept(this);
         } finally {
             lock.unlock();
         }
@@ -259,6 +256,28 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
         lock.lock();
         try {
             return elements.removeIf(predicate);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void linearRemoveIf(Predicate<? super Element> predicate, Collection<Element> removed) {
+        lock.lock();
+        try {
+
+            for (int index = 0; index < elements.size(); index++) {
+                Element element = elements.get(index);
+                if (predicate.test(element)) {
+                    removed.add(element);
+                } else {
+                    int newIndex = index - removed.size();
+                    elements.set(newIndex, element);
+                }
+            }
+
+            for (int index = 0; index < removed.size(); index++) {
+                elements.remove(elements.size() - 1);
+            }
         } finally {
             lock.unlock();
         }
