@@ -566,7 +566,7 @@ public class BlockBoundingBoxes {
             case WOOD_PLATE:
                 return getBlockBoundingBoxesWithDimension(loc, 14.0 / 16.0, 0.01);
             case CHORUS_PLANT:
-                return getBlockBoundingBoxesWithDimension(loc, 10.0 / 16.0, 1.0);
+                return getBlockBoundingBoxesWithDimension(loc, 10.0 / 16.0, 3.0 / 4.0);
             case SOIL:
                 return getBlockBoundingBoxesWithDimension(loc, 1.0, 15.0 / 16.0);
             case END_ROD:
