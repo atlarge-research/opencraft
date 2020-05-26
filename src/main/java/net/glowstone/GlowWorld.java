@@ -1482,17 +1482,16 @@ public class GlowWorld implements World {
         Vector ceiledMax = Vectors.ceil(max);
 
         Vector diff = ceiledMax.clone().subtract(flooredMin.clone());
+        Vector ceiledDiff = Vectors.ceil(diff);
 
-        int size = (int) (Math.ceil(diff.getX()) * Math.ceil(diff.getY()) * Math.ceil(diff.getZ()));
-        ArrayList<GlowBlock> blocks = new ArrayList<>(size);
+        int volume = (int) Vectors.computeVolume(ceiledDiff);
+        ArrayList<GlowBlock> blocks = new ArrayList<>(volume);
 
         for (int x = flooredMin.getBlockX(); x <= ceiledMax.getBlockX(); x++) {
             for (int y = flooredMin.getBlockY(); y <= ceiledMax.getBlockY(); y++) {
                 for (int z = flooredMin.getBlockZ(); z <= ceiledMax.getBlockZ(); z++) {
-
                     GlowBlock block = getBlockAt(x, y, z);
                     blocks.add(block);
-
                 }
             }
         }

@@ -55,7 +55,7 @@ public class BlockBoundingBox {
      * Generates the correct bounding box for a fence block.
      *
      * @param location The location of the block
-     * @param block    The location of the block
+     * @param block The location of the block
      * @return The correct fence boundingbox
      */
     private static List<BoundingBox> getFenceBoundingBox(Location location, GlowBlock block) {
@@ -119,7 +119,7 @@ public class BlockBoundingBox {
      * Generates the correct bounding box for a fence block.
      *
      * @param location The location of the block
-     * @param block    The location of the block
+     * @param block The location of the block
      * @return The correct fence boundingbox
      */
     private static List<BoundingBox> getWallBoundingBox(Location location, GlowBlock block) {
@@ -186,7 +186,7 @@ public class BlockBoundingBox {
     /**
      * Returns a boolean specifying whether or not the block is of type fence.
      *
-     * @param face  The face of the block that has to be checked
+     * @param face The face of the block that has to be checked
      * @param block The location of the block
      * @return true if the block is a fence, false otherwise
      */
@@ -217,7 +217,7 @@ public class BlockBoundingBox {
     /**
      * Returns a boolean specifying whether or not the block is of type Wall.
      *
-     * @param face  The face of the block that has to be checked
+     * @param face The face of the block that has to be checked
      * @param block The location of the block
      * @return true if the block is a where a wall can connect to, false otherwise
      */
@@ -241,7 +241,7 @@ public class BlockBoundingBox {
     /**
      * Returns a boolean specifying whether or not the block is of type fence.
      *
-     * @param face  The face of the block that has to be checked
+     * @param face The face of the block that has to be checked
      * @param block The location of the block
      * @return true if the block is a fence, false otherwise
      */
@@ -260,7 +260,7 @@ public class BlockBoundingBox {
     /**
      * Builds the skull bounding box which is dependent on position and facing.
      *
-     * @param loc  The location of the skull
+     * @param loc The location of the skull
      * @param face The direction the skull is facing
      * @return The bounding box for the skull
      */
@@ -288,7 +288,7 @@ public class BlockBoundingBox {
     /**
      * Returns the bounding box for the stair by checking the stair data and its surroundings.
      *
-     * @param loc    The location of the stair
+     * @param loc The location of the stair
      * @param stairs The stair data
      * @return The bounding box of the stair
      */
@@ -362,7 +362,7 @@ public class BlockBoundingBox {
     /**
      * Returns the appropriate slab bounding box.
      *
-     * @param loc   The location of the block
+     * @param loc The location of the block
      * @param block The location of the block
      * @return The List of boundingboxes for the block
      */
