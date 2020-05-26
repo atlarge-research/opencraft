@@ -18,7 +18,6 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
@@ -435,8 +434,6 @@ public class GlowWorld implements World {
     @Getter
     private boolean initialized;
 
-    private final Map<GlowPlayer, Location> previousLocations;
-
     private final MessagingSystem<Chunk, Object, Player, Message> messagingSystem;
 
     private final PriorityExecutor executor;
@@ -522,7 +519,6 @@ public class GlowWorld implements World {
         Filter<Player, Message> filter = new PlayerFilter();
         messagingSystem = new MessagingSystem<>(policy, broker, filter);
 
-        previousLocations = new WeakHashMap<>();
         executor = new PriorityExecutor();
         blockChanges = new ConcurrentLinkedDeque<>();
         afterBlockChanges = new LinkedList<>();

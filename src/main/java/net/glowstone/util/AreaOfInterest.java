@@ -11,7 +11,6 @@ import org.bukkit.Location;
  */
 public final class AreaOfInterest {
 
-    @Getter
     @Setter
     private Location location;
 
@@ -21,6 +20,7 @@ public final class AreaOfInterest {
 
     /**
      * Create an AreaOfInterest object.
+     *
      * @param location The location to be stored.
      * @param viewDistance The viewdistance to be stored.
      */
@@ -29,18 +29,30 @@ public final class AreaOfInterest {
         this.viewDistance = viewDistance;
     }
 
-    @Override
-    public boolean equals(Object o) {
+    /**
+     * Getter for the location.
+     *
+     * @return A clone of the location.
+     */
+    public Location getLocation() {
+        if (location == null) {
+            return null;
+        }
+        return location.clone();
+    }
 
-        if (this == o) {
+    @Override
+    public boolean equals(Object other) {
+
+        if (this == other) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
+        if (other == null || getClass() != other.getClass()) {
             return false;
         }
 
-        AreaOfInterest that = (AreaOfInterest) o;
+        AreaOfInterest that = (AreaOfInterest) other;
 
         return viewDistance == that.viewDistance && Objects.equals(location, that.location);
     }
