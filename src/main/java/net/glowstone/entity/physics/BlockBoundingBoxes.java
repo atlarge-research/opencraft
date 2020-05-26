@@ -411,7 +411,8 @@ public class BlockBoundingBoxes {
     }
 
     /**
-     * Returns the brewing stand bounding boxes
+     * Returns the brewing stand bounding boxes.
+     * 
      * @param loc The location of the boundingbox
      * @return A list with the brewing stand bounding boxes
      */
