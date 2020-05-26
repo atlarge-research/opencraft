@@ -397,6 +397,33 @@ public class BlockBoundingBoxes {
     }
 
     /**
+     * Returns a boundingboxList with one boundingbox that is centered on the location.
+     *
+     * @param loc The location of the boundingbox
+     * @param xzSize The width in the x and z axis
+     * @param ySize The height
+     * @return A boundingboxList with the specified boundingbox
+     */
+    private static List<BoundingBox> getBlockBoundingBoxesWithDimension(Location loc, double xzSize, double ySize) {
+        Vector locationVector = loc.toVector();
+        BoundingBox box = BoundingBox.fromCenterAndSize(locationVector, xzSize, ySize);
+        return Collections.singletonList(box);
+    }
+
+    /**
+     * Returns the brewing stand bounding boxes
+     * @param loc The location of the boundingbox
+     * @return A list with the brewing stand bounding boxes
+     */
+    private static List<BoundingBox> getBrewingStandBoundingBoxes(Location loc) {
+        Vector locationVector = loc.toVector();
+        return Arrays.asList(
+                BoundingBox.fromCenterAndSize(locationVector, 1.0, 1.0 / 8.0),
+                BoundingBox.fromCenterAndSize(locationVector, 2.0 / 16.0, 7.0 / 8.0)
+        );
+    }
+
+    /**
      * Returns the bounding box corresponding to block glow block.
      *
      * @param block The location of the block
@@ -429,39 +456,36 @@ public class BlockBoundingBoxes {
                 return getFenceGateBoundingBoxes(loc, block);
             case SNOW:
                 double snowHeight = block.getState().getRawData() * 1.0 / 7.0;
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, snowHeight));
+                return getBlockBoundingBoxesWithDimension(loc, 1.0, snowHeight);
             case ENCHANTMENT_TABLE:
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 3.0 / 4.0));
+                return getBlockBoundingBoxesWithDimension(loc, 1.0, 3.0 / 4.0);
             case CHEST:
             case ENDER_CHEST:
             case TRAPPED_CHEST:
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 14.0 / 16.0, 7.0 / 8.0));
+                return getBlockBoundingBoxesWithDimension(loc, 14.0 / 16.0, 7.0 / 8.0);
             case CACTUS:
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 14.0 / 16.0, 1.0));
+                return getBlockBoundingBoxesWithDimension(loc, 14.0 / 16.0, 1.0);
             case BED_BLOCK:
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 9.0 / 16.0));
+                return getBlockBoundingBoxesWithDimension(loc, 1.0, 9.0 / 16.0);
             case DAYLIGHT_DETECTOR:
             case DAYLIGHT_DETECTOR_INVERTED:
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 3.0 / 8.0));
+                return getBlockBoundingBoxesWithDimension(loc, 1.0, 3.0 / 8.0);
             case FLOWER_POT:
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 3.0 / 8.0, 3.0 / 8.0));
+                return getBlockBoundingBoxesWithDimension(loc, 3.0 / 8.0, 3.0 / 8.0);
             case SOUL_SAND:
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 7.0 / 8.0));
+                return getBlockBoundingBoxesWithDimension(loc, 1.0, 7.0 / 8.0);
             case ENDER_PORTAL_FRAME:
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 13.0 / 16.0));
+                return getBlockBoundingBoxesWithDimension(loc, 1.0, 13.0 / 16.0);
             case WATER_LILY:
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 1.0 / 64.0));
+                return getBlockBoundingBoxesWithDimension(loc, 1.0, 1.0 / 64.0);
             case CAKE_BLOCK:
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 7.0 / 8.0, 7.0 / 16.0));
+                return getBlockBoundingBoxesWithDimension(loc, 7.0 / 8.0, 7.0 / 16.0);
             case CAULDRON:
                 return getCauldronBoundingBoxes(loc, 5.0 / 16.0);
             case HOPPER:
                 return getCauldronBoundingBoxes(loc, 9.0 / 16.0);
             case BREWING_STAND:
-                return Arrays.asList(
-                        BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 1.0 / 8.0),
-                        BoundingBox.fromCenterAndSize(loc.toVector(), 2.0 / 16.0, 7.0 / 8.0)
-                );
+                return getBrewingStandBoundingBoxes(loc);
             case THIN_GLASS:
             case STAINED_GLASS_PANE:
             case IRON_FENCE:
@@ -471,9 +495,9 @@ public class BlockBoundingBoxes {
             case REDSTONE_COMPARATOR:
             case REDSTONE_COMPARATOR_OFF:
             case REDSTONE_COMPARATOR_ON:
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 1.0 / 8.0));
+                return getBlockBoundingBoxesWithDimension(loc, 1.0, 1.0 / 8.0);
             case CARPET:
-                return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 1.0 / 16.0));
+                return getBlockBoundingBoxesWithDimension(loc, 1.0, 1.0 / 16.0);
             case SKULL:
                 return getSkullBoundingBoxes(loc, ((Skull) block.getState().getData()).getFacing());
             case ACACIA_STAIRS:
@@ -493,7 +517,7 @@ public class BlockBoundingBoxes {
                 return getStairsBoundingBoxes(loc, ((Stairs) block.getState().getData()));
             default:
                 if (block.getType().isSolid()) {
-                    return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 1.0));
+                    return getBlockBoundingBoxesWithDimension(loc, 1.0, 1.0);
                 } else {
                     return Collections.emptyList();
                 }
