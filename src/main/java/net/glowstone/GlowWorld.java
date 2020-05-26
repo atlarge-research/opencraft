@@ -584,6 +584,11 @@ public class GlowWorld implements World {
         saveWorld();
     }
 
+    /**
+     * Update the subscriptions of each of the given players.
+     *
+     * @param players The players whom's subscriptions in the messaging system should be updated.
+     */
     private void updateMessagingSystem(Collection<GlowPlayer> players) {
         for (GlowPlayer player : players) {
             GlowSession session = player.getSession();
