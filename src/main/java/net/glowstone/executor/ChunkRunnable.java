@@ -1,9 +1,7 @@
 package net.glowstone.executor;
 
-import com.flowpowered.network.Message;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
-import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.util.Coordinates;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,12 +33,19 @@ public final class ChunkRunnable implements Runnable, Comparable<ChunkRunnable> 
     }
 
     /**
+     * Get the chunk for which the data needs to be sent to the player.
+     *
      * @return The chunk for which the data needs to be sent to the player.
      */
     public GlowChunk getChunk() {
         return chunk;
     }
 
+    /**
+     * Get the player whom should receive the chunk data.
+     *
+     * @return The player whom should receive the chunk data.
+     */
     public GlowPlayer getPlayer() {
         return player;
     }
