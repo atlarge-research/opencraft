@@ -53,4 +53,9 @@ public final class GuavaBroker<Topic, Subscriber, Message> implements Broker<Top
             return channel;
         });
     }
+
+    @Override
+    public void close() {
+        // Nothing to close
+    }
 }
