@@ -53,6 +53,7 @@ import net.glowstone.util.Vectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Chunk;
 import org.bukkit.EntityEffect;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -286,6 +287,8 @@ public abstract class GlowEntity implements Entity {
     @Setter
     private int fireTicks;
 
+    private int portalTicks;
+
     /**
      * Whether gravity applies to the entity.
      */
@@ -353,6 +356,8 @@ public abstract class GlowEntity implements Entity {
         this.origin = location.clone();
         this.previousLocation = location.clone();
         this.location = location.clone();
+
+        portalTicks = 0;
 
         // this is so dirty I washed my hands after writing it.
         if (this instanceof GlowPlayer) {
@@ -631,30 +636,24 @@ public abstract class GlowEntity implements Entity {
 
         pulsePhysics();
 
-        if (hasMoved()) {
-            Block currentBlock = location.getBlock();
-            if (currentBlock.getType() == Material.ENDER_PORTAL) {
-                EventFactory.getInstance()
-                    .callEvent(new EntityPortalEnterEvent(this, currentBlock.getLocation()));
-                if (server.getAllowEnd()) {
-                    Location previousLocation = location.clone();
-                    boolean success;
-                    if (getWorld().getEnvironment() == Environment.THE_END) {
-                        success = teleportToSpawn();
-                    } else {
-                        success = teleportToEnd();
-                    }
-                    if (success) {
-                        EntityPortalExitEvent e = EventFactory.getInstance()
-                            .callEvent(new EntityPortalExitEvent(this, previousLocation,
-                                location
-                                    .clone(), velocity.clone(), new Vector()));
-                        if (!e.getAfter().equals(velocity)) {
-                            setVelocity(e.getAfter());
-                        }
-                    }
+        Block currentBlock = location.getBlock();
+        if (currentBlock.getType() == Material.ENDER_PORTAL || currentBlock.getType() == Material.PORTAL) {
+
+            if (this instanceof GlowPlayer) {
+                GlowPlayer player = (GlowPlayer) this;
+                if (player.getGameMode() == GameMode.CREATIVE) {
+                    portalTicks = 80;
                 }
             }
+
+            portalTicks++;
+            if (portalTicks >= 80) {
+                portalTicks = 0;
+                interactWithPortal(currentBlock);
+            }
+
+        } else {
+            portalTicks = 0;
         }
 
         if (leashHolderUniqueId != null && ticksLived < 2) {
@@ -665,6 +664,52 @@ public abstract class GlowEntity implements Entity {
             }
             setLeashHolder(any.orElse(null));
             leashHolderUniqueId = null;
+        }
+    }
+
+    /**
+     * Fire when a entity interacts with a portal. Checks if the entity is allowed to teleport to another world and
+     * handles transporting of entity.
+     * @param portal The block the entity interacts with.
+     */
+    private void interactWithPortal(Block portal) {
+
+        Location previousLocation = location.clone();
+        EntityPortalEnterEvent portalEnterEvent = new EntityPortalEnterEvent(this, portal.getLocation());
+
+        boolean success = false;
+
+        if (portal.getType() == Material.ENDER_PORTAL && server.getAllowEnd()) {
+            EventFactory.getInstance().callEvent(portalEnterEvent);
+            if (getWorld().getEnvironment() == Environment.THE_END) {
+                success = teleportToSpawn();
+            } else {
+                success = teleportToEnd();
+            }
+        } else if (portal.getType() == Material.PORTAL && server.getAllowNether()) {
+            EventFactory.getInstance().callEvent(portalEnterEvent);
+            if (getWorld().getEnvironment() == Environment.NETHER) {
+                success = teleportToSpawn();
+            } else {
+                success = teleportToNether();
+            }
+        } else {
+            // not a portal or not allowed to teleport.
+        }
+
+        if (success) {
+            EntityPortalExitEvent portalExitEvent = new EntityPortalExitEvent(
+                    this,
+                    previousLocation,
+                    location.clone(),
+                    velocity.clone(),
+                    new Vector()
+            );
+            portalExitEvent = EventFactory.getInstance().callEvent(portalExitEvent);
+            if (!portalExitEvent.getAfter().equals(velocity)) {
+                setVelocity(portalExitEvent.getAfter());
+            }
+
         }
     }
 
@@ -992,6 +1037,41 @@ public abstract class GlowEntity implements Entity {
         target = event.getTo();
 
         teleport(target);
+        return true;
+    }
+
+    /**
+     * Teleport this entity to the Nether. If no Nether world is loaded this does nothing.
+     *
+     * @return {@code true} if the teleport was successful.
+     */
+    protected boolean teleportToNether() {
+
+        if (!server.getAllowNether()) {
+            return false;
+        }
+
+        Location target = null;
+        for (World world : server.getWorlds()) {
+            if (world.getEnvironment() == Environment.NETHER) {
+                target = world.getSpawnLocation();
+                break;
+            }
+        }
+
+        if (target == null) {
+            return false;
+        }
+
+        EntityPortalEvent event = new EntityPortalEvent(this, location.clone(), target, null);
+        event = EventFactory.getInstance().callEvent(event);
+        if (event.isCancelled()) {
+            return false;
+        }
+
+        target = event.getTo();
+        teleport(target);
+
         return true;
     }
 

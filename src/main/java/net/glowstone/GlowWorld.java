@@ -18,7 +18,6 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
@@ -71,6 +70,7 @@ import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
 import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
+import net.glowstone.util.AreaOfInterest;
 import net.glowstone.util.BlockStateDelegate;
 import net.glowstone.util.GameRuleManager;
 import net.glowstone.util.RayUtil;
@@ -434,9 +434,8 @@ public class GlowWorld implements World {
     @Getter
     private boolean initialized;
 
-    private final Map<GlowPlayer, Location> previousLocations;
-
     private final Broker<Chunk, Player, Message> broker;
+
     private final MessagingSystem<Chunk, Object, Player, Message> messagingSystem;
 
     private final PriorityExecutor executor;
@@ -522,7 +521,6 @@ public class GlowWorld implements World {
         Filter<Player, Message> filter = new PlayerFilter();
         messagingSystem = new MessagingSystem<>(policy, broker, filter);
 
-        previousLocations = new WeakHashMap<>();
         executor = new PriorityExecutor();
         blockChanges = new ConcurrentLinkedDeque<>();
         afterBlockChanges = new LinkedList<>();
@@ -615,7 +613,9 @@ public class GlowWorld implements World {
     private void streamChunks(GlowPlayer player, Collection<ChunkRunnable> chunkRunnables) {
 
         Location current = player.getLocation();
-        Location previous = previousLocations.get(player);
+        AreaOfInterest areaOfInterest = player.getPreviousAreaOfInterest();
+        Location previous = areaOfInterest.getLocation();
+        int viewDistance = player.getViewDistance();
 
         boolean force = false;
 
@@ -634,7 +634,7 @@ public class GlowWorld implements World {
             return;
         }
 
-        int radius = Math.min(server.getViewDistance(), 1 + player.getViewDistance());
+        int radius = Math.min(server.getViewDistance(), 1 + viewDistance);
 
         GlowSession session = player.getSession();
 
@@ -693,7 +693,8 @@ public class GlowWorld implements World {
             }
         }
 
-        previousLocations.put(player, current);
+        areaOfInterest.setLocation(current);
+        areaOfInterest.setViewDistance(viewDistance);
     }
 
     private void updateActiveChunkCollection(GlowEntity entity) {
