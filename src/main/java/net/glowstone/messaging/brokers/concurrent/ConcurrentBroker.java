@@ -53,4 +53,9 @@ public final class ConcurrentBroker<Topic, Subscriber, Message> implements Broke
             return channel;
         });
     }
+
+    @Override
+    public void close() {
+        // Nothing to close
+    }
 }

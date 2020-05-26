@@ -27,7 +27,7 @@ import net.glowstone.messaging.Broker;
  * @param <Subscriber> The type of subscribers that is allowed to subscribe to topics.
  * @param <Message> The type of messages that is allowed to be published to a jms topic.
  */
-public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subscriber, Message>, Closeable {
+public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subscriber, Message> {
 
     private final Connection connection;
     private final Session session;
