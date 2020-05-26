@@ -7,6 +7,7 @@ import java.util.List;
 import net.glowstone.block.GlowBlock;
 import org.bukkit.Location;
 import org.bukkit.block.BlockFace;
+import org.bukkit.material.Door;
 import org.bukkit.material.Gate;
 import org.bukkit.material.MaterialData;
 import org.bukkit.material.Skull;
@@ -43,16 +44,57 @@ public class BlockBoundingBoxes {
         if (gateFace == BlockFace.NORTH || gateFace == BlockFace.SOUTH) {
             box.minCorner.setZ(box.minCorner.getZ() - invertedFenceWidth);
             box.maxCorner.setZ(box.maxCorner.getZ() + invertedFenceWidth);
-            return Arrays.asList(box);
+            return Collections.singletonList(box);
         }
 
         if (gateFace == BlockFace.WEST || gateFace == BlockFace.EAST) {
             box.minCorner.setX(box.minCorner.getX() - invertedFenceWidth);
             box.maxCorner.setX(box.maxCorner.getX() + invertedFenceWidth);
-            return Arrays.asList(box);
+            return Collections.singletonList(box);
         }
 
-        return Arrays.asList(box);
+        return Collections.singletonList(box);
+    }
+
+    /**
+     * Generates the correct bounding box for a fence block.
+     *
+     * @param location The location of the block
+     * @param block The location of the block
+     * @return The correct fence boundingbox
+     */
+    private static List<BoundingBox> getDoorBoundingBoxes(Location location, GlowBlock block) {
+
+        double doorWidth = 3.0 / 16.0;
+        double invDoorWidth = 1.0 - doorWidth;
+        Vector origin = location.toVector();
+        Vector maxVector = location.add(1.0, 1.0, 1.0).toVector();
+
+        BoundingBox north = BoundingBox.fromCorners(origin, location.add(1.0, 1.0, doorWidth).toVector());
+        BoundingBox east = BoundingBox.fromCorners(location.add(invDoorWidth, 0.0, 0.0).toVector(), maxVector);
+        BoundingBox south = BoundingBox.fromCorners(location.add(0.0, 0.0, invDoorWidth).toVector(), maxVector);
+        BoundingBox west = BoundingBox.fromCorners(origin, location.add(doorWidth, 1.0, 1.0).toVector());
+        Door door = (Door) block.getState().getData();
+        BlockFace doorFace = door.getFacing();
+
+
+        if (doorFace == BlockFace.NORTH && !door.isOpen() || doorFace == BlockFace.WEST && door.isOpen()) {
+            return Collections.singletonList(north);
+        }
+
+        if (doorFace == BlockFace.EAST && !door.isOpen() || doorFace == BlockFace.SOUTH && door.isOpen()) {
+            return Collections.singletonList(east);
+        }
+
+        if (doorFace == BlockFace.SOUTH && !door.isOpen() || doorFace == BlockFace.WEST && door.isOpen()) {
+            return Collections.singletonList(south);
+        }
+
+        if (doorFace == BlockFace.WEST && !door.isOpen() || doorFace == BlockFace.SOUTH && door.isOpen()) {
+            return Collections.singletonList(west);
+        }
+
+        return Collections.singletonList(north);
     }
 
     /**
@@ -136,8 +178,7 @@ public class BlockBoundingBoxes {
         BoundingBox boxZ = BoundingBox.fromCenterAndSize(location.toVector(), invertedWallWidth, 1.5);
         BoundingBox middle = BoundingBox.fromCenterAndSize(location.toVector(), invertedWallPostWidth, 1.5);
 
-        ArrayList boxes = new ArrayList();
-        boxes.addAll(Arrays.asList(boxX, boxZ));
+        ArrayList<BoundingBox> boxes = new ArrayList<>(Arrays.asList(boxX, boxZ));
 
         int connectedX = 0;
         int connectedZ = 0;
@@ -279,7 +320,7 @@ public class BlockBoundingBoxes {
 
         BlockFace face = skull.getFacing();
         if (face == BlockFace.SELF) {
-            return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 0.5, 0.5));
+            return Collections.singletonList(BoundingBox.fromCenterAndSize(loc.toVector(), 0.5, 0.5));
         }
 
         Location skullLoc = loc.clone().add(0, 0.25, 0);
@@ -294,7 +335,7 @@ public class BlockBoundingBoxes {
             skullLoc.add(-0.25, 0, 0);
         }
 
-        return Arrays.asList(BoundingBox.fromCenterAndSize(skullLoc.toVector(), 0.5, 0.5));
+        return Collections.singletonList(BoundingBox.fromCenterAndSize(skullLoc.toVector(), 0.5, 0.5));
     }
 
     /**
@@ -339,7 +380,7 @@ public class BlockBoundingBoxes {
         if (head != null) {
             return Arrays.asList(head, base);
         } else {
-            return Arrays.asList(base);
+            return Collections.singletonList(base);
         }
     }
 
@@ -391,9 +432,9 @@ public class BlockBoundingBoxes {
         }
 
         if (inverted) {
-            return Arrays.asList(BoundingBox.fromCenterAndSize(loc.add(0.0, 0.5, 0.0).toVector(), 1.0, 0.5));
+            return Collections.singletonList(BoundingBox.fromCenterAndSize(loc.add(0.0, 0.5, 0.0).toVector(), 1.0, 0.5));
         } else {
-            return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 0.5));
+            return Collections.singletonList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 0.5));
         }
     }
 
@@ -522,6 +563,22 @@ public class BlockBoundingBoxes {
             case IRON_PLATE:
             case WOOD_PLATE:
                 return getBlockBoundingBoxesWithDimension(loc, 1.0 / 16.0, 1.0 /16.0);
+            case CHORUS_PLANT:
+                return getBlockBoundingBoxesWithDimension(loc, 10.0 / 16.0, 1.0);
+            case SOIL:
+                return getBlockBoundingBoxesWithDimension(loc, 1.0, 15.0 / 16.0);
+            case END_ROD:
+                return getBlockBoundingBoxesWithDimension(loc, 4.0/ 16.0, 1.0);
+            case DARK_OAK_DOOR:
+            case ACACIA_DOOR:
+            case BIRCH_DOOR:
+            case IRON_DOOR:
+            case JUNGLE_DOOR:
+            case SPRUCE_DOOR:
+            case WOODEN_DOOR:
+            case WOOD_DOOR:
+            case IRON_DOOR_BLOCK:
+                return getDoorBoundingBoxes(loc, block);
             default:
                 if (block.getType().isSolid()) {
                     return getBlockBoundingBoxesWithDimension(loc, 1.0, 1.0);
