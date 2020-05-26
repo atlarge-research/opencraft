@@ -1764,9 +1764,17 @@ public class GlowWorld implements World {
 
         GlowEntity entity = null;
 
+        Location entitySpawnLocation = location.clone();
+
+        Block blockUnderEntityWithinOffset = location.clone().subtract(0, GlowEntity.COLLISION_OFFSET, 0).getBlock();
+
+        if (blockUnderEntityWithinOffset.getType() != Material.AIR) {
+            entitySpawnLocation.add(0, GlowEntity.COLLISION_OFFSET, 0);
+        }
+
         try {
             if (EntityRegistry.getEntity(clazz) != null) {
-                entity = EntityStorage.create(clazz, location);
+                entity = EntityStorage.create(clazz, entitySpawnLocation);
             }
             // function.accept(entity); TODO: work on type mismatches
             EntitySpawnEvent spawnEvent = null;
