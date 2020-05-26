@@ -75,6 +75,7 @@ import net.glowstone.util.BlockStateDelegate;
 import net.glowstone.util.GameRuleManager;
 import net.glowstone.util.RayUtil;
 import net.glowstone.util.TickUtil;
+import net.glowstone.util.Vectors;
 import net.glowstone.util.collection.ConcurrentSet;
 import net.glowstone.util.config.WorldConfig;
 import net.glowstone.util.nbt.CompoundTag;
@@ -1465,6 +1466,51 @@ public class GlowWorld implements World {
     public GlowBlock getBlockAt(int x, int y, int z) {
         return new GlowBlock(getChunkAt(x >> 4, z >> 4), x, y, z);
     }
+
+    /**
+     * This function returns all blocks that are contained within the min and max vector.
+     *
+     * @param min The minimal point of the selected area
+     * @param max The maximal point of the selected area
+     * @return All blocks contained in the selected area
+     */
+    public List<GlowBlock> getOverlappingBlocks(Vector min, Vector max) {
+
+        assert min.getX() <= max.getX();
+        assert min.getY() <= max.getY();
+        assert min.getZ() <= max.getZ();
+
+        Vector flooredMin = Vectors.floor(min);
+        Vector ceiledMax = Vectors.ceil(max);
+
+        Vector diff = ceiledMax.clone().subtract(flooredMin.clone());
+        Vector ceiledDiff = Vectors.ceil(diff);
+
+        int volume = (int) Vectors.computeVolume(ceiledDiff);
+        ArrayList<GlowBlock> blocks = new ArrayList<>(volume);
+
+        for (int x = flooredMin.getBlockX(); x <= ceiledMax.getBlockX(); x++) {
+            for (int y = flooredMin.getBlockY(); y <= ceiledMax.getBlockY(); y++) {
+                for (int z = flooredMin.getBlockZ(); z <= ceiledMax.getBlockZ(); z++) {
+                    GlowBlock block = getBlockAt(x, y, z);
+                    blocks.add(block);
+                }
+            }
+        }
+
+        return blocks;
+    }
+
+    /**
+     * Returns all blocks that are within the coordinates of the BoundingBox.
+     *
+     * @param boundingBox The BoundingBox that will be used to get all the blocks
+     * @return All blocks that are contained or touch the bounding box
+     */
+    public List<GlowBlock> getOverlappingBlocks(final BoundingBox boundingBox) {
+        return getOverlappingBlocks(boundingBox.minCorner, boundingBox.maxCorner);
+    }
+
 
     @Override
     public int getBlockTypeIdAt(Location location) {

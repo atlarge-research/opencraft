@@ -23,7 +23,6 @@ import net.glowstone.block.GlowBlock;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.objects.GlowPainting;
 import net.glowstone.entity.passive.GlowChicken;
-import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.entity.physics.EntityBoundingBox;
 import net.glowstone.entity.projectile.GlowArrow;
 import net.glowstone.inventory.GlowPlayerInventory;
@@ -239,9 +238,7 @@ public abstract class GlowEntityTest<T extends GlowEntity> {
         min.subtract(epsilon);
         Vector max = entity.boundingBox.maxCorner;
         max.add(epsilon);
-        BoundingBox boundingBox = BoundingBox.fromCorners(min, max);
         when(world.getBlockAt(anyInt(), anyInt(), anyInt())).thenReturn(block);
-        when(block.getBoundingBox()).thenReturn(boundingBox);
         entity.resolveCollisions();
         assertEquals(0.0, location.getX(), Double.MIN_VALUE);
         assertEquals(0.0, location.getY(), Double.MIN_VALUE);
@@ -260,9 +257,7 @@ public abstract class GlowEntityTest<T extends GlowEntity> {
         min.subtract(epsilon);
         Vector max = entityArrow.boundingBox.maxCorner;
         max.add(epsilon);
-        BoundingBox boundingBox = BoundingBox.fromCorners(min, max);
         when(world.getBlockAt(anyInt(), anyInt(), anyInt())).thenReturn(block);
-        when(block.getBoundingBox()).thenReturn(boundingBox);
 
         entityArrow.resolveCollisions();
 

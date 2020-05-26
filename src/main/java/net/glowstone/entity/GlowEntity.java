@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import net.glowstone.EventFactory;
@@ -33,6 +34,7 @@ import net.glowstone.entity.meta.MetadataMap.Entry;
 import net.glowstone.entity.objects.GlowItemFrame;
 import net.glowstone.entity.objects.GlowLeashHitch;
 import net.glowstone.entity.objects.GlowPainting;
+import net.glowstone.entity.physics.BlockBoundingBoxes;
 import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.entity.physics.EntityBoundingBox;
 import net.glowstone.net.GlowSession;
@@ -105,6 +107,11 @@ public abstract class GlowEntity implements Entity {
      * different space for 32-bit entity IDs).
      */
     public static final int ENTITY_ID_NOBODY = -1;
+
+    /**
+     * The offset to be used during collision.
+     */
+    public static final double COLLISION_OFFSET = 0.00001;
 
     /**
      * The metadata store for entities.
@@ -1133,43 +1140,29 @@ public abstract class GlowEntity implements Entity {
         return boundingBox != null && boundingBox.intersects(box);
     }
 
+    /**
+     * Get all block bounding boxes that are within range of the given BoundingBox.
+     *
+     * @param broadPhaseBox The BoundingBox to be used as block range
+     * @return All boundingboxes from blocks that intersect with the give BoundingBox
+     */
     List<BoundingBox> getIntersectingBlockBoundingBoxes(BoundingBox broadPhaseBox) {
 
         if (broadPhaseBox == null) {
             return Collections.emptyList();
         }
 
-        List<BoundingBox> intersectingBoxes = new ArrayList<>();
+        Vector min = broadPhaseBox.minCorner;
+        min.setY(min.getY() - 1);
+        Vector max = broadPhaseBox.maxCorner;
 
-        Vector min = Vectors.floor(broadPhaseBox.minCorner);
-        Vector max = Vectors.ceil(broadPhaseBox.maxCorner);
+        List<GlowBlock> glowBlocks = world.getOverlappingBlocks(min, max);
 
-        for (int x = min.getBlockX(); x <= max.getBlockX(); x++) {
-            for (int y = min.getBlockY() - 1; y <= max.getBlockY(); y++) {
-                for (int z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
-                    GlowBlock block = world.getBlockAt(x, y, z);
-                    Material material = block.getType();
-
-                    if (!material.isSolid()) {
-                        break;
-                    }
-
-                    BoundingBox box = block.getBoundingBox();
-
-                    if (box == null) {
-                        break;
-                    }
-
-                    if (box == null || (y == min.getBlockY() - 1 && box.getSize().getY() <= 1.0)) {
-                        break;
-                    }
-
-                    if (box.intersects(broadPhaseBox)) {
-                        intersectingBoxes.add(box);
-                    }
-                }
-            }
-        }
+        List<BoundingBox> intersectingBoxes = glowBlocks.stream()
+                .map(BlockBoundingBoxes::getBoundingBoxes)
+                .flatMap(List::stream)
+                .filter(box -> box.intersects(broadPhaseBox))
+                .collect(Collectors.toList());
 
         return intersectingBoxes;
     }
@@ -1243,7 +1236,9 @@ public abstract class GlowEntity implements Entity {
             double collisionTime = closest.getLeft();
             Vector normal = closest.getRight();
             Vector displacement = remainingDisplacement.clone().multiply(collisionTime);
+            Vector collisionOffsetVector = normal.clone().multiply(COLLISION_OFFSET);
             pendingLocation.add(displacement);
+            pendingLocation.add(collisionOffsetVector);
 
             elapsedTime += collisionTime * remainingTime;
 
