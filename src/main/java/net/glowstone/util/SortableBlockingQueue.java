@@ -261,23 +261,33 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
         }
     }
 
+    /**
+     * The linear remove-if method allows for the removal of elements that match the given predicate with linear time
+     * complexity. The removed elements are added to the given collection, such that they can be used in further
+     * computations.
+     *
+     * @param predicate the predicate with which to match elements.
+     * @param removed the collection to which the removed elements should be added.
+     */
     public void linearRemoveIf(Predicate<? super Element> predicate, Collection<Element> removed) {
         lock.lock();
         try {
 
+            int offset = 0;
             for (int index = 0; index < elements.size(); index++) {
                 Element element = elements.get(index);
                 if (predicate.test(element)) {
                     removed.add(element);
+                    offset++;
                 } else {
-                    int newIndex = index - removed.size();
-                    elements.set(newIndex, element);
+                    elements.set(index - offset, element);
                 }
             }
 
-            for (int index = 0; index < removed.size(); index++) {
+            for (int index = 0; index < offset; index++) {
                 elements.remove(elements.size() - 1);
             }
+
         } finally {
             lock.unlock();
         }
