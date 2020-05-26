@@ -108,6 +108,7 @@ import net.glowstone.net.message.play.player.ResourcePackSendMessage;
 import net.glowstone.net.message.play.player.UseBedMessage;
 import net.glowstone.scoreboard.GlowScoreboard;
 import net.glowstone.scoreboard.GlowTeam;
+import net.glowstone.util.AreaOfInterest;
 import net.glowstone.util.Convert;
 import net.glowstone.util.DeprecatedMethodException;
 import net.glowstone.util.EntityUtils;
@@ -204,16 +205,6 @@ import org.json.simple.JSONObject;
  */
 @DelegateDeserialization(GlowOfflinePlayer.class)
 public class GlowPlayer extends GlowHumanEntity implements Player {
-
-    public class AreaOfInterest {
-        public Location location;
-        public int viewDistance;
-
-        public AreaOfInterest(Location location, int viewDistance) {
-            this.location = location;
-            this.viewDistance = viewDistance;
-        }
-    }
 
     /**
      * Max distance of a fishing hook.
@@ -600,7 +591,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         return currentFishingHook.get();
     }
 
-    public AreaOfInterest previousAreaOfInterest;
+    public final AreaOfInterest previousAreaOfInterest;
 
     /**
      * Creates a new player and adds it to the world.

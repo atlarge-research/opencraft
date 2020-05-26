@@ -614,7 +614,7 @@ public class GlowWorld implements World {
     private void streamChunks(GlowPlayer player, Collection<ChunkRunnable> chunkRunnables) {
 
         Location current = player.getLocation();
-        Location previous = player.previousAreaOfInterest.location;
+        Location previous = player.previousAreaOfInterest.getLocation();
         int viewDistance = player.getViewDistance();
 
         boolean force = false;
@@ -693,8 +693,8 @@ public class GlowWorld implements World {
             }
         }
 
-        player.previousAreaOfInterest.location = current;
-        player.previousAreaOfInterest.viewDistance = viewDistance;
+        player.previousAreaOfInterest.setLocation(current);
+        player.previousAreaOfInterest.setViewDistance(viewDistance);
     }
 
     private void updateActiveChunkCollection(GlowEntity entity) {

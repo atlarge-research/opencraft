@@ -40,58 +40,63 @@ public class ItemFlintAndSteel extends ItemTool {
     /**
      * Retrieve the horizontal direction the portal should be made in. This method assumes a portal is 2 wide. We
      * check on which side of the block an obsidian block is, the opposite direction is the direction the portal
-     * should be made in.
-     * @param block The block in a portal
+     * should be made in. This method also checks if there is a valid portal in one of the horizontal directions.
+     * @param block The block in a portal.
+     * @param verticalFace The vertical direction the portal should be created in.
      * @return The direction of the portal.
      */
-    private BlockFace getHorizontalPortalDirection(GlowBlock block) {
-        if (block.getRelative(BlockFace.NORTH).getType() == Material.OBSIDIAN) {
-            return BlockFace.SOUTH;
-        } else if (block.getRelative(BlockFace.EAST).getType() == Material.OBSIDIAN) {
-            return BlockFace.WEST;
-        } else if (block.getRelative(BlockFace.SOUTH).getType() == Material.OBSIDIAN) {
-            return BlockFace.NORTH;
-        } else if (block.getRelative(BlockFace.WEST).getType() == Material.OBSIDIAN) {
-            return BlockFace.EAST;
+    private BlockFace getHorizontalPortalDirection(GlowBlock block, BlockFace verticalFace) {
+
+        BlockFace[] horizontal = new BlockFace[]{BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
+
+        for (BlockFace direction : horizontal) {
+            if (block.getRelative(direction).getType() == Material.OBSIDIAN) {
+                BlockFace opposite = direction.getOppositeFace();
+                if (isPortal(block, verticalFace, opposite)) {
+                    return opposite;
+                }
+            }
         }
+
         return null;
     }
 
     /**
      * Checks if there is a 2x3 portal. A portal should be surrounded by obsidian for it to work.
-     * @param block A block in a corner of the portal
+     * @param block A block in a corner of the portal.
      * @param verticalFace Whether we have to build the portal up or down.
+     * @param direction The horizontal direction to check for a portal.
      * @return If this is a valid portal.
      */
-    private boolean isPortal(GlowBlock block, BlockFace verticalFace) {
+    private boolean isPortal(GlowBlock block, BlockFace verticalFace, BlockFace direction) {
+
         // TODO: Support portals of various sizes.
-        Material obsidian = Material.OBSIDIAN;
-        BlockFace direction = getHorizontalPortalDirection(block);
         if (direction == null) {
             return false;
         }
 
-        BlockFace oppositeFace = verticalFace.getOppositeFace();
-        GlowBlock oppositeBlock = block.getRelative(oppositeFace);
-        if (oppositeBlock.getType() != obsidian || oppositeBlock.getRelative(direction).getType() != obsidian) {
+        BlockFace oppositeVerticalFace = verticalFace.getOppositeFace();
+        GlowBlock oppositeVerticalBlock = block.getRelative(oppositeVerticalFace);
+        GlowBlock sideBlock = oppositeVerticalBlock.getRelative(direction);
+        if (oppositeVerticalBlock.getType() != Material.OBSIDIAN || sideBlock.getType() != Material.OBSIDIAN) {
             return false;
         }
 
         for (int i = 1; i <= 3; i++) {
 
-            if (block.getRelative(direction, 2).getType() != obsidian) {
+            if (block.getRelative(direction, 2).getType() != Material.OBSIDIAN) {
                 return false;
             }
 
             BlockFace oppositeDirection = direction.getOppositeFace();
-            if (block.getRelative(oppositeDirection).getType() != obsidian) {
+            if (block.getRelative(oppositeDirection).getType() != Material.OBSIDIAN) {
                 return false;
             }
 
             block = block.getRelative(verticalFace);
         }
 
-        if (block.getType() != obsidian || block.getRelative(direction).getType() != obsidian) {
+        if (block.getType() != Material.OBSIDIAN || block.getRelative(direction).getType() != Material.OBSIDIAN) {
             return false;
         }
 
@@ -108,11 +113,11 @@ public class ItemFlintAndSteel extends ItemTool {
         if (face == BlockFace.UP || face == BlockFace.DOWN) {
 
             target = target.getRelative(face);
-            if (!isPortal(target, face)) {
+            BlockFace direction = getHorizontalPortalDirection(target, face);
+            if (direction == null) {
                 return;
             }
 
-            BlockFace direction = getHorizontalPortalDirection(target);
             GlowBlock sideBlock = target.getRelative(direction);
 
             byte data;

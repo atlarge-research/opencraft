@@ -1041,7 +1041,7 @@ public abstract class GlowEntity implements Entity {
     }
 
     /**
-     * Teleport this entity to the End. If no End world is loaded this does nothing.
+     * Teleport this entity to the Nether. If no Nether world is loaded this does nothing.
      *
      * @return {@code true} if the teleport was successful.
      */
