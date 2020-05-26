@@ -1,5 +1,10 @@
 package net.glowstone.entity.physics;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.GlowBlockState;
@@ -13,12 +18,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-public class BlockBoundingBoxTest {
+public class BlockBoundingBoxesTest {
 
     @Mock
     private GlowBlock block;
@@ -37,7 +37,7 @@ public class BlockBoundingBoxTest {
         GlowBlockState state = mock(GlowBlockState.class);
         when(state.getData()).thenReturn(step);
         when(block.getState()).thenReturn(state);
-        List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(block);
+        List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(block);
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
         assertTrue(Vectors.equals(box.minCorner, new Vector(0, 0.5, 0)));
@@ -52,7 +52,7 @@ public class BlockBoundingBoxTest {
         GlowBlockState state = mock(GlowBlockState.class);
         when(state.getData()).thenReturn(step);
         when(block.getState()).thenReturn(state);
-        List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(block);
+        List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(block);
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
         assertTrue(Vectors.equals(box.minCorner, new Vector(0, 0, 0)));
@@ -66,7 +66,7 @@ public class BlockBoundingBoxTest {
         GlowBlockState state = new GlowBlockState(block);
         state.setRawData(data);
         when(block.getState()).thenReturn(state);
-        List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(block);
+        List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(block);
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
         assertTrue(Vectors.equals(box.minCorner, new Vector(0, 0, 0)));
@@ -76,7 +76,7 @@ public class BlockBoundingBoxTest {
     @Test
     public void enchantmentTableTest() {
         when(block.getType()).thenReturn(Material.ENCHANTMENT_TABLE);
-        List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(block);
+        List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(block);
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
         assertTrue(Vectors.equals(box.minCorner, new Vector(0, 0, 0)));
@@ -86,7 +86,7 @@ public class BlockBoundingBoxTest {
     @Test
     public void chestTest() {
         when(block.getType()).thenReturn(Material.CHEST);
-        List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(block);
+        List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(block);
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
         assertTrue(Vectors.equals(box.minCorner, new Vector(1.0 / 16.0, 0, 1.0 / 16.0)));
@@ -96,7 +96,7 @@ public class BlockBoundingBoxTest {
     @Test
     public void cactusTest() {
         when(block.getType()).thenReturn(Material.CACTUS);
-        List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(block);
+        List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(block);
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
         assertTrue(Vectors.equals(box.minCorner, new Vector(1.0 / 16.0, 0, 1.0 / 16.0)));
@@ -106,7 +106,7 @@ public class BlockBoundingBoxTest {
     @Test
     public void bedTest() {
         when(block.getType()).thenReturn(Material.BED_BLOCK);
-        List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(block);
+        List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(block);
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
         assertTrue(Vectors.equals(box.minCorner, new Vector(0, 0, 0)));
@@ -116,7 +116,7 @@ public class BlockBoundingBoxTest {
     @Test
     public void daylightDetectorTest() {
         when(block.getType()).thenReturn(Material.DAYLIGHT_DETECTOR);
-        List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(block);
+        List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(block);
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
         assertTrue(Vectors.equals(box.minCorner, new Vector(0, 0, 0)));
@@ -126,7 +126,7 @@ public class BlockBoundingBoxTest {
     @Test
     public void flowerPotTest() {
         when(block.getType()).thenReturn(Material.FLOWER_POT);
-        List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(block);
+        List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(block);
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
         assertTrue(Vectors.equals(box.minCorner, new Vector(5.0 / 16.0, 0, 5.0 / 16.0)));
@@ -136,7 +136,7 @@ public class BlockBoundingBoxTest {
     @Test
     public void soulSandTest() {
         when(block.getType()).thenReturn(Material.SOUL_SAND);
-        List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(block);
+        List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(block);
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
         assertTrue(Vectors.equals(box.minCorner, new Vector(0, 0, 0)));
@@ -146,7 +146,7 @@ public class BlockBoundingBoxTest {
     @Test
     public void endPortalFrameTest() {
         when(block.getType()).thenReturn(Material.ENDER_PORTAL_FRAME);
-        List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(block);
+        List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(block);
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
         assertTrue(Vectors.equals(box.minCorner, new Vector(0, 0, 0)));
@@ -156,7 +156,7 @@ public class BlockBoundingBoxTest {
     @Test
     public void waterLilyTest() {
         when(block.getType()).thenReturn(Material.WATER_LILY);
-        List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(block);
+        List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(block);
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
         assertTrue(Vectors.equals(box.minCorner, new Vector(0, 0, 0)));
@@ -166,7 +166,7 @@ public class BlockBoundingBoxTest {
     @Test
     public void cakeBlockTest() {
         when(block.getType()).thenReturn(Material.CAKE_BLOCK);
-        List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(block);
+        List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(block);
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
         assertTrue(Vectors.equals(box.minCorner, new Vector(1.0 / 16.0, 0, 1.0 / 16.0)));

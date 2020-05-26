@@ -15,15 +15,19 @@ import org.bukkit.material.Step;
 import org.bukkit.material.WoodenStep;
 import org.bukkit.util.Vector;
 
-public class BlockBoundingBox {
+/**
+ * This class generates all the boundingboxes for all blocktypes.
+ */
+public class BlockBoundingBoxes {
 
     /**
      * Generates the correct bounding box for a fence block.
      *
      * @param location The location of the block
+     * @param block The location of the block
      * @return The correct fence boundingbox
      */
-    private static List<BoundingBox> getFenceGateBoundingBox(Location location, GlowBlock block) {
+    private static List<BoundingBox> getFenceGateBoundingBoxes(Location location, GlowBlock block) {
 
         double invertedFenceWidth = 1.0 / 4.0;
         BoundingBox box = BoundingBox.fromCenterAndSize(location.toVector(), invertedFenceWidth, 1.5);
@@ -58,7 +62,7 @@ public class BlockBoundingBox {
      * @param block The location of the block
      * @return The correct fence boundingbox
      */
-    private static List<BoundingBox> getFenceBoundingBox(Location location, GlowBlock block) {
+    private static List<BoundingBox> getFenceBoundingBoxes(Location location, GlowBlock block) {
 
         double invertedFenceWidth = 1.0 / 4.0;
         BoundingBox boxX = BoundingBox.fromCenterAndSize(location.toVector(), invertedFenceWidth, 1.5);
@@ -87,9 +91,10 @@ public class BlockBoundingBox {
      * Generates the correct bounding box for a fence block.
      *
      * @param location The location of the block
+     * @param block The location of the block
      * @return The correct fence boundingbox
      */
-    private static List<BoundingBox> getPaneBoundingBox(Location location, GlowBlock block) {
+    private static List<BoundingBox> getPaneBoundingBoxes(Location location, GlowBlock block) {
 
         double paneWidth = 1.0 / 8.0;
 
@@ -122,7 +127,7 @@ public class BlockBoundingBox {
      * @param block The location of the block
      * @return The correct fence boundingbox
      */
-    private static List<BoundingBox> getWallBoundingBox(Location location, GlowBlock block) {
+    private static List<BoundingBox> getWallBoundingBoxes(Location location, GlowBlock block) {
 
         double invertedWallWidth = 6.0 / 16.0;
         double invertedWallPostWidth = 1.0 / 4.0;
@@ -166,7 +171,13 @@ public class BlockBoundingBox {
         return boxes;
     }
 
-    private static boolean isViableFenceGate(BlockFace face, GlowBlock block) {
+    /**
+     * Returns a boolean indicating the alignment of the fence relative to the block.
+     * @param face The face of the block to be checked as gate.
+     * @param block The block that is of type fence.
+     * @return True if the gate is aligned parallel to the fence, false if not.
+     */
+    private static boolean isFenceGateAligned(BlockFace face, GlowBlock block) {
         GlowBlock nextBlock = block.getRelative(face);
         switch (nextBlock.getType()) {
             case FENCE_GATE:
@@ -199,7 +210,7 @@ public class BlockBoundingBox {
             case DARK_OAK_FENCE_GATE:
             case JUNGLE_FENCE_GATE:
             case SPRUCE_FENCE_GATE:
-                return isViableFenceGate(face, block);
+                return isFenceGateAligned(face, block);
             case FENCE:
             case NETHER_FENCE:
             case ACACIA_FENCE:
@@ -230,7 +241,7 @@ public class BlockBoundingBox {
             case DARK_OAK_FENCE_GATE:
             case JUNGLE_FENCE_GATE:
             case SPRUCE_FENCE_GATE:
-                return isViableFenceGate(face, block);
+                return isFenceGateAligned(face, block);
             case COBBLE_WALL:
                 return true;
             default:
@@ -264,7 +275,7 @@ public class BlockBoundingBox {
      * @param face The direction the skull is facing
      * @return The bounding box for the skull
      */
-    private static List<BoundingBox> getSkullBoundingBox(Location loc, BlockFace face) {
+    private static List<BoundingBox> getSkullBoundingBoxes(Location loc, BlockFace face) {
 
         if (face == BlockFace.UP) {
             return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 0.5, 0.5));
@@ -292,7 +303,7 @@ public class BlockBoundingBox {
      * @param stairs The stair data
      * @return The bounding box of the stair
      */
-    private static List<BoundingBox> getStairsBoundingBox(Location loc, Stairs stairs) {
+    private static List<BoundingBox> getStairsBoundingBoxes(Location loc, Stairs stairs) {
         BoundingBox base;
         BoundingBox head = null;
 
@@ -336,9 +347,10 @@ public class BlockBoundingBox {
      * Returns the cauldron bounding box.
      *
      * @param loc The location of the cauldron
+     * @param internalHeight The height of the inside of the cauldron
      * @return Returns the bounding boxes necessary to construct the cauldron collision
      */
-    private static List<BoundingBox> getCauldronBoundingBox(Location loc, double internalHeight) {
+    private static List<BoundingBox> getCauldronBoundingBoxes(Location loc, double internalHeight) {
 
         double cauldronWidth = 2.0 / 16.0;
         Vector min = loc.clone().toVector();
@@ -366,7 +378,7 @@ public class BlockBoundingBox {
      * @param block The location of the block
      * @return The List of boundingboxes for the block
      */
-    private static List<BoundingBox> getSlabBoundingBox(Location loc, GlowBlock block) {
+    private static List<BoundingBox> getSlabBoundingBoxes(Location loc, GlowBlock block) {
         MaterialData data = block.getState().getData();
 
         boolean inverted;
@@ -397,7 +409,7 @@ public class BlockBoundingBox {
             case WOOD_STEP:
             case PURPUR_SLAB:
             case STONE_SLAB2:
-                return getSlabBoundingBox(loc, block);
+                return getSlabBoundingBoxes(loc, block);
             case FENCE:
             case NETHER_FENCE:
             case ACACIA_FENCE:
@@ -405,16 +417,16 @@ public class BlockBoundingBox {
             case DARK_OAK_FENCE:
             case JUNGLE_FENCE:
             case SPRUCE_FENCE:
-                return getFenceBoundingBox(loc, block);
+                return getFenceBoundingBoxes(loc, block);
             case COBBLE_WALL:
-                return getWallBoundingBox(loc, block);
+                return getWallBoundingBoxes(loc, block);
             case FENCE_GATE:
             case ACACIA_FENCE_GATE:
             case BIRCH_FENCE_GATE:
             case DARK_OAK_FENCE_GATE:
             case JUNGLE_FENCE_GATE:
             case SPRUCE_FENCE_GATE:
-                return getFenceGateBoundingBox(loc, block);
+                return getFenceGateBoundingBoxes(loc, block);
             case SNOW:
                 double snowHeight = block.getState().getRawData() * 1.0 / 7.0;
                 return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, snowHeight));
@@ -442,9 +454,9 @@ public class BlockBoundingBox {
             case CAKE_BLOCK:
                 return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 7.0 / 8.0, 7.0 / 16.0));
             case CAULDRON:
-                return getCauldronBoundingBox(loc, 5.0 / 16.0);
+                return getCauldronBoundingBoxes(loc, 5.0 / 16.0);
             case HOPPER:
-                return getCauldronBoundingBox(loc, 9.0 / 16.0);
+                return getCauldronBoundingBoxes(loc, 9.0 / 16.0);
             case BREWING_STAND:
                 return Arrays.asList(
                         BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 1.0 / 8.0),
@@ -453,7 +465,7 @@ public class BlockBoundingBox {
             case THIN_GLASS:
             case STAINED_GLASS_PANE:
             case IRON_FENCE:
-                return getPaneBoundingBox(loc, block);
+                return getPaneBoundingBoxes(loc, block);
             case TRAP_DOOR:
             case IRON_TRAPDOOR:
             case REDSTONE_COMPARATOR:
@@ -463,7 +475,7 @@ public class BlockBoundingBox {
             case CARPET:
                 return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 1.0 / 16.0));
             case SKULL:
-                return getSkullBoundingBox(loc, ((Skull) block.getState().getData()).getFacing());
+                return getSkullBoundingBoxes(loc, ((Skull) block.getState().getData()).getFacing());
             case ACACIA_STAIRS:
             case BIRCH_WOOD_STAIRS:
             case DARK_OAK_STAIRS:
@@ -478,7 +490,7 @@ public class BlockBoundingBox {
             case QUARTZ_STAIRS:
             case PURPUR_STAIRS:
             case RED_SANDSTONE_STAIRS:
-                return getStairsBoundingBox(loc, ((Stairs) block.getState().getData()));
+                return getStairsBoundingBoxes(loc, ((Stairs) block.getState().getData()));
             default:
                 if (block.getType().isSolid()) {
                     return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 1.0));

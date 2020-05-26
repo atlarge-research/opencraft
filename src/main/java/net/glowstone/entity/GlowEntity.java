@@ -34,7 +34,7 @@ import net.glowstone.entity.meta.MetadataMap.Entry;
 import net.glowstone.entity.objects.GlowItemFrame;
 import net.glowstone.entity.objects.GlowLeashHitch;
 import net.glowstone.entity.objects.GlowPainting;
-import net.glowstone.entity.physics.BlockBoundingBox;
+import net.glowstone.entity.physics.BlockBoundingBoxes;
 import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.entity.physics.EntityBoundingBox;
 import net.glowstone.net.GlowSession;
@@ -1066,7 +1066,7 @@ public abstract class GlowEntity implements Entity {
      * @param broadPhaseBox The BoundingBox to be used as block range
      * @return All boundingboxes from blocks that intersect with the give BoundingBox
      */
-    List<BoundingBox> getIntersectingBlockBoundingBoxes(final BoundingBox broadPhaseBox) {
+    List<BoundingBox> getIntersectingBlockBoundingBoxes(BoundingBox broadPhaseBox) {
 
         if (broadPhaseBox == null) {
             return Collections.emptyList();
@@ -1079,7 +1079,7 @@ public abstract class GlowEntity implements Entity {
         List<GlowBlock> glowBlocks = world.getOverlappingBlocks(min, max);
 
         List<BoundingBox> intersectingBoxes = glowBlocks.stream()
-                .map(BlockBoundingBox::getBoundingBoxes)
+                .map(BlockBoundingBoxes::getBoundingBoxes)
                 .flatMap(List::stream)
                 .filter(box -> box.intersects(broadPhaseBox))
                 .collect(Collectors.toList());
@@ -1141,7 +1141,6 @@ public abstract class GlowEntity implements Entity {
             BoundingBox broadPhaseBox = pendingBox.getBroadPhase(velocity);
             List<BoundingBox> intersectingBoxes = getIntersectingBlockBoundingBoxes(broadPhaseBox);
 
-
             // Break if there is nothing to collide with.
             if (intersectingBoxes.isEmpty()) {
                 break;
@@ -1157,7 +1156,9 @@ public abstract class GlowEntity implements Entity {
             double collisionTime = closest.getLeft();
             Vector normal = closest.getRight();
             Vector displacement = remainingDisplacement.clone().multiply(collisionTime);
-            pendingLocation.add(displacement).add(normal.clone().multiply(COLLISION_OFFSET));
+            Vector collisionOffsetVector = normal.clone().multiply(COLLISION_OFFSET);
+            pendingLocation.add(displacement);
+            pendingLocation.add(collisionOffsetVector);
 
             elapsedTime += collisionTime * remainingTime;
 
@@ -1169,9 +1170,7 @@ public abstract class GlowEntity implements Entity {
             // Cancel out velocity in the direction of the collided with box.
             velocity.subtract(Vectors.project(velocity, normal));
 
-
             // Handle projectile interaction
-
             if (this instanceof Projectile) {
 
                 Projectile projectile = (Projectile) this;

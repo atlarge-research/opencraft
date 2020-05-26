@@ -11,8 +11,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.flowpowered.network.Message;
-
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -25,8 +23,6 @@ import net.glowstone.block.GlowBlock;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.objects.GlowPainting;
 import net.glowstone.entity.passive.GlowChicken;
-import net.glowstone.entity.physics.BlockBoundingBox;
-import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.entity.physics.EntityBoundingBox;
 import net.glowstone.entity.projectile.GlowArrow;
 import net.glowstone.inventory.GlowPlayerInventory;

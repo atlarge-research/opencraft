@@ -14,7 +14,7 @@ import net.glowstone.block.entity.BlockEntity;
 import net.glowstone.block.itemtype.ItemType;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
-import net.glowstone.entity.physics.BlockBoundingBox;
+import net.glowstone.entity.physics.BlockBoundingBoxes;
 import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.i18n.ConsoleMessages;
 import net.glowstone.i18n.GlowstoneMessages;
@@ -358,7 +358,7 @@ public class BlockType extends ItemType {
         }
 
         if (getMaterial().isSolid()) {
-            List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(target);
+            List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(target);
             GlowBlock finalTarget = target;
             List<Entity> entities = boxes.stream()
                                          .map(box -> finalTarget.getWorld().getEntityManager()
