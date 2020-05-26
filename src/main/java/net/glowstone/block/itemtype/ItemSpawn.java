@@ -37,10 +37,11 @@ public class ItemSpawn extends ItemType {
             }
 
             if (type != null) {
-                GlowEntity entity = against.getWorld()
-                                           .spawn(location.add(0.5, GlowEntity.COLLISION_OFFSET, 0.5),
-                                                   EntityRegistry.getEntity(type),
-                                                   SpawnReason.SPAWNER_EGG);
+                GlowEntity entity = against.getWorld().spawn(
+                       location.add(0.5, GlowEntity.COLLISION_OFFSET, 0.5),
+                       EntityRegistry.getEntity(type),
+                       SpawnReason.SPAWNER_EGG
+                );
                 if (tag != null) {
                     EntityStorage.load(entity, tag);
                 }

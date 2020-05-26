@@ -96,7 +96,6 @@ public class VectorsTest {
     @Test
     public void computeVolumeTest() {
         Vector vector = new Vector(5.0, 1.0, 3.0);
-
         assertEquals(15.0, Vectors.computeVolume(vector), Double.MIN_VALUE);
     }
 }

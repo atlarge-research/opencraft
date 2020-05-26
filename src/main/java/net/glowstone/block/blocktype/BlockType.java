@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import net.glowstone.EventFactory;
+import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.GlowBlockState;
 import net.glowstone.block.ItemTable;
@@ -359,12 +360,12 @@ public class BlockType extends ItemType {
 
         if (getMaterial().isSolid()) {
             List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(target);
-            GlowBlock finalTarget = target;
+            GlowWorld world = target.getWorld();
             List<Entity> entities = boxes.stream()
-                                         .map(box -> finalTarget.getWorld().getEntityManager()
-                                                                .getEntitiesInside(box, null))
-                                         .flatMap(List::stream)
-                                         .collect(Collectors.toList());
+                 .map(box -> world.getEntityManager().getEntitiesInside(box, null))
+                 .flatMap(List::stream)
+                 .collect(Collectors.toList());
+
             for (Entity e : entities) {
                 if (e instanceof LivingEntity) {
                     return;
