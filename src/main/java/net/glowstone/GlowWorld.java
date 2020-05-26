@@ -73,6 +73,7 @@ import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
 import net.glowstone.util.AreaOfInterest;
 import net.glowstone.util.BlockStateDelegate;
+import net.glowstone.util.Coordinates;
 import net.glowstone.util.GameRuleManager;
 import net.glowstone.util.RayUtil;
 import net.glowstone.util.TickUtil;
@@ -646,8 +647,10 @@ public class GlowWorld implements World {
             if (currentLocation.getWorld() == this) {
                 for (int x = currentX - radius; x <= currentX + radius; x++) {
                     for (int z = currentZ - radius; z <= currentZ + radius; z++) {
-                        if (previousLocation.getWorld() != this || Math.abs(x - previousX) > radius
-                                || Math.abs(z - previousZ) > radius || force) {
+                        if (previousLocation.getWorld() != this
+                                || Math.abs(x - previousX) > radius
+                                || Math.abs(z - previousZ) > radius
+                                || force) {
 
                             getChunkManager().forcePopulation(x, z);
                             GlowChunk.Key key = GlowChunk.Key.of(x, z);
@@ -657,13 +660,13 @@ public class GlowWorld implements World {
                             GlowChunk chunk = getChunkAt(x, z);
 
                             ChunkRunnable chunkRunnable = new ChunkRunnable(player, chunk, () -> {
-                                Message message = chunk.toMessage(skylight);
                                 try {
+                                    Message message = chunk.toMessage(skylight);
                                     session.sendWithFuture(message).await();
+                                    chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
                                 } catch (InterruptedException exception) {
                                     exception.printStackTrace();
                                 }
-                                chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
                             });
 
                             chunksToStream.add(chunkRunnable);
@@ -676,7 +679,7 @@ public class GlowWorld implements World {
             areaOfInterest.setViewDistance(currentViewDistance);
         }
 
-        Collection<ChunkRunnable> cancelled = executor.executeAndCancel(chunksToStream, ChunkRunnable::shouldBeUnloaded);
+        Collection<ChunkRunnable> cancelled = executor.executeAndCancel(chunksToStream, this::shouldBeUnloaded);
 
         Set<Pair<GlowChunk, GlowPlayer>> cancelledSet = cancelled.stream()
                 .map(runnable -> Pair.of(runnable.getChunk(), runnable.getPlayer()))
@@ -694,6 +697,28 @@ public class GlowWorld implements World {
                 player.getChunkLock().release(key);
             }
         });
+    }
+
+    /**
+     * Check whether the runnable should be removed from the queue.
+     *
+     * @param runnable the runnable to be checked.
+     * @return whether the runnable should be removed.
+     */
+    private boolean shouldBeUnloaded(ChunkRunnable runnable) {
+
+        GlowPlayer player = runnable.getPlayer();
+        GlowChunk chunk = runnable.getChunk();
+
+        int radius = Math.min(server.getViewDistance(), 1 + player.getViewDistance());
+
+        Coordinates playerCoords = player.getCoordinates();
+        int chunkX = chunk.getX();
+        int chunkZ = chunk.getZ();
+
+        return player.getWorld() != chunk.getWorld()
+                || Math.abs(playerCoords.getChunkX() - chunkX) > radius
+                || Math.abs(playerCoords.getChunkZ() - chunkZ) > radius;
     }
 
     /**

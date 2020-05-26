@@ -35,26 +35,8 @@ public final class ChunkRunnable implements Runnable, Comparable<ChunkRunnable> 
     }
 
     /**
-     * Check if this ChunkRunnable has the given chunk key.
-     *
-     * @param key The chunk key that the ChunkRunnable is supposed to have.
-     * @return True, if the ChunkRunnable has the same key.
+     * @return The chunk for which the data needs to be sent to the player.
      */
-    public boolean hasKey(GlowChunk.Key key) {
-        return chunk.getX() == key.getX() && chunk.getZ() == key.getZ();
-    }
-
-    /**
-     * Check if this ChunkRunnable is associated with the given entity id of a player.
-     *
-     * @param entityId The entity id of the player.
-     * @return True, if the given entity id is the same as the entity id of the player that is associated with the
-     *     ChunkRunnable.
-     */
-    public boolean hasEntityId(int entityId) {
-        return player.getEntityId() == entityId;
-    }
-
     public GlowChunk getChunk() {
         return chunk;
     }
@@ -71,30 +53,6 @@ public final class ChunkRunnable implements Runnable, Comparable<ChunkRunnable> 
         Coordinates chunkCenter = chunk.getCenterCoordinates();
         Coordinates playerCoords = player.getCoordinates();
         this.priority = chunkCenter.squaredDistance(playerCoords);
-    }
-
-    double getPriority() {
-        return priority;
-    }
-
-    public void sendUnloadMessage() {
-        Message message = new UnloadChunkMessage(chunk.getX(), chunk.getZ());
-        player.getSession().send(message);
-        GlowChunk.Key key = GlowChunk.Key.of(chunk.getX(), chunk.getZ());
-        player.getChunkLock().release(key);
-    }
-
-    public boolean shouldBeUnloaded() {
-
-        int radius = Math.min(player.getWorld().getServer().getViewDistance(), 1 + player.getViewDistance());
-
-        Coordinates playerCoords = player.getCoordinates();
-        int chunkX = chunk.getX();
-        int chunkZ = chunk.getZ();
-
-        return player.getWorld() != chunk.getWorld()
-                || Math.abs(playerCoords.getChunkX() - chunkX) > radius
-                || Math.abs(playerCoords.getChunkZ() - chunkZ) > radius;
     }
 
     @Override

@@ -12,22 +12,23 @@ import net.glowstone.util.SortableBlockingQueue;
  * The executor that can run the ChunkRunnables. ChunkRunnables that are closed to the player are prioritized, since
  * they are the most relevant to the player.
  */
-public class PriorityExecutor {
+public final class PriorityExecutor {
 
     private final ThreadPoolExecutor executor;
-    private final SortableBlockingQueue<ChunkRunnable> sortableBlockingQueue;
+    private final SortableBlockingQueue<ChunkRunnable> queue;
 
     /**
      * Create a PriorityExecutor that can run ChunkRunnables. The PriorityExecutor uses a thread pool executor
      * internally.
      *
-     * @param poolSize the number of threads in the pool
+     * @param poolSize The number of threads in the pool
      * @throws IllegalArgumentException if poolSize < 0
      */
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public PriorityExecutor(int poolSize) {
-        sortableBlockingQueue = new SortableBlockingQueue<>(new ChunkRunnableComparator());
-        BlockingQueue<Runnable> queue = (BlockingQueue<Runnable>) ((BlockingQueue) sortableBlockingQueue);
-        executor = new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS, queue);
+        queue = new SortableBlockingQueue<>(ChunkRunnable::compareTo);
+        BlockingQueue<Runnable> castedQueue = (BlockingQueue<Runnable>) ((BlockingQueue) queue);
+        executor = new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS, castedQueue);
         executor.prestartAllCoreThreads();
     }
 
@@ -39,43 +40,28 @@ public class PriorityExecutor {
         this(Runtime.getRuntime().availableProcessors());
     }
 
+    /**
+     * Execute the given runnables and remove the runnables that were previously enqueued and match the given predicate.
+     *
+     * @param toExecute The runnables to be executed.
+     * @param predicate The predicate used to determine which runnables should be removed.
+     * @return the removed runnables.
+     */
     public Collection<ChunkRunnable> executeAndCancel(
-            Collection<ChunkRunnable> toAdd,
+            Collection<ChunkRunnable> toExecute,
             Predicate<ChunkRunnable> predicate
     ) {
-
         Collection<ChunkRunnable> removed = new ArrayList<>();
 
-        sortableBlockingQueue.transaction(queue -> {
+        queue.transaction(queue -> {
             queue.forEach(ChunkRunnable::updatePriority);
             queue.linearRemoveIf(predicate, removed);
-            queue.addAll(toAdd);
+            queue.addAll(toExecute);
             queue.sort();
         });
 
         return removed;
     }
-
-//    /**
-//     * Create and execute a chunkrunnable on this priority executor.
-//     *
-//     * @param player The player that is used to determine to which player the ChunkRunnable belongs.
-//     * @param chunk The chunk that will be sent to the player.
-//     * @param command The runnable that will be executed.
-//     */
-//    public void execute(GlowPlayer player, GlowChunk chunk, @NotNull Runnable command) {
-//        ChunkRunnable chunkRunnable = new ChunkRunnable(player, chunk, command);
-//        execute(chunkRunnable);
-//    }
-//
-//    /**
-//     * Execute the chunk runnable on this executor.
-//     *
-//     * @param chunkRunnable The chunk runnable that will be executed.
-//     */
-//    public void execute(ChunkRunnable chunkRunnable) {
-//        executor.execute(chunkRunnable);
-//    }
 
     /**
      * Initiates an orderly shutdown in which previously submitted tasks are executed, but no new tasks will be
@@ -85,18 +71,4 @@ public class PriorityExecutor {
     public void shutdown() {
         executor.shutdown();
     }
-//
-//    private static final class DynamicPriorityExecutor extends ThreadPoolExecutor {
-//
-//        public DynamicPriorityExecutor(
-//                int poolSize,
-//                long keepAliveTime,
-//                TimeUnit unit,
-//                BlockingQueue<Runnable> workQueue
-//        ) {
-//            super(poolSize, poolSize, keepAliveTime, unit, workQueue);
-//        }
-//
-//        public void
-//    }
 }
