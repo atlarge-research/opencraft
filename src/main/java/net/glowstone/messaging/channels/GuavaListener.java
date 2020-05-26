@@ -1,4 +1,4 @@
-package net.glowstone.messaging.brokers.guava;
+package net.glowstone.messaging.channels;
 
 import com.google.common.eventbus.Subscribe;
 import java.util.function.Consumer;
