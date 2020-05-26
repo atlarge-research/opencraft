@@ -272,12 +272,13 @@ public class BlockBoundingBoxes {
      * Builds the skull bounding box which is dependent on position and facing.
      *
      * @param loc The location of the skull
-     * @param face The direction the skull is facing
+     * @param skull The Skull data
      * @return The bounding box for the skull
      */
-    private static List<BoundingBox> getSkullBoundingBoxes(Location loc, BlockFace face) {
+    private static List<BoundingBox> getSkullBoundingBoxes(Location loc, Skull skull) {
 
-        if (face == BlockFace.UP) {
+        BlockFace face = skull.getFacing();
+        if (face == BlockFace.SELF) {
             return Arrays.asList(BoundingBox.fromCenterAndSize(loc.toVector(), 0.5, 0.5));
         }
 
@@ -500,7 +501,7 @@ public class BlockBoundingBoxes {
             case CARPET:
                 return getBlockBoundingBoxesWithDimension(loc, 1.0, 1.0 / 16.0);
             case SKULL:
-                return getSkullBoundingBoxes(loc, ((Skull) block.getState().getData()).getFacing());
+                return getSkullBoundingBoxes(loc, ((Skull) block.getState().getData()));
             case ACACIA_STAIRS:
             case BIRCH_WOOD_STAIRS:
             case DARK_OAK_STAIRS:
@@ -516,6 +517,11 @@ public class BlockBoundingBoxes {
             case PURPUR_STAIRS:
             case RED_SANDSTONE_STAIRS:
                 return getStairsBoundingBoxes(loc, ((Stairs) block.getState().getData()));
+            case GOLD_PLATE:
+            case STONE_PLATE:
+            case IRON_PLATE:
+            case WOOD_PLATE:
+                return getBlockBoundingBoxesWithDimension(loc, 1.0 / 16.0, 1.0 /16.0);
             default:
                 if (block.getType().isSolid()) {
                     return getBlockBoundingBoxesWithDimension(loc, 1.0, 1.0);
