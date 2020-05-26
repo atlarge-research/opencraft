@@ -545,8 +545,8 @@ public class GlowWorld implements World {
      */
     public void pulse() {
 
-        Collection<ChunkRunnable> chunkRunnables = new ArrayList<>();
-        executor.drainTo(chunkRunnables);
+//        Collection<ChunkRunnable> chunkRunnables = new ArrayList<>();
+//        executor.drainTo(chunkRunnables);
 
         entityManager.getAll()
             .stream()
@@ -557,12 +557,12 @@ public class GlowWorld implements World {
                 GlowSession session = player.getSession();
                 messagingSystem.update(player, session::send);
 
-                int entityId = player.getEntityId();
+//                int entityId = player.getEntityId();
 
-                Collection<ChunkRunnable> runnables = chunkRunnables.stream()
-                    .filter(runnable -> runnable.hasEntityId(entityId))
-                    .collect(Collectors.toList());
-                streamChunks(player, runnables);
+//                Collection<ChunkRunnable> runnables = chunkRunnables.stream()
+//                    .filter(runnable -> runnable.hasEntityId(entityId))
+//                    .collect(Collectors.toList());
+                streamChunks(player);
             });
 
         List<GlowEntity> allEntities = new ArrayList<>(entityManager.getAll());
@@ -611,7 +611,7 @@ public class GlowWorld implements World {
      *      responsible for encoding and sending the chunk data to the given player. These runnables should only be
      *      associated with the given player.
      */
-    private void streamChunks(GlowPlayer player, Collection<ChunkRunnable> chunkRunnables) {
+    private void streamChunks(GlowPlayer player) {
 
         Location current = player.getLocation();
         AreaOfInterest areaOfInterest = player.getPreviousAreaOfInterest();
@@ -634,6 +634,10 @@ public class GlowWorld implements World {
         if (!force && previousX == currentX && previousZ == currentZ) {
             return;
         }
+
+        Collection<ChunkRunnable> chunkRunnables = new ArrayList<>();
+        executor.drainPlayerTo(player, chunkRunnables);
+        GlowServer.logger.log(Level.INFO, "Size: " + chunkRunnables.size());
 
         int radius = Math.min(server.getViewDistance(), 1 + viewDistance);
 

@@ -40,7 +40,7 @@ public class PriorityExecutor {
      * internally.
      */
     public PriorityExecutor() {
-        this(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS);
+        this(1, Runtime.getRuntime().availableProcessors(), 60L, TimeUnit.SECONDS);
     }
 
     /**
@@ -55,11 +55,24 @@ public class PriorityExecutor {
      */
     public void drainTo(Collection<ChunkRunnable> chunkRunnables) {
         // This cast is safe, because only ChunkRunnables are enqueued.
+        BlockingQueue<ChunkRunnable> queue = ((BlockingQueue) executor.getQueue());
+        queue.drainTo(chunkRunnables);
+    }
+
+    public void drainPlayerTo(final GlowPlayer player, Collection<ChunkRunnable> chunkRunnables) {
         BlockingQueue<Runnable> queue = executor.getQueue();
-        queue.stream()
-            .map(ChunkRunnable.class::cast)
-            .forEach(chunkRunnables::add);
-        queue.clear();
+
+        //TODO: Check performance
+        queue.removeIf(runnable -> {
+            ChunkRunnable chunkRunnable = (ChunkRunnable) runnable;
+            boolean toRemove = ((ChunkRunnable) runnable).hasEntityId(player.getEntityId());
+
+            if (toRemove) {
+                chunkRunnables.add(chunkRunnable);
+            }
+
+            return toRemove;
+        });
     }
 
     /**
