@@ -45,6 +45,12 @@
     </repositories>
 
     <dependencies>
+        <!-- Guava -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>21.0</version>
+        </dependency>
         <!-- Java Message Service -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
