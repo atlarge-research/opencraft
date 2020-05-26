@@ -18,7 +18,6 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
@@ -59,9 +58,9 @@ import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
 import net.glowstone.messaging.Broker;
+import net.glowstone.messaging.Brokers;
 import net.glowstone.messaging.Filter;
 import net.glowstone.messaging.MessagingSystem;
-import net.glowstone.messaging.brokers.concurrent.ConcurrentBroker;
 import net.glowstone.messaging.filters.PlayerFilter;
 import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.GlowSession;
@@ -71,6 +70,7 @@ import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
 import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
+import net.glowstone.util.AreaOfInterest;
 import net.glowstone.util.BlockStateDelegate;
 import net.glowstone.util.GameRuleManager;
 import net.glowstone.util.RayUtil;
@@ -435,7 +435,7 @@ public class GlowWorld implements World {
     @Getter
     private boolean initialized;
 
-    private final Map<GlowPlayer, Location> previousLocations;
+    private final Broker<Chunk, Player, Message> broker;
 
     private final MessagingSystem<Chunk, Object, Player, Message> messagingSystem;
 
@@ -518,11 +518,10 @@ public class GlowWorld implements World {
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
 
         ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
-        Broker<Chunk, Player, Message> broker = new ConcurrentBroker<>();
+        broker = Brokers.newConcurrentBroker();
         Filter<Player, Message> filter = new PlayerFilter();
         messagingSystem = new MessagingSystem<>(policy, broker, filter);
 
-        previousLocations = new WeakHashMap<>();
         executor = new PriorityExecutor();
         blockChanges = new ConcurrentLinkedDeque<>();
         afterBlockChanges = new LinkedList<>();
@@ -615,7 +614,9 @@ public class GlowWorld implements World {
     private void streamChunks(GlowPlayer player, Collection<ChunkRunnable> chunkRunnables) {
 
         Location current = player.getLocation();
-        Location previous = previousLocations.get(player);
+        AreaOfInterest areaOfInterest = player.getPreviousAreaOfInterest();
+        Location previous = areaOfInterest.getLocation();
+        int viewDistance = player.getViewDistance();
 
         boolean force = false;
 
@@ -634,7 +635,7 @@ public class GlowWorld implements World {
             return;
         }
 
-        int radius = Math.min(server.getViewDistance(), 1 + player.getViewDistance());
+        int radius = Math.min(server.getViewDistance(), 1 + viewDistance);
 
         GlowSession session = player.getSession();
 
@@ -693,7 +694,8 @@ public class GlowWorld implements World {
             }
         }
 
-        previousLocations.put(player, current);
+        areaOfInterest.setLocation(current);
+        areaOfInterest.setViewDistance(viewDistance);
     }
 
     private void updateActiveChunkCollection(GlowEntity entity) {
@@ -2545,6 +2547,13 @@ public class GlowWorld implements World {
 
     public void cancelPulse(Location location) {
         tickMap.remove(location);
+    }
+
+    /**
+     * Shutdown the world by closing its message broker.
+     */
+    public void shutdown() {
+        broker.close();
     }
 
     @Override
