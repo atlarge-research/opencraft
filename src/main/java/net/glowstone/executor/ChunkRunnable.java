@@ -55,6 +55,14 @@ public final class ChunkRunnable implements Runnable, Comparable<ChunkRunnable> 
         return player.getEntityId() == entityId;
     }
 
+    public GlowChunk getChunk() {
+        return chunk;
+    }
+
+    public GlowPlayer getPlayer() {
+        return player;
+    }
+
     /**
      * Update the priority of the ChunkRunnable. This is computed by calculating the distance between the center of the
      * chunk the player.

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -68,6 +67,7 @@ import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
+import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
 import net.glowstone.util.AreaOfInterest;
@@ -599,7 +599,8 @@ public class GlowWorld implements World {
      */
     private void streamChunks(Collection<GlowPlayer> players) {
 
-        List<ChunkRunnable> chunkRunnables = new ArrayList<>();
+        List<ChunkRunnable> chunksToStream = new ArrayList<>();
+        List<Pair<GlowChunk, GlowPlayer>> chunksToUnload = new ArrayList<>();
 
         for (GlowPlayer player : players) {
             Location current = player.getLocation();
@@ -627,6 +628,19 @@ public class GlowWorld implements World {
             int radius = Math.min(server.getViewDistance(), 1 + viewDistance);
             GlowSession session = player.getSession();
 
+            if (!force && previous.getWorld() == this) {
+                for (int x = previousX - radius; x <= previousX + radius; x++) {
+                    for (int z = previousZ - radius; z <= previousZ + radius; z++) {
+                        if (current.getWorld() != this
+                                || Math.abs(x - currentX) > radius
+                                || Math.abs(z - currentZ) > radius) {
+                            GlowChunk chunk = getChunkAt(x, z);
+                            chunksToUnload.add(Pair.of(chunk, player));
+                        }
+                    }
+                }
+            }
+
             if (current.getWorld() == this) {
                 for (int x = currentX - radius; x <= currentX + radius; x++) {
                     for (int z = currentZ - radius; z <= currentZ + radius; z++) {
@@ -647,7 +661,7 @@ public class GlowWorld implements World {
                                 chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
                             });
 
-                            chunkRunnables.add(chunkRunnable);
+                            chunksToStream.add(chunkRunnable);
                         }
                     }
                 }
@@ -657,11 +671,23 @@ public class GlowWorld implements World {
             areaOfInterest.setViewDistance(viewDistance);
         }
 
+        Collection<ChunkRunnable> cancelled = executor.executeAndCancel(chunksToStream, ChunkRunnable::shouldBeUnloaded);
 
-        Collection<ChunkRunnable> removed = executor.executeAndCancel(chunkRunnables, ChunkRunnable::shouldBeUnloaded);
+        Set<Pair<GlowChunk, GlowPlayer>> cancelledSet = cancelled.stream()
+                .map(runnable -> Pair.of(runnable.getChunk(), runnable.getPlayer()))
+                .collect(Collectors.toSet());
 
-        //TODO: incorrect unloading of chunks
-        removed.forEach(ChunkRunnable::sendUnloadMessage);
+        chunksToUnload.forEach(pair -> {
+            if (!cancelledSet.contains(pair)) {
+                GlowChunk chunk = pair.getLeft();
+                GlowPlayer player = pair.getRight();
+
+                Message message = new UnloadChunkMessage(chunk.getX(), chunk.getZ());
+                player.getSession().send(message);
+                GlowChunk.Key key = GlowChunk.Key.of(chunk.getX(), chunk.getZ());
+                player.getChunkLock().release(key);
+            }
+        });
     }
 
     private void updateActiveChunkCollection(GlowEntity entity) {
@@ -2527,6 +2553,7 @@ public class GlowWorld implements World {
      * Shutdown the world by closing its message broker.
      */
     public void shutdown() {
+        executor.shutdown();
         broker.close();
     }
 
