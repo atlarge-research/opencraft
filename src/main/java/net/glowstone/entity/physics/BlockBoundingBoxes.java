@@ -77,6 +77,7 @@ public class BlockBoundingBoxes {
         Door door = (Door) block.getState().getData();
         BlockFace doorFace = door.getFacing();
 
+        //TODO fix door hinge
 
         if (doorFace == BlockFace.NORTH && !door.isOpen() || doorFace == BlockFace.WEST && door.isOpen()) {
             return Collections.singletonList(north);
