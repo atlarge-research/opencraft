@@ -360,8 +360,11 @@ public class BlockType extends ItemType {
         if (getMaterial().isSolid()) {
             List<BoundingBox> boxes = BlockBoundingBox.getBoundingBoxes(target);
             GlowBlock finalTarget = target;
-            List<Entity> entities = boxes.stream().map(box -> finalTarget.getWorld().getEntityManager()
-                .getEntitiesInside(box, null)).flatMap(List::stream).collect(Collectors.toList());
+            List<Entity> entities = boxes.stream()
+                                         .map(box -> finalTarget.getWorld().getEntityManager()
+                                                                .getEntitiesInside(box, null))
+                                         .flatMap(List::stream)
+                                         .collect(Collectors.toList());
             for (Entity e : entities) {
                 if (e instanceof LivingEntity) {
                     return;
