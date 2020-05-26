@@ -21,9 +21,9 @@ class ChunkRunnableTest {
 
         executed = false;
         GlowChunk chunk = mock(GlowChunk.class);
-        when(chunk.getX()).thenReturn(1);
-        when(chunk.getZ()).thenReturn(2);
-        when(chunk.getCenterCoordinates()).thenReturn(new Coordinates(1, 2));
+        when(chunk.getX()).thenReturn(5);
+        when(chunk.getZ()).thenReturn(10);
+        when(chunk.getCenterCoordinates()).thenReturn(new Coordinates(5, 10));
 
         GlowPlayer player = mock(GlowPlayer.class);
         when(player.getCoordinates()).thenReturn(new Coordinates(10, 20));
@@ -45,19 +45,19 @@ class ChunkRunnableTest {
         GlowPlayer player = runnable.getPlayer();
         ChunkRunnable comparable = new ChunkRunnable(player, origin, () -> executed = true);
 
-        assertTrue(runnable.compareTo(comparable) > 0);
+        assertTrue(runnable.compareTo(comparable) < 0);
+
+        runnable.updatePriority();
+        comparable.updatePriority();
+
+        assertTrue(runnable.compareTo(comparable) < 0);
+
+        when(player.getCoordinates()).thenReturn(new Coordinates(-10, -20));
 
         runnable.updatePriority();
         comparable.updatePriority();
 
         assertTrue(runnable.compareTo(comparable) > 0);
-
-        when(player.getCoordinates()).thenReturn(new Coordinates(-100, -10));
-
-        runnable.updatePriority();
-        comparable.updatePriority();
-
-        assertFalse(runnable.compareTo(comparable) > 0);
     }
 
     /**

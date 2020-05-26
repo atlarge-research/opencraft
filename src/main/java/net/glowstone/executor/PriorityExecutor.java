@@ -6,7 +6,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-import net.glowstone.util.SortableBlockingQueue;
 
 /**
  * The executor that can run the ChunkRunnables. ChunkRunnables that are closed to the player are prioritized, since

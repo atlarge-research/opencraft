@@ -680,11 +680,25 @@ public class GlowWorld implements World {
         Collection<ChunkRunnable> cancelled = executor.executeAndCancel(chunksToStream, this::shouldBeUnloaded);
 
         Set<Pair<GlowChunk, GlowPlayer>> cancelledSet = cancelled.stream()
-                .map(runnable -> Pair.of(runnable.getChunk(), runnable.getPlayer()))
+                .map(ChunkRunnable::getChunkAndPlayer)
                 .collect(Collectors.toSet());
 
-        chunksToUnload.forEach(pair -> {
-            if (!cancelledSet.contains(pair)) {
+        unloadChunks(chunksToUnload, cancelledSet);
+    }
+
+    /**
+     * Unload all the given chunks, except for the ones that have been cancelled. Because, the ones that were cancelled
+     * were never streamed to the player.
+     *
+     * @param toUnload The chunks to be unloaded.
+     * @param cancelled The chunks that have been cancelled.
+     */
+    private void unloadChunks(
+            Collection<Pair<GlowChunk, GlowPlayer>> toUnload,
+            Set<Pair<GlowChunk, GlowPlayer>> cancelled
+    ) {
+        toUnload.forEach(pair -> {
+            if (!cancelled.contains(pair)) {
 
                 GlowChunk chunk = pair.getLeft();
                 GlowPlayer player = pair.getRight();

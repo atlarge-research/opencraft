@@ -3,6 +3,7 @@ package net.glowstone.executor;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.util.Coordinates;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -48,6 +49,15 @@ public final class ChunkRunnable implements Runnable, Comparable<ChunkRunnable> 
      */
     public GlowPlayer getPlayer() {
         return player;
+    }
+
+    /**
+     * Get both the chunk for which the data needs to be sent and the player whom should receive the chunk data.
+     *
+     * @return a pair of the chunk and player.
+     */
+    public Pair<GlowChunk, GlowPlayer> getChunkAndPlayer() {
+        return Pair.of(chunk, player);
     }
 
     /**
