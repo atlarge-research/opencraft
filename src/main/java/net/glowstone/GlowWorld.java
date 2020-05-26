@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -545,42 +546,34 @@ public class GlowWorld implements World {
      */
     public void pulse() {
 
-        List<GlowPlayer> glowPlayers = entityManager.getPlayers();
+        List<GlowEntity> entities = entityManager.getAll();
+        List<GlowPlayer> players = entityManager.getPlayers();
 
-        for (GlowPlayer player : glowPlayers) {
-            GlowSession session = player.getSession();
-            messagingSystem.update(player, session::send);
-        }
+        updateMessagingSystem(players);
 
-        streamChunks(glowPlayers);
+        streamChunks(players);
 
-        List<GlowEntity> allEntities = new ArrayList<>(entityManager.getAll());
-        List<GlowPlayer> players = new LinkedList<>();
-
-        activeChunksSet.clear();
-
-        // We should pulse our tickmap, so blocks get updated.
+        // Update blocks that require a tick.
         pulseTickMap();
 
-        // pulse players last so they actually see that other entities have
-        // moved. unfortunately pretty hacky. not a problem for players b/c
-        // their position is modified by session ticking.
-        for (GlowEntity entity : allEntities) {
-            if (entity instanceof GlowPlayer) {
-                players.add((GlowPlayer) entity);
-                updateActiveChunkCollection(entity);
-            } else {
-                entity.pulse();
-            }
-        }
+        // Apply tick to random blocks in active chunks.
+        Set<GlowChunk> activeChunks = findActiveChunks(players);
+        updateBlocksInChunks(activeChunks);
 
-        updateBlocksInActiveChunks();
-        // why update blocks before Players or Entities? if there is a specific reason we should
-        // document it here.
+        // Process player-induced block changes.
         processBlockChanges();
 
-        pulsePlayers(players);
-        resetEntities(allEntities);
+        // Update non player entities.
+        entities.stream()
+                .filter(entity -> !(entity instanceof GlowPlayer))
+                .forEach(GlowEntity::pulse);
+
+        // Update player entities last so they receive all messages.
+        players.forEach(GlowPlayer::pulse);
+
+        // Reset all entities.
+        resetEntities(entities);
+
         worldBorder.pulse();
 
         updateWorldTime();
@@ -590,6 +583,13 @@ public class GlowWorld implements World {
         handleSleepAndWake(players);
 
         saveWorld();
+    }
+
+    private void updateMessagingSystem(Collection<GlowPlayer> players) {
+        for (GlowPlayer player : players) {
+            GlowSession session = player.getSession();
+            messagingSystem.update(player, session::send);
+        }
     }
 
     /**
@@ -694,34 +694,50 @@ public class GlowWorld implements World {
         });
     }
 
-    private void updateActiveChunkCollection(GlowEntity entity) {
-        // build a set of chunkManager around each player in this world, the
-        // server view distance is taken here
+    /**
+     * Find and collect all the chunks currently within view distance of all players. Only fully loaded chunks are
+     * included.
+     *
+     * @param players the players whom's positions should be taken into account.
+     * @return the set of active chunks around the given players.
+     */
+    private Set<GlowChunk> findActiveChunks(Collection<GlowPlayer> players) {
+        Set<GlowChunk> chunks = new HashSet<>();
         int radius = server.getViewDistance();
-        Location playerLocation = entity.getLocation();
-        if (playerLocation.getWorld() == this) {
-            int cx = playerLocation.getBlockX() >> 4;
-            int cz = playerLocation.getBlockZ() >> 4;
-            for (int x = cx - radius; x <= cx + radius; x++) {
-                for (int z = cz - radius; z <= cz + radius; z++) {
-                    if (isChunkLoaded(cx, cz)) {
-                        activeChunksSet.add(GlowChunk.Key.of(x, z));
+        players.forEach(player -> {
+
+            Location center = player.getLocation();
+            int cx = center.getBlockX() >> 4;
+            int cz = center.getBlockZ() >> 4;
+
+            if (center.getWorld() == this) {
+                for (int x = cx - radius; x < cx + radius; x++) {
+                    for (int z = cz - radius; z < cz + radius; z++) {
+                        if (isChunkLoaded(x, z)) {
+                            GlowChunk chunk = getChunkAt(x, z);
+                            chunks.add(chunk);
+                        }
                     }
                 }
             }
-        }
+        });
+        return chunks;
     }
 
-    private void updateBlocksInActiveChunks() {
-        for (GlowChunk.Key key : activeChunksSet) {
-            int cx = key.getX();
-            int cz = key.getZ();
-            // check the chunk is loaded
-            if (isChunkLoaded(cx, cz)) {
-                GlowChunk chunk = getChunkAt(cx, cz);
+    /**
+     * Update each chunk in the given set of chunks. Maybe striking lighting, applying the default tick, and randomly
+     * selecting a number of blocks within each chunk's sections to be ticked as well.
+     *
+     * @param chunks the chunks which contain the blocks to be updated.
+     */
+    private void updateBlocksInChunks(Set<GlowChunk> chunks) {
+        for (GlowChunk chunk : chunks) {
+            if (isChunkLoaded(chunk)) {
 
                 // thunder
-                maybeStrikeLightningInChunk(cx, cz);
+                int x = chunk.getX();
+                int z = chunk.getZ();
+                maybeStrikeLightningInChunk(x, z);
 
                 // chunk tick
                 chunk.addTick();
@@ -729,16 +745,21 @@ public class GlowWorld implements World {
                 // block ticking
                 // we will choose 3 blocks per chunk's section
                 ChunkSection[] sections = chunk.getSections();
-                for (int i = 0; i < sections.length; i++) {
-                    updateBlocksInSection(chunk, sections[i], i);
+                for (int index = 0; index < sections.length; index++) {
+                    updateBlocksInSection(chunk, sections[index], index);
                 }
             }
-
-
         }
     }
 
-    private void updateBlocksInSection(GlowChunk chunk, ChunkSection section, int i) {
+    /**
+     * Randomly update 3 blocks in the provided section.
+     *
+     * @param chunk the chunk in which to update the blocks.
+     * @param section the section in which to update the blocks.
+     * @param index the index of the section within the chunk.
+     */
+    private void updateBlocksInSection(GlowChunk chunk, ChunkSection section, int index) {
         if (section != null) {
             for (int j = 0; j < 3; j++) {
                 int n = ThreadLocalRandom.current().nextInt();
@@ -750,7 +771,7 @@ public class GlowWorld implements World {
                     BlockType blockType = ItemTable.instance().getBlock(type);
                     // does this block needs random tick ?
                     if (blockType != null && blockType.canTickRandomly()) {
-                        blockType.updateBlock(chunk.getBlock(x, y + (i << 4), z));
+                        blockType.updateBlock(chunk.getBlock(x, y + (index << 4), z));
                     }
                 }
             }
@@ -857,6 +878,11 @@ public class GlowWorld implements World {
         });
     }
 
+    private void resetEntities(List<GlowEntity> entities) {
+        entities.forEach(GlowEntity::reset);
+    }
+
+
     private void saveWorld() {
         if (--saveTimer <= 0) {
             saveTimer = AUTOSAVE_TIME;
@@ -900,14 +926,6 @@ public class GlowWorld implements World {
         if (gameRuleMap.getBoolean(GameRules.DO_DAYLIGHT_CYCLE)) {
             time = (time + 1) % TickUtil.TICKS_PER_DAY;
         }
-    }
-
-    private void resetEntities(List<GlowEntity> entities) {
-        entities.forEach(GlowEntity::reset);
-    }
-
-    private void pulsePlayers(List<GlowPlayer> players) {
-        players.stream().filter(Objects::nonNull).forEach(GlowEntity::pulse);
     }
 
     private void handleSleepAndWake(List<GlowPlayer> players) {
