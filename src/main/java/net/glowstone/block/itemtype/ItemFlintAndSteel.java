@@ -1,5 +1,7 @@
 package net.glowstone.block.itemtype;
 
+import java.util.Arrays;
+import java.util.List;
 import net.glowstone.EventFactory;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.ItemTable;
@@ -47,7 +49,7 @@ public class ItemFlintAndSteel extends ItemTool {
      */
     private BlockFace getHorizontalPortalDirection(GlowBlock block, BlockFace verticalFace) {
 
-        BlockFace[] horizontal = new BlockFace[]{BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
+        List<BlockFace> horizontal = Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST);
 
         for (BlockFace direction : horizontal) {
             if (block.getRelative(direction).getType() == Material.OBSIDIAN) {

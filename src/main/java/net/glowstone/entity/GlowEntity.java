@@ -1046,9 +1046,11 @@ public abstract class GlowEntity implements Entity {
      * @return {@code true} if the teleport was successful.
      */
     protected boolean teleportToNether() {
+
         if (!server.getAllowNether()) {
             return false;
         }
+
         Location target = null;
         for (World world : server.getWorlds()) {
             if (world.getEnvironment() == Environment.NETHER) {
@@ -1056,18 +1058,20 @@ public abstract class GlowEntity implements Entity {
                 break;
             }
         }
+
         if (target == null) {
             return false;
         }
 
-        EntityPortalEvent event = EventFactory.getInstance()
-                .callEvent(new EntityPortalEvent(this, location.clone(), target, null));
+        EntityPortalEvent event = new EntityPortalEvent(this, location.clone(), target, null);
+        event = EventFactory.getInstance().callEvent(event);
         if (event.isCancelled()) {
             return false;
         }
-        target = event.getTo();
 
+        target = event.getTo();
         teleport(target);
+
         return true;
     }
 
