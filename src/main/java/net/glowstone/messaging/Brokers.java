@@ -3,12 +3,11 @@ package net.glowstone.messaging;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
-
 import net.glowstone.messaging.brokers.ConcurrentBroker;
-import net.glowstone.messaging.channels.ConcurrentChannel;
-import net.glowstone.messaging.channels.GuavaChannel;
 import net.glowstone.messaging.brokers.JmsBroker;
 import net.glowstone.messaging.brokers.JmsCodec;
+import net.glowstone.messaging.channels.ConcurrentChannel;
+import net.glowstone.messaging.channels.GuavaChannel;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
