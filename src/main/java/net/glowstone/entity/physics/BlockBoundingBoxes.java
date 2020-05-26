@@ -433,7 +433,8 @@ public class BlockBoundingBoxes {
         }
 
         if (inverted) {
-            return Collections.singletonList(BoundingBox.fromCenterAndSize(loc.add(0.0, 0.5, 0.0).toVector(), 1.0, 0.5));
+            Vector higherOrigin = loc.add(0.0, 0.5, 0.0).toVector();
+            return Collections.singletonList(BoundingBox.fromCenterAndSize(higherOrigin, 1.0, 0.5));
         } else {
             return Collections.singletonList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 0.5));
         }
