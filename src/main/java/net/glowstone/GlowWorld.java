@@ -61,7 +61,8 @@ import net.glowstone.io.entity.EntityStorage;
 import net.glowstone.messaging.Broker;
 import net.glowstone.messaging.Filter;
 import net.glowstone.messaging.MessagingSystem;
-import net.glowstone.messaging.brokers.concurrent.ConcurrentBroker;
+import net.glowstone.messaging.brokers.ConcurrentBroker;
+import net.glowstone.messaging.channels.ConcurrentChannel;
 import net.glowstone.messaging.filters.PlayerFilter;
 import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.GlowSession;
@@ -517,7 +518,7 @@ public class GlowWorld implements World {
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
 
         ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
-        Broker<Chunk, Player, Message> broker = new ConcurrentBroker<>();
+        Broker<Chunk, Player, Message> broker = new ConcurrentBroker<>(ConcurrentChannel::new);
         Filter<Player, Message> filter = new PlayerFilter();
         messagingSystem = new MessagingSystem<>(policy, broker, filter);
 

@@ -1,4 +1,4 @@
-package net.glowstone.messaging.brokers.jms;
+package net.glowstone.messaging.brokers;
 
 import java.io.Closeable;
 import java.util.HashMap;

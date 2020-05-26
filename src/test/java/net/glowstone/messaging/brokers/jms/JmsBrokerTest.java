@@ -1,5 +1,7 @@
 package net.glowstone.messaging.brokers.jms;
 
+import net.glowstone.messaging.brokers.JmsBroker;
+import net.glowstone.messaging.brokers.JmsCodec;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,7 +38,7 @@ public class JmsBrokerTest {
     private Subscriber alice, bob;
     private javax.jms.Topic topic1, topic2;
 
-    private JmsBroker<String, Subscriber, String>  jmsBroker;
+    private JmsBroker<String, Subscriber, String> jmsBroker;
 
 
     /**

@@ -1,4 +1,4 @@
-package net.glowstone.messaging.brokers.concurrent;
+package net.glowstone.messaging.channels;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -11,7 +11,7 @@ import net.glowstone.messaging.Channel;
  * @param <Subscriber> the type of subscribers that is allowed to subscribe to a channel.
  * @param <Message> the type of messages that is allowed to be published to a channel.
  */
-final class ConcurrentChannel<Subscriber, Message> implements Channel<Subscriber, Message> {
+public final class ConcurrentChannel<Subscriber, Message> implements Channel<Subscriber, Message> {
 
     private static final long PARALLELISM_THRESHOLD = 4;
 
@@ -20,16 +20,12 @@ final class ConcurrentChannel<Subscriber, Message> implements Channel<Subscriber
     /**
      * Create a concurrent channel.
      */
-    ConcurrentChannel() {
+    public ConcurrentChannel() {
         this.callbacks = new ConcurrentHashMap<>();
     }
 
-    /**
-     * Check whether the channel is empty, meaning that there are no subscribers.
-     *
-     * @return whether there are any subscribers to the channel.
-     */
-    boolean isEmpty() {
+    @Override
+    public boolean isEmpty() {
         return callbacks.isEmpty();
     }
 
