@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -81,15 +82,14 @@ class PriorityExecutorTest {
             }
         });
 
-        ChunkRunnable toBeCancelled = new ChunkRunnable(player, chunk, () -> {
-            future.complete(false);
-        });
+        ChunkRunnable toBeCancelled = new ChunkRunnable(player, chunk, () -> future.complete(false));
 
         executor.executeAndCancel(Arrays.asList(blocking, toBeCancelled), runnable -> false);
 
-        ChunkRunnable toBeExecuted = new ChunkRunnable(playerFurther, chunk, () -> {
-            future.complete(true);
-        });
+        ChunkRunnable toBeExecuted = new ChunkRunnable(playerFurther, chunk, () -> future.complete(true));
+
+        Collection<ChunkRunnable> notCancelled = executor.executeAndCancel(new ArrayList<>(), runnable -> false);
+        assertTrue(notCancelled.isEmpty());
 
         Collection<ChunkRunnable> cancelled = executor.executeAndCancel(
                 Collections.singleton(toBeExecuted),

@@ -712,8 +712,6 @@ public class GlowWorld implements World {
                 player.getSession().send(message);
                 GlowChunk.Key key = GlowChunk.Key.of(chunk.getX(), chunk.getZ());
                 player.getChunkLock().release(key);
-
-                GlowServer.logger.log(Level.INFO, chunk.toString());
             }
         });
     }
