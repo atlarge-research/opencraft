@@ -10,8 +10,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import lombok.Getter;
 import net.glowstone.EventFactory;
 import net.glowstone.GlowWorld;
@@ -140,8 +138,6 @@ public final class ChunkManager {
         return loadChunk(getChunk(x, z), generate);
     }
 
-    private static final Lock lock = new ReentrantLock();
-
     /**
      * Attempts to load a chunk; handles exceptions.
      * @param chunk the chunk address
@@ -149,49 +145,42 @@ public final class ChunkManager {
      * @return true if the chunk was loaded or generated successfully, false otherwise
      */
     public boolean loadChunk(GlowChunk chunk, boolean generate) {
-        lock.lock();
+        // try to load chunk
         try {
-
-            // try to load chunk
-            try {
-                if (service.read(chunk)) {
-                    EventFactory.getInstance()
-                            .callEvent(new ChunkLoadEvent(chunk, false));
-                    return true;
-                }
-            } catch (IOException e) {
-                ConsoleMessages.Error.Chunk.LOAD_FAILED.log(e, chunk.getX(), chunk.getZ());
-                // an error in chunk reading may have left the chunk in an invalid state
-                // (i.e. double initialization errors), so it's forcibly unloaded here
-                chunk.unload(false, false);
+            if (service.read(chunk)) {
+                EventFactory.getInstance()
+                        .callEvent(new ChunkLoadEvent(chunk, false));
+                return true;
             }
-
-            // stop here if we can't generate
-            if (!generate || world.getServer().isGenerationDisabled()) {
-                return false;
-            }
-
-            // get generating
-            try {
-                generateChunk(chunk, chunk.getX(), chunk.getZ());
-            } catch (Throwable ex) {
-                ConsoleMessages.Error.Chunk.GEN_FAILED.log(ex, chunk.getX(), chunk.getZ());
-                return false;
-            }
-
-            EventFactory.getInstance().callEvent(new ChunkLoadEvent(chunk, true));
-
-            // right now, forcePopulate takes care of populating chunks that players actually see.
-            /* for (int x2 = x - 1; x2 <= x + 1; ++x2) {
-                for (int z2 = z - 1; z2 <= z + 1; ++z2) {
-                    populateChunk(x2, z2, false);
-                }
-            }*/
-            return true;
-
-        } finally {
-            lock.unlock();
+        } catch (IOException e) {
+            ConsoleMessages.Error.Chunk.LOAD_FAILED.log(e, chunk.getX(), chunk.getZ());
+            // an error in chunk reading may have left the chunk in an invalid state
+            // (i.e. double initialization errors), so it's forcibly unloaded here
+            chunk.unload(false, false);
         }
+
+        // stop here if we can't generate
+        if (!generate || world.getServer().isGenerationDisabled()) {
+            return false;
+        }
+
+        // get generating
+        try {
+            generateChunk(chunk, chunk.getX(), chunk.getZ());
+        } catch (Throwable ex) {
+            ConsoleMessages.Error.Chunk.GEN_FAILED.log(ex, chunk.getX(), chunk.getZ());
+            return false;
+        }
+
+        EventFactory.getInstance().callEvent(new ChunkLoadEvent(chunk, true));
+
+        // right now, forcePopulate takes care of populating chunks that players actually see.
+        /*for (int x2 = x - 1; x2 <= x + 1; ++x2) {
+            for (int z2 = z - 1; z2 <= z + 1; ++z2) {
+                populateChunk(x2, z2, false);
+            }
+        }*/
+        return true;
     }
 
     /**
@@ -218,44 +207,37 @@ public final class ChunkManager {
      * Populate a single chunk if needed.
      */
     private void populateChunk(int x, int z, boolean force) {
-        lock.lock();
-        try {
+        GlowChunk chunk = getChunk(x, z);
+        // cancel out if it's already populated
+        if (chunk.isPopulated()) {
+            return;
+        }
 
-            GlowChunk chunk = getChunk(x, z);
-            // cancel out if it's already populated
-            if (chunk.isPopulated()) {
-                return;
-            }
-
-            // cancel out if the 3x3 around it isn't available
-            for (int x2 = x - 1; x2 <= x + 1; ++x2) {
-                for (int z2 = z - 1; z2 <= z + 1; ++z2) {
-                    if (!getChunk(x2, z2).isLoaded() && (!force || !loadChunk(x2, z2, true))) {
-                        return;
-                    }
+        // cancel out if the 3x3 around it isn't available
+        for (int x2 = x - 1; x2 <= x + 1; ++x2) {
+            for (int z2 = z - 1; z2 <= z + 1; ++z2) {
+                if (!getChunk(x2, z2).isLoaded() && (!force || !loadChunk(x2, z2, true))) {
+                    return;
                 }
             }
-
-            // it might have loaded since before, so check again that it's not already populated
-            if (chunk.isPopulated()) {
-                return;
-            }
-            chunk.setPopulated(true);
-
-            Random random = new Random(world.getSeed());
-            long xrand = (random.nextLong() / 2 << 1) + 1;
-            long zrand = (random.nextLong() / 2 << 1) + 1;
-            random.setSeed(x * xrand + z * zrand ^ world.getSeed());
-
-            for (BlockPopulator p : world.getPopulators()) {
-                p.populate(world, random, chunk);
-            }
-
-            EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
-
-        } finally {
-            lock.unlock();
         }
+
+        // it might have loaded since before, so check again that it's not already populated
+        if (chunk.isPopulated()) {
+            return;
+        }
+        chunk.setPopulated(true);
+
+        Random random = new Random(world.getSeed());
+        long xrand = (random.nextLong() / 2 << 1) + 1;
+        long zrand = (random.nextLong() / 2 << 1) + 1;
+        random.setSeed(x * xrand + z * zrand ^ world.getSeed());
+
+        for (BlockPopulator p : world.getPopulators()) {
+            p.populate(world, random, chunk);
+        }
+
+        EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
     }
 
     /**
