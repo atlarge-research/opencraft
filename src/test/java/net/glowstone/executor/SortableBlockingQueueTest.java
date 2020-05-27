@@ -1,4 +1,4 @@
-package net.glowstone.util;
+package net.glowstone.executor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -34,21 +34,6 @@ class SortableBlockingQueueTest {
     @BeforeEach
     void beforeEach() {
         queue = new SortableBlockingQueue<>(Integer::compareTo);
-    }
-
-    /**
-     * Verify that elements are added, removed, and sorted on update.
-     */
-    @Test
-    void updateTest() {
-        queue.offer(3);
-        queue.offer(1);
-        queue.offer(2);
-        queue.update(Collections.singleton(4), Collections.singleton(1));
-        assertEquals(2, queue.poll());
-        assertEquals(3, queue.poll());
-        assertEquals(4, queue.poll());
-        assertTrue(queue.isEmpty());
     }
 
     /**
@@ -374,11 +359,16 @@ class SortableBlockingQueueTest {
      */
     @Test
     void removeIfTest() {
+
         queue.add(1);
         queue.add(2);
+
         assertTrue(queue.removeIf(element -> element == 1));
         assertFalse(queue.contains(1));
         assertTrue(queue.contains(2));
+
+        assertEquals(2, queue.poll());
+        assertNull(queue.poll());
     }
 
     /**
@@ -581,5 +571,32 @@ class SortableBlockingQueueTest {
         assertEquals(1, queue.drainTo(elements, 1));
         assertEquals(1, queue.size());
         assertEquals(1, elements.size());
+    }
+
+    /**
+     * Verify that a transaction is performed as a single atomic operation.
+     */
+    @TimeBasedTest
+    void transactionTest() {
+
+        CountDownLatch first = new CountDownLatch(1);
+
+        new Thread(() -> queue.transaction(queue -> {
+            try {
+                queue.offer(1);
+                first.countDown();
+                TimeUnit.MILLISECONDS.sleep(50L);
+                queue.poll();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        })).start();
+
+        try {
+            first.await();
+            assertNull(queue.poll());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

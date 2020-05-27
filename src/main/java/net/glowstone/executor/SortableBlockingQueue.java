@@ -1,4 +1,4 @@
-package net.glowstone.util;
+package net.glowstone.executor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
  *
  * @param <Element> the type of elements that can be stored in the queue.
  */
-public final class SortableBlockingQueue<Element> implements BlockingQueue<Element> {
+final class SortableBlockingQueue<Element> implements BlockingQueue<Element> {
 
     private final Comparator<Element> reverseComparator;
     private final List<Element> elements;
@@ -34,7 +34,7 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
      *
      * @param comparator the comparator that should be used for sorting elements.
      */
-    public SortableBlockingQueue(Comparator<Element> comparator) {
+    SortableBlockingQueue(Comparator<Element> comparator) {
         reverseComparator = comparator.reversed();
         elements = new ArrayList<>();
         lock = new ReentrantLock();
@@ -44,7 +44,7 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
     /**
      * Sort the elements in the queue.
      */
-    public void sort() {
+    void sort() {
         lock.lock();
         try {
             elements.sort(reverseComparator);
@@ -54,17 +54,14 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
     }
 
     /**
-     * Update the queue by adding and removing elements and then sorting them.
+     * Execute a transaction while the queue is locked.
      *
-     * @param additions the elements that should be added to the queue.
-     * @param removals the elements that should be removed from the queue.
+     * @param consumer The transaction that needs to be executed.
      */
-    public void update(Collection<Element> additions, Collection<Element> removals) {
+    void transaction(Consumer<SortableBlockingQueue<Element>> consumer) {
         lock.lock();
         try {
-            removeAll(removals);
-            addAll(additions);
-            sort();
+            consumer.accept(this);
         } finally {
             lock.unlock();
         }
@@ -258,7 +255,24 @@ public final class SortableBlockingQueue<Element> implements BlockingQueue<Eleme
     public boolean removeIf(Predicate<? super Element> predicate) {
         lock.lock();
         try {
-            return elements.removeIf(predicate);
+
+            boolean removed = false;
+            int offset = 0;
+            for (int index = 0; index < elements.size(); index++) {
+                Element element = elements.get(index);
+                if (predicate.test(element)) {
+                    offset++;
+                } else {
+                    elements.set(index - offset, element);
+                    removed = true;
+                }
+            }
+
+            for (int index = 0; index < offset; index++) {
+                elements.remove(elements.size() - 1);
+            }
+
+            return removed;
         } finally {
             lock.unlock();
         }

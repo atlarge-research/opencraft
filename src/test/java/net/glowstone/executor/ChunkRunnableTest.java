@@ -13,9 +13,6 @@ import org.junit.jupiter.api.Test;
 
 class ChunkRunnableTest {
 
-    private GlowPlayer player;
-    private final int chunkX = -1;
-    private final int chunkZ = -5;
     private ChunkRunnable runnable;
     private boolean executed;
 
@@ -24,46 +21,14 @@ class ChunkRunnableTest {
 
         executed = false;
         GlowChunk chunk = mock(GlowChunk.class);
-        when(chunk.getCenterCoordinates()).thenReturn(new Coordinates(chunkX, chunkZ));
-        when(chunk.getX()).thenReturn(chunkX);
-        when(chunk.getZ()).thenReturn(chunkZ);
+        when(chunk.getX()).thenReturn(5);
+        when(chunk.getZ()).thenReturn(10);
+        when(chunk.getCenterCoordinates()).thenReturn(new Coordinates(5, 10));
 
-        player = mock(GlowPlayer.class);
-        Coordinates playerCoords = new Coordinates(10, 20);
-        when(player.getCoordinates()).thenReturn(playerCoords);
+        GlowPlayer player = mock(GlowPlayer.class);
+        when(player.getCoordinates()).thenReturn(new Coordinates(10, 20));
 
         runnable = new ChunkRunnable(player, chunk, () -> executed = true);
-    }
-
-    /**
-     * Verify that the hasKey function correctly checks if the key is the same.
-     */
-    @Test
-    void hasKey() {
-
-        final GlowChunk.Key originKey = GlowChunk.Key.of(0, 0);
-        final GlowChunk.Key farKeyX = GlowChunk.Key.of(1000, chunkZ);
-        final GlowChunk.Key farKeyZ = GlowChunk.Key.of(chunkX, 850);
-        final GlowChunk.Key sameKey = GlowChunk.Key.of(chunkX, chunkZ);
-
-        assertFalse(runnable.hasKey(originKey));
-        assertFalse(runnable.hasKey(farKeyX));
-        assertFalse(runnable.hasKey(farKeyZ));
-        assertTrue(runnable.hasKey(sameKey));
-    }
-
-    /**
-     * Verify that the hasEntityId function correctly checks if the entity id is the same.
-     */
-    @Test
-    void hasEntityId() {
-
-        final int entityId = 42;
-        final int incorrectEntityId = 50;
-        when(player.getEntityId()).thenReturn(entityId);
-
-        assertTrue(runnable.hasEntityId(entityId));
-        assertFalse(runnable.hasEntityId(incorrectEntityId));
     }
 
     /**
@@ -72,26 +37,27 @@ class ChunkRunnableTest {
     @Test
     void updatePriorityCompare() {
 
-        GlowChunk otherChunk = mock(GlowChunk.class);
-        Coordinates originCoords = new Coordinates(0, 0);
-        when(otherChunk.getCenterCoordinates()).thenReturn(originCoords);
+        GlowChunk origin = mock(GlowChunk.class);
+        when(origin.getX()).thenReturn(0);
+        when(origin.getZ()).thenReturn(0);
+        when(origin.getCenterCoordinates()).thenReturn(new Coordinates(0, 0));
 
-        ChunkRunnable comparable = new ChunkRunnable(player, otherChunk, () -> executed = true);
+        GlowPlayer player = runnable.getPlayer();
+        ChunkRunnable comparable = new ChunkRunnable(player, origin, () -> executed = true);
 
-        assertTrue(runnable.compareTo(comparable) > 0);
+        assertTrue(runnable.compareTo(comparable) < 0);
+
+        runnable.updatePriority();
+        comparable.updatePriority();
+
+        assertTrue(runnable.compareTo(comparable) < 0);
+
+        when(player.getCoordinates()).thenReturn(new Coordinates(-10, -20));
 
         runnable.updatePriority();
         comparable.updatePriority();
 
         assertTrue(runnable.compareTo(comparable) > 0);
-
-        Coordinates negativeCoords = new Coordinates(-100, -10);
-        when(player.getCoordinates()).thenReturn(negativeCoords);
-
-        runnable.updatePriority();
-        comparable.updatePriority();
-
-        assertFalse(runnable.compareTo(comparable) > 0);
     }
 
     /**
@@ -99,11 +65,8 @@ class ChunkRunnableTest {
      */
     @Test
     void run() {
-
         assertFalse(executed);
-
         runnable.run();
-
         assertTrue(executed);
     }
 }
