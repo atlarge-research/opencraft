@@ -546,37 +546,29 @@ public class GlowWorld implements World {
      */
     public void pulse() {
 
-        List<GlowEntity> entities = entityManager.getAll();
         List<GlowPlayer> players = entityManager.getPlayers();
+
+        players.forEach(GlowPlayer::updateKnownChunks);
 
         updateMessagingSystem(players);
 
         streamChunks(players);
 
-        // Update blocks that require a tick.
         pulseTickMap();
-
-        // Update known chunks
-        players.forEach(GlowPlayer::updateKnownChunks);
-
-        // Apply tick to random blocks in active chunks.
         Set<GlowChunk> activeChunks = findActiveChunks(players);
         updateBlocksInChunks(activeChunks);
-
-        // Process player-induced block changes.
         processBlockChanges();
+
+        List<GlowEntity> entities = entityManager.getAll();
 
         entities.forEach(GlowEntity::pulse);
 
-        // Handle entity spawns, despawns, and transitions
         broadcastEntityRemovals(entities);
         broadcastEntityUpdates(entities);
         players.forEach(GlowPlayer::spawnEntities);
 
-        // Reset entities
         entities.forEach(GlowEntity::reset);
 
-        // ...
         worldBorder.pulse();
 
         updateWorldTime();
