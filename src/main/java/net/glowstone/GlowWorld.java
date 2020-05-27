@@ -643,8 +643,6 @@ public class GlowWorld implements World {
                 }
             }
 
-            boolean skylight = getEnvironment() == Environment.NORMAL;
-
             if (currentLocation.getWorld() == this) {
                 for (int x = currentX - radius; x <= currentX + radius; x++) {
                     for (int z = currentZ - radius; z <= currentZ + radius; z++) {
@@ -659,6 +657,7 @@ public class GlowWorld implements World {
 
                             GlowChunk chunk = getChunkAt(x, z);
                             ChunkRunnable chunkRunnable = new ChunkRunnable(player, chunk, () -> {
+                                boolean skylight = getEnvironment() == Environment.NORMAL;
                                 Message message = chunk.toMessage(skylight);
                                 session.send(message);
                                 chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
