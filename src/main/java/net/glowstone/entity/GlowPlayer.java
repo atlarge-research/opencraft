@@ -108,6 +108,7 @@ import net.glowstone.net.message.play.player.ResourcePackSendMessage;
 import net.glowstone.net.message.play.player.UseBedMessage;
 import net.glowstone.scoreboard.GlowScoreboard;
 import net.glowstone.scoreboard.GlowTeam;
+import net.glowstone.util.AreaOfInterest;
 import net.glowstone.util.Convert;
 import net.glowstone.util.DeprecatedMethodException;
 import net.glowstone.util.EntityUtils;
@@ -190,6 +191,8 @@ import org.bukkit.map.MapView;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.messaging.StandardMessenger;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
 import org.bukkit.util.Vector;
 import org.json.simple.JSONObject;
@@ -588,6 +591,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         return currentFishingHook.get();
     }
 
+    @Getter
+    private final AreaOfInterest previousAreaOfInterest;
+
     /**
      * Creates a new player and adds it to the world.
      *
@@ -617,6 +623,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         invMonitor = new InventoryMonitor(getOpenInventory());
         server.getPlayerStatisticIoService().readStatistics(this);
         recipeMonitor = new PlayerRecipeMonitor(this);
+
+        previousAreaOfInterest = new AreaOfInterest(null, getViewDistance());
 
         updateBossBars();
     }
@@ -769,6 +777,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             }
         }
         super.damage(amount, source, cause);
+
+        // TODO: status effects
     }
 
     @Override
@@ -3404,19 +3414,33 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
             Location position = getLocation();
             position.setY(position.getY() + getEyeHeight());
-            Block current = position.getBlock();
-            Material material = current.getType();
-            double penalty = 1; // default of 1 if there is no penalty
+            Block headBlock = position.getBlock();
+            double penalty = 1.0; // default of 1 if there is no penalty
+            final double underwaterModifier = 5.0;
+            final double miningFatigueModifier = 3.0;
+            final double hasteModifier = 0.2;
 
-            if (material == Material.WATER || material == Material.STATIONARY_WATER) {
-                penalty *= 5;
+            if (headBlock.isLiquid()) {
+                ItemStack helmet = getEquipment().getHelmet();
+                Map<Enchantment, Integer> enchantments = helmet.getEnchantments();
+                if (!enchantments.containsKey(Enchantment.WATER_WORKER)) {
+                    penalty *= underwaterModifier;
+                }
+            }
+
+            for (PotionEffect potion : getActivePotionEffects()) {
+
+                if (potion.getType() == PotionEffectType.SLOW_DIGGING) {
+                    penalty *= Math.pow(miningFatigueModifier, potion.getAmplifier());
+
+                } else if (potion.getType() == PotionEffectType.FAST_DIGGING) {
+                    penalty /= (1.0 + hasteModifier * potion.getAmplifier());
+                }
             }
 
             if (!isOnGround()) {
-                penalty *= 5;
+                penalty *= underwaterModifier;
             }
-
-            // TODO: status effects (e.g. Mining Fatigue, Slowness);
 
             totalDiggingTicks = Math.round(penalty * breakingTimeMultiplier * hardness * 20.0); // seconds to ticks
 

@@ -835,8 +835,6 @@ public class GlowChunk implements Chunk {
             int maxBitmask = (1 << sections.length) - 1;
             if (entireChunk) {
                 sectionBitmask = maxBitmask;
-            } else {
-                sectionBitmask &= maxBitmask;
             }
 
             for (int i = 0; i < sections.length; ++i) {

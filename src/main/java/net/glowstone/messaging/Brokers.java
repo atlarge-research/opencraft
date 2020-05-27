@@ -1,0 +1,66 @@
+package net.glowstone.messaging;
+
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import net.glowstone.messaging.brokers.ConcurrentBroker;
+import net.glowstone.messaging.brokers.JmsBroker;
+import net.glowstone.messaging.brokers.JmsCodec;
+import net.glowstone.messaging.channels.ConcurrentChannel;
+import net.glowstone.messaging.channels.GuavaChannel;
+import org.apache.activemq.ActiveMQConnectionFactory;
+
+/**
+ * A factory class to for creating multiple types of brokers.
+ */
+public final class Brokers {
+
+    /**
+     * Create a ConcurrentBroker.
+     *
+     * @param <Topic> The type of topics that is allowed to identify channels.
+     * @param <Subscriber> The type of subscribers that is allowed to subscribe to a channel.
+     * @param <Message> The type of messages that is allowed to be published to a channel.
+     * @return The concurrent broker.
+     */
+    public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newConcurrentBroker() {
+        return new ConcurrentBroker<>(ConcurrentChannel::new);
+    }
+
+    /**
+     * Create a GuavaBroker.
+     *
+     * @param <Topic> The type of topics that is allowed to identify channels.
+     * @param <Subscriber> The type of subscribers that is allowed to subscribe to a channel.
+     * @param <Message> The type of messages that is allowed to be published to a channel.
+     * @return The concurrent broker.
+     */
+    public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newGuavaBroker() {
+        return new ConcurrentBroker<>(GuavaChannel::new);
+    }
+
+    /**
+     * The ActiveMQ broker, this broker requires an ActiveMQ server to be running that wil handle the sending and
+     * receiving of messages.
+     *
+     * @param uri The link used to connect to the ActiveMQ server.
+     * @param codec The codec that has to be used for encoding and decoding messages.
+     * @param <Topic> The type of topics that is allowed to identify jms topics.
+     * @param <Subscriber> The type of subscribers that is allowed to subscribe to topics.
+     * @param <Message> The type of messages that is allowed to be published to a jms topic.
+     * @return The ActiveMQ broker.
+     */
+    public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newActivemqBroker(
+            String uri,
+            JmsCodec<Message> codec
+    ) throws JMSException {
+        ConnectionFactory factory = new ActiveMQConnectionFactory(uri);
+        Connection connection = factory.createConnection();
+        return new JmsBroker<>(connection, codec);
+    }
+
+    /**
+     * The constructor is private to prevent the initialization of the factory class.
+     */
+    private Brokers() {}
+}
