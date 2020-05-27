@@ -663,13 +663,9 @@ public class GlowWorld implements World {
                             GlowChunk chunk = getChunkAt(x, z);
 
                             ChunkRunnable chunkRunnable = new ChunkRunnable(player, chunk, () -> {
-                                try {
-                                    Message message = chunk.toMessage(skylight);
-                                    session.sendWithFuture(message).await();
-                                    chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
-                                } catch (InterruptedException exception) {
-                                    exception.printStackTrace();
-                                }
+                                Message message = chunk.toMessage(skylight);
+                                session.send(message);
+                                chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
                             });
 
                             chunksToStream.add(chunkRunnable);
