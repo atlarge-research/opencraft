@@ -38,26 +38,26 @@ public class ProtocolCodec implements JmsCodec<Message> {
             throw new EncoderException("Unknown message type: " + clazz + ".");
         }
 
-        ByteBuf headerBuf = allocator.buffer(8);
-        ByteBufUtils.writeVarInt(headerBuf, registration.getOpcode());
-
-        ByteBuf messageBuf = allocator.buffer();
+        ByteBuf buffer = allocator.buffer();
         try {
+            ByteBufUtils.writeVarInt(buffer, registration.getOpcode());
+
             Codec<Message> codec = registration.getCodec();
-            messageBuf = codec.encode(messageBuf, message);
+            buffer = codec.encode(buffer, message);
+
+            int length = buffer.readableBytes();
+            int index = buffer.readerIndex();
+            byte[] bytes = new byte[length];
+            buffer.getBytes(index, bytes);
+
+            BytesMessage bytesMessage = session.createBytesMessage();
+            bytesMessage.writeBytes(bytes);
+            return bytesMessage;
         } catch (IOException e) {
             throw new RuntimeException("Could not encode the message", e);
+        } finally {
+            buffer.release();
         }
-
-        ByteBuf buffer = Unpooled.wrappedBuffer(headerBuf, messageBuf);
-        int length = buffer.readableBytes();
-        int index = buffer.readerIndex();
-        byte[] bytes = new byte[length];
-        buffer.getBytes(index, bytes);
-
-        BytesMessage bytesMessage = session.createBytesMessage();
-        bytesMessage.writeBytes(bytes);
-        return bytesMessage;
     }
 
     @Override
@@ -82,16 +82,13 @@ public class ProtocolCodec implements JmsCodec<Message> {
         }
 
         ByteBuf buffer = Unpooled.wrappedBuffer(bytes);
-
-        Codec<?> codec;
-        Message decoded;
         try {
-            codec = protocol.newReadHeader(buffer);
-            decoded = codec.decode(buffer);
+            Codec<?> codec = protocol.newReadHeader(buffer);
+            return codec.decode(buffer);
         } catch (IOException | IllegalOpcodeException e) {
             throw new RuntimeException("Failed to retrieve codec and decode message", e);
+        } finally {
+            buffer.release();
         }
-
-        return decoded;
     }
 }
