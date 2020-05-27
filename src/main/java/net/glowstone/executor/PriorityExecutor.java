@@ -24,7 +24,7 @@ public final class PriorityExecutor {
      * @throws IllegalArgumentException if poolSize < 0
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public PriorityExecutor(int poolSize) {
+    public PriorityExecutor(int poolSize) throws IllegalArgumentException {
         queue = new SortableBlockingQueue<>(ChunkRunnable::compareTo);
         BlockingQueue<Runnable> castedQueue = (BlockingQueue<Runnable>) ((BlockingQueue) queue);
         executor = new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS, castedQueue);
