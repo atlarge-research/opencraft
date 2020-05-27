@@ -1,4 +1,4 @@
-package net.glowstone.messaging.brokers.jms.serializers;
+package net.glowstone.messaging.brokers.codecs;
 
 import com.flowpowered.network.Codec;
 import com.flowpowered.network.Message;
@@ -13,7 +13,7 @@ import java.io.IOException;
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Session;
-import net.glowstone.messaging.brokers.jms.JmsCodec;
+import net.glowstone.messaging.brokers.JmsCodec;
 import net.glowstone.net.protocol.GlowProtocol;
 
 /**

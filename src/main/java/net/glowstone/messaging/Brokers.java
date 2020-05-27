@@ -1,12 +1,13 @@
-package net.glowstone.messaging.brokers;
+package net.glowstone.messaging;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
-import net.glowstone.messaging.Broker;
-import net.glowstone.messaging.brokers.concurrent.ConcurrentBroker;
-import net.glowstone.messaging.brokers.jms.JmsBroker;
-import net.glowstone.messaging.brokers.jms.JmsCodec;
+import net.glowstone.messaging.brokers.ConcurrentBroker;
+import net.glowstone.messaging.brokers.JmsBroker;
+import net.glowstone.messaging.brokers.JmsCodec;
+import net.glowstone.messaging.channels.ConcurrentChannel;
+import net.glowstone.messaging.channels.GuavaChannel;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
@@ -23,7 +24,19 @@ public final class Brokers {
      * @return The concurrent broker.
      */
     public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newConcurrentBroker() {
-        return new ConcurrentBroker<>();
+        return new ConcurrentBroker<>(ConcurrentChannel::new);
+    }
+
+    /**
+     * Create a GuavaBroker.
+     *
+     * @param <Topic> The type of topics that is allowed to identify channels.
+     * @param <Subscriber> The type of subscribers that is allowed to subscribe to a channel.
+     * @param <Message> The type of messages that is allowed to be published to a channel.
+     * @return The concurrent broker.
+     */
+    public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newGuavaBroker() {
+        return new ConcurrentBroker<>(GuavaChannel::new);
     }
 
     /**
@@ -37,7 +50,7 @@ public final class Brokers {
      * @param <Message> The type of messages that is allowed to be published to a jms topic.
      * @return The ActiveMQ broker.
      */
-    public static <Topic, Subscriber, Message> JmsBroker<Topic, Subscriber, Message> newActivemqBroker(
+    public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newActivemqBroker(
             String uri,
             JmsCodec<Message> codec
     ) throws JMSException {

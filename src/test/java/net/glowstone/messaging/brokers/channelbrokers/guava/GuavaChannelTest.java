@@ -1,5 +1,6 @@
-package net.glowstone.messaging.brokers.guava;
+package net.glowstone.messaging.brokers.channelbrokers.guava;
 
+import net.glowstone.messaging.channels.GuavaChannel;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

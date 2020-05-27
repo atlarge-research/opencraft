@@ -106,6 +106,7 @@ import net.glowstone.net.message.play.player.ResourcePackSendMessage;
 import net.glowstone.net.message.play.player.UseBedMessage;
 import net.glowstone.scoreboard.GlowScoreboard;
 import net.glowstone.scoreboard.GlowTeam;
+import net.glowstone.util.AreaOfInterest;
 import net.glowstone.util.Convert;
 import net.glowstone.util.DeprecatedMethodException;
 import net.glowstone.util.EntityUtils;
@@ -589,6 +590,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         return currentFishingHook.get();
     }
 
+    @Getter
+    private final AreaOfInterest previousAreaOfInterest;
+
     /**
      * Creates a new player and adds it to the world.
      *
@@ -618,6 +622,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         invMonitor = new InventoryMonitor(getOpenInventory());
         server.getPlayerStatisticIoService().readStatistics(this);
         recipeMonitor = new PlayerRecipeMonitor(this);
+
+        previousAreaOfInterest = new AreaOfInterest(null, getViewDistance());
 
         updateBossBars();
     }

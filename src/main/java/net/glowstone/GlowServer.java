@@ -959,6 +959,7 @@ public class GlowServer implements Server {
      */
     @Override
     public void shutdown() {
+        worlds.getWorlds().forEach(GlowWorld::shutdown);
         shutdown(getShutdownMessage());
     }
 

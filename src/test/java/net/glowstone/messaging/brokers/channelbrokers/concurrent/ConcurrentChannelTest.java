@@ -1,5 +1,6 @@
-package net.glowstone.messaging.brokers.concurrent;
+package net.glowstone.messaging.brokers.channelbrokers.concurrent;
 
+import net.glowstone.messaging.channels.ConcurrentChannel;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 

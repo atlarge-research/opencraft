@@ -1,4 +1,4 @@
-package net.glowstone.messaging.brokers.jms;
+package net.glowstone.messaging.brokers;
 
 import javax.jms.JMSException;
 import javax.jms.Session;
