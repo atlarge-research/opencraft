@@ -49,8 +49,6 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
 
         this.connection = connection;
         this.connection.start();
-        // The session acknowledges every message that is received automatically. Can handle both synchronous and
-        // asynchronous message delivery. There is no need to manually acknowledge messages.
         session = connection.createSession(true, Session.SESSION_TRANSACTED);
         this.codec = codec;
 
