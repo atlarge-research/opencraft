@@ -54,7 +54,14 @@ public final class PriorityExecutor {
 
         queue.transaction(queue -> {
             queue.forEach(ChunkRunnable::updatePriority);
-            queue.linearRemoveIf(predicate, removed);
+            queue.removeIf(runnable -> {
+                if (predicate.test(runnable)) {
+                    removed.add(runnable);
+                    return true;
+                }
+
+                return false;
+            });
             queue.addAll(toExecute);
             queue.sort();
         });

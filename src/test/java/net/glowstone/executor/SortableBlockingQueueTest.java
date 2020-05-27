@@ -17,10 +17,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import net.glowstone.executor.SortableBlockingQueue;
 import net.glowstone.messaging.TimeBasedTest;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -361,11 +359,16 @@ class SortableBlockingQueueTest {
      */
     @Test
     void removeIfTest() {
+
         queue.add(1);
         queue.add(2);
+
         assertTrue(queue.removeIf(element -> element == 1));
         assertFalse(queue.contains(1));
         assertTrue(queue.contains(2));
+
+        assertEquals(2, queue.poll());
+        assertNull(queue.poll());
     }
 
     /**
@@ -595,24 +598,5 @@ class SortableBlockingQueueTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * Verify that the linearRemoveIf method correctly removes elements from the queue.
-     */
-    @Test
-    void linearRemoveIfTest() {
-
-        queue.offer(1);
-        queue.offer(2);
-
-        Collection<Integer> removed = new ArrayList<>();
-        queue.linearRemoveIf(integer -> integer == 1, removed);
-
-        assertTrue(removed.contains(1));
-        assertFalse(removed.contains(2));
-
-        assertEquals(2, queue.poll());
-        assertNull(queue.poll());
     }
 }
