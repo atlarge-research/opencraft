@@ -778,16 +778,12 @@ public class GlowWorld implements World {
         for (GlowChunk chunk : chunks) {
             if (isChunkLoaded(chunk)) {
 
-                // thunder
                 int x = chunk.getX();
                 int z = chunk.getZ();
                 maybeStrikeLightningInChunk(x, z);
 
-                // chunk tick
                 chunk.addTick();
 
-                // block ticking
-                // we will choose 3 blocks per chunk's section
                 ChunkSection[] sections = chunk.getSections();
                 for (int index = 0; index < sections.length; index++) {
                     updateBlocksInSection(chunk, sections[index], index);
@@ -813,7 +809,6 @@ public class GlowWorld implements World {
                 int type = section.getType(x, y, z) >> 4;
                 if (type != 0) { // filter air blocks
                     BlockType blockType = ItemTable.instance().getBlock(type);
-                    // does this block needs random tick ?
                     if (blockType != null && blockType.canTickRandomly()) {
                         blockType.updateBlock(chunk.getBlock(x, y + (index << 4), z));
                     }
@@ -925,7 +920,6 @@ public class GlowWorld implements World {
     private void resetEntities(List<GlowEntity> entities) {
         entities.forEach(GlowEntity::reset);
     }
-
 
     private void saveWorld() {
         if (--saveTimer <= 0) {
@@ -2616,7 +2610,7 @@ public class GlowWorld implements World {
     }
 
     /**
-     * Shutdown the world by closing its message broker.
+     * Shutdown the world by shutting down the executor and closing the message broker.
      */
     public void shutdown() {
         executor.shutdown();
