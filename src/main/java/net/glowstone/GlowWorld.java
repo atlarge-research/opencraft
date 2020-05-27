@@ -628,7 +628,7 @@ public class GlowWorld implements World {
             int previousZ = previousLocation.getBlockZ() >> 4;
 
             if (!force && previousX == currentX && previousZ == currentZ) {
-                return;
+                continue;
             }
 
             int radius = Math.min(server.getViewDistance(), 1 + currentViewDistance);
