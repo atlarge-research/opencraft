@@ -154,7 +154,14 @@ public class GlowAgeable extends GlowCreature implements Ageable {
     }
 
     protected final void setScale(float scale) {
-        setSize(height * scale, width * scale);
+        setBoundingBox(width * scale, height * scale);
+    }
+
+    @Override
+    protected void setSize(float xz, float y) {
+        this.width = xz;
+        this.height = y;
+        super.setSize(xz, y);
     }
 
     @Override
