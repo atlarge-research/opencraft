@@ -225,8 +225,11 @@ public abstract class BlockLiquid extends BlockType {
                 target.setType(Material.COBBLESTONE);
             }
         }
+
         if (flowingMaterial == Material.WATER && targetMaterial == Material.WATER) {
+
             int count = 0;
+
             for (BlockFace face : SIDES) {
                 GlowBlock neighbour = target.getRelative(face);
                 if (neighbour.getType() == Material.WATER) {
@@ -235,14 +238,17 @@ public abstract class BlockLiquid extends BlockType {
                     }
                 }
             }
+
             if (count > 1 && target.getState().getRawData() != 0) {
                 target.setType(Material.WATER, (byte) 0, true);
+                
             } else {
                 int blockData = block.getState().getRawData();
                 int targetData = target.getState().getRawData();
                 if (blockData + 1 < targetData) {
                     target.setType(Material.WATER, (byte) (blockData + 1), true);
                 }
+
             }
         }
     }
