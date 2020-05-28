@@ -521,14 +521,7 @@ public class GlowWorld implements World {
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
 
         ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
-        try {
-            broker = Brokers.newRabbitmqBroker(
-                    "amqp://guest:guest@localhost:5672/%2F",
-                    new ProtocolCodec(new PlayProtocol())
-            );
-        } catch (JMSException e) {
-            throw new RuntimeException(e);
-        }
+        broker = Brokers.newConcurrentBroker();
         Filter<Player, Message> filter = new PlayerFilter();
         messagingSystem = new MessagingSystem<>(policy, broker, filter);
 
