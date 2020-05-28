@@ -79,7 +79,7 @@ public class ItemFlintAndSteel extends ItemTool {
         }
 
         GlowBlock blockFloor = cornerBlock.getRelative(BlockFace.DOWN);
-        for (int i = 0; i < width; i++){
+        for (int i = 0; i < width; i++) {
             if (blockFloor.getType() != Material.OBSIDIAN) {
                 return false;
             }
@@ -191,7 +191,7 @@ public class ItemFlintAndSteel extends ItemTool {
      * @param block The air block to start the measurement from.
      * @param direction The direction to check for the length.
      * @return The length from the start block to the first obsidian block in the provided direction. The starting
-     * block is included in the length.
+     *         block is included in the length.
      */
     private int getPortalLengthDirection(GlowBlock block, BlockFace direction) {
         int length = 0;
@@ -200,7 +200,7 @@ public class ItemFlintAndSteel extends ItemTool {
             length++;
             block = block.getRelative(direction);
 
-            if (block.getType() != Material.AIR && block.getType() != Material.OBSIDIAN || length==21) {
+            if (block.getType() != Material.AIR && block.getType() != Material.OBSIDIAN || length == 21) {
                 length = -1;
                 break;
             }
