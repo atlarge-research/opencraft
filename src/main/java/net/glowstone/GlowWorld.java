@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -914,18 +915,9 @@ public class GlowWorld implements World {
      * @param entities The entities for which update messages should be generated.
      */
     private void broadcastEntityUpdates(Collection<GlowEntity> entities) {
-
-        Map<Chunk, List<Message>> messages = new HashMap<>();
-
         entities.forEach(entity -> {
-            Chunk chunk = entity.getChunk();
-            List<Message> updateMessages = entity.createUpdateMessage();
-            List<Message> chunkMessages = messages.computeIfAbsent(chunk, c -> new ArrayList<>());
-            chunkMessages.addAll(updateMessages);
-        });
-
-        messages.forEach((chunk, chunkMessages) -> {
-            chunkMessages.forEach(message -> messagingSystem.broadcast(chunk, message));
+            List<Message> messages = entity.createUpdateMessage();
+            messages.forEach(message -> messagingSystem.broadcast(entity, message));
         });
     }
 
@@ -935,17 +927,13 @@ public class GlowWorld implements World {
      * @param entities A collection of all entities that should be checked for removal.
      */
     private void broadcastEntityRemovals(Collection<GlowEntity> entities) {
-
-        Map<Chunk, List<Integer>> removals = entities.stream()
-                .filter(GlowEntity::isRemoved)
-                .collect(Collectors.groupingBy(
-                        GlowEntity::getChunk,
-                        Collectors.mapping(GlowEntity::getEntityId, Collectors.toList())
-                ));
-
-        removals.forEach((chunk, ids) -> {
-            Message message = new DestroyEntitiesMessage(ids);
-            messagingSystem.broadcast(chunk, message);
+        entities.forEach(entity -> {
+            if (entity.isRemoved()) {
+                int id = entity.getEntityId();
+                List<Integer> ids = Collections.singletonList(id);
+                Message message = new DestroyEntitiesMessage(ids);
+                messagingSystem.broadcast(entity, message);
+            }
         });
     }
 
