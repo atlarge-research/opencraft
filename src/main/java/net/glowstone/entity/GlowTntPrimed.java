@@ -25,7 +25,7 @@ public class GlowTntPrimed extends GlowExplosive implements TNTPrimed {
     @Setter
     private Entity source;
 
-    private ThreadLocalRandom rand;
+    private final ThreadLocalRandom rand;
 
     /**
      * Get the player that ignited the TNT.
