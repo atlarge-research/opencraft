@@ -11,11 +11,9 @@ import javax.annotation.Nullable;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.blocktype.BlockTnt;
 import net.glowstone.entity.GlowEntity;
-import net.glowstone.entity.GlowExplosive;
 import net.glowstone.entity.GlowLivingEntity;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.entity.objects.GlowItem;
-import net.glowstone.entity.projectile.GlowProjectile;
 import net.glowstone.net.message.play.game.ExplosionMessage;
 import net.glowstone.net.message.play.game.ExplosionMessage.Record;
 import net.glowstone.util.RayUtil;
@@ -164,7 +162,7 @@ public final class Explosion {
                 && blockType != Material.STATIONARY_WATER
                 && blockType != Material.LAVA
                 && blockType != Material.STATIONARY_LAVA) {
-            
+
             for (Block block : blocks) {
                 handleBlockExplosion((GlowBlock) block);
             }
@@ -321,13 +319,13 @@ public final class Explosion {
                 GlowEntity glowEntity = (GlowEntity) entity;
                 Vector rayLength;
 
-                if(entity instanceof  GlowLivingEntity){
+                if (entity instanceof  GlowLivingEntity) {
                     rayLength = distanceToHead((GlowLivingEntity) glowEntity);
                 } else {
                     rayLength = vectorTo(glowEntity);
                 }
 
-                if(rayLength.length() > EXPLOSION_RADIUS){
+                if (rayLength.length() > EXPLOSION_RADIUS) {
                     continue;
                 }
 
