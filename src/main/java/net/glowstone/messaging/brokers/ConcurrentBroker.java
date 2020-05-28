@@ -1,9 +1,9 @@
-package net.glowstone.messaging.brokers.concurrent;
+package net.glowstone.messaging.brokers;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
-import net.glowstone.messaging.Broker;
+import net.glowstone.messaging.Channel;
 
 /**
  * The concurrent broker uses a concurrent hash map to store topic-channel pairs. The concurrent
@@ -13,14 +13,15 @@ import net.glowstone.messaging.Broker;
  * @param <Subscriber> the type of subscribers that is allowed to subscribe to a channel.
  * @param <Message> the type of messages that is allowed to be published to a channel.
  */
-public final class ConcurrentBroker<Topic, Subscriber, Message> implements Broker<Topic, Subscriber, Message> {
+public final class ConcurrentBroker<Topic, Subscriber, Message> extends ChannelBroker<Topic, Subscriber, Message> {
 
-    private final Map<Topic, ConcurrentChannel<Subscriber, Message>> channels;
+    private final Map<Topic, Channel<Subscriber, Message>> channels;
 
     /**
      * Create a concurrent broker.
      */
-    public ConcurrentBroker() {
+    public ConcurrentBroker(ChannelFactory<Subscriber, Message> channelFactory) {
+        super(channelFactory);
         channels = new ConcurrentHashMap<>();
     }
 
@@ -28,7 +29,7 @@ public final class ConcurrentBroker<Topic, Subscriber, Message> implements Broke
     public void subscribe(Topic topic, Subscriber subscriber, Consumer<Message> callback) {
         channels.compute(topic, (t, channel) -> {
             if (channel == null) {
-                channel = new ConcurrentChannel<>();
+                channel = createChannel();
             }
             channel.subscribe(subscriber, callback);
             return channel;
@@ -52,5 +53,10 @@ public final class ConcurrentBroker<Topic, Subscriber, Message> implements Broke
             channel.publish(message);
             return channel;
         });
+    }
+
+    @Override
+    public void close() {
+        // Nothing to close
     }
 }

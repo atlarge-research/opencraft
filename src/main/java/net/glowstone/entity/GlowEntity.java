@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import net.glowstone.EventFactory;
@@ -33,10 +34,9 @@ import net.glowstone.entity.meta.MetadataMap.Entry;
 import net.glowstone.entity.objects.GlowItemFrame;
 import net.glowstone.entity.objects.GlowLeashHitch;
 import net.glowstone.entity.objects.GlowPainting;
+import net.glowstone.entity.physics.BlockBoundingBoxes;
 import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.entity.physics.EntityBoundingBox;
-import net.glowstone.net.GlowSession;
-import net.glowstone.net.message.play.entity.AttachEntityMessage;
 import net.glowstone.net.message.play.entity.EntityMetadataMessage;
 import net.glowstone.net.message.play.entity.EntityRotationMessage;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
@@ -53,6 +53,7 @@ import net.glowstone.util.Vectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Chunk;
 import org.bukkit.EntityEffect;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -104,6 +105,11 @@ public abstract class GlowEntity implements Entity {
      * different space for 32-bit entity IDs).
      */
     public static final int ENTITY_ID_NOBODY = -1;
+
+    /**
+     * The offset to be used during collision.
+     */
+    public static final double COLLISION_OFFSET = 0.00001;
 
     /**
      * The metadata store for entities.
@@ -286,6 +292,8 @@ public abstract class GlowEntity implements Entity {
     @Setter
     private int fireTicks;
 
+    private int portalTicks;
+
     /**
      * Whether gravity applies to the entity.
      */
@@ -353,6 +361,8 @@ public abstract class GlowEntity implements Entity {
         this.origin = location.clone();
         this.previousLocation = location.clone();
         this.location = location.clone();
+
+        portalTicks = 0;
 
         // this is so dirty I washed my hands after writing it.
         if (this instanceof GlowPlayer) {
@@ -631,30 +641,24 @@ public abstract class GlowEntity implements Entity {
 
         pulsePhysics();
 
-        if (hasMoved()) {
-            Block currentBlock = location.getBlock();
-            if (currentBlock.getType() == Material.ENDER_PORTAL) {
-                EventFactory.getInstance()
-                    .callEvent(new EntityPortalEnterEvent(this, currentBlock.getLocation()));
-                if (server.getAllowEnd()) {
-                    Location previousLocation = location.clone();
-                    boolean success;
-                    if (getWorld().getEnvironment() == Environment.THE_END) {
-                        success = teleportToSpawn();
-                    } else {
-                        success = teleportToEnd();
-                    }
-                    if (success) {
-                        EntityPortalExitEvent e = EventFactory.getInstance()
-                            .callEvent(new EntityPortalExitEvent(this, previousLocation,
-                                location
-                                    .clone(), velocity.clone(), new Vector()));
-                        if (!e.getAfter().equals(velocity)) {
-                            setVelocity(e.getAfter());
-                        }
-                    }
+        Block currentBlock = location.getBlock();
+        if (currentBlock.getType() == Material.ENDER_PORTAL || currentBlock.getType() == Material.PORTAL) {
+
+            if (this instanceof GlowPlayer) {
+                GlowPlayer player = (GlowPlayer) this;
+                if (player.getGameMode() == GameMode.CREATIVE) {
+                    portalTicks = 80;
                 }
             }
+
+            portalTicks++;
+            if (portalTicks >= 80) {
+                portalTicks = 0;
+                interactWithPortal(currentBlock);
+            }
+
+        } else {
+            portalTicks = 0;
         }
 
         if (leashHolderUniqueId != null && ticksLived < 2) {
@@ -665,6 +669,52 @@ public abstract class GlowEntity implements Entity {
             }
             setLeashHolder(any.orElse(null));
             leashHolderUniqueId = null;
+        }
+    }
+
+    /**
+     * Fire when a entity interacts with a portal. Checks if the entity is allowed to teleport to another world and
+     * handles transporting of entity.
+     * @param portal The block the entity interacts with.
+     */
+    private void interactWithPortal(Block portal) {
+
+        Location previousLocation = location.clone();
+        EntityPortalEnterEvent portalEnterEvent = new EntityPortalEnterEvent(this, portal.getLocation());
+
+        boolean success = false;
+
+        if (portal.getType() == Material.ENDER_PORTAL && server.getAllowEnd()) {
+            EventFactory.getInstance().callEvent(portalEnterEvent);
+            if (getWorld().getEnvironment() == Environment.THE_END) {
+                success = teleportToSpawn();
+            } else {
+                success = teleportToEnd();
+            }
+        } else if (portal.getType() == Material.PORTAL && server.getAllowNether()) {
+            EventFactory.getInstance().callEvent(portalEnterEvent);
+            if (getWorld().getEnvironment() == Environment.NETHER) {
+                success = teleportToSpawn();
+            } else {
+                success = teleportToNether();
+            }
+        } else {
+            // not a portal or not allowed to teleport.
+        }
+
+        if (success) {
+            EntityPortalExitEvent portalExitEvent = new EntityPortalExitEvent(
+                    this,
+                    previousLocation,
+                    location.clone(),
+                    velocity.clone(),
+                    new Vector()
+            );
+            portalExitEvent = EventFactory.getInstance().callEvent(portalExitEvent);
+            if (!portalExitEvent.getAfter().equals(velocity)) {
+                setVelocity(portalExitEvent.getAfter());
+            }
+
         }
     }
 
@@ -807,48 +857,12 @@ public abstract class GlowEntity implements Entity {
     public abstract List<Message> createSpawnMessage();
 
     /**
-     * Creates a List of {@link Message} which can be sent to a client directly after the entity is
-     * spawned.
-     *
-     * @param session Session to update this entity for
-     * @return A message which can spawn this entity.
-     */
-    public List<Message> createAfterSpawnMessage(GlowSession session) {
-        List<Message> result = Lists.newArrayList();
-
-        GlowPlayer player = session.getPlayer();
-        if (player == null) {
-            // Player disconnected while this task was pending
-            return result;
-        }
-        boolean visible = player.canSeeEntity(this);
-        for (GlowEntity leashedEntity : leashedEntities) {
-            if (visible && player.canSeeEntity(leashedEntity)) {
-                int attached = player.getEntityId() == this.getEntityId() ? 0
-                    : leashedEntity.getEntityId();
-                int holder = this.getEntityId();
-
-                result.add(new AttachEntityMessage(attached, holder));
-            }
-        }
-
-        if (isLeashed() && visible && player.canSeeEntity(leashHolder)) {
-            int attached = player.getEntityId() == this.getEntityId() ? 0 : this.getEntityId();
-            int holder = leashHolder.getEntityId();
-
-            result.add(new AttachEntityMessage(attached, holder));
-        }
-
-        return result;
-    }
-
-    /**
      * Creates a {@link Message} which can be sent to a client to update this entity.
      *
-     * @param session Session to update this entity for
      * @return A message which can update this entity.
      */
-    public List<Message> createUpdateMessage(GlowSession session) {
+    public List<Message> createUpdateMessage() {
+
         double x = location.getX();
         double y = location.getY();
         double z = location.getZ();
@@ -861,8 +875,12 @@ public abstract class GlowEntity implements Entity {
         dy *= 128;
         dz *= 128;
 
-        boolean teleport = dx > Short.MAX_VALUE || dy > Short.MAX_VALUE || dz > Short.MAX_VALUE
-            || dx < Short.MIN_VALUE || dy < Short.MIN_VALUE || dz < Short.MIN_VALUE;
+        boolean teleport = dx > Short.MAX_VALUE
+                || dy > Short.MAX_VALUE
+                || dz > Short.MAX_VALUE
+                || dx < Short.MIN_VALUE
+                || dy < Short.MIN_VALUE
+                || dz < Short.MIN_VALUE;
 
         List<Message> result = new LinkedList<>();
 
@@ -875,14 +893,19 @@ public abstract class GlowEntity implements Entity {
             int yaw = Position.getIntYaw(location);
             int pitch = Position.getIntPitch(location);
             if (moved) {
-                result.add(new RelativeEntityPositionRotationMessage(entityId,
-                    (short) dx, (short) dy, (short) dz, yaw, pitch));
+                result.add(new RelativeEntityPositionRotationMessage(
+                        entityId,
+                        (short) dx,
+                        (short) dy,
+                        (short) dz,
+                        yaw,
+                        pitch
+                ));
             } else {
                 result.add(new EntityRotationMessage(entityId, yaw, pitch));
             }
         } else if (moved) {
-            result.add(new RelativeEntityPositionMessage(
-                entityId, (short) dx, (short) dy, (short) dz));
+            result.add(new RelativeEntityPositionMessage(entityId, (short) dx, (short) dy, (short) dz));
         }
 
         // send changed metadata
@@ -897,27 +920,16 @@ public abstract class GlowEntity implements Entity {
         }
 
         if (passengerChanged) {
+
             // A player can be a passenger of any arbitrary entity, e.g. a boat
             // In case the current session belongs to this player passenger
             // We need to send the self_id
-            List<Integer> passengerIds = new ArrayList<>();
-            getPassengers().forEach(e -> passengerIds.add(e.getEntityId()));
-            result.add(new SetPassengerMessage(getEntityId(), passengerIds.stream()
-                .mapToInt(Integer::intValue).toArray()));
+
+            int[] passengerIds = getPassengers().stream()
+                    .mapToInt(Entity::getEntityId)
+                    .toArray();
+            result.add(new SetPassengerMessage(getEntityId(), passengerIds));
             passengerChanged = false;
-        }
-
-        if (leashHolderChanged) {
-            int attached =
-                isLeashed() && session.getPlayer().getEntityId() == leashHolder.getEntityId()
-                    ? 0 : this.getEntityId();
-            int holder = !isLeashed() ? -1 : leashHolder.getEntityId();
-
-            // When the leashHolder is not visible, the AttachEntityMessage will be created in
-            // createAfterSpawnMessage()
-            if (!isLeashed() || session.getPlayer().canSeeEntity(leashHolder)) {
-                result.add(new AttachEntityMessage(attached, holder));
-            }
         }
 
         return result;
@@ -995,6 +1007,41 @@ public abstract class GlowEntity implements Entity {
         return true;
     }
 
+    /**
+     * Teleport this entity to the Nether. If no Nether world is loaded this does nothing.
+     *
+     * @return {@code true} if the teleport was successful.
+     */
+    protected boolean teleportToNether() {
+
+        if (!server.getAllowNether()) {
+            return false;
+        }
+
+        Location target = null;
+        for (World world : server.getWorlds()) {
+            if (world.getEnvironment() == Environment.NETHER) {
+                target = world.getSpawnLocation();
+                break;
+            }
+        }
+
+        if (target == null) {
+            return false;
+        }
+
+        EntityPortalEvent event = new EntityPortalEvent(this, location.clone(), target, null);
+        event = EventFactory.getInstance().callEvent(event);
+        if (event.isCancelled()) {
+            return false;
+        }
+
+        target = event.getTo();
+        teleport(target);
+
+        return true;
+    }
+
     protected void setSize(float xz, float y) {
         setBoundingBox(xz, y);
     }
@@ -1053,43 +1100,29 @@ public abstract class GlowEntity implements Entity {
         return boundingBox != null && boundingBox.intersects(box);
     }
 
+    /**
+     * Get all block bounding boxes that are within range of the given BoundingBox.
+     *
+     * @param broadPhaseBox The BoundingBox to be used as block range
+     * @return All boundingboxes from blocks that intersect with the give BoundingBox
+     */
     List<BoundingBox> getIntersectingBlockBoundingBoxes(BoundingBox broadPhaseBox) {
 
         if (broadPhaseBox == null) {
             return Collections.emptyList();
         }
 
-        List<BoundingBox> intersectingBoxes = new ArrayList<>();
+        Vector min = broadPhaseBox.minCorner;
+        min.setY(min.getY() - 1);
+        Vector max = broadPhaseBox.maxCorner;
 
-        Vector min = Vectors.floor(broadPhaseBox.minCorner);
-        Vector max = Vectors.ceil(broadPhaseBox.maxCorner);
+        List<GlowBlock> glowBlocks = world.getOverlappingBlocks(min, max);
 
-        for (int x = min.getBlockX(); x <= max.getBlockX(); x++) {
-            for (int y = min.getBlockY() - 1; y <= max.getBlockY(); y++) {
-                for (int z = min.getBlockZ(); z <= max.getBlockZ(); z++) {
-                    GlowBlock block = world.getBlockAt(x, y, z);
-                    Material material = block.getType();
-
-                    if (!material.isSolid()) {
-                        break;
-                    }
-
-                    BoundingBox box = block.getBoundingBox();
-
-                    if (box == null) {
-                        break;
-                    }
-
-                    if (box == null || (y == min.getBlockY() - 1 && box.getSize().getY() <= 1.0)) {
-                        break;
-                    }
-
-                    if (box.intersects(broadPhaseBox)) {
-                        intersectingBoxes.add(box);
-                    }
-                }
-            }
-        }
+        List<BoundingBox> intersectingBoxes = glowBlocks.stream()
+                .map(BlockBoundingBoxes::getBoundingBoxes)
+                .flatMap(List::stream)
+                .filter(box -> box.intersects(broadPhaseBox))
+                .collect(Collectors.toList());
 
         return intersectingBoxes;
     }
@@ -1163,7 +1196,9 @@ public abstract class GlowEntity implements Entity {
             double collisionTime = closest.getLeft();
             Vector normal = closest.getRight();
             Vector displacement = remainingDisplacement.clone().multiply(collisionTime);
+            Vector collisionOffsetVector = normal.clone().multiply(COLLISION_OFFSET);
             pendingLocation.add(displacement);
+            pendingLocation.add(collisionOffsetVector);
 
             elapsedTime += collisionTime * remainingTime;
 

@@ -1,6 +1,7 @@
 package net.glowstone.entity.physics;
 
 import net.glowstone.util.Vectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 import org.junit.Before;
@@ -126,6 +127,20 @@ public class EntityBoundingBoxTest {
         localBox.setCenter(0, 0, -2);
         double distance = localBox.sweptAxisAlignedBoundingBox(new Vector(0, 0, 2), collisionBox).getLeft();
         assertTrue(distance < 1.0);
+    }
+
+    @Test
+    public void bigEntityGroundCollisionTest(){
+        
+        EntityBoundingBox spiderBox = new EntityBoundingBox(1.4, 0.9);
+        spiderBox.setCenter(0.5,1,0.5);
+
+        Vector velocity = new Vector(0, -1, 0);
+        BoundingBox block1 = BoundingBox.fromCorners(new Vector(1, 1, 1), new Vector(0, 0, 0));
+
+        Pair<Double, Vector> collision1 = spiderBox.sweptAxisAlignedBoundingBox(velocity, block1);
+
+        assertEquals(collision1.getLeft(), 0.0, Double.MIN_VALUE);
     }
 
     @Test

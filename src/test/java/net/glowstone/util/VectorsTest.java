@@ -87,10 +87,15 @@ public class VectorsTest {
         Vector otherVector = mock(Vector.class);
 
         when(otherVector.getX()).thenReturn(0.1);
-        when(otherVector.getX()).thenReturn(0.5);
+        when(otherVector.getY()).thenReturn(0.5);
         assertEquals(Vectors.equals(vector, otherVector, EPSILON), false);
 
         verify(otherVector, times(0)).getZ();
+    }
 
+    @Test
+    public void computeVolumeTest() {
+        Vector vector = new Vector(5.0, 1.0, 3.0);
+        assertEquals(15.0, Vectors.computeVolume(vector), Double.MIN_VALUE);
     }
 }

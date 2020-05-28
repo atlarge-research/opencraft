@@ -9,16 +9,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
-import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
@@ -59,22 +58,26 @@ import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
 import net.glowstone.messaging.Broker;
+import net.glowstone.messaging.Brokers;
 import net.glowstone.messaging.Filter;
 import net.glowstone.messaging.MessagingSystem;
-import net.glowstone.messaging.brokers.concurrent.ConcurrentBroker;
 import net.glowstone.messaging.filters.PlayerFilter;
 import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.GlowSession;
+import net.glowstone.net.message.play.entity.DestroyEntitiesMessage;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
 import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
+import net.glowstone.util.AreaOfInterest;
 import net.glowstone.util.BlockStateDelegate;
+import net.glowstone.util.Coordinates;
 import net.glowstone.util.GameRuleManager;
 import net.glowstone.util.RayUtil;
 import net.glowstone.util.TickUtil;
+import net.glowstone.util.Vectors;
 import net.glowstone.util.collection.ConcurrentSet;
 import net.glowstone.util.config.WorldConfig;
 import net.glowstone.util.nbt.CompoundTag;
@@ -434,7 +437,7 @@ public class GlowWorld implements World {
     @Getter
     private boolean initialized;
 
-    private final Map<GlowPlayer, Location> previousLocations;
+    private final Broker<Chunk, Player, Message> broker;
 
     private final MessagingSystem<Chunk, Object, Player, Message> messagingSystem;
 
@@ -517,11 +520,10 @@ public class GlowWorld implements World {
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
 
         ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
-        Broker<Chunk, Player, Message> broker = new ConcurrentBroker<>();
+        broker = Brokers.newConcurrentBroker();
         Filter<Player, Message> filter = new PlayerFilter();
         messagingSystem = new MessagingSystem<>(policy, broker, filter);
 
-        previousLocations = new WeakHashMap<>();
         executor = new PriorityExecutor();
         blockChanges = new ConcurrentLinkedDeque<>();
         afterBlockChanges = new LinkedList<>();
@@ -545,53 +547,29 @@ public class GlowWorld implements World {
      */
     public void pulse() {
 
-        Collection<ChunkRunnable> chunkRunnables = new ArrayList<>();
-        executor.drainTo(chunkRunnables);
+        List<GlowPlayer> players = entityManager.getPlayers();
 
-        entityManager.getAll()
-            .stream()
-            .filter(GlowPlayer.class::isInstance)
-            .map(GlowPlayer.class::cast)
-            .forEach(player -> {
+        players.forEach(GlowPlayer::updateKnownChunks);
 
-                GlowSession session = player.getSession();
-                messagingSystem.update(player, session::send);
+        updateMessagingSystem(players);
 
-                int entityId = player.getEntityId();
+        streamChunks(players);
 
-                Collection<ChunkRunnable> runnables = chunkRunnables.stream()
-                    .filter(runnable -> runnable.hasEntityId(entityId))
-                    .collect(Collectors.toList());
-                streamChunks(player, runnables);
-            });
-
-        List<GlowEntity> allEntities = new ArrayList<>(entityManager.getAll());
-        List<GlowPlayer> players = new LinkedList<>();
-
-        activeChunksSet.clear();
-
-        // We should pulse our tickmap, so blocks get updated.
         pulseTickMap();
-
-        // pulse players last so they actually see that other entities have
-        // moved. unfortunately pretty hacky. not a problem for players b/c
-        // their position is modified by session ticking.
-        for (GlowEntity entity : allEntities) {
-            if (entity instanceof GlowPlayer) {
-                players.add((GlowPlayer) entity);
-                updateActiveChunkCollection(entity);
-            } else {
-                entity.pulse();
-            }
-        }
-
-        updateBlocksInActiveChunks();
-        // why update blocks before Players or Entities? if there is a specific reason we should
-        // document it here.
+        Set<GlowChunk> activeChunks = findActiveChunks(players);
+        updateBlocksInChunks(activeChunks);
         processBlockChanges();
 
-        pulsePlayers(players);
-        resetEntities(allEntities);
+        List<GlowEntity> entities = entityManager.getAll();
+
+        entities.forEach(GlowEntity::pulse);
+
+        broadcastEntityRemovals(entities);
+        broadcastEntityUpdates(entities);
+        players.forEach(GlowPlayer::spawnEntities);
+
+        entities.forEach(GlowEntity::reset);
+
         worldBorder.pulse();
 
         updateWorldTime();
@@ -604,142 +582,216 @@ public class GlowWorld implements World {
     }
 
     /**
+     * Update the subscriptions of each of the given players.
+     *
+     * @param players The players whom's subscriptions in the messaging system should be updated.
+     */
+    private void updateMessagingSystem(Collection<GlowPlayer> players) {
+        for (GlowPlayer player : players) {
+            GlowSession session = player.getSession();
+            messagingSystem.update(player, session::send);
+        }
+    }
+
+    /**
      * Stream chunks that have come within viewing distance and unload those that have gone out of sight.
      *
-     * @param player the player.
-     * @param chunkRunnables The runnables that have not been executed by the executor previously. These runnables are
-     *      responsible for encoding and sending the chunk data to the given player. These runnables should only be
-     *      associated with the given player.
+     * @param players The players that the chunks need to be streamed to.
      */
-    private void streamChunks(GlowPlayer player, Collection<ChunkRunnable> chunkRunnables) {
+    private void streamChunks(Collection<GlowPlayer> players) {
 
-        Location current = player.getLocation();
-        Location previous = previousLocations.get(player);
+        List<ChunkRunnable> chunksToStream = new ArrayList<>();
+        List<Pair<GlowChunk, GlowPlayer>> chunksToUnload = new ArrayList<>();
 
-        boolean force = false;
+        for (GlowPlayer player : players) {
 
-        if (previous == null) {
-            previous = player.getLocation();
-            force = true;
-        }
+            AreaOfInterest areaOfInterest = player.getPreviousAreaOfInterest();
 
-        int currentX = current.getBlockX() >> 4;
-        int currentZ = current.getBlockZ() >> 4;
+            Location currentLocation = player.getLocation();
+            Location previousLocation = areaOfInterest.getLocation();
+            int currentViewDistance = player.getViewDistance();
 
-        int previousX = previous.getBlockX() >> 4;
-        int previousZ = previous.getBlockZ() >> 4;
+            boolean force = false;
 
-        if (!force && previousX == currentX && previousZ == currentZ) {
-            return;
-        }
+            if (previousLocation == null) {
+                previousLocation = currentLocation;
+                force = true;
+            }
 
-        int radius = Math.min(server.getViewDistance(), 1 + player.getViewDistance());
+            int currentX = currentLocation.getBlockX() >> 4;
+            int currentZ = currentLocation.getBlockZ() >> 4;
 
-        GlowSession session = player.getSession();
+            int previousX = previousLocation.getBlockX() >> 4;
+            int previousZ = previousLocation.getBlockZ() >> 4;
 
-        if (!force && previous.getWorld() == this) {
-            for (int x = previousX - radius; x <= previousX + radius; x++) {
-                for (int z = previousZ - radius; z <= previousZ + radius; z++) {
-                    if (current.getWorld() != this
-                            || Math.abs(x - currentX) > radius
-                            || Math.abs(z - currentZ) > radius) {
+            if (!force && previousX == currentX && previousZ == currentZ) {
+                continue;
+            }
 
-                        GlowChunk.Key key = GlowChunk.Key.of(x, z);
+            int radius = Math.min(server.getViewDistance(), 1 + currentViewDistance);
+            GlowSession session = player.getSession();
 
-                        // No need to check if the runnable is for the correct player, since only the runnables of the
-                        // player should be contained in the chunk runnables.
-                        boolean cancelled = chunkRunnables.removeIf(runnable -> runnable.hasKey(key));
-
-                        if (!cancelled) {
-                            Message message = new UnloadChunkMessage(x, z);
-                            session.send(message);
-                            player.getChunkLock().release(key);
+            if (!force && previousLocation.getWorld() == this) {
+                for (int x = previousX - radius; x <= previousX + radius; x++) {
+                    for (int z = previousZ - radius; z <= previousZ + radius; z++) {
+                        if (currentLocation.getWorld() != this
+                                || Math.abs(x - currentX) > radius
+                                || Math.abs(z - currentZ) > radius) {
+                            GlowChunk chunk = getChunkAt(x, z);
+                            chunksToUnload.add(Pair.of(chunk, player));
                         }
                     }
                 }
             }
-        }
 
-        for (ChunkRunnable runnable : chunkRunnables) {
-            runnable.updatePriority();
-            executor.execute(runnable);
-        }
+            if (currentLocation.getWorld() == this) {
+                for (int x = currentX - radius; x <= currentX + radius; x++) {
+                    for (int z = currentZ - radius; z <= currentZ + radius; z++) {
+                        if (previousLocation.getWorld() != this
+                                || Math.abs(x - previousX) > radius
+                                || Math.abs(z - previousZ) > radius
+                                || force) {
 
-        if (current.getWorld() == this) {
-            for (int x = currentX - radius; x <= currentX + radius; x++) {
-                for (int z = currentZ - radius; z <= currentZ + radius; z++) {
-                    if (previous.getWorld() != this
-                            || Math.abs(x - previousX) > radius
-                            || Math.abs(z - previousZ) > radius
-                            || force) {
+                            getChunkManager().forcePopulation(x, z);
+                            GlowChunk.Key key = GlowChunk.Key.of(x, z);
+                            player.getChunkLock().acquire(key);
 
-                        GlowChunk.Key key = GlowChunk.Key.of(x, z);
+                            GlowChunk chunk = getChunkAt(x, z);
+                            ChunkRunnable chunkRunnable = new ChunkRunnable(player, chunk, () -> {
+                                boolean skylight = getEnvironment() == Environment.NORMAL;
+                                Message message = chunk.toMessage(skylight);
+                                session.send(message);
+                                chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
+                            });
 
-                        getChunkManager().forcePopulation(key.getX(), key.getZ());
-                        player.getChunkLock().acquire(key);
-
-                        boolean skylight = getEnvironment() == Environment.NORMAL;
-
-                        final GlowChunk chunk = getChunkAt(x, z);
-
-                        executor.execute(player, chunk, () -> {
-                            Message message = chunk.toMessage(skylight);
-                            session.send(message);
-                            chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
-                        });
+                            chunksToStream.add(chunkRunnable);
+                        }
                     }
                 }
             }
+
+            areaOfInterest.setLocation(currentLocation);
+            areaOfInterest.setViewDistance(currentViewDistance);
         }
 
-        previousLocations.put(player, current);
+        Collection<ChunkRunnable> cancelled = executor.executeAndCancel(chunksToStream, this::shouldBeUnloaded);
+
+        Set<Pair<GlowChunk, GlowPlayer>> cancelledSet = cancelled.stream()
+                .map(ChunkRunnable::getChunkAndPlayer)
+                .collect(Collectors.toSet());
+
+        unloadChunks(chunksToUnload, cancelledSet);
     }
 
-    private void updateActiveChunkCollection(GlowEntity entity) {
-        // build a set of chunkManager around each player in this world, the
-        // server view distance is taken here
+    /**
+     * Unload all the given chunks, except for the ones that have been cancelled. Because, the ones that were cancelled
+     * were never streamed to the player.
+     *
+     * @param toUnload The chunks to be unloaded.
+     * @param cancelled The chunks that have been cancelled.
+     */
+    private void unloadChunks(
+            Collection<Pair<GlowChunk, GlowPlayer>> toUnload,
+            Set<Pair<GlowChunk, GlowPlayer>> cancelled
+    ) {
+        toUnload.forEach(pair -> {
+            if (!cancelled.contains(pair)) {
+
+                GlowChunk chunk = pair.getLeft();
+                GlowPlayer player = pair.getRight();
+
+                Message message = new UnloadChunkMessage(chunk.getX(), chunk.getZ());
+                player.getSession().send(message);
+                GlowChunk.Key key = GlowChunk.Key.of(chunk.getX(), chunk.getZ());
+                player.getChunkLock().release(key);
+            }
+        });
+    }
+
+    /**
+     * Check whether the runnable should be removed from the queue.
+     *
+     * @param runnable the runnable to be checked.
+     * @return whether the runnable should be removed.
+     */
+    private boolean shouldBeUnloaded(ChunkRunnable runnable) {
+
+        GlowPlayer player = runnable.getPlayer();
+        GlowChunk chunk = runnable.getChunk();
+
+        int radius = Math.min(server.getViewDistance(), 1 + player.getViewDistance());
+
+        Coordinates playerCoords = player.getCoordinates();
+        int chunkX = chunk.getX();
+        int chunkZ = chunk.getZ();
+
+        return player.getWorld() != chunk.getWorld()
+                || Math.abs(playerCoords.getChunkX() - chunkX) > radius
+                || Math.abs(playerCoords.getChunkZ() - chunkZ) > radius;
+    }
+
+    /**
+     * Find and collect all the chunks currently within view distance of all players. Only fully loaded chunks are
+     * included.
+     *
+     * @param players the players whom's positions should be taken into account.
+     * @return the set of active chunks around the given players.
+     */
+    private Set<GlowChunk> findActiveChunks(Collection<GlowPlayer> players) {
+        Set<GlowChunk> chunks = new HashSet<>();
         int radius = server.getViewDistance();
-        Location playerLocation = entity.getLocation();
-        if (playerLocation.getWorld() == this) {
-            int cx = playerLocation.getBlockX() >> 4;
-            int cz = playerLocation.getBlockZ() >> 4;
-            for (int x = cx - radius; x <= cx + radius; x++) {
-                for (int z = cz - radius; z <= cz + radius; z++) {
-                    if (isChunkLoaded(cx, cz)) {
-                        activeChunksSet.add(GlowChunk.Key.of(x, z));
+        players.forEach(player -> {
+
+            Location center = player.getLocation();
+            int cx = center.getBlockX() >> 4;
+            int cz = center.getBlockZ() >> 4;
+
+            if (center.getWorld() == this) {
+                for (int x = cx - radius; x < cx + radius; x++) {
+                    for (int z = cz - radius; z < cz + radius; z++) {
+                        if (isChunkLoaded(x, z)) {
+                            GlowChunk chunk = getChunkAt(x, z);
+                            chunks.add(chunk);
+                        }
                     }
                 }
             }
-        }
+        });
+        return chunks;
     }
 
-    private void updateBlocksInActiveChunks() {
-        for (GlowChunk.Key key : activeChunksSet) {
-            int cx = key.getX();
-            int cz = key.getZ();
-            // check the chunk is loaded
-            if (isChunkLoaded(cx, cz)) {
-                GlowChunk chunk = getChunkAt(cx, cz);
+    /**
+     * Update each chunk in the given set of chunks. Maybe striking lighting, applying the default tick, and randomly
+     * selecting a number of blocks within each chunk's sections to be ticked as well.
+     *
+     * @param chunks the chunks which contain the blocks to be updated.
+     */
+    private void updateBlocksInChunks(Set<GlowChunk> chunks) {
+        for (GlowChunk chunk : chunks) {
+            if (isChunkLoaded(chunk)) {
 
-                // thunder
-                maybeStrikeLightningInChunk(cx, cz);
+                int x = chunk.getX();
+                int z = chunk.getZ();
+                maybeStrikeLightningInChunk(x, z);
 
-                // chunk tick
                 chunk.addTick();
 
-                // block ticking
-                // we will choose 3 blocks per chunk's section
                 ChunkSection[] sections = chunk.getSections();
-                for (int i = 0; i < sections.length; i++) {
-                    updateBlocksInSection(chunk, sections[i], i);
+                for (int index = 0; index < sections.length; index++) {
+                    updateBlocksInSection(chunk, sections[index], index);
                 }
             }
-
-
         }
     }
 
-    private void updateBlocksInSection(GlowChunk chunk, ChunkSection section, int i) {
+    /**
+     * Randomly update 3 blocks in the provided section.
+     *
+     * @param chunk the chunk in which to update the blocks.
+     * @param section the section in which to update the blocks.
+     * @param index the index of the section within the chunk.
+     */
+    private void updateBlocksInSection(GlowChunk chunk, ChunkSection section, int index) {
         if (section != null) {
             for (int j = 0; j < 3; j++) {
                 int n = ThreadLocalRandom.current().nextInt();
@@ -749,9 +801,8 @@ public class GlowWorld implements World {
                 int type = section.getType(x, y, z) >> 4;
                 if (type != 0) { // filter air blocks
                     BlockType blockType = ItemTable.instance().getBlock(type);
-                    // does this block needs random tick ?
                     if (blockType != null && blockType.canTickRandomly()) {
-                        blockType.updateBlock(chunk.getBlock(x, y + (i << 4), z));
+                        blockType.updateBlock(chunk.getBlock(x, y + (index << 4), z));
                     }
                 }
             }
@@ -858,6 +909,34 @@ public class GlowWorld implements World {
         });
     }
 
+    /**
+     * Generate and broadcast update messages for all entities on the server.
+     *
+     * @param entities The entities for which update messages should be generated.
+     */
+    private void broadcastEntityUpdates(Collection<GlowEntity> entities) {
+        entities.forEach(entity -> {
+            List<Message> messages = entity.createUpdateMessage();
+            messages.forEach(message -> messagingSystem.broadcast(entity, message));
+        });
+    }
+
+    /**
+     * Broadcast the removal of entities.
+     *
+     * @param entities A collection of all entities that should be checked for removal.
+     */
+    private void broadcastEntityRemovals(Collection<GlowEntity> entities) {
+        entities.forEach(entity -> {
+            if (entity.isRemoved()) {
+                int id = entity.getEntityId();
+                List<Integer> ids = Collections.singletonList(id);
+                Message message = new DestroyEntitiesMessage(ids);
+                messagingSystem.broadcast(entity, message);
+            }
+        });
+    }
+
     private void saveWorld() {
         if (--saveTimer <= 0) {
             saveTimer = AUTOSAVE_TIME;
@@ -901,14 +980,6 @@ public class GlowWorld implements World {
         if (gameRuleMap.getBoolean(GameRules.DO_DAYLIGHT_CYCLE)) {
             time = (time + 1) % TickUtil.TICKS_PER_DAY;
         }
-    }
-
-    private void resetEntities(List<GlowEntity> entities) {
-        entities.forEach(GlowEntity::reset);
-    }
-
-    private void pulsePlayers(List<GlowPlayer> players) {
-        players.stream().filter(Objects::nonNull).forEach(GlowEntity::pulse);
     }
 
     private void handleSleepAndWake(List<GlowPlayer> players) {
@@ -1464,6 +1535,51 @@ public class GlowWorld implements World {
         return new GlowBlock(getChunkAt(x >> 4, z >> 4), x, y, z);
     }
 
+    /**
+     * This function returns all blocks that are contained within the min and max vector.
+     *
+     * @param min The minimal point of the selected area
+     * @param max The maximal point of the selected area
+     * @return All blocks contained in the selected area
+     */
+    public List<GlowBlock> getOverlappingBlocks(Vector min, Vector max) {
+
+        assert min.getX() <= max.getX();
+        assert min.getY() <= max.getY();
+        assert min.getZ() <= max.getZ();
+
+        Vector flooredMin = Vectors.floor(min);
+        Vector ceiledMax = Vectors.ceil(max);
+
+        Vector diff = ceiledMax.clone().subtract(flooredMin.clone());
+        Vector ceiledDiff = Vectors.ceil(diff);
+
+        int volume = (int) Vectors.computeVolume(ceiledDiff);
+        ArrayList<GlowBlock> blocks = new ArrayList<>(volume);
+
+        for (int x = flooredMin.getBlockX(); x <= ceiledMax.getBlockX(); x++) {
+            for (int y = flooredMin.getBlockY(); y <= ceiledMax.getBlockY(); y++) {
+                for (int z = flooredMin.getBlockZ(); z <= ceiledMax.getBlockZ(); z++) {
+                    GlowBlock block = getBlockAt(x, y, z);
+                    blocks.add(block);
+                }
+            }
+        }
+
+        return blocks;
+    }
+
+    /**
+     * Returns all blocks that are within the coordinates of the BoundingBox.
+     *
+     * @param boundingBox The BoundingBox that will be used to get all the blocks
+     * @return All blocks that are contained or touch the bounding box
+     */
+    public List<GlowBlock> getOverlappingBlocks(final BoundingBox boundingBox) {
+        return getOverlappingBlocks(boundingBox.minCorner, boundingBox.maxCorner);
+    }
+
+
     @Override
     public int getBlockTypeIdAt(Location location) {
         return getBlockTypeIdAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
@@ -1716,9 +1832,17 @@ public class GlowWorld implements World {
 
         GlowEntity entity = null;
 
+        Location entitySpawnLocation = location.clone();
+
+        Block blockUnderEntityWithinOffset = location.clone().subtract(0, GlowEntity.COLLISION_OFFSET, 0).getBlock();
+
+        if (blockUnderEntityWithinOffset.getType() != Material.AIR) {
+            entitySpawnLocation.add(0, GlowEntity.COLLISION_OFFSET, 0);
+        }
+
         try {
             if (EntityRegistry.getEntity(clazz) != null) {
-                entity = EntityStorage.create(clazz, location);
+                entity = EntityStorage.create(clazz, entitySpawnLocation);
             }
             // function.accept(entity); TODO: work on type mismatches
             EntitySpawnEvent spawnEvent = null;
@@ -2466,7 +2590,7 @@ public class GlowWorld implements World {
             }
             GlowBlock block = new GlowBlock(chunk, location.getBlockX(), location
                 .getBlockY(), location.getBlockZ());
-            Integer speed = type.getPulseTickSpeed(block);
+            int speed = type.getPulseTickSpeed(block);
             boolean once = type.isPulseOnce(block);
             if (speed == 0) {
                 continue;
@@ -2499,6 +2623,14 @@ public class GlowWorld implements World {
 
     public void cancelPulse(Location location) {
         tickMap.remove(location);
+    }
+
+    /**
+     * Shutdown the world by shutting down the executor and closing the message broker.
+     */
+    public void shutdown() {
+        executor.shutdown();
+        broker.close();
     }
 
     @Override

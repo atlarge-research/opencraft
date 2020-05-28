@@ -2,6 +2,7 @@ package net.glowstone.block;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,7 +17,6 @@ import net.glowstone.block.blocktype.BlockRedstoneTorch;
 import net.glowstone.block.blocktype.BlockType;
 import net.glowstone.block.entity.BlockEntity;
 import net.glowstone.chunk.GlowChunk;
-import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,7 +32,6 @@ import org.bukkit.metadata.MetadataStore;
 import org.bukkit.metadata.MetadataStoreBase;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.util.Vector;
 
 /**
  * Represents a single block in a world.
@@ -505,12 +504,20 @@ public class GlowBlock implements Block {
 
     @Override
     public Collection<ItemStack> getDrops() {
-        return ItemTable.instance().getBlock(getType()).getMinedDrops(this);
+        BlockType type = ItemTable.instance().getBlock(getType());
+        if (type == null) {
+            return Collections.emptyList();
+        }
+        return type.getMinedDrops(this);
     }
 
     @Override
     public Collection<ItemStack> getDrops(ItemStack tool) {
-        return ItemTable.instance().getBlock(getType()).getDrops(this, tool);
+        BlockType type = ItemTable.instance().getBlock(getType());
+        if (type == null) {
+            return Collections.emptyList();
+        }
+        return type.getDrops(this, tool);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -586,102 +593,6 @@ public class GlowBlock implements Block {
         BlockType type = itemTable.getBlock(oldType);
         if (type != null) {
             type.onBlockChanged(this, oldType, oldData, newType, newData);
-        }
-    }
-
-    /**
-     * Generates the correct bounding box for a fence block.
-     *
-     * @param location The location of the block
-     * @return The correct fence boundingbox
-     */
-    private BoundingBox getFenceBoundingBox(Location location) {
-
-        Vector min = location.clone().add(0.4, 0, 0.4).toVector();
-        Vector max = location.clone().add(0.6, 1.5, 0.6).toVector();
-
-        BoundingBox box = BoundingBox.fromCorners(min, max);
-
-        GlowBlock north = getRelative(BlockFace.NORTH);
-        GlowBlock south = getRelative(BlockFace.SOUTH);
-        GlowBlock west = getRelative(BlockFace.WEST);
-        GlowBlock east = getRelative(BlockFace.EAST);
-
-        double invertedFenceWidth = 0.4;
-
-        if (isFence(north.getType())) {
-            box.minCorner.setZ(box.minCorner.getZ() - invertedFenceWidth);
-        }
-
-        if (isFence(south.getType())) {
-            box.maxCorner.setZ(box.maxCorner.getZ() + invertedFenceWidth);
-        }
-
-        if (isFence(west.getType())) {
-            box.minCorner.setX(box.minCorner.getX() - invertedFenceWidth);
-        }
-
-        if (isFence(east.getType())) {
-            box.maxCorner.setX(box.maxCorner.getX() + invertedFenceWidth);
-        }
-
-        return box;
-
-    }
-
-    /**
-     * Returns a boolean specifying whether or not the material is of type fence.
-     *
-     * @param material The material that needs to be identified as fence or not
-     * @return true if the material is a fence, false otherwise
-     */
-    public boolean isFence(Material material) {
-        switch (material) {
-            case FENCE:
-            case FENCE_GATE:
-            case NETHER_FENCE:
-            case ACACIA_FENCE:
-            case BIRCH_FENCE:
-            case DARK_OAK_FENCE:
-            case IRON_FENCE:
-            case JUNGLE_FENCE:
-            case SPRUCE_FENCE:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    /**
-     * Returns the bounding box corresponding to this glow block.
-     *
-     * @return The bounding box
-     */
-    public BoundingBox getBoundingBox() {
-        Location loc = this.getLocation().clone();
-        switch (this.getType()) {
-            case STEP:
-            case WOOD_STEP:
-            case PURPUR_SLAB:
-            case STONE_SLAB2:
-                return BoundingBox.fromCorners(loc.toVector(), loc.add(1, 0.5, 1).toVector());
-            case FENCE:
-            case FENCE_GATE:
-            case NETHER_FENCE:
-            case ACACIA_FENCE_GATE:
-            case ACACIA_FENCE:
-            case BIRCH_FENCE_GATE:
-            case DARK_OAK_FENCE_GATE:
-            case JUNGLE_FENCE_GATE:
-            case SPRUCE_FENCE_GATE:
-            case BIRCH_FENCE:
-            case DARK_OAK_FENCE:
-            case IRON_FENCE:
-            case JUNGLE_FENCE:
-            case SPRUCE_FENCE:
-                return getFenceBoundingBox(loc);
-            default:
-                return BoundingBox.fromCorners(loc.toVector(), loc.add(1.0, 1.0, 1.0).toVector());
         }
     }
 

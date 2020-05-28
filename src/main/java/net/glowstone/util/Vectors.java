@@ -93,4 +93,17 @@ public class Vectors {
     public static boolean equals(Vector vector, Vector otherVector) {
         return equals(vector, otherVector, Double.MIN_VALUE);
     }
+
+    /**
+     * Computes the volume of the given vector by multiplying all axises of the vector with each other.
+     *
+     * @param diagonal The vector that stretches diagonally over the volume to compute
+     * @return A double indicating the volume
+     */
+    public static double computeVolume(Vector diagonal) {
+        double x = Math.abs(diagonal.getX());
+        double y = Math.abs(diagonal.getY());
+        double z = Math.abs(diagonal.getZ());
+        return x * y * z;
+    }
 }

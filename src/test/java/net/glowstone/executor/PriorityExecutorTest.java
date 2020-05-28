@@ -1,23 +1,18 @@
 package net.glowstone.executor;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.messaging.TimeBasedTest;
@@ -31,117 +26,79 @@ import org.junit.jupiter.api.BeforeEach;
  */
 class PriorityExecutorTest {
 
-    private PriorityExecutor priorityExecutor;
+    private PriorityExecutor executor;
     private GlowChunk chunk;
+    private GlowPlayer playerOrigin;
     private GlowPlayer player;
     private GlowPlayer playerFurther;
-    private GlowPlayer playerOrigin;
 
+    /**
+     * Setup the priority executor and the required mocks.
+     */
     @BeforeEach
-    void setUp() {
+    void beforeEach() {
 
-        priorityExecutor = new PriorityExecutor(1, 1, 60L, TimeUnit.SECONDS);
+        executor = new PriorityExecutor(1);
 
         chunk = mock(GlowChunk.class);
-        when(chunk.getCenterCoordinates()).thenReturn(new Coordinates(-1, 1));
-
-        player = mock(GlowPlayer.class);
-        Coordinates playerCoords = new Coordinates(10, 20);
-        when(player.getCoordinates()).thenReturn(playerCoords);
-
-        playerFurther = mock(GlowPlayer.class);
-        Coordinates playerCoordsFurther = new Coordinates(100, 25);
-        when(playerFurther.getCoordinates()).thenReturn(playerCoordsFurther);
+        when(chunk.getCenterCoordinates()).thenReturn(new Coordinates(0, 0));
 
         playerOrigin = mock(GlowPlayer.class);
-        Coordinates origin = new Coordinates(0, 0);
-        when(playerOrigin.getCoordinates()).thenReturn(origin);
+        when(playerOrigin.getCoordinates()).thenReturn(new Coordinates(0, 0));
+
+        player = mock(GlowPlayer.class);
+        when(player.getCoordinates()).thenReturn(new Coordinates(10, 20));
+
+        playerFurther = mock(GlowPlayer.class);
+        when(playerFurther.getCoordinates()).thenReturn(new Coordinates(100, 25));
     }
 
     /**
      * Shutdown the executor after each test is completed.
      */
     @AfterEach
-    void tearDown() {
-        priorityExecutor.shutdown();
+    void afterEach() {
+        executor.shutdown();
     }
 
     /**
-     * Verify that all the runnables in the queue are drained properly.
+     * Verify that elements are executed in the correct order and properly cancelled.
      *
-     * @throws ExecutionException if the future completed with an exception.
-     * @throws InterruptedException if the thread is interrupted while waiting.
-     * @throws TimeoutException if the future did not complete before it timed out.
+     * @throws ExecutionException Whenever the future is completed exceptionally.
+     * @throws InterruptedException Whenever the future's getter is interrupted.
+     * @throws TimeoutException Whenever the timeout is reached on the future's getter.
      */
     @TimeBasedTest
-    void drainTo() throws ExecutionException, InterruptedException, TimeoutException {
+    void executeAndCancel() throws ExecutionException, InterruptedException, TimeoutException {
 
-        AtomicReference<InterruptedException> atomicException = new AtomicReference<>();
-        AtomicBoolean executed = new AtomicBoolean(false);
-        CompletableFuture<Boolean> executedFurther = new CompletableFuture<>();
-        CountDownLatch awaitQueued = new CountDownLatch(1);
+        CountDownLatch latch = new CountDownLatch(1);
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
 
-        priorityExecutor.execute(playerOrigin, chunk, () -> {
+        ChunkRunnable blocking = new ChunkRunnable(playerOrigin, chunk, () -> {
             try {
-                awaitQueued.await();
+                latch.await();
             } catch (InterruptedException exception) {
-                atomicException.set(exception);
+                exception.printStackTrace();
             }
         });
 
-        priorityExecutor.execute(player, chunk, () -> executed.set(true));
+        ChunkRunnable toBeCancelled = new ChunkRunnable(player, chunk, () -> future.complete(false));
 
-        List<ChunkRunnable> drained = new ArrayList<>();
-        priorityExecutor.drainTo(drained);
-        awaitQueued.countDown();
+        executor.executeAndCancel(Arrays.asList(blocking, toBeCancelled), runnable -> false);
 
-        priorityExecutor.execute(playerFurther, chunk, () -> executedFurther.complete(true));
+        ChunkRunnable toBeExecuted = new ChunkRunnable(playerFurther, chunk, () -> future.complete(true));
 
-        assertEquals(1, drained.size());
-        assertTrue(executedFurther.get(50L, TimeUnit.MILLISECONDS));
-        assertFalse(executed.get());
-    }
+        Collection<ChunkRunnable> notCancelled = executor.executeAndCancel(new ArrayList<>(), runnable -> false);
+        assertTrue(notCancelled.isEmpty());
 
-    /**
-     * Verify that the runnables are executed in order based on their priority.
-     *
-     * @throws InterruptedException if the thread is interrupted while waiting for the countdown latch to complete.
-     */
-    @TimeBasedTest
-    void execute() throws InterruptedException {
+        Collection<ChunkRunnable> cancelled = executor.executeAndCancel(
+                Collections.singleton(toBeExecuted),
+                runnable -> runnable.getPlayer() == player
+        );
 
-        CountDownLatch latch = new CountDownLatch(3);
-        AtomicReference<InterruptedException> atomicException = new AtomicReference<>();
-        List<Integer> list = Collections.synchronizedList(new ArrayList<>());
+        latch.countDown();
 
-        CountDownLatch awaitQueued = new CountDownLatch(1);
-
-        priorityExecutor.execute(playerOrigin, chunk, () -> {
-            try {
-                awaitQueued.await();
-            } catch (InterruptedException exception) {
-                atomicException.set(exception);
-            } finally {
-                latch.countDown();
-            }
-        });
-
-        priorityExecutor.execute(playerFurther, chunk, () -> {
-            list.add(2);
-            latch.countDown();
-        });
-
-        priorityExecutor.execute(player, chunk, () -> {
-            list.add(1);
-            latch.countDown();
-        });
-
-        awaitQueued.countDown();
-
-        List<Integer> expectedList = Arrays.asList(1, 2);
-
-        assertTrue(latch.await(50L, TimeUnit.MILLISECONDS));
-        assertNull(atomicException.get());
-        assertEquals(expectedList, list);
+        assertTrue(future.get(50L, TimeUnit.MILLISECONDS));
+        assertTrue(cancelled.contains(toBeCancelled));
     }
 }

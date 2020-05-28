@@ -63,10 +63,22 @@ public class EntityManager implements Iterable<GlowEntity> {
     /**
      * Gets all entities.
      *
-     * @return A collection of entities.
+     * @return A list of entities.
      */
-    public Collection<GlowEntity> getAll() {
-        return entities.values();
+    public List<GlowEntity> getAll() {
+        return new ArrayList<>(entities.values());
+    }
+
+    /**
+     * Get all player entities.
+     *
+     * @return a list of player entities.
+     */
+    public List<GlowPlayer> getPlayers() {
+        return entities.values().stream()
+                .filter(GlowPlayer.class::isInstance)
+                .map(GlowPlayer.class::cast)
+                .collect(Collectors.toList());
     }
 
     /**

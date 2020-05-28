@@ -1,6 +1,5 @@
-package net.glowstone.messaging.brokers.jms;
+package net.glowstone.messaging.brokers;
 
-import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,7 +26,7 @@ import net.glowstone.messaging.Broker;
  * @param <Subscriber> The type of subscribers that is allowed to subscribe to topics.
  * @param <Message> The type of messages that is allowed to be published to a jms topic.
  */
-public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subscriber, Message>, Closeable {
+public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subscriber, Message> {
 
     private final Connection connection;
     private final Session session;
@@ -50,9 +49,7 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
 
         this.connection = connection;
         this.connection.start();
-        // The session acknowledges every message that is received automatically. Can handle both synchronous and
-        // asynchronous message delivery. There is no need to manually acknowledge messages.
-        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        session = connection.createSession(true, Session.SESSION_TRANSACTED);
         this.codec = codec;
 
         jmsTopics = new HashMap<>();
