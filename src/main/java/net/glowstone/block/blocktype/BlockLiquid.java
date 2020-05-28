@@ -137,8 +137,8 @@ public abstract class BlockLiquid extends BlockType {
             for (int j = 1; j < 6; j++) {
                 // from each horizontal face
                 for (BlockFace face : SIDES) {
-                    if (calculateTarget(block, block.getRelative(face, j), face,
-                        false) && calculateTarget(block, block.getRelative(face), face, true)) {
+                    if (calculateTarget(block, block.getRelative(face, j), face, false)
+                            && calculateTarget(block, block.getRelative(face), face, true)) {
                         state.setFlowed(true);
                     }
                 }
@@ -226,25 +226,22 @@ public abstract class BlockLiquid extends BlockType {
             }
         }
         if (flowingMaterial == Material.WATER && targetMaterial == Material.WATER) {
-            if (direction == NORTH || direction == SOUTH || direction == EAST
-                    || direction == WEST) {
-                int count = 0;
-                for (BlockFace face : SIDES) {
-                    GlowBlock neighbour = target.getRelative(face);
-                    if (neighbour.getType() == Material.WATER) {
-                        if (neighbour.getState().getRawData() == 0) {
-                            count++;
-                        }
+            int count = 0;
+            for (BlockFace face : SIDES) {
+                GlowBlock neighbour = target.getRelative(face);
+                if (neighbour.getType() == Material.WATER) {
+                    if (neighbour.getState().getRawData() == 0) {
+                        count++;
                     }
                 }
-                if (count > 1 && target.getState().getRawData() != 0) {
-                    target.setType(Material.WATER, (byte) 0, true);
-                } else {
-                    int blockData = block.getState().getRawData();
-                    int targetData = target.getState().getRawData();
-                    if (blockData + 1 < targetData) {
-                        target.setType(Material.WATER, (byte) (blockData + 1), true);
-                    }
+            }
+            if (count > 1 && target.getState().getRawData() != 0) {
+                target.setType(Material.WATER, (byte) 0, true);
+            } else {
+                int blockData = block.getState().getRawData();
+                int targetData = target.getState().getRawData();
+                if (blockData + 1 < targetData) {
+                    target.setType(Material.WATER, (byte) (blockData + 1), true);
                 }
             }
         }
