@@ -75,6 +75,8 @@ public abstract class GlowAgeableTest<T extends GlowAgeable> extends GlowLivingE
     protected void assertAdult(T ageable) {
         assertTrue(ageable.isAdult());
         // Check that scale is at least 1
+        System.out.println(ageable.getWidth());
+        System.out.println(ageable.width);
         assertTrue(ageable.getWidth() >= ageable.width);
         assertTrue(ageable.getHeight() >= ageable.height);
     }

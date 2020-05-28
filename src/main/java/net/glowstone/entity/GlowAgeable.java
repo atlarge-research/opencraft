@@ -154,7 +154,7 @@ public class GlowAgeable extends GlowCreature implements Ageable {
     }
 
     protected final void setScale(float scale) {
-        setBoundingBox(height * scale, width * scale);
+        setBoundingBox(width * scale, height * scale);
     }
 
     @Override

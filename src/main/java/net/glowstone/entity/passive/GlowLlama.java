@@ -37,7 +37,7 @@ public class GlowLlama extends GlowChestedHorse<GlowLlamaInventory> implements L
     public GlowLlama(Location location) {
         super(location, EntityType.LLAMA, 22);
         this.setColor(Color.values()[ThreadLocalRandom.current().nextInt(Color.values().length)]);
-        setBoundingBox(0.9, 1.87);
+        setSize(0.9F, 1.87F);
     }
 
     @Override
