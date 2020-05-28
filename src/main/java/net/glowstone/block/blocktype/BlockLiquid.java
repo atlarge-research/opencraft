@@ -237,7 +237,7 @@ public abstract class BlockLiquid extends BlockType {
                         }
                     }
                 }
-                if (count > 1) {
+                if (count > 1 && target.getState().getRawData() != 0) {
                     target.setType(Material.WATER, (byte) 0, true);
                 } else {
                     int blockData = block.getState().getRawData();
