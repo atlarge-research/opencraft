@@ -1,5 +1,6 @@
 package net.glowstone.messaging;
 
+import com.rabbitmq.jms.admin.RMQConnectionFactory;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
@@ -56,6 +57,28 @@ public final class Brokers {
     ) throws JMSException {
         ConnectionFactory factory = new ActiveMQConnectionFactory(uri);
         Connection connection = factory.createConnection();
+        return new JmsBroker<>(connection, codec);
+    }
+
+    /**
+     * The RabbitMQ broker, this broker requires a RabbitMQ server to be running that wil handle the sending and
+     * receiving of messages.
+     *
+     * @param uri The link used to connect to the RabbitMQ server.
+     * @param codec The codec that has to be used for encoding and decoding messages.
+     * @param <Topic> The type of topics that is allowed to identify jms topics.
+     * @param <Subscriber> The type of subscribers that is allowed to subscribe to topics.
+     * @param <Message> The type of messages that is allowed to be published to a jms topic.
+     * @return The rabbitmq jms broker.
+     * @throws JMSException Whenever a topic connection could not be created.
+     */
+    public static <Topic, Subscriber, Message> JmsBroker<Topic, Subscriber, Message> newRabbitmqBroker(
+            String uri,
+            JmsCodec<Message> codec
+    ) throws JMSException {
+        RMQConnectionFactory factory = new RMQConnectionFactory();
+        factory.setUri(uri);
+        Connection connection = factory.createTopicConnection();
         return new JmsBroker<>(connection, codec);
     }
 
