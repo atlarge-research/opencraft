@@ -191,7 +191,6 @@ import org.bukkit.plugin.messaging.StandardMessenger;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.util.Vector;
 import org.json.simple.JSONObject;
 
 
