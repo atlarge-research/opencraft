@@ -157,11 +157,7 @@ public final class Explosion {
 
         playOutSoundAndParticles();
 
-        Material blockType = location.getBlock().getType();
-        if (blockType != Material.WATER
-                && blockType != Material.STATIONARY_WATER
-                && blockType != Material.LAVA
-                && blockType != Material.STATIONARY_LAVA) {
+        if (location.getBlock().isLiquid()) {
 
             for (Block block : blocks) {
                 handleBlockExplosion((GlowBlock) block);

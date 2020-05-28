@@ -82,7 +82,7 @@ public class GlowTntPrimed extends GlowExplosive implements TNTPrimed {
         if (ignitedByExplosion) {
             // if ignited by an explosion, the fuseTicks should be a random number between 10 and 30
             // ticks
-            fuseTicks = ThreadLocalRandom.current().nextInt(10, 31);
+            fuseTicks = rand.nextInt(10, 31);
         } else {
             fuseTicks = 80;
         }
