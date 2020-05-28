@@ -395,12 +395,13 @@ public final class Explosion {
         world.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 4,
                 (1.0F + (random.nextFloat() - random.nextFloat()) * 0.2F) * 0.7F);
 
+        Location center = location.clone().toCenterLocation();
         if (power >= 2.0F && breakBlocks) {
             // send huge explosion
-            world.spawnParticle(Particle.EXPLOSION_HUGE,location.clone().toCenterLocation(), 1);
+            world.spawnParticle(Particle.EXPLOSION_HUGE, center, 1);
         } else {
             // send large explosion
-            world.spawnParticle(Particle.EXPLOSION_LARGE, location.clone().toCenterLocation(), 1);
+            world.spawnParticle(Particle.EXPLOSION_LARGE, center, 1);
         }
     }
 
