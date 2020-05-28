@@ -21,6 +21,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import javax.jms.JMSException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -60,6 +61,7 @@ import net.glowstone.messaging.Broker;
 import net.glowstone.messaging.Brokers;
 import net.glowstone.messaging.Filter;
 import net.glowstone.messaging.MessagingSystem;
+import net.glowstone.messaging.brokers.codecs.ProtocolCodec;
 import net.glowstone.messaging.filters.PlayerFilter;
 import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.GlowSession;
@@ -69,6 +71,7 @@ import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
 import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
+import net.glowstone.net.protocol.PlayProtocol;
 import net.glowstone.util.AreaOfInterest;
 import net.glowstone.util.BlockStateDelegate;
 import net.glowstone.util.Coordinates;
@@ -518,7 +521,14 @@ public class GlowWorld implements World {
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
 
         ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
-        broker = Brokers.newConcurrentBroker();
+        try {
+            broker = Brokers.newRabbitmqBroker(
+                    "amqp://guest:guest@localhost:5672/%2F",
+                    new ProtocolCodec(new PlayProtocol())
+            );
+        } catch (JMSException e) {
+            throw new RuntimeException(e);
+        }
         Filter<Player, Message> filter = new PlayerFilter();
         messagingSystem = new MessagingSystem<>(policy, broker, filter);
 
