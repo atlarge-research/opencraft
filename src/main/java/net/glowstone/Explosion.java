@@ -11,13 +11,16 @@ import javax.annotation.Nullable;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.blocktype.BlockTnt;
 import net.glowstone.entity.GlowEntity;
+import net.glowstone.entity.GlowLivingEntity;
 import net.glowstone.entity.GlowPlayer;
+import net.glowstone.entity.objects.GlowItem;
 import net.glowstone.net.message.play.game.ExplosionMessage;
 import net.glowstone.net.message.play.game.ExplosionMessage.Record;
 import net.glowstone.util.RayUtil;
-import org.bukkit.Effect;
+import net.glowstone.util.Vectors;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -45,6 +48,7 @@ public final class Explosion {
     public static final int POWER_WITHER_CREATION = 7;
     public static final int POWER_ENDER_CRYSTAL = 6;
     public static final int EXPLOSION_VISIBILITY_RADIUS = 64;
+    public static final int EXPLOSION_RADIUS = 7;
     private static final List<Vector> RAY_DIRECTIONS = new ArrayList<>();
 
     static {
@@ -153,13 +157,16 @@ public final class Explosion {
 
         playOutSoundAndParticles();
 
-        for (Block block : blocks) {
-            handleBlockExplosion((GlowBlock) block);
-        }
+        if (!location.getBlock().isLiquid()) {
 
-        if (incendiary) {
             for (Block block : blocks) {
-                setBlockOnFire((GlowBlock) block);
+                handleBlockExplosion((GlowBlock) block);
+            }
+
+            if (incendiary) {
+                for (Block block : blocks) {
+                    setBlockOnFire((GlowBlock) block);
+                }
             }
         }
 
@@ -280,6 +287,12 @@ public final class Explosion {
                 continue;
             }
 
+            if (entity instanceof GlowPlayer) {
+                //TODO add correct player velocity. This is currently impossible since Glowplayer
+                // is nog being simulated by the server
+                continue;
+            }
+
             double exposure = world.rayTrace(location, (GlowEntity) entity);
             double impact = (1 - (distanceTo(entity) / power / 2)) * exposure;
 
@@ -299,18 +312,28 @@ public final class Explosion {
             }
             ((GlowEntity) entity).damage(damage, source, damageCause);
 
-            if (entity instanceof GlowPlayer && ((GlowPlayer) entity).isFlying()) {
-                continue;
-            }
+            if (entity instanceof GlowEntity && !(entity instanceof GlowItem)) {
 
-            if (entity instanceof LivingEntity) {
-                LivingEntity livingEntity = (LivingEntity) entity;
-                Vector rayLength = RayUtil.getVelocityRay(distanceToHead(livingEntity));
-                rayLength.multiply(exposure);
+                GlowEntity glowEntity = (GlowEntity) entity;
+                Vector rayLength;
+
+                if (entity instanceof  GlowLivingEntity) {
+                    rayLength = distanceToHead((GlowLivingEntity) glowEntity);
+                } else {
+                    rayLength = vectorTo(glowEntity);
+                }
+
+                if (rayLength.length() > EXPLOSION_RADIUS) {
+                    continue;
+                }
+
+                rayLength = Vectors.clamp(rayLength.multiply(exposure), 1.0);
 
                 Vector currentVelocity = entity.getVelocity();
                 currentVelocity.add(rayLength);
                 entity.setVelocity(currentVelocity);
+
+                continue;
             }
         }
     }
@@ -353,6 +376,10 @@ public final class Explosion {
         return RayUtil.getRayBetween(location, entity.getLocation()).length();
     }
 
+    private Vector vectorTo(Entity entity) {
+        return RayUtil.getRayBetween(entity.getLocation(),location);
+    }
+
     private double distanceToSquared(Entity entity) {
         return RayUtil.getRayBetween(location, entity.getLocation()).lengthSquared();
     }
@@ -368,12 +395,13 @@ public final class Explosion {
         world.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 4,
                 (1.0F + (random.nextFloat() - random.nextFloat()) * 0.2F) * 0.7F);
 
+        Location center = location.clone().toCenterLocation();
         if (power >= 2.0F && breakBlocks) {
             // send huge explosion
-            world.spigot().playEffect(location, Effect.EXPLOSION_HUGE);
+            world.spawnParticle(Particle.EXPLOSION_HUGE, center, 1);
         } else {
             // send large explosion
-            world.spigot().playEffect(location, Effect.EXPLOSION_LARGE);
+            world.spawnParticle(Particle.EXPLOSION_LARGE, center, 1);
         }
     }
 
