@@ -62,7 +62,8 @@ public final class Brokers {
 
     /**
      * The RabbitMQ broker, this broker requires a RabbitMQ server to be running that wil handle the sending and
-     * receiving of messages.
+     * receiving of messages. Before running this server you need to install the `rabbitmq_jms_topic_exchange` plugin
+     * for RabbitMQ.
      *
      * @param uri The link used to connect to the RabbitMQ server.
      * @param codec The codec that has to be used for encoding and decoding messages.
