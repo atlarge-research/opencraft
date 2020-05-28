@@ -63,6 +63,7 @@ public class VectorsTest {
 
     @Test
     public void clampTestPositiveClamped() {
+
         Vector vector = new Vector(0.0, 4.0, 3.0);
         Vector projected = Vectors.clamp(vector, 1.0);
 
@@ -73,6 +74,7 @@ public class VectorsTest {
 
     @Test
     public void clampTestPositiveNotClamped() {
+
         Vector vector = new Vector(0.0, 0.8, 0.6);
         Vector projected = Vectors.clamp(vector, 1.0);
 
@@ -83,6 +85,7 @@ public class VectorsTest {
 
     @Test
     public void clampTestNegativeClamped() {
+
         Vector vector = new Vector(0.0, -4.0, -3.0);
         Vector projected = Vectors.clamp(vector, 1.0);
 
@@ -93,6 +96,7 @@ public class VectorsTest {
 
     @Test
     public void clampTestNegativeNotClamped() {
+
         Vector vector = new Vector(0.0, -0.8, -0.6);
         Vector projected = Vectors.clamp(vector, 1.0);
 

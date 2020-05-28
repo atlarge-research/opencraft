@@ -307,6 +307,8 @@ public final class Explosion {
             ((GlowEntity) entity).damage(damage, source, damageCause);
 
             if (entity instanceof GlowPlayer) {
+                //TODO add correct player velocity. This is currently impossible since Glowplayer
+                // is nog being simulated by the server
                 continue;
             }
 

@@ -61,11 +61,9 @@ public class Vectors {
      */
     public static Vector clamp(Vector vector, double magnitude) {
         double length = vector.length();
-
         if  (length > magnitude) {
             return vector.clone().multiply(magnitude / length);
         }
-
         return vector.clone();
     }
 
