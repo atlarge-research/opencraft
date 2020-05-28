@@ -58,7 +58,9 @@ public class SurfaceCaveDecorator extends BlockDecorator {
             }
             GlowBlock block = (GlowBlock) world
                 .getBlockAt(node.getBlockX(), node.getBlockY(), node.getBlockZ());
-            caveAroundRay(block, random);
+            if (!block.isLiquid()) {
+                caveAroundRay(block, random);
+            }
         }
     }
 
