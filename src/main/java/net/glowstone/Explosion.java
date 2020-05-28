@@ -157,7 +157,7 @@ public final class Explosion {
 
         playOutSoundAndParticles();
 
-        if (location.getBlock().isLiquid()) {
+        if (!location.getBlock().isLiquid()) {
 
             for (Block block : blocks) {
                 handleBlockExplosion((GlowBlock) block);
@@ -287,6 +287,12 @@ public final class Explosion {
                 continue;
             }
 
+            if (entity instanceof GlowPlayer) {
+                //TODO add correct player velocity. This is currently impossible since Glowplayer
+                // is nog being simulated by the server
+                continue;
+            }
+
             double exposure = world.rayTrace(location, (GlowEntity) entity);
             double impact = (1 - (distanceTo(entity) / power / 2)) * exposure;
 
@@ -305,12 +311,6 @@ public final class Explosion {
                 damageCause = DamageCause.ENTITY_EXPLOSION;
             }
             ((GlowEntity) entity).damage(damage, source, damageCause);
-
-            if (entity instanceof GlowPlayer) {
-                //TODO add correct player velocity. This is currently impossible since Glowplayer
-                // is nog being simulated by the server
-                continue;
-            }
 
             if (entity instanceof GlowEntity && !(entity instanceof GlowItem)) {
 
