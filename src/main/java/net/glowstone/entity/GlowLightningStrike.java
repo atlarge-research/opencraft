@@ -10,7 +10,6 @@ import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.constants.GameRules;
 import net.glowstone.entity.physics.BoundingBox;
-import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.SpawnLightningStrikeMessage;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -132,7 +131,7 @@ public class GlowLightningStrike extends GlowWeather implements LightningStrike 
     }
 
     @Override
-    public List<Message> createUpdateMessage(GlowSession session) {
+    public List<Message> createUpdateMessage() {
         return Collections.emptyList();
     }
 

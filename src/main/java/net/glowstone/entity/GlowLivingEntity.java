@@ -38,7 +38,6 @@ import net.glowstone.entity.objects.GlowLeashHitch;
 import net.glowstone.entity.passive.GlowWolf;
 import net.glowstone.entity.projectile.GlowProjectile;
 import net.glowstone.inventory.EquipmentMonitor;
-import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.AnimateEntityMessage;
 import net.glowstone.net.message.play.entity.EntityEffectMessage;
 import net.glowstone.net.message.play.entity.EntityEquipmentMessage;
@@ -507,8 +506,8 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
     }
 
     @Override
-    public List<Message> createUpdateMessage(GlowSession session) {
-        List<Message> messages = super.createUpdateMessage(session);
+    public List<Message> createUpdateMessage() {
+        List<Message> messages = super.createUpdateMessage();
 
         messages.addAll(equipmentMonitor.getChanges().stream()
                 .map(change -> new EntityEquipmentMessage(entityId, change.slot, change.item))
