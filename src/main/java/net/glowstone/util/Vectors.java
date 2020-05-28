@@ -53,6 +53,21 @@ public class Vectors {
     }
 
     /**
+     * Clamp a vector within some magnitude.
+     *
+     * @param vector The vector that will be clamped
+     * @param magnitude The value that will be used a clamping threshold
+     * @return A projected vector
+     */
+    public static Vector clamp(Vector vector, double magnitude) {
+        double length = vector.length();
+        if  (length > magnitude) {
+            return vector.clone().multiply(magnitude / length);
+        }
+        return vector.clone();
+    }
+
+    /**
      * An equals method that allows matching two vectors per parameter with a certain tolerance.
      *
      * @param vector one of the vectors to compare
