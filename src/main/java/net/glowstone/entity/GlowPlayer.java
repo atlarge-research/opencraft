@@ -1297,11 +1297,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 .forEach(player -> player.getSession().send(updateMessage));
     }
 
-    @Override
-    public void setVelocity(Vector velocity) {
-        super.setVelocity(velocity);
-    }
-
     /**
      * Set this player's client settings.
      *

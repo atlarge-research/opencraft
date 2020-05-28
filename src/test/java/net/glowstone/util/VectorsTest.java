@@ -12,8 +12,10 @@ public class VectorsTest {
 
     @Test
     public void floorTest() {
+
         Vector vector = new Vector(0.1, 1.0, -0.9);
         Vector floored = Vectors.floor(vector);
+
         assertEquals(floored.getX(), 0.0, EPSILON);
         assertEquals(floored.getY(), 1.0, EPSILON);
         assertEquals(floored.getZ(), -1.0, EPSILON);
@@ -21,8 +23,10 @@ public class VectorsTest {
 
     @Test
     public void ceilTest() {
+
         Vector vector = new Vector(0.1, 1.0, -0.9);
         Vector ceiled = Vectors.ceil(vector);
+
         assertEquals(ceiled.getX(), 1.0, EPSILON);
         assertEquals(ceiled.getY(), 1.0, EPSILON);
         assertEquals(ceiled.getZ(), 0.0, EPSILON);
@@ -30,6 +34,7 @@ public class VectorsTest {
 
     @Test
     public void projectTest() {
+
         Vector vector = new Vector(0.1, 1.0, -0.9);
         Vector normal = new Vector(1.0, 0.0, 0.0);
         Vector projected = Vectors.project(vector, normal);
@@ -41,6 +46,7 @@ public class VectorsTest {
 
     @Test
     public void projectTest1() {
+
         Vector vector = new Vector(0.1, 1.0, -0.9);
         Vector normal = new Vector(0.0, 1.0, 0.0);
         Vector projected = Vectors.project(vector, normal);
@@ -52,6 +58,7 @@ public class VectorsTest {
 
     @Test
     public void projectTest2() {
+
         Vector vector = new Vector(0.1, 1.0, -0.9);
         Vector normal = new Vector(0.0, 0.0, 1.0);
         Vector projected = Vectors.project(vector, normal);
@@ -127,6 +134,7 @@ public class VectorsTest {
 
     @Test
     public void equalEarlyExitYTest() {
+
         Vector vector = new Vector(0.1, 1.0, -0.9);
         Vector otherVector = mock(Vector.class);
 
