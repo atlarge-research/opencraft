@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -46,7 +45,6 @@ import net.glowstone.block.blocktype.BlockBed;
 import net.glowstone.block.itemtype.ItemFood;
 import net.glowstone.block.itemtype.ItemType;
 import net.glowstone.chunk.ChunkManager.ChunkLock;
-import net.glowstone.chunk.GlowChunk;
 import net.glowstone.chunk.GlowChunk.Key;
 import net.glowstone.command.LocalizedEnumNames;
 import net.glowstone.constants.GameRules;
@@ -124,6 +122,7 @@ import org.bukkit.Achievement;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
 import org.bukkit.Effect;
 import org.bukkit.Effect.Type;
@@ -239,7 +238,12 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     /**
      * The chunks that the client knows about.
      */
-    private final Set<Key> knownChunks = new HashSet<>();
+    private final Set<Chunk> previousChunks = new HashSet<>();
+
+    /**
+     * The chunks that the client knows about.
+     */
+    private final Set<Chunk> knownChunks = new HashSet<>();
 
     /**
      * The set of plugin channels this player is listening on.
@@ -559,14 +563,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     private int prevCentralZ;
 
     /**
-     * If this is the player's first time getting blocks streamed.
-     */
-    private boolean firstStream = true;
-
-    /**
      * If we should force block streaming regardless of chunk difference.
      */
-    public boolean forceStream = false;
+    public boolean viewDistanceChanged = false;
 
     /**
      * Current casted fishing hook.
@@ -631,6 +630,24 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
     ////////////////////////////////////////////////////////////////////////////
     // Internals
+
+    /**
+     * Get chunks previously within view distance of the player.
+     *
+     * @return a set of chunks.
+     */
+    public Set<Chunk> getPreviousChunks() {
+        return previousChunks;
+    }
+
+    /**
+     * Get the chunks currently within view distance of the player.
+     *
+     * @return a set of chunks.
+     */
+    public Set<Chunk> getKnownChunks() {
+        return knownChunks;
+    }
 
     /**
      * Read the location from a PlayerReader for entity initialization.
@@ -721,7 +738,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         // save data back out
         saveData();
 
-        streamBlocks(); // stream the initial set of blocks
         sendWeather();
         sendRainDensity();
         sendSkyDarkness();
@@ -804,6 +820,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      */
     @Override
     public void remove() {
+        previousChunks.clear();
         knownChunks.clear();
         chunkLock.clear();
         saveData();
@@ -827,6 +844,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * @param async if true, the player's data is saved asynchronously
      */
     public void remove(boolean async) {
+        previousChunks.clear();
         knownChunks.clear();
         chunkLock.clear();
         saveData(async);
@@ -933,9 +951,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             enderPearlCooldown--;
         }
 
-        // stream world
-        streamBlocks();
-
         // add to playtime
         incrementStatistic(Statistic.PLAY_ONE_TICK);
         if (isSneaking()) {
@@ -953,60 +968,16 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             session.send(new EntityMetadataMessage(getEntityId(), changes));
         }
 
-        // Entity IDs are only unique per world, so we can't spawn or teleport between worlds while
-        // updating them.
-        worldLock.writeLock().lock();
-        try {
-            // update or remove entities
-            List<GlowEntity> destroyEntities = new LinkedList<>();
-            for (Iterator<GlowEntity> it = knownEntities.iterator(); it.hasNext(); ) {
-                GlowEntity entity = it.next();
-                if (!isWithinDistance(entity) || entity.isRemoved()) {
-                    destroyEntities.add(entity);
-                } else {
-                    entity.createUpdateMessage(session).forEach(session::send);
-                }
-            }
-            if (!destroyEntities.isEmpty()) {
-                List<Integer> destroyIds = new ArrayList<>(destroyEntities.size());
-                for (GlowEntity entity : destroyEntities) {
-                    knownEntities.remove(entity);
-                    destroyIds.add(entity.getEntityId());
-                }
-                session.send(new DestroyEntitiesMessage(destroyIds));
-            }
-            // add entities
-            knownChunks.forEach(key ->
-                    world.getChunkAt(key.getX(), key.getZ()).getRawEntities().stream()
-                            .filter(entity -> this != entity
-                                    && isWithinDistance(entity)
-                                    && !entity.isDead()
-                                    && !knownEntities.contains(entity)
-                                    && !hiddenEntities.contains(entity.getUniqueId()))
-                            .forEach((entity) -> Bukkit.getScheduler()
-                                    .runTaskAsynchronously(null, () -> {
-                                        worldLock.readLock().lock();
-                                        try {
-                                            knownEntities.add(entity);
-                                        } finally {
-                                            worldLock.readLock().unlock();
-                                        }
-                                        entity.createSpawnMessage().forEach(session::send);
-                                        entity.createAfterSpawnMessage(session)
-                                                .forEach(session::send);
-                                    })));
-        } finally {
-            worldLock.writeLock().unlock();
-        }
-
         if (passengerChanged) {
-            session.send(new SetPassengerMessage(getEntityId(), getPassengers().stream()
-                    .mapToInt(Entity::getEntityId).toArray()));
+            int[] ids = getPassengers().stream().mapToInt(Entity::getEntityId).toArray();
+            Message message = new SetPassengerMessage(getEntityId(), ids);
+            session.send(message);
         }
         getAttributeManager().sendMessages(session);
 
         GlowFishingHook hook = currentFishingHook.get();
         if (hook != null) {
+
             // The line will disappear if the player wanders more than 32 blocks away from the
             // bobber, or if the player stops holding a fishing rod.
             if (getInventory().getItemInMainHand().getType() != Material.FISHING_ROD
@@ -1020,6 +991,84 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         }
     }
 
+    /**
+     * Streams chunks to the player's client.
+     */
+    public void updateKnownChunks() {
+
+        int centralX = location.getBlockX() >> 4;
+        int centralZ = location.getBlockZ() >> 4;
+        int radius = Math.min(server.getViewDistance(), 1 + settings.getViewDistance());
+
+        if (viewDistanceChanged || prevCentralX != centralX || prevCentralZ != centralZ) {
+
+            previousChunks.clear();
+            previousChunks.addAll(knownChunks);
+            knownChunks.clear();
+
+            for (int x = centralX - radius; x <= centralX + radius; x++) {
+                for (int z = centralZ - radius; z <= centralZ + radius; z++) {
+                    Chunk chunk = world.getChunkAt(x, z);
+                    knownChunks.add(chunk);
+                }
+            }
+
+            prevCentralX = centralX;
+            prevCentralZ = centralZ;
+        }
+    }
+
+    /**
+     * Spawn and destroy entities that come within or out of the player's view distance.
+     */
+    public void spawnEntities() {
+
+        // Remove entities that are no longer visible
+        List<GlowEntity> removeEntities = new LinkedList<>();
+        List<GlowEntity> destroyEntities = new LinkedList<>();
+        for (GlowEntity entity : knownEntities) {
+
+            if (!isWithinDistance(entity) || entity.isRemoved()) {
+                removeEntities.add(entity);
+            }
+
+            if (!isWithinDistance(entity)) {
+                destroyEntities.add(entity);
+            }
+        }
+
+        for (GlowEntity entity : removeEntities) {
+            knownEntities.remove(entity);
+        }
+
+        if (!destroyEntities.isEmpty()) {
+            List<Integer> destroyIds = removeEntities.stream()
+                    .map(GlowEntity::getEntityId)
+                    .collect(Collectors.toList());
+            session.send(new DestroyEntitiesMessage(destroyIds));
+        }
+
+        // Add entities that have become visible
+        knownChunks.forEach(key ->
+                world.getChunkAt(key.getX(), key.getZ()).getRawEntities().stream()
+                        .filter(entity -> this != entity
+                                && isWithinDistance(entity)
+                                && !entity.isDead()
+                                && !knownEntities.contains(entity)
+                                && !hiddenEntities.contains(entity.getUniqueId()))
+                        .forEach((entity) -> {
+
+                            worldLock.readLock().lock();
+                            try {
+                                knownEntities.add(entity);
+                            } finally {
+                                worldLock.readLock().unlock();
+                            }
+
+                            entity.createSpawnMessage().forEach(session::send);
+                        }));
+    }
+
     @Override
     protected void pulsePhysics() {
         // trust the client with physics
@@ -1030,58 +1079,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     @Override
     protected void jump() {
         // don't make the client jump, please
-    }
-
-    /**
-     * Streams chunks to the player's client.
-     */
-    private void streamBlocks() {
-        Set<Key> previousChunks = null;
-        ArrayList<Key> newChunks = new ArrayList<>();
-
-        int centralX = location.getBlockX() >> 4;
-        int centralZ = location.getBlockZ() >> 4;
-        int radius = Math.min(server.getViewDistance(), 1 + settings.getViewDistance());
-
-        if (firstStream) {
-            firstStream = false;
-            for (int x = centralX - radius; x <= centralX + radius; x++) {
-                for (int z = centralZ - radius; z <= centralZ + radius; z++) {
-                    newChunks.add(GlowChunk.Key.of(x, z));
-                }
-            }
-        } else if (Math.abs(centralX - prevCentralX) > radius
-                || Math.abs(centralZ - prevCentralZ) > radius) {
-            knownChunks.clear();
-            for (int x = centralX - radius; x <= centralX + radius; x++) {
-                for (int z = centralZ - radius; z <= centralZ + radius; z++) {
-                    newChunks.add(GlowChunk.Key.of(x, z));
-                }
-            }
-        } else if (forceStream || prevCentralX != centralX || prevCentralZ != centralZ) {
-            previousChunks = new HashSet<>(knownChunks);
-            for (int x = centralX - radius; x <= centralX + radius; x++) {
-                for (int z = centralZ - radius; z <= centralZ + radius; z++) {
-                    Key key = GlowChunk.Key.of(x, z);
-                    if (knownChunks.contains(key)) {
-                        previousChunks.remove(key);
-                    } else {
-                        newChunks.add(key);
-                    }
-                }
-            }
-        } else {
-            return; // early end if there's no changes
-        }
-
-        prevCentralX = centralX;
-        prevCentralZ = centralZ;
-
-        knownChunks.addAll(newChunks);
-        if (previousChunks != null) {
-            knownChunks.removeAll(previousChunks);
-            previousChunks.clear();
-        }
     }
 
     /**
@@ -1107,6 +1104,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         // switch chunk set
         // no need to send chunk unload messages - respawn unloads all chunks
+        previousChunks.clear();
         knownChunks.clear();
         chunkLock.clear();
         chunkLock = world.newChunkLock(getName());
@@ -1120,8 +1118,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         session.send(new PositionRotationMessage(location));
         teleportedTo = location.clone();
         setCompassTarget(world.getSpawnLocation()); // set our compass target
-
-        streamBlocks(); // stream blocks
 
         sendWeather();
         sendRainDensity();
@@ -1217,10 +1213,11 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     /**
      * Checks whether the player can see the given chunk.
      *
-     * @param chunk The chunk to check.
+     * @param key The chunk to check.
      * @return If the chunk is known to the player's client.
      */
-    public boolean canSeeChunk(Key chunk) {
+    public boolean canSeeChunk(Key key) {
+        Chunk chunk = world.getChunkAt(key.getX(), key.getZ());
         return knownChunks.contains(chunk);
     }
 
@@ -1323,7 +1320,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         if (!newLocale.equalsIgnoreCase(this.settings.getLocale())) {
             EventFactory.getInstance().callEvent(new PlayerLocaleChangeEvent(this, newLocale));
         }
-        forceStream = settings.getViewDistance() != this.settings.getViewDistance()
+        viewDistanceChanged = settings.getViewDistance() != this.settings.getViewDistance()
                 && settings.getViewDistance() + 1 <= server.getViewDistance();
         this.settings = settings;
         metadata.set(MetadataIndex.PLAYER_SKIN_PARTS, settings.getSkinFlags());

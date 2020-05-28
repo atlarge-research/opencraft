@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -63,6 +64,7 @@ import net.glowstone.messaging.MessagingSystem;
 import net.glowstone.messaging.filters.PlayerFilter;
 import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.GlowSession;
+import net.glowstone.net.message.play.entity.DestroyEntitiesMessage;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
@@ -545,33 +547,28 @@ public class GlowWorld implements World {
      */
     public void pulse() {
 
-        List<GlowEntity> entities = entityManager.getAll();
         List<GlowPlayer> players = entityManager.getPlayers();
+
+        players.forEach(GlowPlayer::updateKnownChunks);
 
         updateMessagingSystem(players);
 
         streamChunks(players);
 
-        // Update blocks that require a tick.
         pulseTickMap();
-
-        // Apply tick to random blocks in active chunks.
         Set<GlowChunk> activeChunks = findActiveChunks(players);
         updateBlocksInChunks(activeChunks);
-
-        // Process player-induced block changes.
         processBlockChanges();
 
-        // Update non player entities.
-        entities.stream()
-                .filter(entity -> !(entity instanceof GlowPlayer))
-                .forEach(GlowEntity::pulse);
+        List<GlowEntity> entities = entityManager.getAll();
 
-        // Update player entities last so they receive all messages.
-        players.forEach(GlowPlayer::pulse);
+        entities.forEach(GlowEntity::pulse);
 
-        // Reset all entities.
-        resetEntities(entities);
+        broadcastEntityRemovals(entities);
+        broadcastEntityUpdates(entities);
+        players.forEach(GlowPlayer::spawnEntities);
+
+        entities.forEach(GlowEntity::reset);
 
         worldBorder.pulse();
 
@@ -659,10 +656,9 @@ public class GlowWorld implements World {
                             GlowChunk.Key key = GlowChunk.Key.of(x, z);
                             player.getChunkLock().acquire(key);
 
-                            boolean skylight = getEnvironment() == Environment.NORMAL;
                             GlowChunk chunk = getChunkAt(x, z);
-
                             ChunkRunnable chunkRunnable = new ChunkRunnable(player, chunk, () -> {
+                                boolean skylight = getEnvironment() == Environment.NORMAL;
                                 Message message = chunk.toMessage(skylight);
                                 session.send(message);
                                 chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
@@ -913,8 +909,32 @@ public class GlowWorld implements World {
         });
     }
 
-    private void resetEntities(List<GlowEntity> entities) {
-        entities.forEach(GlowEntity::reset);
+    /**
+     * Generate and broadcast update messages for all entities on the server.
+     *
+     * @param entities The entities for which update messages should be generated.
+     */
+    private void broadcastEntityUpdates(Collection<GlowEntity> entities) {
+        entities.forEach(entity -> {
+            List<Message> messages = entity.createUpdateMessage();
+            messages.forEach(message -> messagingSystem.broadcast(entity, message));
+        });
+    }
+
+    /**
+     * Broadcast the removal of entities.
+     *
+     * @param entities A collection of all entities that should be checked for removal.
+     */
+    private void broadcastEntityRemovals(Collection<GlowEntity> entities) {
+        entities.forEach(entity -> {
+            if (entity.isRemoved()) {
+                int id = entity.getEntityId();
+                List<Integer> ids = Collections.singletonList(id);
+                Message message = new DestroyEntitiesMessage(ids);
+                messagingSystem.broadcast(entity, message);
+            }
+        });
     }
 
     private void saveWorld() {
