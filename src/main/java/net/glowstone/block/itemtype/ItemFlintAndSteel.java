@@ -44,30 +44,6 @@ public class ItemFlintAndSteel extends ItemTool {
         return false;
     }
 
-    /**
-     * Retrieve the horizontal direction the portal should be made in. This method assumes a portal is 2 wide. We
-     * check on which side of the block an obsidian block is, the opposite direction is the direction the portal
-     * should be made in. This method also checks if there is a valid portal in one of the horizontal directions.
-     * @param block The block in a portal.
-     * @param verticalFace The vertical direction the portal should be created in.
-     * @return The direction of the portal.
-     */
-    private BlockFace getHorizontalPortalDirection(GlowBlock block, BlockFace verticalFace) {
-
-        List<BlockFace> horizontal = Arrays.asList(BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST);
-
-        for (BlockFace direction : horizontal) {
-            if (block.getRelative(direction).getType() == Material.OBSIDIAN) {
-                BlockFace opposite = direction.getOppositeFace();
-                if (isPortal(block, verticalFace, opposite)) {
-                    return opposite;
-                }
-            }
-        }
-
-        return null;
-    }
-
     private boolean isValidPortal(GlowBlock block) {
 
         Pair<GlowBlock, BlockFace> portalPos = getPortalPosition(block);
@@ -80,7 +56,8 @@ public class ItemFlintAndSteel extends ItemTool {
 
         int height = getPortalLengthDirection(cornerBlock, BlockFace.UP);
         int width = getPortalLengthDirection(cornerBlock, direction);
-        if (height == -1 || height < 3 || width == -1 || width < 2) {
+        System.out.println("height: " + height + " width: " + width);
+        if (height < 3 || width < 2) {
             return false;
         }
 
@@ -93,7 +70,7 @@ public class ItemFlintAndSteel extends ItemTool {
         }
 
         GlowBlock sideBlock = cornerBlock.getRelative(direction.getOppositeFace());
-        GlowBlock oppositeSideBlock = cornerBlock.getRelative(direction, width + 1);
+        GlowBlock oppositeSideBlock = cornerBlock.getRelative(direction, width);
         for (int i = 0; i < height; i++){
             if (sideBlock.getType() != Material.OBSIDIAN) {
                 return false;
@@ -104,9 +81,48 @@ public class ItemFlintAndSteel extends ItemTool {
             oppositeSideBlock = oppositeSideBlock.getRelative(BlockFace.UP);
         }
 
-        //GlowBlock blockCeiling = cornerBlock.getRelative()
+        GlowBlock blockCeiling = cornerBlock.getRelative(BlockFace.UP, height);
+        for (int i = 0; i < width; i++){
+            if (blockCeiling.getType() != Material.OBSIDIAN) {
+                return false;
+            }
+            blockCeiling = blockCeiling.getRelative(direction);
+        }
 
-        return false;
+        return fillPortal(height, width, cornerBlock, direction);
+    }
+
+    private boolean fillPortal(int height, int width, GlowBlock cornerBlock, BlockFace direction) {
+        GlowBlock current = cornerBlock;
+        boolean success = true;
+        for (int i = 0; i < height; i++) {
+            current = cornerBlock.getRelative(BlockFace.UP, i);
+            for (int j = 0; j < width; j++) {
+                if (current.getType() != Material.AIR) {
+                    success = false;
+                }
+                current = current.getRelative(direction);
+            }
+        }
+
+        byte data;
+        if (direction == BlockFace.EAST || direction == BlockFace.WEST) {
+            data = 1;
+        } else {
+            data = 2;
+        }
+
+        if(success) {
+            for (int i = 0; i < height; i++) {
+                current = cornerBlock.getRelative(BlockFace.UP, i);
+                for (int j = 0; j < width; j++) {
+                    current.setType(Material.PORTAL, data, false);
+                    current = current.getRelative(direction);
+                }
+            }
+        }
+
+        return success;
     }
 
     /**
@@ -116,9 +132,11 @@ public class ItemFlintAndSteel extends ItemTool {
      * @return The position and direction of the corner of a portal. This position will always be at the bottom.
      */
     private Pair<GlowBlock, BlockFace> getPortalPosition(GlowBlock block) {
-        int heightDown = getPortalLengthDirection(block, BlockFace.DOWN);
-        int widthSouth = getPortalLengthDirection(block, BlockFace.SOUTH);
-        int widthWest = getPortalLengthDirection(block, BlockFace.WEST);
+        int heightDown = getPortalLengthDirection(block, BlockFace.DOWN) - 1;
+        int widthSouth = getPortalLengthDirection(block, BlockFace.SOUTH) - 1;
+        int widthWest = getPortalLengthDirection(block, BlockFace.WEST) - 1;
+
+        System.out.println("heigthDown: " + heightDown + " widthSouth: " + widthSouth + " widthWest: " + widthWest);
 
         if (heightDown != -1 && widthSouth != -1) {
             GlowBlock blockPosition = block.getRelative(BlockFace.DOWN, heightDown);
@@ -143,13 +161,13 @@ public class ItemFlintAndSteel extends ItemTool {
      * @return The length to the first obsidian block in the given direction.
      */
     private int getPortalLengthDirection(GlowBlock block, BlockFace direction) {
-        int size = -1;
+        int size = 0;
 
-        while (size < PORTAL_SIZE  && block.getType() == Material.AIR) {
+        while (size <= PORTAL_SIZE  && block.getType() == Material.AIR) {
             size++;
             block = block.getRelative(direction);
 
-            if (block.getType() != Material.AIR || block.getType() != Material.OBSIDIAN) {
+            if (block.getType() != Material.AIR && block.getType() != Material.OBSIDIAN || size==21) {
                 size = -1;
                 break;
             }
@@ -159,80 +177,15 @@ public class ItemFlintAndSteel extends ItemTool {
     }
 
     /**
-     * Checks if there is a 2x3 portal. A portal should be surrounded by obsidian for it to work.
-     * @param block A block in a corner of the portal.
-     * @param verticalFace Whether we have to build the portal up or down.
-     * @param direction The horizontal direction to check for a portal.
-     * @return If this is a valid portal.
-     */
-    private boolean isPortal(GlowBlock block, BlockFace verticalFace, BlockFace direction) {
-
-        // TODO: Support portals of various sizes.
-        if (direction == null) {
-            return false;
-        }
-
-        BlockFace oppositeVerticalFace = verticalFace.getOppositeFace();
-        GlowBlock oppositeVerticalBlock = block.getRelative(oppositeVerticalFace);
-        GlowBlock sideBlock = oppositeVerticalBlock.getRelative(direction);
-        if (oppositeVerticalBlock.getType() != Material.OBSIDIAN || sideBlock.getType() != Material.OBSIDIAN) {
-            return false;
-        }
-
-        for (int i = 1; i <= 3; i++) {
-
-            if (block.getRelative(direction, 2).getType() != Material.OBSIDIAN) {
-                return false;
-            }
-
-            BlockFace oppositeDirection = direction.getOppositeFace();
-            if (block.getRelative(oppositeDirection).getType() != Material.OBSIDIAN) {
-                return false;
-            }
-
-            block = block.getRelative(verticalFace);
-        }
-
-        if (block.getType() != Material.OBSIDIAN || block.getRelative(direction).getType() != Material.OBSIDIAN) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * When a player tries to fire an obsidian block, this method checks if there is a valid nether portal and fills it
      * with portal blocks.
      * @param target The block that is clicked on.
      * @param face The face that is clicked on (The vertical direction).
      */
     private void fireNetherPortal(GlowBlock target, BlockFace face) {
-        if (face == BlockFace.UP || face == BlockFace.DOWN) {
+        target = target.getRelative(face);
+        isValidPortal(target);
 
-            target = target.getRelative(face);
-            BlockFace direction = getHorizontalPortalDirection(target, face);
-            if (direction == null) {
-                return;
-            }
-
-            GlowBlock sideBlock = target.getRelative(direction);
-
-            byte data;
-            if (direction == BlockFace.EAST || direction == BlockFace.WEST) {
-                data = 1;
-            } else {
-                data = 2;
-            }
-
-            // TODO: Support portals of various sizes.
-            while (target.getType() == Material.AIR) {
-                target.setType(Material.PORTAL, data, false);
-                sideBlock.setType(Material.PORTAL, data, false);
-                target = target.getRelative(face);
-                sideBlock = sideBlock.getRelative(face);
-            }
-
-        }
     }
 
     private void fireTnt(GlowBlock tnt,GlowPlayer player) {
