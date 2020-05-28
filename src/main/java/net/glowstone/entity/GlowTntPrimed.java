@@ -9,7 +9,6 @@ import lombok.Setter;
 import net.glowstone.EventFactory;
 import net.glowstone.Explosion;
 import net.glowstone.net.message.play.entity.SpawnObjectMessage;
-import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
@@ -69,7 +68,6 @@ public class GlowTntPrimed extends GlowExplosive implements TNTPrimed {
         } else {
             z = multiplier * mag;
         }
-//        location.add(0, 0.2, 0);
         setVelocity(new Vector(x, 0.25, z));
         this.source = source;
     }
@@ -97,7 +95,7 @@ public class GlowTntPrimed extends GlowExplosive implements TNTPrimed {
         fuseTicks--;
         if (fuseTicks <= 0) {
             explode();
-        } else if(fuseTicks % 5 == 0){
+        } else if (fuseTicks % 5 == 0) {
             double delta = rand.nextDouble(0, 0.15);
             Location startLocation = location.clone().toCenterLocation().add(delta, 0.5, -delta);
             world.spawnParticle(Particle.SMOKE_NORMAL, startLocation,0, 0, 0.15d, 0);

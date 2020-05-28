@@ -11,11 +11,9 @@ import javax.annotation.Nullable;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.blocktype.BlockTnt;
 import net.glowstone.entity.GlowEntity;
-import net.glowstone.entity.GlowExplosive;
 import net.glowstone.entity.GlowLivingEntity;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.entity.objects.GlowItem;
-import net.glowstone.entity.projectile.GlowProjectile;
 import net.glowstone.net.message.play.game.ExplosionMessage;
 import net.glowstone.net.message.play.game.ExplosionMessage.Record;
 import net.glowstone.util.RayUtil;
@@ -50,7 +48,7 @@ public final class Explosion {
     public static final int POWER_WITHER_CREATION = 7;
     public static final int POWER_ENDER_CRYSTAL = 6;
     public static final int EXPLOSION_VISIBILITY_RADIUS = 64;
-    public static final double EXPLOSION_RADIUS = 7;
+    public static final int EXPLOSION_RADIUS = 7;
     private static final List<Vector> RAY_DIRECTIONS = new ArrayList<>();
 
     static {
@@ -159,13 +157,20 @@ public final class Explosion {
 
         playOutSoundAndParticles();
 
-        for (Block block : blocks) {
-            handleBlockExplosion((GlowBlock) block);
-        }
+        Material blockType = location.getBlock().getType();
+        if (blockType != Material.WATER
+                && blockType != Material.STATIONARY_WATER
+                && blockType != Material.LAVA
+                && blockType != Material.STATIONARY_LAVA) {
 
-        if (incendiary) {
             for (Block block : blocks) {
-                setBlockOnFire((GlowBlock) block);
+                handleBlockExplosion((GlowBlock) block);
+            }
+
+            if (incendiary) {
+                for (Block block : blocks) {
+                    setBlockOnFire((GlowBlock) block);
+                }
             }
         }
 
@@ -305,7 +310,7 @@ public final class Explosion {
             }
             ((GlowEntity) entity).damage(damage, source, damageCause);
 
-            if (entity instanceof GlowPlayer && ((GlowPlayer) entity).isFlying()) {
+            if (entity instanceof GlowPlayer) {
                 continue;
             }
 
@@ -314,13 +319,13 @@ public final class Explosion {
                 GlowEntity glowEntity = (GlowEntity) entity;
                 Vector rayLength;
 
-                if(entity instanceof  GlowLivingEntity){
+                if (entity instanceof  GlowLivingEntity) {
                     rayLength = distanceToHead((GlowLivingEntity) glowEntity);
                 } else {
                     rayLength = vectorTo(glowEntity);
                 }
 
-                if(rayLength.length() > EXPLOSION_RADIUS){
+                if (rayLength.length() > EXPLOSION_RADIUS) {
                     continue;
                 }
 

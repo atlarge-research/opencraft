@@ -74,7 +74,6 @@ import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.AnimateEntityMessage;
 import net.glowstone.net.message.play.entity.DestroyEntitiesMessage;
 import net.glowstone.net.message.play.entity.EntityMetadataMessage;
-import net.glowstone.net.message.play.entity.EntityVelocityMessage;
 import net.glowstone.net.message.play.entity.SetPassengerMessage;
 import net.glowstone.net.message.play.game.BlockBreakAnimationMessage;
 import net.glowstone.net.message.play.game.ChatMessage;
@@ -179,7 +178,6 @@ import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.event.player.PlayerUnregisterChannelEvent;
-import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.InventoryView.Property;
 import org.bukkit.inventory.ItemStack;
@@ -1305,7 +1303,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     @Override
     public void setVelocity(Vector velocity) {
         super.setVelocity(velocity);
-//        session.send(new EntityVelocityMessage(getEntityId(), velocity));
     }
 
     /**
