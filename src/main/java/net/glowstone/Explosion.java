@@ -159,13 +159,20 @@ public final class Explosion {
 
         playOutSoundAndParticles();
 
-        for (Block block : blocks) {
-            handleBlockExplosion((GlowBlock) block);
-        }
-
-        if (incendiary) {
+        Material blockType = location.getBlock().getType();
+        if (blockType != Material.WATER
+                && blockType != Material.STATIONARY_WATER
+                && blockType != Material.LAVA
+                && blockType != Material.STATIONARY_LAVA) {
+            
             for (Block block : blocks) {
-                setBlockOnFire((GlowBlock) block);
+                handleBlockExplosion((GlowBlock) block);
+            }
+
+            if (incendiary) {
+                for (Block block : blocks) {
+                    setBlockOnFire((GlowBlock) block);
+                }
             }
         }
 
@@ -305,7 +312,7 @@ public final class Explosion {
             }
             ((GlowEntity) entity).damage(damage, source, damageCause);
 
-            if (entity instanceof GlowPlayer && ((GlowPlayer) entity).isFlying()) {
+            if (entity instanceof GlowPlayer) {
                 continue;
             }
 
