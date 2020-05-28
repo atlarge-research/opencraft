@@ -48,7 +48,7 @@ public final class Explosion {
     public static final int POWER_WITHER_CREATION = 7;
     public static final int POWER_ENDER_CRYSTAL = 6;
     public static final int EXPLOSION_VISIBILITY_RADIUS = 64;
-    public static final double EXPLOSION_RADIUS = 7;
+    public static final int EXPLOSION_RADIUS = 7;
     private static final List<Vector> RAY_DIRECTIONS = new ArrayList<>();
 
     static {
