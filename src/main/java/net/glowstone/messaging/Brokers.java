@@ -7,8 +7,10 @@ import javax.jms.JMSException;
 import net.glowstone.messaging.brokers.ConcurrentBroker;
 import net.glowstone.messaging.brokers.JmsBroker;
 import net.glowstone.messaging.brokers.JmsCodec;
+import net.glowstone.messaging.brokers.ReadWriteBroker;
 import net.glowstone.messaging.channels.ConcurrentChannel;
 import net.glowstone.messaging.channels.GuavaChannel;
+import net.glowstone.messaging.channels.ReadWriteChannel;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
@@ -26,6 +28,18 @@ public final class Brokers {
      */
     public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newConcurrentBroker() {
         return new ConcurrentBroker<>(ConcurrentChannel::new);
+    }
+
+    /**
+     * Create a ReadWriteBroker.
+     *
+     * @param <Topic> The type of topics that is allowed to identify channels.
+     * @param <Subscriber> The type of subscribers that is allowed to subscribe to a channel.
+     * @param <Message> The type of messages that is allowed to be published to a channel.
+     * @return The concurrent broker.
+     */
+    public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newReadWriteBroker() {
+        return new ReadWriteBroker<>(ReadWriteChannel::new);
     }
 
     /**
