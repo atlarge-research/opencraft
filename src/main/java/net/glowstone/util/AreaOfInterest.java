@@ -16,7 +16,7 @@ public final class AreaOfInterest {
 
     @Getter
     @Setter
-    private int viewDistance;
+    private Integer viewDistance;
 
     /**
      * Create an AreaOfInterest object.
@@ -24,7 +24,7 @@ public final class AreaOfInterest {
      * @param location The location to be stored.
      * @param viewDistance The viewdistance to be stored.
      */
-    public AreaOfInterest(Location location, int viewDistance) {
+    public AreaOfInterest(Location location, Integer viewDistance) {
         this.location = location;
         this.viewDistance = viewDistance;
     }
@@ -41,6 +41,18 @@ public final class AreaOfInterest {
         return location.clone();
     }
 
+    /**
+     * Getter for the view distance.
+     *
+     * @return The view distance.
+     */
+    public Integer getViewDistance() {
+        if (viewDistance == null) {
+            return null;
+        }
+        return viewDistance;
+    }
+
     @Override
     public boolean equals(Object other) {
 
@@ -54,7 +66,7 @@ public final class AreaOfInterest {
 
         AreaOfInterest that = (AreaOfInterest) other;
 
-        return viewDistance == that.viewDistance && Objects.equals(location, that.location);
+        return Objects.equals(viewDistance, that.viewDistance) && Objects.equals(location, that.location);
     }
 
     @Override
