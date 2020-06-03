@@ -11,7 +11,7 @@ public class BlockPortal extends BlockType {
 
 
     /**
-     * This method checks if the direction corresponds to the data of a portal block. Data value 1 corresponds to
+     * This method checks whether the direction corresponds to the data of a portal block. Data value 1 corresponds to
      * east and west, while data value 2 corresponds to north and south. There should always be a block above and
      * below a portal block.
      *
@@ -20,6 +20,7 @@ public class BlockPortal extends BlockType {
      * @return If the direction corresponds to the data.
      */
     private boolean isPortalDirection(byte data, BlockFace direction) {
+
         if (direction == BlockFace.DOWN || direction == BlockFace.UP) {
             return true;
         }

@@ -20,7 +20,7 @@ import org.bukkit.util.Vector;
 
 public class ItemFlintAndSteel extends ItemTool {
 
-    private static final int PORTAL_SIZE = 20;
+    private static final int INNER_PORTAL_SIZE = 21;
 
     public ItemFlintAndSteel() {
         this.setPlaceAs(Material.FIRE);
@@ -166,9 +166,9 @@ public class ItemFlintAndSteel extends ItemTool {
                 }
             }
 
-            if (!EventFactory.getInstance()
-                    .callEvent(new EntityCreatePortalEvent(player, blocks, PortalType.NETHER))
-                    .isCancelled()) {
+            EntityCreatePortalEvent event = new EntityCreatePortalEvent(player, blocks, PortalType.NETHER);
+            event = EventFactory.getInstance().callEvent(event);
+            if (!event.isCancelled()) {
                 for (BlockState state : blocks) {
                     state.update(true);
                 }
@@ -187,6 +187,7 @@ public class ItemFlintAndSteel extends ItemTool {
      * @return The position of the corner of a portal. This position will always be at the bottom.
      */
     private GlowBlock getPortalPosition(GlowBlock block, BlockFace direction) {
+
         BlockFace oppositeDirection = direction.getOppositeFace();
         int heightDown = getPortalLengthDirection(block, BlockFace.DOWN) - 1;
         int width = getPortalLengthDirection(block, oppositeDirection) - 1;
@@ -211,13 +212,15 @@ public class ItemFlintAndSteel extends ItemTool {
      *         block is included in the length.
      */
     private int getPortalLengthDirection(GlowBlock block, BlockFace direction) {
+
         int length = 0;
 
-        while (length <= PORTAL_SIZE  && block.getType() == Material.AIR) {
+        while (length <= INNER_PORTAL_SIZE && block.getType() == Material.AIR) {
             length++;
             block = block.getRelative(direction);
 
-            if (block.getType() != Material.AIR && block.getType() != Material.OBSIDIAN || length == 21) {
+            if (block.getType() != Material.AIR && block.getType() != Material.OBSIDIAN
+                    || length == INNER_PORTAL_SIZE + 1) {
                 length = -1;
                 break;
             }
