@@ -4,19 +4,74 @@ import com.rabbitmq.jms.admin.RMQConnectionFactory;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
+import net.glowstone.messaging.brokers.ChannelFactory;
 import net.glowstone.messaging.brokers.ConcurrentBroker;
 import net.glowstone.messaging.brokers.JmsBroker;
 import net.glowstone.messaging.brokers.JmsCodec;
 import net.glowstone.messaging.brokers.ReadWriteBroker;
+import net.glowstone.messaging.brokers.codecs.ProtocolCodec;
 import net.glowstone.messaging.channels.ConcurrentChannel;
 import net.glowstone.messaging.channels.GuavaChannel;
 import net.glowstone.messaging.channels.ReadWriteChannel;
+import net.glowstone.messaging.channels.UnsafeChannel;
+import net.glowstone.net.protocol.PlayProtocol;
+import net.glowstone.util.config.BrokerConfig;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
  * A factory class to for creating multiple types of brokers.
  */
 public final class Brokers {
+
+    public static <Topic, Subscriber, Message extends com.flowpowered.network.Message> Broker<Topic, Subscriber, Message> newConfiguredBroker(BrokerConfig config) {
+
+        ChannelFactory<Subscriber, Message> channelFactory;
+        String channelType = config.getChannel().getType();
+        switch (channelType) {
+            case "Concurrent":
+                channelFactory = ConcurrentChannel::new;
+                break;
+            case "Guava":
+                channelFactory = GuavaChannel::new;
+                break;
+            case "ReadWrite":
+                channelFactory = ReadWriteChannel::new;
+                break;
+            case "Unsafe":
+                channelFactory = UnsafeChannel::new;
+                break;
+            default:
+                throw new RuntimeException("Unknown channel type: " + channelType);
+        }
+
+        String brokerType = config.getType();
+        switch (brokerType) {
+            case "ActiveMQ":
+                try {
+                    return Brokers.newActivemqBroker(
+                            ActiveMQConnectionFactory.DEFAULT_BROKER_URL,
+                            new ProtocolCodec<>(new PlayProtocol())
+                    );
+                } catch (JMSException e) {
+                    throw new RuntimeException(e);
+                }
+            case "Concurrent":
+                return new ConcurrentBroker<>(channelFactory);
+            case "RabbitMQ":
+                try {
+                    return Brokers.newRabbitmqBroker(
+                            "amqp://guest:guest@localhost:5672/%2F",
+                            new ProtocolCodec<>(new PlayProtocol())
+                    );
+                } catch (JMSException e) {
+                    throw new RuntimeException(e);
+                }
+            case "ReadWrite":
+                return new ReadWriteBroker<>(channelFactory);
+            default:
+                throw new RuntimeException("Unkown broker type: " + brokerType);
+        }
+    }
 
     /**
      * Create a ConcurrentBroker.

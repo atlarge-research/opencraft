@@ -152,6 +152,8 @@ import net.glowstone.util.ShutdownMonitorThread;
 import net.glowstone.util.TextMessage;
 import net.glowstone.util.bans.GlowBanList;
 import net.glowstone.util.bans.UuidListFile;
+import net.glowstone.util.config.BrokerConfig;
+import net.glowstone.util.config.ChannelConfig;
 import net.glowstone.util.config.ServerConfig;
 import net.glowstone.util.config.ServerConfig.Key;
 import net.glowstone.util.config.WorldConfig;
@@ -525,6 +527,13 @@ public class GlowServer implements Server {
         ipBans = new GlowBanList(this, Type.IP);
 
         loadConfig();
+    }
+
+    public BrokerConfig getBrokerConfig() {
+        return new BrokerConfig(
+                config.getString(Key.OPENCRAFT_BROKER_TYPE),
+                new ChannelConfig(config.getString(Key.OPENCRAFT_BROKER_CHANNEL_TYPE))
+        );
     }
 
     /**

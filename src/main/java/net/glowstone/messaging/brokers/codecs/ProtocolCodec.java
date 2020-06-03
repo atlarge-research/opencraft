@@ -1,7 +1,6 @@
 package net.glowstone.messaging.brokers.codecs;
 
 import com.flowpowered.network.Codec;
-import com.flowpowered.network.Message;
 import com.flowpowered.network.exception.IllegalOpcodeException;
 import com.flowpowered.network.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
@@ -19,7 +18,7 @@ import net.glowstone.net.protocol.GlowProtocol;
 /**
  * Codec used for encoding and decoding messages with the use of the GlowProtocol.
  */
-public class ProtocolCodec implements JmsCodec<Message> {
+public class ProtocolCodec<Message extends com.flowpowered.network.Message> implements JmsCodec<Message> {
 
     private final GlowProtocol protocol;
     private final ByteBufAllocator allocator;
@@ -32,7 +31,7 @@ public class ProtocolCodec implements JmsCodec<Message> {
     @Override
     public javax.jms.Message encode(Session session, Message message) throws JMSException {
 
-        Class<? extends Message> clazz = message.getClass();
+        Class<? extends com.flowpowered.network.Message> clazz = message.getClass();
         Codec.CodecRegistration registration = protocol.getCodecRegistration(clazz);
         if (registration == null) {
             throw new EncoderException("Unknown message type: " + clazz + ".");
@@ -84,7 +83,8 @@ public class ProtocolCodec implements JmsCodec<Message> {
         ByteBuf buffer = Unpooled.wrappedBuffer(bytes);
         try {
             Codec<?> codec = protocol.newReadHeader(buffer);
-            return codec.decode(buffer);
+            //noinspection unchecked
+            return (Message) codec.decode(buffer);
         } catch (IOException | IllegalOpcodeException e) {
             throw new RuntimeException("Failed to retrieve codec and decode message", e);
         } finally {
