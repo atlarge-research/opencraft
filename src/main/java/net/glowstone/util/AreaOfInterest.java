@@ -41,6 +41,14 @@ public final class AreaOfInterest {
         return location.clone();
     }
 
+    /**
+     * Getter for the view distance.
+     * @return The view distance.
+     */
+    public int getViewDistance() {
+        return viewDistance;
+    }
+
     @Override
     public boolean equals(Object other) {
 

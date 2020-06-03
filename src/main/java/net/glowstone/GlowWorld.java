@@ -610,6 +610,7 @@ public class GlowWorld implements World {
             Location currentLocation = player.getLocation();
             Location previousLocation = areaOfInterest.getLocation();
             int currentViewDistance = player.getViewDistance();
+            int previousViewDistance = areaOfInterest.getViewDistance();
 
             boolean force = false;
 
@@ -618,27 +619,34 @@ public class GlowWorld implements World {
                 force = true;
             }
 
+            if (previousViewDistance == 0) {
+                previousViewDistance = currentViewDistance;
+            }
+
             int currentX = currentLocation.getBlockX() >> 4;
             int currentZ = currentLocation.getBlockZ() >> 4;
 
             int previousX = previousLocation.getBlockX() >> 4;
             int previousZ = previousLocation.getBlockZ() >> 4;
 
-            if (!force && previousX == currentX && previousZ == currentZ) {
+            int radius = Math.min(server.getViewDistance(), 1 + currentViewDistance);
+            int previousRadius = Math.min(server.getViewDistance(), 1 + previousViewDistance);
+
+            if (!force && previousX == currentX && previousZ == currentZ && radius == previousRadius) {
                 continue;
             }
 
-            int radius = Math.min(server.getViewDistance(), 1 + currentViewDistance);
             GlowSession session = player.getSession();
 
             if (!force && previousLocation.getWorld() == this) {
-                for (int x = previousX - radius; x <= previousX + radius; x++) {
-                    for (int z = previousZ - radius; z <= previousZ + radius; z++) {
+                for (int x = previousX - previousRadius; x <= previousX + previousRadius; x++) {
+                    for (int z = previousZ - previousRadius; z <= previousZ + previousRadius; z++) {
                         if (currentLocation.getWorld() != this
                                 || Math.abs(x - currentX) > radius
                                 || Math.abs(z - currentZ) > radius) {
                             GlowChunk chunk = getChunkAt(x, z);
                             chunksToUnload.add(Pair.of(chunk, player));
+                            System.out.println("unloading");
                         }
                     }
                 }
@@ -648,8 +656,8 @@ public class GlowWorld implements World {
                 for (int x = currentX - radius; x <= currentX + radius; x++) {
                     for (int z = currentZ - radius; z <= currentZ + radius; z++) {
                         if (previousLocation.getWorld() != this
-                                || Math.abs(x - previousX) > radius
-                                || Math.abs(z - previousZ) > radius
+                                || Math.abs(x - previousX) > previousRadius
+                                || Math.abs(z - previousZ) > previousRadius
                                 || force) {
 
                             getChunkManager().forcePopulation(x, z);
