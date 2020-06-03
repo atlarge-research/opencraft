@@ -206,10 +206,10 @@ final class SortableBlockingQueue<Element> implements BlockingQueue<Element> {
         lock.lockInterruptibly();
         try {
             while (elements.isEmpty()) {
-                remainingTimeout = notEmpty.awaitNanos(remainingTimeout);
                 if (remainingTimeout <= 0) {
                     return null;
                 }
+                remainingTimeout = notEmpty.awaitNanos(remainingTimeout);
             }
             int index = elements.size() - 1;
             return elements.remove(index);
