@@ -202,11 +202,12 @@ final class SortableBlockingQueue<Element> implements BlockingQueue<Element> {
     @Nullable
     @Override
     public Element poll(long timeout, @NotNull TimeUnit unit) throws InterruptedException {
-        lock.lock();
+        long remainingTimeout = unit.toNanos(timeout);
+        lock.lockInterruptibly();
         try {
             while (elements.isEmpty()) {
-                boolean signalled = notEmpty.await(timeout, unit);
-                if (!signalled) {
+                remainingTimeout = notEmpty.awaitNanos(remainingTimeout);
+                if (remainingTimeout <= 0) {
                     return null;
                 }
             }
