@@ -37,8 +37,6 @@ import net.glowstone.entity.objects.GlowPainting;
 import net.glowstone.entity.physics.BlockBoundingBoxes;
 import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.entity.physics.EntityBoundingBox;
-import net.glowstone.net.GlowSession;
-import net.glowstone.net.message.play.entity.AttachEntityMessage;
 import net.glowstone.net.message.play.entity.EntityMetadataMessage;
 import net.glowstone.net.message.play.entity.EntityRotationMessage;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
@@ -859,48 +857,12 @@ public abstract class GlowEntity implements Entity {
     public abstract List<Message> createSpawnMessage();
 
     /**
-     * Creates a List of {@link Message} which can be sent to a client directly after the entity is
-     * spawned.
-     *
-     * @param session Session to update this entity for
-     * @return A message which can spawn this entity.
-     */
-    public List<Message> createAfterSpawnMessage(GlowSession session) {
-        List<Message> result = Lists.newArrayList();
-
-        GlowPlayer player = session.getPlayer();
-        if (player == null) {
-            // Player disconnected while this task was pending
-            return result;
-        }
-        boolean visible = player.canSeeEntity(this);
-        for (GlowEntity leashedEntity : leashedEntities) {
-            if (visible && player.canSeeEntity(leashedEntity)) {
-                int attached = player.getEntityId() == this.getEntityId() ? 0
-                    : leashedEntity.getEntityId();
-                int holder = this.getEntityId();
-
-                result.add(new AttachEntityMessage(attached, holder));
-            }
-        }
-
-        if (isLeashed() && visible && player.canSeeEntity(leashHolder)) {
-            int attached = player.getEntityId() == this.getEntityId() ? 0 : this.getEntityId();
-            int holder = leashHolder.getEntityId();
-
-            result.add(new AttachEntityMessage(attached, holder));
-        }
-
-        return result;
-    }
-
-    /**
      * Creates a {@link Message} which can be sent to a client to update this entity.
      *
-     * @param session Session to update this entity for
      * @return A message which can update this entity.
      */
-    public List<Message> createUpdateMessage(GlowSession session) {
+    public List<Message> createUpdateMessage() {
+
         double x = location.getX();
         double y = location.getY();
         double z = location.getZ();
@@ -913,8 +875,12 @@ public abstract class GlowEntity implements Entity {
         dy *= 128;
         dz *= 128;
 
-        boolean teleport = dx > Short.MAX_VALUE || dy > Short.MAX_VALUE || dz > Short.MAX_VALUE
-            || dx < Short.MIN_VALUE || dy < Short.MIN_VALUE || dz < Short.MIN_VALUE;
+        boolean teleport = dx > Short.MAX_VALUE
+                || dy > Short.MAX_VALUE
+                || dz > Short.MAX_VALUE
+                || dx < Short.MIN_VALUE
+                || dy < Short.MIN_VALUE
+                || dz < Short.MIN_VALUE;
 
         List<Message> result = new LinkedList<>();
 
@@ -927,14 +893,19 @@ public abstract class GlowEntity implements Entity {
             int yaw = Position.getIntYaw(location);
             int pitch = Position.getIntPitch(location);
             if (moved) {
-                result.add(new RelativeEntityPositionRotationMessage(entityId,
-                    (short) dx, (short) dy, (short) dz, yaw, pitch));
+                result.add(new RelativeEntityPositionRotationMessage(
+                        entityId,
+                        (short) dx,
+                        (short) dy,
+                        (short) dz,
+                        yaw,
+                        pitch
+                ));
             } else {
                 result.add(new EntityRotationMessage(entityId, yaw, pitch));
             }
         } else if (moved) {
-            result.add(new RelativeEntityPositionMessage(
-                entityId, (short) dx, (short) dy, (short) dz));
+            result.add(new RelativeEntityPositionMessage(entityId, (short) dx, (short) dy, (short) dz));
         }
 
         // send changed metadata
@@ -949,27 +920,16 @@ public abstract class GlowEntity implements Entity {
         }
 
         if (passengerChanged) {
+
             // A player can be a passenger of any arbitrary entity, e.g. a boat
             // In case the current session belongs to this player passenger
             // We need to send the self_id
-            List<Integer> passengerIds = new ArrayList<>();
-            getPassengers().forEach(e -> passengerIds.add(e.getEntityId()));
-            result.add(new SetPassengerMessage(getEntityId(), passengerIds.stream()
-                .mapToInt(Integer::intValue).toArray()));
+
+            int[] passengerIds = getPassengers().stream()
+                    .mapToInt(Entity::getEntityId)
+                    .toArray();
+            result.add(new SetPassengerMessage(getEntityId(), passengerIds));
             passengerChanged = false;
-        }
-
-        if (leashHolderChanged) {
-            int attached =
-                isLeashed() && session.getPlayer().getEntityId() == leashHolder.getEntityId()
-                    ? 0 : this.getEntityId();
-            int holder = !isLeashed() ? -1 : leashHolder.getEntityId();
-
-            // When the leashHolder is not visible, the AttachEntityMessage will be created in
-            // createAfterSpawnMessage()
-            if (!isLeashed() || session.getPlayer().canSeeEntity(leashHolder)) {
-                result.add(new AttachEntityMessage(attached, holder));
-            }
         }
 
         return result;

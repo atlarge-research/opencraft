@@ -2,6 +2,7 @@ package net.glowstone.block;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -503,12 +504,20 @@ public class GlowBlock implements Block {
 
     @Override
     public Collection<ItemStack> getDrops() {
-        return ItemTable.instance().getBlock(getType()).getMinedDrops(this);
+        BlockType type = ItemTable.instance().getBlock(getType());
+        if (type == null) {
+            return Collections.emptyList();
+        }
+        return type.getMinedDrops(this);
     }
 
     @Override
     public Collection<ItemStack> getDrops(ItemStack tool) {
-        return ItemTable.instance().getBlock(getType()).getDrops(this, tool);
+        BlockType type = ItemTable.instance().getBlock(getType());
+        if (type == null) {
+            return Collections.emptyList();
+        }
+        return type.getDrops(this, tool);
     }
 
     ////////////////////////////////////////////////////////////////////////////

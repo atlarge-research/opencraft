@@ -63,6 +63,12 @@
             <artifactId>activemq-broker</artifactId>
             <version>5.15.12</version>
         </dependency>
+        <!-- RabbitMQ -->
+        <dependency>
+            <groupId>com.rabbitmq.jms</groupId>
+            <artifactId>rabbitmq-jms</artifactId>
+            <version>2.1.0</version>
+        </dependency>
         <!-- Yardstick -->
         <dependency>
             <groupId>com.atlarge</groupId>
