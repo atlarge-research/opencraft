@@ -1,19 +1,21 @@
 package net.glowstone.block.blocktype;
 
-import net.glowstone.GlowWorld;
+import java.util.Collection;
+import java.util.Collections;
 import net.glowstone.block.GlowBlock;
-import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
+import org.bukkit.inventory.ItemStack;
 
 public class BlockPortal extends BlockType {
 
+
     /**
      * This method checks if the direction corresponds to the data of a portal block. Data value 1 corresponds to
-     * east and west, while data value 2 corresponds to north and south. A portal above or below should never be a
-     * problem.
+     * east and west, while data value 2 corresponds to north and south. There should always be a block above and
+     * below a portal block.
      *
-     * @param data The data value of the block.
+     * @param data The data value of the portal block.
      * @param direction the direction to check for adjacent block.
      * @return If the direction corresponds to the data.
      */
@@ -24,7 +26,7 @@ public class BlockPortal extends BlockType {
 
         if (data == 1 && (direction == BlockFace.EAST || direction == BlockFace.WEST)) {
             return true;
-        } else if (data == 2 && (direction == BlockFace.NORTH || direction == BlockFace.SOUTH)){
+        } else if (data == 2 && (direction == BlockFace.NORTH || direction == BlockFace.SOUTH)) {
             return true;
         } else {
             return false;
@@ -41,8 +43,7 @@ public class BlockPortal extends BlockType {
             Material newType,
             byte newData
     ) {
-        int portalCount = 0;
-        int obsidianCount = 0;
+        int count = 0;
         byte blockData = block.getData();
 
         for (BlockFace side : ADJACENT) {
@@ -50,17 +51,22 @@ public class BlockPortal extends BlockType {
             GlowBlock adjacent = block.getRelative(side);
             Material type = adjacent.getType();
 
-            if (type == Material.PORTAL && isPortalDirection(blockData, side)) {
-                portalCount++;
+            if (!isPortalDirection(blockData, side)) {
+                continue;
             }
 
-            if (type == Material.OBSIDIAN) {
-                obsidianCount++;
+            if (type == Material.PORTAL || type == Material.OBSIDIAN) {
+                count++;
             }
         }
 
-        if (portalCount + obsidianCount < 4 || portalCount < 2) {
+        if (count < 4) {
             block.breakNaturally();
         }
+    }
+
+    @Override
+    public Collection<ItemStack> getDrops(GlowBlock block, ItemStack tool) {
+        return Collections.emptyList();
     }
 }

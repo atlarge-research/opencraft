@@ -52,14 +52,15 @@ public class ItemFlintAndSteel extends ItemTool {
      * @param face The face that is clicked on (The vertical direction).
      */
     private void fireNetherPortal(GlowBlock target, BlockFace face, GlowPlayer player) {
+
         target = target.getRelative(face);
-        boolean portalSouth = createValidPortal(target, BlockFace.NORTH, player);
-        if (portalSouth) {
+
+        boolean portalNorth = createValidPortal(target, BlockFace.NORTH, player);
+        if (portalNorth) {
             return;
         }
 
         createValidPortal(target, BlockFace.EAST, player);
-
     }
 
     /**
@@ -155,6 +156,7 @@ public class ItemFlintAndSteel extends ItemTool {
         }
 
         if (success) {
+
             for (int i = 0; i < height; i++) {
                 current = cornerBlock.getRelative(BlockFace.UP, i);
                 for (int j = 0; j < width; j++) {
@@ -163,13 +165,13 @@ public class ItemFlintAndSteel extends ItemTool {
                     current = current.getRelative(direction);
                 }
             }
-        }
 
-        if (!EventFactory.getInstance()
-                .callEvent(new EntityCreatePortalEvent(player, blocks, PortalType.NETHER))
-                .isCancelled()) {
-            for (BlockState state : blocks) {
-                state.update(true);
+            if (!EventFactory.getInstance()
+                    .callEvent(new EntityCreatePortalEvent(player, blocks, PortalType.NETHER))
+                    .isCancelled()) {
+                for (BlockState state : blocks) {
+                    state.update(true);
+                }
             }
         }
 
