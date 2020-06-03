@@ -24,7 +24,7 @@ public final class ReadWriteBroker<Topic, Subscriber, Message> extends ChannelBr
     private final Lock writeLock;
 
     /**
-     * Create a concurrent broker.
+     * Create a read-write broker.
      */
     public ReadWriteBroker(ChannelFactory<Subscriber, Message> channelFactory) {
         super(channelFactory);
