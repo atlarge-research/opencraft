@@ -5,11 +5,11 @@ import java.util.function.Consumer;
 import net.glowstone.messaging.Channel;
 
 /**
- * The concurrent broker uses a concurrent hashmap to store topic-channel pairs. The concurrent
- * hash map allows multiple publishers and subscribers to access the broker simultaneously.
+ * The concurrent channel uses a concurrent hash map to store channel-callback pairs. The concurrent hash map allows
+ * multiple publishers and subscribers to access the channel simultaneously.
  *
- * @param <Subscriber> the type of subscribers that is allowed to subscribe to a channel.
- * @param <Message> the type of messages that is allowed to be published to a channel.
+ * @param <Subscriber> the type of subscribers that is allowed to subscribe to the channel.
+ * @param <Message> the type of messages that is allowed to be published to the channel.
  */
 public final class ConcurrentChannel<Subscriber, Message> implements Channel<Subscriber, Message> {
 
