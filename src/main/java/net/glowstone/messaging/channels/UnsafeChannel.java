@@ -1,27 +1,25 @@
 package net.glowstone.messaging.channels;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 import net.glowstone.messaging.Channel;
 
 /**
- * The concurrent channel uses a concurrent hash map to store channel-callback pairs. The concurrent hash map allows
- * multiple publishers and subscribers to access the channel simultaneously.
+ * The unsafe channel uses a hashmap to store subscriber-callback pairs and does not guarantee any thread-safety.
  *
  * @param <Subscriber> the type of subscribers that is allowed to subscribe to the channel.
  * @param <Message> the type of messages that is allowed to be published to the channel.
  */
-public final class ConcurrentChannel<Subscriber, Message> implements Channel<Subscriber, Message> {
+public final class UnsafeChannel<Subscriber, Message> implements Channel<Subscriber, Message> {
 
-    private static final long PARALLELISM_THRESHOLD = 4;
-
-    private final ConcurrentHashMap<Subscriber, Consumer<Message>> callbacks;
+    private final Map<Subscriber, Consumer<Message>> callbacks;
 
     /**
-     * Create a concurrent channel.
+     * Create an unsafe channel.
      */
-    public ConcurrentChannel() {
-        this.callbacks = new ConcurrentHashMap<>();
+    public UnsafeChannel() {
+        this.callbacks = new HashMap<>();
     }
 
     @Override
@@ -41,6 +39,8 @@ public final class ConcurrentChannel<Subscriber, Message> implements Channel<Sub
 
     @Override
     public void publish(Message message) {
-        callbacks.forEachValue(PARALLELISM_THRESHOLD, callback -> callback.accept(message));
+        callbacks.forEach((subscriber, callback) -> {
+            callback.accept(message);
+        });
     }
 }
