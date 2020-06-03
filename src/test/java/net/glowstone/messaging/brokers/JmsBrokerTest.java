@@ -1,7 +1,5 @@
 package net.glowstone.messaging.brokers;
 
-import net.glowstone.messaging.brokers.JmsBroker;
-import net.glowstone.messaging.brokers.JmsCodec;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,13 +28,11 @@ public class JmsBrokerTest {
     private static final String TOPIC_TWO = "two";
 
     private Connection connection;
-    private JmsCodec jmsCodec;
-    private MessageConsumer consumer;
+    private JmsCodec<String> jmsCodec;
     private MessageProducer producer;
     private Session session;
 
     private Subscriber alice, bob;
-    private javax.jms.Topic topic1, topic2;
 
     private JmsBroker<String, Subscriber, String> jmsBroker;
 
@@ -44,26 +40,28 @@ public class JmsBrokerTest {
      * Create a simple JmsBroker with a mocked connection and codec. Other classes such as consumer, session and
      * topics are also mocked, because this is needed in order to test the code correctly.
      */
+    @SuppressWarnings("unchecked")
     @BeforeEach
     void beforeEach() throws JMSException {
 
         connection = mock(Connection.class);
-        jmsCodec = mock(JmsCodec.class);
-        consumer = mock(MessageConsumer.class);
+        jmsCodec = (JmsCodec<String>) mock(JmsCodec.class);
+        MessageConsumer consumer = mock(MessageConsumer.class);
         producer = mock(MessageProducer.class);
         session = mock(Session.class);
 
         alice = new Subscriber("Alice");
         bob = new Subscriber("Bob");
-        topic1 = mock(javax.jms.Topic.class);
-        topic2 = mock(javax.jms.Topic.class);
+
+        javax.jms.Topic topic1 = mock(javax.jms.Topic.class);
+        javax.jms.Topic topic2 = mock(javax.jms.Topic.class);
 
         when(connection.createSession(Mockito.anyBoolean(), Mockito.anyInt())).thenReturn(session);
         when(session.createConsumer(any())).thenReturn(consumer);
         when(session.createProducer(any())).thenReturn(producer);
         when(session.createTopic(any())).thenReturn(topic1, topic2);
 
-        jmsBroker = new JmsBroker(connection, jmsCodec);
+        jmsBroker = new JmsBroker<>(connection, jmsCodec);
     }
 
     /**
