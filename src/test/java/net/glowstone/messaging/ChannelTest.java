@@ -1,7 +1,10 @@
 package net.glowstone.messaging;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import net.glowstone.messaging.channels.GuavaChannel;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -16,6 +19,31 @@ public abstract class ChannelTest {
      * @return a channel instance of the implementing class.
      */
     protected abstract Channel<Subscriber, String> createChannel();
+
+    /**
+     * Verify that a created channel is initially empty.
+     */
+    @Test
+    void initiallyEmptyTest() {
+        Channel<Subscriber, String> channel = createChannel();
+        assertTrue(channel.isEmpty());
+    }
+
+    /**
+     * Verify that a channel's 'isEmpty()' method returns the correct value.
+     */
+    @Test
+    void emptyTest() {
+
+        Channel<Subscriber, String> channel = createChannel();
+        Subscriber alice = new Subscriber("Alice");
+
+        channel.subscribe(alice, alice::onMessage);
+        assertFalse(channel.isEmpty());
+
+        channel.unsubscribe(alice);
+        assertTrue(channel.isEmpty());
+    }
 
     /**
      * Verify that a user can unsubscribe from a channel he/she was not subscribed to.
