@@ -40,11 +40,11 @@ public class JmsBrokerTest {
      * Create a simple JmsBroker with a mocked connection and codec. Other classes such as consumer, session and
      * topics are also mocked, because this is needed in order to test the code correctly.
      */
-    @SuppressWarnings("unchecked")
     @BeforeEach
     void beforeEach() throws JMSException {
 
         connection = mock(Connection.class);
+        //noinspection unchecked
         jmsCodec = (JmsCodec<String>) mock(JmsCodec.class);
         MessageConsumer consumer = mock(MessageConsumer.class);
         producer = mock(MessageProducer.class);
