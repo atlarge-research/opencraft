@@ -1,4 +1,4 @@
-package net.glowstone.messaging.brokers.channelbrokers.concurrent;
+package net.glowstone.messaging.brokers;
 
 import net.glowstone.messaging.BrokerTest;
 import net.glowstone.messaging.Subscriber;
