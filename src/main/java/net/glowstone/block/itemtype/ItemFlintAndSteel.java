@@ -1,14 +1,19 @@
 package net.glowstone.block.itemtype;
 
+import java.util.ArrayList;
+import java.util.List;
 import net.glowstone.EventFactory;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.ItemTable;
 import net.glowstone.block.blocktype.BlockTnt;
 import net.glowstone.entity.GlowPlayer;
 import org.bukkit.Material;
+import org.bukkit.PortalType;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockIgniteEvent.IgniteCause;
+import org.bukkit.event.entity.EntityCreatePortalEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
@@ -25,7 +30,7 @@ public class ItemFlintAndSteel extends ItemTool {
     public boolean onToolRightClick(GlowPlayer player, GlowBlock target, BlockFace face,
         ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
         if (target.getType() == Material.OBSIDIAN) {
-            fireNetherPortal(target, face);
+            fireNetherPortal(target, face, player);
             return true;
         }
         if (target.getType() == Material.TNT) {
@@ -46,14 +51,14 @@ public class ItemFlintAndSteel extends ItemTool {
      * @param target The block that is clicked on.
      * @param face The face that is clicked on (The vertical direction).
      */
-    private void fireNetherPortal(GlowBlock target, BlockFace face) {
+    private void fireNetherPortal(GlowBlock target, BlockFace face, GlowPlayer player) {
         target = target.getRelative(face);
-        boolean portalSouth = createValidPortal(target, BlockFace.NORTH);
+        boolean portalSouth = createValidPortal(target, BlockFace.NORTH, player);
         if (portalSouth) {
             return;
         }
 
-        createValidPortal(target, BlockFace.EAST);
+        createValidPortal(target, BlockFace.EAST, player);
 
     }
 
@@ -65,7 +70,7 @@ public class ItemFlintAndSteel extends ItemTool {
      * @param direction The direction to create the portal in.
      * @return whether the portal was successfully created.
      */
-    private boolean createValidPortal(GlowBlock block, BlockFace direction) {
+    private boolean createValidPortal(GlowBlock block, BlockFace direction, GlowPlayer player) {
 
         GlowBlock cornerBlock = getPortalPosition(block, direction);
         if (cornerBlock == null) {
@@ -106,7 +111,7 @@ public class ItemFlintAndSteel extends ItemTool {
             blockCeiling = blockCeiling.getRelative(direction);
         }
 
-        return fillPortal(height, width, cornerBlock, direction);
+        return fillPortal(height, width, cornerBlock, direction, player);
     }
 
     /**
@@ -118,8 +123,9 @@ public class ItemFlintAndSteel extends ItemTool {
      * @param direction The horizontal direction to build the portal in.
      * @return Whether the portal was succesfully activated or not.
      */
-    private boolean fillPortal(int height, int width, GlowBlock cornerBlock, BlockFace direction) {
+    private boolean fillPortal(int height, int width, GlowBlock cornerBlock, BlockFace direction, GlowPlayer player) {
         GlowBlock current;
+        List<BlockState> blocks = new ArrayList<>();
         boolean success = true;
 
         for (int i = 0; i < height; i++) {
@@ -153,8 +159,17 @@ public class ItemFlintAndSteel extends ItemTool {
                 current = cornerBlock.getRelative(BlockFace.UP, i);
                 for (int j = 0; j < width; j++) {
                     current.setType(Material.PORTAL, data, false);
+                    blocks.add(current.getState());
                     current = current.getRelative(direction);
                 }
+            }
+        }
+
+        if (!EventFactory.getInstance()
+                .callEvent(new EntityCreatePortalEvent(player, blocks, PortalType.NETHER))
+                .isCancelled()) {
+            for (BlockState state : blocks) {
+                state.update(true);
             }
         }
 
