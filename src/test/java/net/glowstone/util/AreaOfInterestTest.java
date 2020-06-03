@@ -3,7 +3,6 @@ package net.glowstone.util;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.awt.geom.Area;
 import org.bukkit.Location;
 import org.junit.jupiter.api.Test;
 
@@ -34,6 +33,26 @@ public class AreaOfInterestTest {
         cloneLocation.setX(3);
 
         assertFalse(location.equals(cloneLocation));
+    }
+
+    /**
+     * Test that a null view distance is returned correctly.
+     */
+    @Test
+    void getNullViewDistanceTest() {
+        AreaOfInterest areaOfInterest = new AreaOfInterest(null, null);
+
+        assertTrue(areaOfInterest.getViewDistance() == null);
+    }
+
+    /**
+     * Test the view distance is returned when the getter is called.
+     */
+    @Test
+    void getViewDistanceTest() {
+        AreaOfInterest areaOfInterest = new AreaOfInterest(null, 4);
+
+        assertTrue(areaOfInterest.getViewDistance() == 4);
     }
 
     /**
