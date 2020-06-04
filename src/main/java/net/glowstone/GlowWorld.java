@@ -660,15 +660,23 @@ public class GlowWorld implements World {
                                 || Math.abs(z - previousZ) > previousRadius
                                 || force) {
 
-                            getChunkManager().forcePopulation(x, z);
-                            GlowChunk.Key key = GlowChunk.Key.of(x, z);
-                            player.getChunkLock().acquire(key);
 
                             GlowChunk chunk = getChunkAt(x, z);
+                            final int finalX = x;
+                            final int finalZ = z;
+
                             ChunkRunnable chunkRunnable = new ChunkRunnable(player, chunk, () -> {
+
                                 boolean skylight = getEnvironment() == Environment.NORMAL;
+
+                                getChunkManager().forcePopulation(finalX, finalZ);
+
+                                GlowChunk.Key key = GlowChunk.Key.of(finalX, finalZ);
+                                player.getChunkLock().acquire(key);
+
                                 Message message = chunk.toMessage(skylight);
                                 session.send(message);
+
                                 chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
                             });
 
