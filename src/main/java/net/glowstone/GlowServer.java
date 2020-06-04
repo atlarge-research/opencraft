@@ -539,6 +539,7 @@ public class GlowServer implements Server {
                 config.getString(Key.OPENCRAFT_BROKER_TYPE),
                 config.getString(Key.OPENCRAFT_BROKER_HOST),
                 config.getInt(Key.OPENCRAFT_BROKER_PORT),
+                config.getString(Key.OPENCRAFT_BROKER_VIRTUAL_HOST),
                 config.getString(Key.OPENCRAFT_BROKER_USERNAME),
                 config.getString(Key.OPENCRAFT_BROKER_PASSWORD),
                 new ChannelConfig(
