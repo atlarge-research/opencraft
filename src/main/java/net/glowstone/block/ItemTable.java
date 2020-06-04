@@ -68,6 +68,7 @@ import net.glowstone.block.blocktype.BlockNote;
 import net.glowstone.block.blocktype.BlockObserver;
 import net.glowstone.block.blocktype.BlockOre;
 import net.glowstone.block.blocktype.BlockPiston;
+import net.glowstone.block.blocktype.BlockPortal;
 import net.glowstone.block.blocktype.BlockPotato;
 import net.glowstone.block.blocktype.BlockPumpkin;
 import net.glowstone.block.blocktype.BlockPumpkinBase;
@@ -399,6 +400,7 @@ public final class ItemTable {
         reg(Material.CHORUS_FLOWER, new BlockChorusFlower());
         reg(Material.CHORUS_PLANT, new BlockChorusPlant());
         reg(Material.GRASS_PATH, new BlockGrassPath(), Sound.BLOCK_GRASS_BREAK);
+        reg(Material.PORTAL, new BlockPortal());
 
         // Non-block and ItemPlaceAs items:
         reg(Material.FLINT_AND_STEEL, new ItemFlintAndSteel());
