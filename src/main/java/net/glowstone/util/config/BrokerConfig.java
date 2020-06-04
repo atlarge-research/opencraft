@@ -2,6 +2,10 @@ package net.glowstone.util.config;
 
 import lombok.Data;
 
+/**
+ * The broker config provides a collection of configuration options that can be parsed together for use in the broker
+ * factory.
+ */
 @Data
 public class BrokerConfig {
 
