@@ -6,5 +6,9 @@ import lombok.Data;
 public class BrokerConfig {
 
     private final String type;
+    private final String host;
+    private final Integer port;
+    private final String username;
+    private final String password;
     private final ChannelConfig channel;
 }

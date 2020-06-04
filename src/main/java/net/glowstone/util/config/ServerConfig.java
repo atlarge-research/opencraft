@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -389,13 +390,16 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
     public enum Key {
 
         // Opencraft
-        OPENCRAFT_COLLECTOR("opencraft.collector", false, Migrate.PROPS, "opencraft-collector",
-                Boolean.class::isInstance),
-        OPENCRAFT_POLICY("opencraft.policy", "Chunk", Migrate.PROPS, "opencraft-policy", String.class::isInstance),
-        OPENCRAFT_BROKER_TYPE("opencraft.broker.type", "ReadWrite", Migrate.PROPS,
-                "opencraft-broker-type", String.class::isInstance),
-        OPENCRAFT_BROKER_CHANNEL_TYPE("opencraft.broker.channel.type", "Unsafe", Migrate.PROPS,
-                "opencraft-broker-channel-type", String.class::isInstance),
+        OPENCRAFT_COLLECTOR("opencraft.collector", false, Boolean.class::isInstance),
+        OPENCRAFT_POLICY("opencraft.policy", "Chunk", String.class::isInstance),
+        OPENCRAFT_BROKER_TYPE("opencraft.broker.type", "ReadWrite", String.class::isInstance),
+        OPENCRAFT_BROKER_HOST("opencraft.broker.host", "", String.class::isInstance),
+        OPENCRAFT_BROKER_PORT("opencraft.broker.port", 0, Integer.class::isInstance),
+        OPENCRAFT_BROKER_USERNAME("opencraft.broker.username", "", String.class::isInstance),
+        OPENCRAFT_BROKER_PASSWORD("opencraft.broker.password", "", String.class::isInstance),
+        OPENCRAFT_BROKER_CHANNEL_TYPE("opencraft.broker.channel.type", "Unsafe", String.class::isInstance),
+        OPENCRAFT_BROKER_CHANNEL_PARALLELISM_THRESHOLD("opencraft.broker.channel.parallelismThreshold", 4,
+                Integer.class::isInstance),
 
         // server
         SERVER_IP("server.ip", "", Migrate.PROPS, "server-ip", String.class::isInstance),

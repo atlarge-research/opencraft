@@ -529,10 +529,22 @@ public class GlowServer implements Server {
         loadConfig();
     }
 
+    /**
+     * Extract and parse the broker configuration from the server configuration.
+     *
+     * @return the broker configuration.
+     */
     public BrokerConfig getBrokerConfig() {
         return new BrokerConfig(
                 config.getString(Key.OPENCRAFT_BROKER_TYPE),
-                new ChannelConfig(config.getString(Key.OPENCRAFT_BROKER_CHANNEL_TYPE))
+                config.getString(Key.OPENCRAFT_BROKER_HOST),
+                config.getInt(Key.OPENCRAFT_BROKER_PORT),
+                config.getString(Key.OPENCRAFT_BROKER_USERNAME),
+                config.getString(Key.OPENCRAFT_BROKER_PASSWORD),
+                new ChannelConfig(
+                        config.getString(Key.OPENCRAFT_BROKER_CHANNEL_TYPE),
+                        config.getInt(Key.OPENCRAFT_BROKER_CHANNEL_PARALLELISM_THRESHOLD)
+                )
         );
     }
 
