@@ -564,7 +564,7 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         LIBRARY_CHECKSUM_VALIDATION("libraries.checksum-validation", true,
                 Boolean.class::isInstance),
         LIBRARY_REPOSITORY_URL("libraries.repository-url",
-                "https://repo.glowstone.net/repository/maven-public/",
+                "https://repo1.maven.org/maven2/",
                 String.class::isInstance),
         LIBRARY_DOWNLOAD_ATTEMPTS("libraries.download-attempts", 2,
                 Validators.POSITIVE_INTEGER),
