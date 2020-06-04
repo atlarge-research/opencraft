@@ -1189,10 +1189,12 @@ public abstract class GlowEntity implements Entity {
 
             if (intersectingBoxes.stream().anyMatch(box -> box.intersects(boundingBox))) {
                 Location self = this.location.clone();
-                Location minZ = this.location.clone().add(0,0,-1);
-                Location minX = this.location.clone().add(-1,0,0);
-                Location maxZ = this.location.clone().add(0,0,1);
-                Location maxX = this.location.clone().add(1,0,0);
+                double x = boundingBox.getSize().getX();
+                double z = boundingBox.getSize().getZ();
+                Location minZ = this.location.clone().add(0,0,-z);
+                Location minX = this.location.clone().add(-x,0,0);
+                Location maxZ = this.location.clone().add(0,0,z);
+                Location maxX = this.location.clone().add(x,0,0);
 
                 double selfdis = self.distance(location);
                 double minZdis = minZ.distance(location);
@@ -1205,6 +1207,8 @@ public abstract class GlowEntity implements Entity {
                 BoundingBox minXBB = pendingBox.createCopyAt(minX);
                 BoundingBox maxZBB = pendingBox.createCopyAt(maxZ);
                 BoundingBox maxXBB = pendingBox.createCopyAt(maxX);
+
+                // Try to check on the block level, so find the block you collide with and find the open spaces next to it relative from the block. Then do a distance check and sweptaabb for travelling
 
 
                 List<BoundingBox> boundingBoxes = getIntersectingBlockBoundingBoxes(
