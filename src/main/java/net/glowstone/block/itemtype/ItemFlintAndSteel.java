@@ -52,15 +52,11 @@ public class ItemFlintAndSteel extends ItemTool {
      * @param face The face that is clicked on (The vertical direction).
      */
     private void fireNetherPortal(GlowBlock target, BlockFace face, GlowPlayer player) {
-
         target = target.getRelative(face);
-
         boolean portalNorth = createValidPortal(target, BlockFace.NORTH, player);
-        if (portalNorth) {
-            return;
+        if (!portalNorth) {
+            createValidPortal(target, BlockFace.EAST, player);
         }
-
-        createValidPortal(target, BlockFace.EAST, player);
     }
 
     /**
@@ -192,7 +188,7 @@ public class ItemFlintAndSteel extends ItemTool {
         int heightDown = getPortalLengthDirection(block, BlockFace.DOWN) - 1;
         int width = getPortalLengthDirection(block, oppositeDirection) - 1;
 
-        if (heightDown != -1 && width != -1) {
+        if (heightDown >= 0 && width >= 0) {
             GlowBlock blockPosition = block.getRelative(BlockFace.DOWN, heightDown);
             blockPosition = blockPosition.getRelative(oppositeDirection, width);
             return blockPosition;

@@ -17,7 +17,7 @@ public class BlockPortal extends BlockType {
      *
      * @param data The data value of the portal block.
      * @param direction the direction to check for adjacent block.
-     * @return If the direction corresponds to the data.
+     * @return Whether the direction corresponds to the data.
      */
     private boolean isPortalDirection(byte data, BlockFace direction) {
 
