@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -393,8 +392,8 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         OPENCRAFT_COLLECTOR("opencraft.collector", false, Boolean.class::isInstance),
         OPENCRAFT_POLICY("opencraft.policy", "Chunk", String.class::isInstance),
         OPENCRAFT_BROKER_TYPE("opencraft.broker.type", "ReadWrite", String.class::isInstance),
-        OPENCRAFT_BROKER_HOST("opencraft.broker.host", "", String.class::isInstance),
-        OPENCRAFT_BROKER_PORT("opencraft.broker.port", 0, Integer.class::isInstance),
+        OPENCRAFT_BROKER_HOST("opencraft.broker.host", "localhost", String.class::isInstance),
+        OPENCRAFT_BROKER_PORT("opencraft.broker.port", -1, Integer.class::isInstance),
         OPENCRAFT_BROKER_VIRTUAL_HOST("opencraft.broker.virtualHost", "", String.class::isInstance),
         OPENCRAFT_BROKER_USERNAME("opencraft.broker.username", "", String.class::isInstance),
         OPENCRAFT_BROKER_PASSWORD("opencraft.broker.password", "", String.class::isInstance),
