@@ -395,6 +395,7 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         OPENCRAFT_BROKER_TYPE("opencraft.broker.type", "ReadWrite", String.class::isInstance),
         OPENCRAFT_BROKER_HOST("opencraft.broker.host", "", String.class::isInstance),
         OPENCRAFT_BROKER_PORT("opencraft.broker.port", 0, Integer.class::isInstance),
+        OPENCRAFT_BROKER_VIRTUAL_HOST("opencraft.broker.virtualHost", "", String.class::isInstance),
         OPENCRAFT_BROKER_USERNAME("opencraft.broker.username", "", String.class::isInstance),
         OPENCRAFT_BROKER_PASSWORD("opencraft.broker.password", "", String.class::isInstance),
         OPENCRAFT_BROKER_CHANNEL_TYPE("opencraft.broker.channel.type", "Unsafe", String.class::isInstance),

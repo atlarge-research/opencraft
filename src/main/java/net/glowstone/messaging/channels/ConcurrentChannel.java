@@ -13,14 +13,14 @@ import net.glowstone.messaging.Channel;
  */
 public final class ConcurrentChannel<Subscriber, Message> implements Channel<Subscriber, Message> {
 
-    private static final long PARALLELISM_THRESHOLD = 4;
-
+    private final long parallelismThreshold;
     private final ConcurrentHashMap<Subscriber, Consumer<Message>> callbacks;
 
     /**
      * Create a concurrent channel.
      */
-    public ConcurrentChannel() {
+    public ConcurrentChannel(long parallelismThreshold) {
+        this.parallelismThreshold = parallelismThreshold;
         this.callbacks = new ConcurrentHashMap<>();
     }
 
@@ -41,6 +41,6 @@ public final class ConcurrentChannel<Subscriber, Message> implements Channel<Sub
 
     @Override
     public void publish(Message message) {
-        callbacks.forEachValue(PARALLELISM_THRESHOLD, callback -> callback.accept(message));
+        callbacks.forEachValue(parallelismThreshold, callback -> callback.accept(message));
     }
 }

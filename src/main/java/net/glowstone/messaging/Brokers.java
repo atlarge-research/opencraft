@@ -14,8 +14,10 @@ import net.glowstone.messaging.channels.ConcurrentChannel;
 import net.glowstone.messaging.channels.GuavaChannel;
 import net.glowstone.messaging.channels.ReadWriteChannel;
 import net.glowstone.messaging.channels.UnsafeChannel;
+import net.glowstone.net.protocol.GlowProtocol;
 import net.glowstone.net.protocol.PlayProtocol;
 import net.glowstone.util.config.BrokerConfig;
+import net.glowstone.util.config.ChannelConfig;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
@@ -23,133 +25,91 @@ import org.apache.activemq.ActiveMQConnectionFactory;
  */
 public final class Brokers {
 
-    public static <Topic, Subscriber, Message extends com.flowpowered.network.Message> Broker<Topic, Subscriber, Message> newConfiguredBroker(BrokerConfig config) {
+    public static <Topic, Subscriber, Message extends com.flowpowered.network.Message> Broker<Topic, Subscriber, Message> newBroker(BrokerConfig config) {
+        String type = config.getType();
+        switch (type) {
 
-        ChannelFactory<Subscriber, Message> channelFactory;
-        String channelType = config.getChannel().getType();
-        switch (channelType) {
-            case "Concurrent":
-                channelFactory = ConcurrentChannel::new;
-                break;
-            case "Guava":
-                channelFactory = GuavaChannel::new;
-                break;
-            case "ReadWrite":
-                channelFactory = ReadWriteChannel::new;
-                break;
-            case "Unsafe":
-                channelFactory = UnsafeChannel::new;
-                break;
-            default:
-                throw new RuntimeException("Unknown channel type: " + channelType);
-        }
-
-        String brokerType = config.getType();
-        switch (brokerType) {
             case "ActiveMQ":
-                try {
-                    return Brokers.newActivemqBroker(
-                            ActiveMQConnectionFactory.DEFAULT_BROKER_URL,
-                            new ProtocolCodec<>(new PlayProtocol())
-                    );
-                } catch (JMSException e) {
-                    throw new RuntimeException(e);
-                }
+                return newActivemqBroker(config);
+
             case "Concurrent":
-                return new ConcurrentBroker<>(channelFactory);
+                return newConcurrentBroker(config.getChannel());
+
             case "RabbitMQ":
-                try {
-                    return Brokers.newRabbitmqBroker(
-                            "amqp://guest:guest@localhost:5672/%2F",
-                            new ProtocolCodec<>(new PlayProtocol())
-                    );
-                } catch (JMSException e) {
-                    throw new RuntimeException(e);
-                }
+                return newRabbitmqBroker(config);
+
             case "ReadWrite":
-                return new ReadWriteBroker<>(channelFactory);
+                return newReadWriteBroker(config.getChannel());
+
             default:
-                throw new RuntimeException("Unkown broker type: " + brokerType);
+                throw new RuntimeException("Unknown broker type: " + type);
         }
     }
 
-    /**
-     * Create a ConcurrentBroker.
-     *
-     * @param <Topic> The type of topics that is allowed to identify channels.
-     * @param <Subscriber> The type of subscribers that is allowed to subscribe to a channel.
-     * @param <Message> The type of messages that is allowed to be published to a channel.
-     * @return The concurrent broker.
-     */
-    public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newConcurrentBroker() {
-        return new ConcurrentBroker<>(ConcurrentChannel::new);
+    private static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newConcurrentBroker(ChannelConfig config) {
+        ChannelFactory<Subscriber, Message> factory = newChannelFactory(config);
+        return new ConcurrentBroker<>(factory);
     }
 
-    /**
-     * Create a ReadWriteBroker.
-     *
-     * @param <Topic> The type of topics that is allowed to identify channels.
-     * @param <Subscriber> The type of subscribers that is allowed to subscribe to a channel.
-     * @param <Message> The type of messages that is allowed to be published to a channel.
-     * @return The concurrent broker.
-     */
-    public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newReadWriteBroker() {
-        return new ReadWriteBroker<>(ReadWriteChannel::new);
+    private static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newReadWriteBroker(ChannelConfig config) {
+        ChannelFactory<Subscriber, Message> factory = newChannelFactory(config);
+        return new ReadWriteBroker<>(factory);
     }
 
-    /**
-     * Create a GuavaBroker.
-     *
-     * @param <Topic> The type of topics that is allowed to identify channels.
-     * @param <Subscriber> The type of subscribers that is allowed to subscribe to a channel.
-     * @param <Message> The type of messages that is allowed to be published to a channel.
-     * @return The concurrent broker.
-     */
-    public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newGuavaBroker() {
-        return new ConcurrentBroker<>(GuavaChannel::new);
+    private static <Subscriber, Message> ChannelFactory<Subscriber, Message> newChannelFactory(ChannelConfig config) {
+        String type = config.getType();
+        switch (type) {
+
+            case "Concurrent":
+                int parallelismThreshold = config.getParallelismThreshold();
+                return () -> new ConcurrentChannel<>(parallelismThreshold);
+
+            case "Guava":
+                return GuavaChannel::new;
+
+            case "ReadWrite":
+                return ReadWriteChannel::new;
+
+            case "Unsafe":
+                return UnsafeChannel::new;
+
+            default:
+                throw new RuntimeException("Unknown channel type: " + type);
+        }
     }
 
-    /**
-     * The ActiveMQ broker, this broker requires an ActiveMQ server to be running that wil handle the sending and
-     * receiving of messages.
-     *
-     * @param uri The link used to connect to the ActiveMQ server.
-     * @param codec The codec that has to be used for encoding and decoding messages.
-     * @param <Topic> The type of topics that is allowed to identify jms topics.
-     * @param <Subscriber> The type of subscribers that is allowed to subscribe to topics.
-     * @param <Message> The type of messages that is allowed to be published to a jms topic.
-     * @return The ActiveMQ broker.
-     */
-    public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newActivemqBroker(
-            String uri,
-            JmsCodec<Message> codec
-    ) throws JMSException {
-        ConnectionFactory factory = new ActiveMQConnectionFactory(uri);
-        Connection connection = factory.createConnection();
-        return new JmsBroker<>(connection, codec);
+    private static <Topic, Subscriber, Message extends com.flowpowered.network.Message> Broker<Topic, Subscriber, Message> newActivemqBroker(BrokerConfig config) {
+        try {
+            String url = "tcp://" + config.getHost() + ":" + config.getPort();
+            ConnectionFactory factory = new ActiveMQConnectionFactory(url);
+            Connection connection = factory.createConnection(config.getUsername(), config.getPassword());
+            return newJmsBroker(connection);
+        } catch (JMSException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    /**
-     * The RabbitMQ broker, this broker requires a RabbitMQ server to be running that wil handle the sending and
-     * receiving of messages. Before running this server you need to install the `rabbitmq_jms_topic_exchange` plugin
-     * for RabbitMQ.
-     *
-     * @param uri The link used to connect to the RabbitMQ server.
-     * @param codec The codec that has to be used for encoding and decoding messages.
-     * @param <Topic> The type of topics that is allowed to identify jms topics.
-     * @param <Subscriber> The type of subscribers that is allowed to subscribe to topics.
-     * @param <Message> The type of messages that is allowed to be published to a jms topic.
-     * @return The rabbitmq jms broker.
-     * @throws JMSException Whenever a topic connection could not be created.
-     */
-    public static <Topic, Subscriber, Message> JmsBroker<Topic, Subscriber, Message> newRabbitmqBroker(
-            String uri,
-            JmsCodec<Message> codec
-    ) throws JMSException {
-        RMQConnectionFactory factory = new RMQConnectionFactory();
-        factory.setUri(uri);
-        Connection connection = factory.createTopicConnection();
-        return new JmsBroker<>(connection, codec);
+    private static <Topic, Subscriber, Message extends com.flowpowered.network.Message> Broker<Topic, Subscriber, Message> newRabbitmqBroker(BrokerConfig config) {
+        try {
+            RMQConnectionFactory factory = new RMQConnectionFactory();
+            factory.setHost(config.getHost());
+            factory.setPort(config.getPort());
+            factory.setVirtualHost(config.getVirtualHost());
+            Connection connection = factory.createTopicConnection(config.getUsername(), config.getPassword());
+            return newJmsBroker(connection);
+        } catch (JMSException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static <Topic, Subscriber, Message extends com.flowpowered.network.Message> Broker<Topic, Subscriber, Message> newJmsBroker(Connection connection) {
+        try {
+            GlowProtocol protocol = new PlayProtocol();
+            JmsCodec<Message> codec = new ProtocolCodec<>(protocol);
+            return new JmsBroker<>(connection, codec);
+        } catch (JMSException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

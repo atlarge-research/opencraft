@@ -520,7 +520,7 @@ public class GlowWorld implements World {
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
 
         ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
-        broker = Brokers.newConfiguredBroker(server.getBrokerConfig());
+        broker = Brokers.newBroker(server.getBrokerConfig());
         Filter<Player, Message> filter = new PlayerFilter();
         messagingSystem = new MessagingSystem<>(policy, broker, filter);
 
