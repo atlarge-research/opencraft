@@ -28,8 +28,8 @@ public class BlockFalling extends BlockType {
     @Override
     public void onNearBlockChanged(GlowBlock me, BlockFace face, GlowBlock other, Material oldType,
         byte oldData, Material newType, byte newData) {
-        for (BlockFace faces : ADJACENT) {
-            if (faces == face) {
+        for (BlockFace adjacent : ADJACENT) {
+            if (adjacent == face) {
                 updatePhysics(me);
                 break;
             }
