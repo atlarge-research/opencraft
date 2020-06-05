@@ -502,6 +502,15 @@ public class GlowWorld implements World {
             uid = UUID.randomUUID();
         }
 
+        ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
+        broker = Brokers.newReadWriteBroker();
+        Filter<Player, Message> filter = new PlayerFilter();
+        messagingSystem = new MessagingSystem<>(policy, broker, filter);
+
+        executor = new PriorityExecutor();
+        blockChanges = new ConcurrentLinkedDeque<>();
+        afterBlockChanges = new LinkedList<>();
+
         chunkManager = new ChunkManager(this, storage.getChunkIoService(), generator);
         structures = storage.getStructureDataService().readStructuresData();
         functions = storage.getFunctionIoService().readFunctions().stream()
@@ -518,15 +527,6 @@ public class GlowWorld implements World {
         activeChunksSet = new HashSet<>();
         initialized = true;
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
-
-        ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
-        broker = Brokers.newReadWriteBroker();
-        Filter<Player, Message> filter = new PlayerFilter();
-        messagingSystem = new MessagingSystem<>(policy, broker, filter);
-
-        executor = new PriorityExecutor();
-        blockChanges = new ConcurrentLinkedDeque<>();
-        afterBlockChanges = new LinkedList<>();
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -1049,13 +1049,6 @@ public class GlowWorld implements World {
             }
         }
         return true;
-    }
-
-    public void broadcastBlockChangeInRange(GlowChunk.Key chunkKey, BlockChangeMessage message) {
-        // TODO: This may cause duplicate messages to be send, this implementation is required when creating a new world
-        getRawPlayers().stream()
-                .filter(player -> player.canSeeChunk(chunkKey))
-                .forEach(player -> addBlockChange(message));
     }
 
     private void maybeStrikeLightningInChunk(int cx, int cz) {

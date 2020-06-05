@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -897,8 +898,7 @@ public class GlowChunk implements Chunk {
     public static final class Key {
 
         // Key cache storage
-        private static final Long2ObjectOpenHashMap<Key> keys
-            = new Long2ObjectOpenHashMap<>(512, 0.5F);
+        private static final Map<Long, Key> keys = new ConcurrentHashMap<>(512, 0.5F);
 
         /**
          * The x-coordinate.
