@@ -104,7 +104,7 @@ public class AttributeManager {
             modifiers = Collections.emptyList();
         }
 
-        properties.put(key.toString(), new Property(key, value, modifiers));
+        properties.put(key.toString(), new Property(this, key, value, modifiers));
         needsUpdate = true;
     }
 
@@ -224,7 +224,10 @@ public class AttributeManager {
     }
 
     @AllArgsConstructor
-    public class Property implements AttributeInstance {
+    public static class Property implements AttributeInstance {
+
+        private final AttributeManager manager;
+
         @Getter
         private Key key;
         private double value;
@@ -236,11 +239,28 @@ public class AttributeManager {
         /**
          * Create a new property instance.
          *
+         * @param manager of the property.
+         * @param key of the property
+         * @param value of the property
+         * @param modifiers of the property
+         */
+        public Property(AttributeManager manager, Key key, double value, Collection<AttributeModifier> modifiers) {
+            this.manager = manager;
+            this.key = key;
+            this.value = value;
+            this.modifiers = modifiers.stream()
+                    .collect(Collectors.toMap(AttributeModifier::getUniqueId, Function.identity()));
+        }
+
+        /**
+         * Create a new property instance without a manager.
+         *
          * @param key of the property
          * @param value of the property
          * @param modifiers of the property
          */
         public Property(Key key, double value, Collection<AttributeModifier> modifiers) {
+            this.manager = null;
             this.key = key;
             this.value = value;
             this.modifiers = modifiers.stream()
@@ -306,8 +326,10 @@ public class AttributeManager {
         }
 
         private void onMutation() {
-            this.isCacheUpToDate = false;
-            AttributeManager.this.needsUpdate = true;
+            isCacheUpToDate = false;
+            if (manager != null) {
+                manager.needsUpdate = true;
+            }
         }
 
         /**

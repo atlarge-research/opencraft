@@ -68,10 +68,16 @@ public final class Brokers {
     public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newActivemqBroker(
             String uri,
             JmsCodec<Message> codec
-    ) throws JMSException {
-        ConnectionFactory factory = new ActiveMQConnectionFactory(uri);
-        Connection connection = factory.createConnection();
-        return new JmsBroker<>(connection, codec);
+    ) {
+        try {
+            ConnectionFactory factory = new ActiveMQConnectionFactory(uri);
+            Connection connection = factory.createConnection();
+            return new JmsBroker<>(connection, codec);
+        } catch (JMSException exception) {
+            exception.printStackTrace();
+            System.exit(1);
+            return null;
+        }
     }
 
     /**
