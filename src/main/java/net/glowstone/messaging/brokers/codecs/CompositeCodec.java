@@ -172,7 +172,10 @@ import net.glowstone.net.message.play.scoreboard.ScoreboardObjectiveMessage;
 import net.glowstone.net.message.play.scoreboard.ScoreboardScoreMessage;
 import net.glowstone.net.message.play.scoreboard.ScoreboardTeamMessage;
 
-public class CompositeCodec implements JmsCodec<Message> {
+/**
+ * The composite codec combines all gameplay related codecs into a single codec for use by the JMS based brokers.
+ */
+public final class CompositeCodec implements JmsCodec<Message> {
 
     private final Map<Integer, Class<? extends Message>> types;
     private final Map<Class<? extends Message>, Integer> opcodes;
@@ -180,9 +183,9 @@ public class CompositeCodec implements JmsCodec<Message> {
     private final AtomicInteger counter;
     private final ByteBufAllocator allocator;
 
-    // TODO: MultiBlockChangeMessage
-
-
+    /**
+     * Create a composite codec.
+     */
     public CompositeCodec() {
 
         types = new HashMap<>();
@@ -229,7 +232,7 @@ public class CompositeCodec implements JmsCodec<Message> {
         register(PlayParticleMessage.class, new PlayParticleCodec());
         register(JoinGameMessage.class, new JoinGameCodec());
         register(MapDataMessage.class, new MapDataCodec());
-        // TODO 0x25 : Entity packet
+        // TODO: Entity packet
         register(RelativeEntityPositionMessage.class, new RelativeEntityPositionCodec());
         register(RelativeEntityPositionRotationMessage.class, new RelativeEntityPositionRotationCodec());
         register(EntityRotationMessage.class, new EntityRotationCodec());
@@ -247,7 +250,7 @@ public class CompositeCodec implements JmsCodec<Message> {
         register(ResourcePackSendMessage.class, new ResourcePackSendCodec());
         register(RespawnMessage.class, new RespawnCodec());
         register(EntityHeadRotationMessage.class, new EntityHeadRotationCodec());
-        // TODO 0x37 : Select Advancement Tab
+        // TODO: Select Advancement Tab
         register(WorldBorderMessage.class, new WorldBorderCodec());
         register(CameraMessage.class, new CameraCodec());
         register(HeldItemMessage.class, new HeldItemCodec());
