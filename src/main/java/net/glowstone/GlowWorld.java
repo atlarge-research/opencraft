@@ -489,6 +489,17 @@ public class GlowWorld implements World {
         seaLevel = GlowServer.getWorldConfig().getInt(WorldConfig.Key.SEA_LEVEL);
         worldBorder = new GlowWorldBorder(this);
 
+        // Setup messaging system
+        ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
+        broker = Brokers.newConcurrentBroker();
+        Filter<Player, Message> filter = new PlayerFilter();
+        messagingSystem = new MessagingSystem<>(policy, broker, filter);
+
+        blockChanges = new ConcurrentLinkedDeque<>();
+        afterBlockChanges = new LinkedList<>();
+
+        executor = new PriorityExecutor();
+
         // read in world data
         WorldFinalValues values;
         values = storage.getMetadataService().readWorldData();
@@ -520,15 +531,6 @@ public class GlowWorld implements World {
         activeChunksSet = new HashSet<>();
         initialized = true;
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
-
-        ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
-        broker = Brokers.newActivemqBroker(ActiveMQConnectionFactory.DEFAULT_BROKER_URL, new CompositeCodec());
-        Filter<Player, Message> filter = new PlayerFilter();
-        messagingSystem = new MessagingSystem<>(policy, broker, filter);
-
-        executor = new PriorityExecutor();
-        blockChanges = new ConcurrentLinkedDeque<>();
-        afterBlockChanges = new LinkedList<>();
     }
 
     ////////////////////////////////////////////////////////////////////////////
