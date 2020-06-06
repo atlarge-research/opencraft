@@ -3,7 +3,6 @@ package net.glowstone.net.codec.play.entity;
 import com.flowpowered.network.Codec;
 import com.flowpowered.network.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.DecoderException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
