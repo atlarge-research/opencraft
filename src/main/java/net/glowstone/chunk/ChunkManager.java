@@ -10,6 +10,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.Getter;
@@ -29,6 +30,7 @@ import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.material.MaterialData;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * A class which manages the {@link GlowChunk}s currently loaded in memory.
@@ -108,10 +110,7 @@ public final class ChunkManager {
      */
     public boolean isChunkLoaded(int x, int z) {
         Key key = GlowChunk.Key.of(x, z);
-        GlowChunk chunk = chunks.get(key);
-        if (chunk == null) {
-            return false;
-        }
+        GlowChunk chunk = chunks.computeIfAbsent(key, k -> new GlowChunk(world, x, z));
         return chunk.isLoaded();
     }
 
@@ -193,21 +192,25 @@ public final class ChunkManager {
      * Unload chunks with no locks on them.
      */
     public void unloadOldChunks() {
+        lock.lock();
+        try {
+            Iterator<Entry<Key, GlowChunk>> chunksEntryIter = chunks.entrySet().iterator();
+            while (chunksEntryIter.hasNext()) {
 
-        // TODO: Locking
+                Entry<Key, GlowChunk> entry = chunksEntryIter.next();
+                if (!lockSet.contains(entry.getKey())) {
+                    if (!entry.getValue().unload(true, true)) {
+                        ConsoleMessages.Warn.Chunk.UNLOAD_FAILED.log(world.getName(), entry.getKey());
+                    }
+                }
 
-        Iterator<Entry<Key, GlowChunk>> chunksEntryIter = chunks.entrySet().iterator();
-        while (chunksEntryIter.hasNext()) {
-            Entry<Key, GlowChunk> entry = chunksEntryIter.next();
-            if (!lockSet.contains(entry.getKey())) {
-                if (!entry.getValue().unload(true, true)) {
-                    ConsoleMessages.Warn.Chunk.UNLOAD_FAILED.log(world.getName(), entry.getKey());
+                if (!entry.getValue().isLoaded()) {
+                    chunksEntryIter.remove();
+                    lockSet.setCount(entry.getKey(), 0);
                 }
             }
-            if (!entry.getValue().isLoaded()) {
-                chunksEntryIter.remove();
-                lockSet.setCount(entry.getKey(), 0);
-            }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -272,11 +275,16 @@ public final class ChunkManager {
      * Initialize a single chunk from the chunk generator.
      */
     private void generateChunk(GlowChunk chunk, int x, int z) {
+
         Random random = new Random(x * 341873128712L + z * 132897987541L);
         BiomeGrid biomes = new BiomeGrid();
 
         int[] biomeValues = biomeGrid[0].generateValues(
-                x * GlowChunk.WIDTH, z * GlowChunk.HEIGHT, GlowChunk.WIDTH, GlowChunk.HEIGHT);
+                x * GlowChunk.WIDTH,
+                z * GlowChunk.HEIGHT,
+                GlowChunk.WIDTH,
+                GlowChunk.HEIGHT
+        );
         for (int i = 0; i < biomeValues.length; i++) {
             biomes.biomes[i] = (byte) biomeValues[i];
         }
@@ -284,11 +292,9 @@ public final class ChunkManager {
         // extended sections with data
         GlowChunkData glowChunkData = null;
         if (generator instanceof GlowChunkGenerator) {
-            glowChunkData = (GlowChunkData)
-                    generator.generateChunkData(world, random, x, z, biomes);
+            glowChunkData = (GlowChunkData) generator.generateChunkData(world, random, x, z, biomes);
         } else {
-            ChunkGenerator.ChunkData chunkData =
-                    generator.generateChunkData(world, random, x, z, biomes);
+            ChunkGenerator.ChunkData chunkData = generator.generateChunkData(world, random, x, z, biomes);
             if (chunkData != null) {
                 glowChunkData = new GlowChunkData(world);
                 for (int i = 0; i < 16; ++i) {
@@ -296,8 +302,10 @@ public final class ChunkManager {
                         int maxHeight = chunkData.getMaxHeight();
                         for (int k = 0; k < maxHeight; ++k) {
                             MaterialData materialData = chunkData.getTypeAndData(i, k, j);
-                            glowChunkData.setBlock(i, k, j, materialData == null
-                                    ? new MaterialData(Material.AIR) : materialData);
+                            if (materialData == null) {
+                                materialData = new MaterialData(Material.AIR);
+                            }
+                            glowChunkData.setBlock(i, k, j, materialData);
                         }
                     }
                 }
@@ -404,7 +412,9 @@ public final class ChunkManager {
      * @return The currently loaded chunks.
      */
     public GlowChunk[] getLoadedChunks() {
-        return chunks.values().stream().filter(GlowChunk::isLoaded).toArray(GlowChunk[]::new);
+        return chunks.values().stream()
+                .filter(GlowChunk::isLoaded)
+                .toArray(GlowChunk[]::new);
     }
 
     /**
@@ -476,7 +486,6 @@ public final class ChunkManager {
             }
             keys.add(key);
             cm.acquireLock(key);
-            //GlowServer.logger.info(this + " acquires " + key);
         }
 
         /**
@@ -488,9 +497,7 @@ public final class ChunkManager {
                 return;
             }
             keys.remove(key);
-            cm.releaseLock(key);
-            //GlowServer.logger.info(this + " releases " + key);
-        }
+            cm.releaseLock(key); }
 
         /**
          * Release all locks.
@@ -498,7 +505,6 @@ public final class ChunkManager {
         public void clear() {
             for (Key key : keys) {
                 cm.releaseLock(key);
-                //GlowServer.logger.info(this + " clearing " + key);
             }
             keys.clear();
         }
@@ -508,6 +514,7 @@ public final class ChunkManager {
             return "ChunkLock{" + desc + "}";
         }
 
+        @NotNull
         @Override
         public Iterator<Key> iterator() {
             return keys.iterator();

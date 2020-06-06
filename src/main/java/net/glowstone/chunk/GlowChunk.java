@@ -185,7 +185,7 @@ public class GlowChunk implements Chunk {
             }
         }
 
-        return states.toArray(new GlowBlockState[states.size()]);
+        return states.toArray(new GlowBlockState[0]);
     }
 
     public Collection<BlockEntity> getRawBlockEntities() {
