@@ -228,8 +228,8 @@ public final class ChunkManager {
             }
 
             // cancel out if the 3x3 around it isn't available
-            for (int x2 = x - 1; x2 <= x + 1; ++x2) {
-                for (int z2 = z - 1; z2 <= z + 1; ++z2) {
+            for (int x2 = x - 1; x2 <= x + 1; x2++) {
+                for (int z2 = z - 1; z2 <= z + 1; z2++) {
                     if (!getChunk(x2, z2).isLoaded()) {
                         if (!force || !loadChunk(x2, z2, true)) {
                             return;
