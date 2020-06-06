@@ -37,18 +37,18 @@ public final class Brokers {
      */
     public static <T, S, M extends Message> Broker<T, S, M> newBroker(BrokerConfig config) {
         String type = config.getType();
-        switch (type) {
+        switch (type.toLowerCase()) {
 
-            case "ActiveMQ":
+            case "activemq":
                 return newActivemqBroker(config);
 
-            case "Concurrent":
+            case "concurrent":
                 return newConcurrentBroker(config.getChannel());
 
-            case "RabbitMQ":
+            case "rabbitmq":
                 return newRabbitmqBroker(config);
 
-            case "ReadWrite":
+            case "readwrite":
                 return newReadWriteBroker(config.getChannel());
 
             default:
@@ -68,19 +68,19 @@ public final class Brokers {
 
     private static <S, M> ChannelFactory<S, M> newChannelFactory(ChannelConfig config) {
         String type = config.getType();
-        switch (type) {
+        switch (type.toLowerCase()) {
 
-            case "Concurrent":
+            case "concurrent":
                 int parallelismThreshold = config.getParallelismThreshold();
                 return () -> new ConcurrentChannel<>(parallelismThreshold);
 
-            case "Guava":
+            case "guava":
                 return GuavaChannel::new;
 
-            case "ReadWrite":
+            case "readWrite":
                 return ReadWriteChannel::new;
 
-            case "Unsafe":
+            case "unsafe":
                 return UnsafeChannel::new;
 
             default:
