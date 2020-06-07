@@ -9,20 +9,20 @@ import net.glowstone.net.message.play.scoreboard.ScoreboardObjectiveMessage;
 public final class ScoreboardObjectiveCodec implements Codec<ScoreboardObjectiveMessage> {
 
     @Override
-    public ScoreboardObjectiveMessage decode(ByteBuf buf) throws IOException {
+    public ScoreboardObjectiveMessage decode(ByteBuf buffer) {
         throw new UnsupportedOperationException("Cannot decode ScoreboardObjectiveMessage");
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, ScoreboardObjectiveMessage message) throws IOException {
-        ByteBufUtils.writeUTF8(buf, message.getName());
-        buf.writeByte(message.getAction());
+    public ByteBuf encode(ByteBuf buffer, ScoreboardObjectiveMessage message) throws IOException {
+        ByteBufUtils.writeUTF8(buffer, message.getName());
+        buffer.writeByte(message.getAction());
         if (message.getDisplayName() != null) {
-            ByteBufUtils.writeUTF8(buf, message.getDisplayName());
+            ByteBufUtils.writeUTF8(buffer, message.getDisplayName());
         }
         if (message.getRenderType() != null) {
-            ByteBufUtils.writeUTF8(buf, message.getRenderType().name());
+            ByteBufUtils.writeUTF8(buffer, message.getRenderType().name());
         }
-        return buf;
+        return buffer;
     }
 }

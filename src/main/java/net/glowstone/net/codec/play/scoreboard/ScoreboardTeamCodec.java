@@ -12,26 +12,27 @@ import org.bukkit.ChatColor;
 public final class ScoreboardTeamCodec implements Codec<ScoreboardTeamMessage> {
 
     @Override
-    public ScoreboardTeamMessage decode(ByteBuf buf) throws IOException {
+    public ScoreboardTeamMessage decode(ByteBuf buffer) {
         throw new UnsupportedOperationException("Cannot decode ScoreboardTeamMessage");
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, ScoreboardTeamMessage message) throws IOException {
-        Action action = message.getAction();
+    public ByteBuf encode(ByteBuf buffer, ScoreboardTeamMessage message) throws IOException {
 
-        ByteBufUtils.writeUTF8(buf, message.getTeamName());
-        buf.writeByte(action.ordinal());
+        ByteBufUtils.writeUTF8(buffer, message.getTeamName());
+
+        Action action = message.getAction();
+        buffer.writeByte(action.ordinal());
 
         // CREATE and UPDATE
         if (action == Action.CREATE || action == Action.UPDATE) {
-            ByteBufUtils.writeUTF8(buf, message.getDisplayName());
-            ByteBufUtils.writeUTF8(buf, message.getPrefix());
-            ByteBufUtils.writeUTF8(buf, message.getSuffix());
-            buf.writeByte(message.getFlags());
-            ByteBufUtils.writeUTF8(buf, message.getNametagVisibility().name().toLowerCase());
-            ByteBufUtils.writeUTF8(buf, message.getCollisionRule().name().toLowerCase());
-            buf.writeByte(
+            ByteBufUtils.writeUTF8(buffer, message.getDisplayName());
+            ByteBufUtils.writeUTF8(buffer, message.getPrefix());
+            ByteBufUtils.writeUTF8(buffer, message.getSuffix());
+            buffer.writeByte(message.getFlags());
+            ByteBufUtils.writeUTF8(buffer, message.getNametagVisibility().name().toLowerCase());
+            ByteBufUtils.writeUTF8(buffer, message.getCollisionRule().name().toLowerCase());
+            buffer.writeByte(
                 message.getColor() == ChatColor.RESET ? -1 : message.getColor().ordinal());
         }
 
@@ -39,12 +40,12 @@ public final class ScoreboardTeamCodec implements Codec<ScoreboardTeamMessage> {
         if (action == Action.CREATE || action == Action.ADD_PLAYERS
             || action == Action.REMOVE_PLAYERS) {
             List<String> entries = message.getEntries();
-            ByteBufUtils.writeVarInt(buf, entries.size());
+            ByteBufUtils.writeVarInt(buffer, entries.size());
             for (String entry : entries) {
-                ByteBufUtils.writeUTF8(buf, entry);
+                ByteBufUtils.writeUTF8(buffer, entry);
             }
         }
 
-        return buf;
+        return buffer;
     }
 }

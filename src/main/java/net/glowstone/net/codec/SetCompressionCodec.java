@@ -9,14 +9,14 @@ import net.glowstone.net.message.SetCompressionMessage;
 public final class SetCompressionCodec implements Codec<SetCompressionMessage> {
 
     @Override
-    public SetCompressionMessage decode(ByteBuf buf) throws IOException {
-        int threshold = ByteBufUtils.readVarInt(buf);
+    public SetCompressionMessage decode(ByteBuf buffer) throws IOException {
+        int threshold = ByteBufUtils.readVarInt(buffer);
         return new SetCompressionMessage(threshold);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, SetCompressionMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getThreshold());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, SetCompressionMessage message) {
+        ByteBufUtils.writeVarInt(buffer, message.getThreshold());
+        return buffer;
     }
 }
