@@ -22,7 +22,7 @@ public class EntityPropertyCodec implements Codec<EntityPropertyMessage> {
     public EntityPropertyMessage decode(ByteBuf buffer) throws IOException {
         int id = ByteBufUtils.readVarInt(buffer);
         int propertiesSize = buffer.readInt();
-        Map<String, Property> properties = new HashMap<>(propertiesSize);
+        Map<String, AttributeManager.Property> properties = new HashMap<>(propertiesSize);
         for (int propertyIndex = 0; propertyIndex < propertiesSize; propertyIndex++) {
 
             String name = ByteBufUtils.readUTF8(buffer);
@@ -51,9 +51,9 @@ public class EntityPropertyCodec implements Codec<EntityPropertyMessage> {
     @Override
     public ByteBuf encode(ByteBuf buffer, EntityPropertyMessage message) throws IOException {
         ByteBufUtils.writeVarInt(buffer, message.getId());
-        Map<String, Property> props = message.getProperties();
+        Map<String, AttributeManager.Property> props = message.getProperties();
         buffer.writeInt(props.size());
-        for (Entry<String, Property> property : props.entrySet()) {
+        for (Entry<String, AttributeManager.Property> property : props.entrySet()) {
 
             ByteBufUtils.writeUTF8(buffer, property.getKey());
             buffer.writeDouble(property.getValue().getValue());
