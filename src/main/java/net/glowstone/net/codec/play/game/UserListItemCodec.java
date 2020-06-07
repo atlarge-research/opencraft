@@ -4,69 +4,144 @@ import com.destroystokyo.paper.profile.ProfileProperty;
 import com.flowpowered.network.Codec;
 import com.flowpowered.network.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.DecoderException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import net.glowstone.entity.meta.profile.GlowPlayerProfile;
 import net.glowstone.net.GlowBufUtils;
 import net.glowstone.net.message.play.game.UserListItemMessage;
 import net.glowstone.net.message.play.game.UserListItemMessage.Action;
 import net.glowstone.net.message.play.game.UserListItemMessage.Entry;
+import net.glowstone.util.TextMessage;
 
 public final class UserListItemCodec implements Codec<UserListItemMessage> {
 
     @Override
-    public UserListItemMessage decode(ByteBuf buf) throws IOException {
-        throw new DecoderException("Cannot decode UserListItemMessage");
+    public UserListItemMessage decode(ByteBuf buffer) throws IOException {
+
+        int actionIndex = ByteBufUtils.readVarInt(buffer);
+        Action action = Action.values()[actionIndex];
+
+        int entryCount = ByteBufUtils.readVarInt(buffer);
+        List<Entry> entries = new ArrayList<>(entryCount);
+        for (int entryIndex = 0; entryIndex < entryCount; entryIndex++) {
+
+            UUID uuid = GlowBufUtils.readUuid(buffer);
+
+            GlowPlayerProfile profile = null;
+            int gameMode = 0;
+            int ping = 0;
+            TextMessage displayName = null;
+
+            switch (action) {
+
+                case ADD_PLAYER: {
+                    String profileName = ByteBufUtils.readUTF8(buffer);
+                    int propertyCount = ByteBufUtils.readVarInt(buffer);
+                    List<ProfileProperty> properties = new ArrayList<>(propertyCount);
+                    for (int propertyIndex = 0; propertyIndex < propertyCount; propertyIndex++) {
+                        String propertyName = ByteBufUtils.readUTF8(buffer);
+                        String value = ByteBufUtils.readUTF8(buffer);
+                        ProfileProperty property;
+                        boolean propertySigned = buffer.readBoolean();
+                        if (propertySigned) {
+                            String signature = ByteBufUtils.readUTF8(buffer);
+                            property = new ProfileProperty(propertyName, value, signature);
+                        } else {
+                            property = new ProfileProperty(propertyName, value);
+                        }
+                        properties.add(property);
+                    }
+                    profile = new GlowPlayerProfile(profileName, uuid, properties, false);
+                    gameMode = ByteBufUtils.readVarInt(buffer);
+                    ping = ByteBufUtils.readVarInt(buffer);
+                    boolean named = buffer.readBoolean();
+                    if (named) {
+                        displayName = GlowBufUtils.readChat(buffer);
+                    }
+                    break;
+                }
+
+                case UPDATE_GAMEMODE:
+                    gameMode = ByteBufUtils.readVarInt(buffer);
+                    break;
+
+                case UPDATE_LATENCY:
+                    ping = ByteBufUtils.readVarInt(buffer);
+                    break;
+
+                case UPDATE_DISPLAY_NAME:
+                    boolean named = buffer.readBoolean();
+                    if (named) {
+                        displayName = GlowBufUtils.readChat(buffer);
+                    }
+                    break;
+
+                case REMOVE_PLAYER:
+                    // Nothing
+                    break;
+
+                default:
+                    throw new UnsupportedOperationException("unknown action: " + action);
+            }
+
+            Entry entry = new Entry(uuid, profile, gameMode, ping, displayName, action);
+            entries.add(entry);
+        }
+
+        return new UserListItemMessage(action, entries);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, UserListItemMessage message) throws IOException {
-        Action action = message.getAction();
-        List<Entry> entries = message.getEntries();
-        ByteBufUtils.writeVarInt(buf, message.getAction().ordinal());
-        ByteBufUtils.writeVarInt(buf, entries.size());
+    public ByteBuf encode(ByteBuf buffer, UserListItemMessage message) throws IOException {
 
+        Action action = message.getAction();
+        ByteBufUtils.writeVarInt(buffer, message.getAction().ordinal());
+
+        List<Entry> entries = message.getEntries();
+        ByteBufUtils.writeVarInt(buffer, entries.size());
         for (Entry entry : entries) {
-            GlowBufUtils.writeUuid(buf, entry.uuid);
+            GlowBufUtils.writeUuid(buffer, entry.uuid);
 
             // todo: implement the rest of the actions
             switch (action) {
                 case ADD_PLAYER:
                     // this code is somewhat saddening
-                    ByteBufUtils.writeUTF8(buf, entry.profile.getName());
-                    ByteBufUtils.writeVarInt(buf, entry.profile.getProperties().size());
+                    ByteBufUtils.writeUTF8(buffer, entry.profile.getName());
+                    ByteBufUtils.writeVarInt(buffer, entry.profile.getProperties().size());
                     for (ProfileProperty property : entry.profile.getProperties()) {
-                        ByteBufUtils.writeUTF8(buf, property.getName());
-                        ByteBufUtils.writeUTF8(buf, property.getValue());
-                        buf.writeBoolean(property.isSigned());
+                        ByteBufUtils.writeUTF8(buffer, property.getName());
+                        ByteBufUtils.writeUTF8(buffer, property.getValue());
+                        buffer.writeBoolean(property.isSigned());
                         if (property.isSigned()) {
-                            ByteBufUtils.writeUTF8(buf, property.getSignature());
+                            ByteBufUtils.writeUTF8(buffer, property.getSignature());
                         }
                     }
-                    ByteBufUtils.writeVarInt(buf, entry.gameMode);
-                    ByteBufUtils.writeVarInt(buf, entry.ping);
+                    ByteBufUtils.writeVarInt(buffer, entry.gameMode);
+                    ByteBufUtils.writeVarInt(buffer, entry.ping);
                     if (entry.displayName != null) {
-                        buf.writeBoolean(true);
-                        GlowBufUtils.writeChat(buf, entry.displayName);
+                        buffer.writeBoolean(true);
+                        GlowBufUtils.writeChat(buffer, entry.displayName);
                     } else {
-                        buf.writeBoolean(false);
+                        buffer.writeBoolean(false);
                     }
                     break;
 
                 case UPDATE_GAMEMODE:
-                    ByteBufUtils.writeVarInt(buf, entry.gameMode);
+                    ByteBufUtils.writeVarInt(buffer, entry.gameMode);
                     break;
 
                 case UPDATE_LATENCY:
-                    ByteBufUtils.writeVarInt(buf, entry.ping);
+                    ByteBufUtils.writeVarInt(buffer, entry.ping);
                     break;
 
                 case UPDATE_DISPLAY_NAME:
                     if (entry.displayName != null) {
-                        buf.writeBoolean(true);
-                        GlowBufUtils.writeChat(buf, entry.displayName);
+                        buffer.writeBoolean(true);
+                        GlowBufUtils.writeChat(buffer, entry.displayName);
                     } else {
-                        buf.writeBoolean(false);
+                        buffer.writeBoolean(false);
                     }
                     break;
 
@@ -78,6 +153,6 @@ public final class UserListItemCodec implements Codec<UserListItemMessage> {
                     throw new UnsupportedOperationException("not yet implemented: " + action);
             }
         }
-        return buf;
+        return buffer;
     }
 }

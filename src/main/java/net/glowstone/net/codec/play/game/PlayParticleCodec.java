@@ -3,34 +3,51 @@ package net.glowstone.net.codec.play.game;
 import com.flowpowered.network.Codec;
 import com.flowpowered.network.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.DecoderException;
 import java.io.IOException;
 import net.glowstone.net.message.play.game.PlayParticleMessage;
 
 public final class PlayParticleCodec implements Codec<PlayParticleMessage> {
 
     @Override
-    public PlayParticleMessage decode(ByteBuf buf) throws IOException {
-        throw new DecoderException("Cannot decode PlayParticleMessage");
+    public PlayParticleMessage decode(ByteBuf buffer) throws IOException {
+
+        int particle = buffer.readInt();
+        boolean longDistance = buffer.readBoolean();
+        float x = buffer.readFloat();
+        float y = buffer.readFloat();
+        float z = buffer.readFloat();
+        float ofsX = buffer.readFloat();
+        float ofsY = buffer.readFloat();
+        float ofsZ = buffer.readFloat();
+        float data = buffer.readFloat();
+
+        int count = buffer.readInt();
+        int[] extData = new int[count];
+        for (int index = 0; index < count; index++) {
+            extData[index] = ByteBufUtils.readVarInt(buffer);
+        }
+
+        return new PlayParticleMessage(particle, longDistance, x, y, z, ofsX, ofsY, ofsZ, data, count, extData);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, PlayParticleMessage message) throws IOException {
-        buf.writeInt(message.getParticle());
-        buf.writeBoolean(message.isLongDistance());
-        buf.writeFloat(message.getX());
-        buf.writeFloat(message.getY());
-        buf.writeFloat(message.getZ());
-        buf.writeFloat(message.getOfsX());
-        buf.writeFloat(message.getOfsY());
-        buf.writeFloat(message.getOfsZ());
-        buf.writeFloat(message.getData());
-        buf.writeInt(message.getCount());
+    public ByteBuf encode(ByteBuf buffer, PlayParticleMessage message) throws IOException {
 
+        buffer.writeInt(message.getParticle());
+        buffer.writeBoolean(message.isLongDistance());
+        buffer.writeFloat(message.getX());
+        buffer.writeFloat(message.getY());
+        buffer.writeFloat(message.getZ());
+        buffer.writeFloat(message.getOfsX());
+        buffer.writeFloat(message.getOfsY());
+        buffer.writeFloat(message.getOfsZ());
+        buffer.writeFloat(message.getData());
+
+        buffer.writeInt(message.getCount());
         for (int extData : message.getExtData()) {
-            ByteBufUtils.writeVarInt(buf, extData);
+            ByteBufUtils.writeVarInt(buffer, extData);
         }
 
-        return buf;
+        return buffer;
     }
 }
