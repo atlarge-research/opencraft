@@ -447,6 +447,8 @@ public class GlowWorld implements World {
 
     private final List<Pair<GlowChunk.Key, Message>> afterBlockChanges;
 
+    private Collection<GlowPlayer> previousPlayers;
+
     /**
      * Creates a new world from the options in the given WorldCreator.
      *
@@ -527,6 +529,8 @@ public class GlowWorld implements World {
         executor = new PriorityExecutor();
         blockChanges = new ConcurrentLinkedDeque<>();
         afterBlockChanges = new LinkedList<>();
+
+        previousPlayers = new ArrayList<>();
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -551,9 +555,16 @@ public class GlowWorld implements World {
 
         players.forEach(GlowPlayer::updateKnownChunks);
 
-        updateMessagingSystem(players);
+        Collection<GlowPlayer> playerCheck = new ArrayList<>(players);
+        previousPlayers.removeAll(players);
+        playerCheck.addAll(previousPlayers);
 
-        streamChunks(players);
+        updateMessagingSystem(playerCheck);
+
+        streamChunks(playerCheck);
+
+        previousPlayers.clear();
+        previousPlayers.addAll(players);
 
         pulseTickMap();
         Set<GlowChunk> activeChunks = findActiveChunks(players);
@@ -633,7 +644,11 @@ public class GlowWorld implements World {
             int currentRadius = Math.min(server.getViewDistance(), 1 + currentViewDistance);
             int previousRadius = Math.min(server.getViewDistance(), 1 + previousViewDistance);
 
-            if (!force && previousX == currentX && previousZ == currentZ && currentRadius == previousRadius) {
+            if (!force
+                    && previousX == currentX
+                    && previousZ == currentZ
+                    && currentRadius == previousRadius
+                    && !player.isRemoved()) {
                 continue;
             }
 
@@ -644,8 +659,10 @@ public class GlowWorld implements World {
                     for (int z = previousZ - previousRadius; z <= previousZ + previousRadius; z++) {
                         if (currentLocation.getWorld() != this
                                 || Math.abs(x - currentX) > currentRadius
-                                || Math.abs(z - currentZ) > currentRadius) {
+                                || Math.abs(z - currentZ) > currentRadius
+                                || player.isRemoved()) {
                             GlowChunk chunk = getChunkAt(x, z);
+                            System.out.println(chunk.getWorld().getName() + " unload X:" + chunk.getX() + " Z:" + chunk.getZ());
                             chunksToUnload.add(Pair.of(chunk, player));
                         }
                     }
@@ -672,6 +689,7 @@ public class GlowWorld implements World {
                                 chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
                             });
 
+                            System.out.println(chunk.getWorld().getName() + " load X:" + chunk.getX() + " Z:" + chunk.getZ());
                             chunksToStream.add(chunkRunnable);
                         }
                     }

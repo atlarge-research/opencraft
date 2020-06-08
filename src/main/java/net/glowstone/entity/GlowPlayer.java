@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -1022,50 +1023,55 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      */
     public void spawnEntities() {
 
-        // Remove entities that are no longer visible
-        List<GlowEntity> removeEntities = new LinkedList<>();
-        List<GlowEntity> destroyEntities = new LinkedList<>();
-        for (GlowEntity entity : knownEntities) {
+        worldLock.writeLock().lock();
+        try {
+            // Remove entities that are no longer visible
+            List<GlowEntity> removeEntities = new LinkedList<>();
+            List<GlowEntity> destroyEntities = new LinkedList<>();
+            for (GlowEntity entity : knownEntities) {
 
-            if (!isWithinDistance(entity) || entity.isRemoved()) {
-                removeEntities.add(entity);
+                if (!isWithinDistance(entity) || entity.isRemoved()) {
+                    removeEntities.add(entity);
+                }
+
+                if (!isWithinDistance(entity)) {
+                    destroyEntities.add(entity);
+                }
             }
 
-            if (!isWithinDistance(entity)) {
-                destroyEntities.add(entity);
+            for (GlowEntity entity : removeEntities) {
+                knownEntities.remove(entity);
             }
+
+            if (!destroyEntities.isEmpty()) {
+                List<Integer> destroyIds = removeEntities.stream()
+                        .map(GlowEntity::getEntityId)
+                        .collect(Collectors.toList());
+                session.send(new DestroyEntitiesMessage(destroyIds));
+            }
+
+            // Add entities that have become visible
+            knownChunks.forEach(key ->
+                    world.getChunkAt(key.getX(), key.getZ()).getRawEntities().stream()
+                            .filter(entity -> this != entity
+                                    && isWithinDistance(entity)
+                                    && !entity.isDead()
+                                    && !knownEntities.contains(entity)
+                                    && !hiddenEntities.contains(entity.getUniqueId()))
+                            .forEach((entity) -> {
+
+                                worldLock.readLock().lock();
+                                try {
+                                    knownEntities.add(entity);
+                                } finally {
+                                    worldLock.readLock().unlock();
+                                }
+
+                                entity.createSpawnMessage().forEach(session::send);
+                            }));
+        } finally {
+            worldLock.writeLock().unlock();
         }
-
-        for (GlowEntity entity : removeEntities) {
-            knownEntities.remove(entity);
-        }
-
-        if (!destroyEntities.isEmpty()) {
-            List<Integer> destroyIds = removeEntities.stream()
-                    .map(GlowEntity::getEntityId)
-                    .collect(Collectors.toList());
-            session.send(new DestroyEntitiesMessage(destroyIds));
-        }
-
-        // Add entities that have become visible
-        knownChunks.forEach(key ->
-                world.getChunkAt(key.getX(), key.getZ()).getRawEntities().stream()
-                        .filter(entity -> this != entity
-                                && isWithinDistance(entity)
-                                && !entity.isDead()
-                                && !knownEntities.contains(entity)
-                                && !hiddenEntities.contains(entity.getUniqueId()))
-                        .forEach((entity) -> {
-
-                            worldLock.readLock().lock();
-                            try {
-                                knownEntities.add(entity);
-                            } finally {
-                                worldLock.readLock().unlock();
-                            }
-
-                            entity.createSpawnMessage().forEach(session::send);
-                        }));
     }
 
     @Override
