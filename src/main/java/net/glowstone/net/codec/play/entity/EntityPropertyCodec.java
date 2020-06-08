@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 import net.glowstone.entity.AttributeManager;
-import net.glowstone.entity.AttributeManager.Property;
 import net.glowstone.net.GlowBufUtils;
 import net.glowstone.net.message.play.entity.EntityPropertyMessage;
 import org.bukkit.attribute.AttributeModifier;
