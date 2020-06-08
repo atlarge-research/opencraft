@@ -21,10 +21,10 @@ public final class MultiBlockChangeCodec implements Codec<MultiBlockChangeMessag
         List<BlockChangeMessage> records = new ArrayList<>(size);
         for (int index = 0; index < size; index++) {
 
-            int position = buffer.readShort();
-            int blockX = position >> 12;
-            int blockZ = position >> 8;
-            int blockY = position;
+            short position = buffer.readShort();
+            int blockX = (position >> 12) & 0x000F;
+            int blockZ = (position >> 8) & 0x000F;
+            int blockY = (position) & 0x00FF;
 
             int type = ByteBufUtils.readVarInt(buffer);
 
