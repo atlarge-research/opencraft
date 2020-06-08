@@ -752,6 +752,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         invMonitor = new InventoryMonitor(getOpenInventory());
         updateInventory(); // send inventory contents
+        getInventory().setHeldItemSlot(0); // reset selected slot
         session.send(recipeMonitor.createInitMessage());
 
         if (!server.getResourcePackUrl().isEmpty()) {
