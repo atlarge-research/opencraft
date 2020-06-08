@@ -97,6 +97,7 @@ import net.glowstone.net.message.play.game.UserListHeaderFooterMessage;
 import net.glowstone.net.message.play.game.UserListItemMessage;
 import net.glowstone.net.message.play.game.UserListItemMessage.Entry;
 import net.glowstone.net.message.play.inv.CloseWindowMessage;
+import net.glowstone.net.message.play.inv.HeldItemMessage;
 import net.glowstone.net.message.play.inv.OpenWindowMessage;
 import net.glowstone.net.message.play.inv.SetWindowContentsMessage;
 import net.glowstone.net.message.play.inv.SetWindowSlotMessage;
@@ -752,7 +753,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         invMonitor = new InventoryMonitor(getOpenInventory());
         updateInventory(); // send inventory contents
-        getInventory().setHeldItemSlot(0); // reset selected slot
+        session.send(new HeldItemMessage(getInventory().getHeldItemSlot()));
         session.send(recipeMonitor.createInitMessage());
 
         if (!server.getResourcePackUrl().isEmpty()) {
