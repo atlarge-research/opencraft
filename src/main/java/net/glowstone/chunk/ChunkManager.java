@@ -10,7 +10,6 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import lombok.Getter;
@@ -497,7 +496,8 @@ public final class ChunkManager {
                 return;
             }
             keys.remove(key);
-            cm.releaseLock(key); }
+            cm.releaseLock(key);
+        }
 
         /**
          * Release all locks.
