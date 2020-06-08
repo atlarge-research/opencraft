@@ -662,7 +662,6 @@ public class GlowWorld implements World {
                                 || Math.abs(z - currentZ) > currentRadius
                                 || player.isRemoved()) {
                             GlowChunk chunk = getChunkAt(x, z);
-                            System.out.println(chunk.getWorld().getName() + " unload X:" + chunk.getX() + " Z:" + chunk.getZ());
                             chunksToUnload.add(Pair.of(chunk, player));
                         }
                     }
@@ -689,7 +688,6 @@ public class GlowWorld implements World {
                                 chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
                             });
 
-                            System.out.println(chunk.getWorld().getName() + " load X:" + chunk.getX() + " Z:" + chunk.getZ());
                             chunksToStream.add(chunkRunnable);
                         }
                     }
