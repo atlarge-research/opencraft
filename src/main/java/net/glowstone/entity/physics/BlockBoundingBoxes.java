@@ -76,6 +76,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import jdk.internal.util.xml.impl.Pair;
 import net.glowstone.block.GlowBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -447,14 +448,10 @@ public class BlockBoundingBoxes {
      */
     private static boolean canConnectPane(BlockFace face, GlowBlock block) {
         GlowBlock nextBlock = block.getRelative(face);
-        switch (nextBlock.getType()) {
-            case THIN_GLASS:
-            case STAINED_GLASS_PANE:
-            case IRON_FENCE:
-                return true;
-            default:
-                return nextBlock.getType().isOccluding();
+        if (PANES.contains(nextBlock.getType())) {
+            return true;
         }
+        return nextBlock.getType().isOccluding();
     }
 
     /**
