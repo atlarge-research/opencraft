@@ -588,9 +588,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         return currentFishingHook.get();
     }
 
-    @Getter
-    private final AreaOfInterest previousAreaOfInterest;
-
     /**
      * Creates a new player and adds it to the world.
      *
@@ -621,8 +618,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         server.getPlayerStatisticIoService().readStatistics(this);
         recipeMonitor = new PlayerRecipeMonitor(this);
 
-        previousAreaOfInterest = new AreaOfInterest(null, getViewDistance());
-
         updateBossBars();
     }
 
@@ -645,6 +640,15 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      */
     public Set<Chunk> getKnownChunks() {
         return knownChunks;
+    }
+
+    /**
+     * Get the current area of interest of this player.
+     *
+     * @return The current area of interest.
+     */
+    public AreaOfInterest getAreaOfInterest() {
+        return new AreaOfInterest(getLocation(), getViewDistance());
     }
 
     /**
