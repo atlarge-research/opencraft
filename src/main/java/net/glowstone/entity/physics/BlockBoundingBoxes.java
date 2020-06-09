@@ -1,5 +1,6 @@
 package net.glowstone.entity.physics;
 
+import static net.glowstone.entity.physics.BoundingBox.Dimensions;
 import static org.bukkit.Material.ACACIA_DOOR;
 import static org.bukkit.Material.ACACIA_FENCE;
 import static org.bukkit.Material.ACACIA_FENCE_GATE;
@@ -56,7 +57,9 @@ import static org.bukkit.Material.SPRUCE_DOOR;
 import static org.bukkit.Material.SPRUCE_FENCE;
 import static org.bukkit.Material.SPRUCE_FENCE_GATE;
 import static org.bukkit.Material.SPRUCE_WOOD_STAIRS;
+import static org.bukkit.Material.STAINED_GLASS_PANE;
 import static org.bukkit.Material.STONE_PLATE;
+import static org.bukkit.Material.THIN_GLASS;
 import static org.bukkit.Material.TRAPPED_CHEST;
 import static org.bukkit.Material.TRAP_DOOR;
 import static org.bukkit.Material.WATER_LILY;
@@ -71,10 +74,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import net.glowstone.block.GlowBlock;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -92,14 +94,18 @@ import org.bukkit.util.Vector;
  */
 public class BlockBoundingBoxes {
 
-    private static final Set<Material> stairs;
-    private static final Set<Material> fences;
-    private static final Set<Material> doors;
-    private static final Set<Material> fenceGates;
-    private static final ImmutableMap<Material, ImmutablePair<Double, Double>> MATERIALS_BOUNDINGBOX_SIZE;
+    private static final Dimensions FULL_BLOCK = Dimensions.create(1.0, 1.0);
+    private static final Dimensions HALF_BLOCK = Dimensions.create(1.0, 0.5);
+    private static final Set<Material> STAIRS;
+    private static final Set<Material> FENCES;
+    private static final Set<Material> DOORS;
+    private static final Set<Material> PANES;
+    private static final Set<Material> GATES;
+    private static final Map<Material, Dimensions> BOUNDINGBOX_SIZES;
 
     static {
-        stairs = ImmutableSet.of(
+
+        STAIRS = ImmutableSet.of(
                 ACACIA_STAIRS,
                 BIRCH_WOOD_STAIRS,
                 DARK_OAK_STAIRS,
@@ -115,7 +121,8 @@ public class BlockBoundingBoxes {
                 PURPUR_STAIRS,
                 RED_SANDSTONE_STAIRS
         );
-        fences = ImmutableSet.of(
+
+        FENCES = ImmutableSet.of(
                 FENCE,
                 NETHER_FENCE,
                 ACACIA_FENCE,
@@ -125,7 +132,8 @@ public class BlockBoundingBoxes {
                 JUNGLE_FENCE,
                 SPRUCE_FENCE
         );
-        doors = ImmutableSet.of(
+
+        DOORS = ImmutableSet.of(
                 DARK_OAK_DOOR,
                 ACACIA_DOOR,
                 BIRCH_DOOR,
@@ -136,7 +144,8 @@ public class BlockBoundingBoxes {
                 WOOD_DOOR,
                 IRON_DOOR_BLOCK
         );
-        fenceGates = ImmutableSet.of(
+
+        GATES = ImmutableSet.of(
                 FENCE_GATE,
                 ACACIA_FENCE_GATE,
                 BIRCH_FENCE_GATE,
@@ -145,34 +154,41 @@ public class BlockBoundingBoxes {
                 SPRUCE_FENCE_GATE
         );
 
-        ImmutableMap.Builder<Material, ImmutablePair<Double, Double>> builder = ImmutableMap.builder();
-        MATERIALS_BOUNDINGBOX_SIZE = builder.put(ENCHANTMENT_TABLE, ImmutablePair.of(1.0, 3.0 / 4.0))
-                                            .put(CHEST, ImmutablePair.of(14.0 / 16.0, 7.0 / 8.0))
-                                            .put(ENDER_CHEST, ImmutablePair.of(14.0 / 16.0, 7.0 / 8.0))
-                                            .put(TRAPPED_CHEST, ImmutablePair.of(14.0 / 16.0, 7.0 / 8.0))
-                                            .put(CACTUS, ImmutablePair.of(14.0 / 16.0, 1.0))
-                                            .put(BED_BLOCK, ImmutablePair.of(1.0, 9.0 / 16.0))
-                                            .put(DAYLIGHT_DETECTOR, ImmutablePair.of(1.0, 3.0 / 8.0))
-                                            .put(DAYLIGHT_DETECTOR_INVERTED, ImmutablePair.of(1.0, 3.0 / 8.0))
-                                            .put(FLOWER_POT, ImmutablePair.of(3.0 / 8.0, 3.0 / 8.0))
-                                            .put(SOUL_SAND, ImmutablePair.of(1.0, 7.0 / 8.0))
-                                            .put(ENDER_PORTAL_FRAME, ImmutablePair.of(1.0, 13.0 / 16.0))
-                                            .put(WATER_LILY, ImmutablePair.of(1.0, 1.0 / 64.0))
-                                            .put(CAKE_BLOCK, ImmutablePair.of(7.0 / 8.0, 7.0 / 16.0))
-                                            .put(TRAP_DOOR, ImmutablePair.of(1.0, 1.0 / 8.0))
-                                            .put(IRON_TRAPDOOR, ImmutablePair.of(1.0, 1.0 / 8.0))
-                                            .put(REDSTONE_COMPARATOR, ImmutablePair.of(1.0, 1.0 / 8.0))
-                                            .put(REDSTONE_COMPARATOR_OFF, ImmutablePair.of(1.0, 1.0 / 8.0))
-                                            .put(REDSTONE_COMPARATOR_ON, ImmutablePair.of(1.0, 1.0 / 8.0))
-                                            .put(CARPET, ImmutablePair.of(1.0, 1.0 / 16.0))
-                                            .put(GOLD_PLATE, ImmutablePair.of(14.0 / 16.0, 0.01))
-                                            .put(STONE_PLATE, ImmutablePair.of(14.0 / 16.0, 0.01))
-                                            .put(IRON_PLATE, ImmutablePair.of(14.0 / 16.0, 0.01))
-                                            .put(WOOD_PLATE, ImmutablePair.of(14.0 / 16.0, 0.01))
-                                            .put(CHORUS_PLANT, ImmutablePair.of(10.0 / 16.0, 3.0 / 4.0))
-                                            .put(SOIL, ImmutablePair.of(1.0, 15.0 / 16.0))
-                                            .put(END_ROD, ImmutablePair.of(4.0 / 16.0, 1.0))
-                                            .build();
+        PANES = ImmutableSet.of(
+                THIN_GLASS,
+                STAINED_GLASS_PANE,
+                IRON_FENCE
+        );
+
+        ImmutableMap.Builder<Material, Dimensions> builder = ImmutableMap.builder();
+        BOUNDINGBOX_SIZES = builder.put(ENCHANTMENT_TABLE, Dimensions.create(1.0, 3.0 / 4.0))
+                                   .put(CHEST, Dimensions.create(14.0 / 16.0, 7.0 / 8.0))
+                                   .put(ENDER_CHEST, Dimensions.create(14.0 / 16.0, 7.0 / 8.0))
+                                   .put(TRAPPED_CHEST, Dimensions.create(14.0 / 16.0, 7.0 / 8.0))
+                                   .put(CACTUS, Dimensions.create(14.0 / 16.0, 1.0))
+                                   .put(BED_BLOCK,Dimensions.create(1.0, 9.0 / 16.0))
+                                   .put(DAYLIGHT_DETECTOR, Dimensions.create(1.0, 3.0 / 8.0))
+                                   .put(DAYLIGHT_DETECTOR_INVERTED, Dimensions.create(1.0, 3.0 / 8.0))
+                                   .put(FLOWER_POT, Dimensions.create(3.0 / 8.0, 3.0 / 8.0))
+                                   .put(SOUL_SAND, Dimensions.create(1.0, 7.0 / 8.0))
+                                   .put(ENDER_PORTAL_FRAME, Dimensions.create(1.0, 13.0 / 16.0))
+                                   .put(WATER_LILY, Dimensions.create(1.0, 1.0 / 64.0))
+                                   .put(CAKE_BLOCK, Dimensions.create(7.0 / 8.0, 7.0 / 16.0))
+                                   .put(TRAP_DOOR, Dimensions.create(1.0, 1.0 / 8.0))
+                                   .put(IRON_TRAPDOOR, Dimensions.create(1.0, 1.0 / 8.0))
+                                   .put(REDSTONE_COMPARATOR, Dimensions.create(1.0, 1.0 / 8.0))
+                                   .put(REDSTONE_COMPARATOR_OFF, Dimensions.create(1.0, 1.0 / 8.0))
+                                   .put(REDSTONE_COMPARATOR_ON, Dimensions.create(1.0, 1.0 / 8.0))
+                                   .put(CARPET, Dimensions.create(1.0, 1.0 / 16.0))
+                                   .put(GOLD_PLATE, Dimensions.create(14.0 / 16.0, 0.01))
+                                   .put(STONE_PLATE, Dimensions.create(14.0 / 16.0, 0.01))
+                                   .put(IRON_PLATE, Dimensions.create(14.0 / 16.0, 0.01))
+                                   .put(WOOD_PLATE, Dimensions.create(14.0 / 16.0, 0.01))
+                                   .put(CHORUS_PLANT, Dimensions.create(10.0 / 16.0, 3.0 / 4.0))
+                                   .put(SOIL, Dimensions.create(1.0, 15.0 / 16.0))
+                                   .put(END_ROD, Dimensions.create(4.0 / 16.0, 1.0))
+                                   .build();
+
     }
 
     /**
@@ -375,7 +391,7 @@ public class BlockBoundingBoxes {
      */
     private static boolean isFenceGateAligned(BlockFace face, GlowBlock block) {
         GlowBlock nextBlock = block.getRelative(face);
-        if (fenceGates.contains(nextBlock.getType())) {
+        if (GATES.contains(nextBlock.getType())) {
             BlockFace gateFace = ((Gate) nextBlock.getState().getData()).getFacing();
             BlockFace oppositeGateFace = face.getOppositeFace();
             return gateFace != face && oppositeGateFace != gateFace;
@@ -395,9 +411,9 @@ public class BlockBoundingBoxes {
         GlowBlock nextBlock = block.getRelative(face);
         Material material = nextBlock.getType();
 
-        if (fences.contains(material)) {
+        if (FENCES.contains(material)) {
             return true;
-        } else if (fenceGates.contains(material)) {
+        } else if (GATES.contains(material)) {
             return isFenceGateAligned(face, block);
         }
 
@@ -413,10 +429,10 @@ public class BlockBoundingBoxes {
      */
     private static boolean canConnectWall(BlockFace face, GlowBlock block) {
         GlowBlock nextBlock = block.getRelative(face);
-        if (fenceGates.contains(nextBlock.getType())) {
-            return isFenceGateAligned(face, block);
-        } else if (nextBlock.getType() == COBBLE_WALL) {
+        if (nextBlock.getType() == COBBLE_WALL) {
             return true;
+        } else if (GATES.contains(nextBlock.getType())) {
+            return isFenceGateAligned(face, block);
         } else {
             return nextBlock.getType().isOccluding();
         }
@@ -482,9 +498,9 @@ public class BlockBoundingBoxes {
         BoundingBox head = null;
 
         if (stairs.isInverted()) {
-            base = BoundingBox.fromCenterAndSize(loc.add(0, 0.5, 0).toVector(), 1.0, 0.5);
+            base = BoundingBox.fromDimension(loc.add(0, 0.5, 0).toVector(), HALF_BLOCK);
         } else {
-            base = BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 0.5);
+            base = BoundingBox.fromDimension(loc.toVector(), HALF_BLOCK);
         }
 
         BlockFace face = stairs.getAscendingDirection();
@@ -535,8 +551,10 @@ public class BlockBoundingBoxes {
         Vector minZ = loc.clone().add(0.0, 1.0, 1.0 - cauldronWidth).toVector();
         Vector maxXZ = loc.clone().add(1.0, 1.0, 1.0).toVector();
 
+        Dimensions bottom = Dimensions.create(1.0, internalHeight);
+
         return Arrays.asList(
-                BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, internalHeight),
+                BoundingBox.fromDimension(loc.toVector(), bottom),
                 BoundingBox.fromCorners(min, maxX),
                 BoundingBox.fromCorners(min, maxZ),
                 BoundingBox.fromCorners(minX, maxXZ),
@@ -565,9 +583,9 @@ public class BlockBoundingBoxes {
 
         if (inverted) {
             Vector higherOrigin = loc.add(0.0, 0.5, 0.0).toVector();
-            return Collections.singletonList(BoundingBox.fromCenterAndSize(higherOrigin, 1.0, 0.5));
+            return Collections.singletonList(BoundingBox.fromDimension(higherOrigin, HALF_BLOCK));
         } else {
-            return Collections.singletonList(BoundingBox.fromCenterAndSize(loc.toVector(), 1.0, 0.5));
+            return Collections.singletonList(BoundingBox.fromDimension(loc.toVector(), HALF_BLOCK));
         }
     }
 
@@ -575,13 +593,12 @@ public class BlockBoundingBoxes {
      * Returns a boundingboxList with one boundingbox that is centered on the location.
      *
      * @param loc The location of the boundingbox
-     * @param xzSize The width in the x and z axis
-     * @param ySize The height
+     * @param dimensions The dimensions of the block
      * @return A boundingboxList with the specified boundingbox
      */
-    private static List<BoundingBox> getBlockBoundingBoxesWithDimension(Location loc, double xzSize, double ySize) {
+    private static List<BoundingBox> getBlockBoundingBoxesWithDimension(Location loc, Dimensions dimensions) {
         Vector locationVector = loc.toVector();
-        BoundingBox box = BoundingBox.fromCenterAndSize(locationVector, xzSize, ySize);
+        BoundingBox box = BoundingBox.fromDimension(locationVector, dimensions);
         return Collections.singletonList(box);
     }
 
@@ -593,10 +610,24 @@ public class BlockBoundingBoxes {
      */
     private static List<BoundingBox> getBrewingStandBoundingBoxes(Location loc) {
         Vector locationVector = loc.toVector();
+        Dimensions base = Dimensions.create(1.0, 1.0 / 8.0);
+        Dimensions pole = Dimensions.create(2.0 / 16.0, 7.0 / 8.0);
         return Arrays.asList(
-                BoundingBox.fromCenterAndSize(locationVector, 1.0, 1.0 / 8.0),
-                BoundingBox.fromCenterAndSize(locationVector, 2.0 / 16.0, 7.0 / 8.0)
+                BoundingBox.fromDimension(locationVector, base),
+                BoundingBox.fromDimension(locationVector, pole)
         );
+    }
+
+    /**
+     * Returns the boundingbox that corresponds to the correct snowheight.
+     * @param loc The location of the boundingbox
+     * @param block The block of the boundingbox
+     * @return A full width boundingbox with a height corresponding to the amount of snow
+     */
+    private static List<BoundingBox> getSnowBlockBoundingBox(Location loc, GlowBlock block) {
+        double snowHeight = block.getState().getRawData() * 1.0 / 7.0;
+        Dimensions dimensions = Dimensions.create(1.0, snowHeight);
+        return getBlockBoundingBoxesWithDimension(loc, dimensions);
     }
 
     /**
@@ -616,23 +647,18 @@ public class BlockBoundingBoxes {
             case COBBLE_WALL:
                 return getWallBoundingBoxes(loc, block);
             case SNOW:
-                double snowHeight = block.getState().getRawData() * 1.0 / 7.0;
-                return getBlockBoundingBoxesWithDimension(loc, 1.0, snowHeight);
+                return getSnowBlockBoundingBox(loc, block);
             case CAULDRON:
                 return getCauldronBoundingBoxes(loc, 5.0 / 16.0);
             case HOPPER:
                 return getCauldronBoundingBoxes(loc, 9.0 / 16.0);
             case BREWING_STAND:
                 return getBrewingStandBoundingBoxes(loc);
-            case THIN_GLASS:
-            case STAINED_GLASS_PANE:
-            case IRON_FENCE:
-                return getPaneBoundingBoxes(loc, block);
             case SKULL:
                 return getSkullBoundingBoxes(loc, ((Skull) block.getState().getData()));
             default:
                 if (block.getType().isSolid()) {
-                    return getBlockBoundingBoxesWithDimension(loc, 1.0, 1.0);
+                    return getBlockBoundingBoxesWithDimension(loc, FULL_BLOCK);
                 } else {
                     return Collections.emptyList();
                 }
@@ -646,23 +672,25 @@ public class BlockBoundingBoxes {
      * @return The bounding box
      */
     public static List<BoundingBox> getBoundingBoxes(GlowBlock block) {
-        
+
         Location loc = block.getLocation().clone();
         Material blockType = block.getType();
 
-        Pair<Double, Double> size = MATERIALS_BOUNDINGBOX_SIZE.get(blockType);
-        if (size != null) {
-            return getBlockBoundingBoxesWithDimension(loc, size.getLeft(), size.getRight());
+        Dimensions dimensions = BOUNDINGBOX_SIZES.get(blockType);
+        if (dimensions != null) {
+            return getBlockBoundingBoxesWithDimension(loc, dimensions);
         }
 
-        if (fences.contains(blockType)) {
+        if (FENCES.contains(blockType)) {
             return getFenceBoundingBoxes(loc, block);
-        } else if (fenceGates.contains(blockType)) {
+        } else if (GATES.contains(blockType)) {
             return getFenceGateBoundingBoxes(loc, block);
-        } else if (stairs.contains(blockType)) {
+        } else if (STAIRS.contains(blockType)) {
             return getStairsBoundingBoxes(loc, ((Stairs) block.getState().getData()));
-        } else if (doors.contains(blockType)) {
+        } else if (DOORS.contains(blockType)) {
             return getDoorBoundingBoxes(loc, block);
+        } else if (PANES.contains(blockType)) {
+            return getPaneBoundingBoxes(loc, block);
         }
 
         return getRemainingBoundingBoxes(loc, block);

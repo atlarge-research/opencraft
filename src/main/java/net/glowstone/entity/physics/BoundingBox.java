@@ -7,6 +7,20 @@ import org.bukkit.util.Vector;
  */
 public class BoundingBox implements Cloneable {
 
+    public static class Dimensions {
+        public double width;
+        public double height;
+
+        public Dimensions(double width, double height){
+            this.width = width;
+            this.height = height;
+        }
+
+        public static Dimensions create(double width, double height) {
+            return new Dimensions(width, height);
+        }
+    }
+
     public final Vector minCorner = new Vector();
     public final Vector maxCorner = new Vector();
 
@@ -87,6 +101,17 @@ public class BoundingBox implements Cloneable {
         box.maxCorner.copy(pos.clone().add(size));
         return box;
     }
+
+    /**
+     * Creates a bounding box that is centered just as far from the minimum corner as from the maximum corner.
+     * @param pos The position to start from
+     * @param dimension The dimensions of the box
+     * @return The bounding box
+     */
+    public static BoundingBox fromDimension(Vector pos, Dimensions dimension) {
+        return fromCenterAndSize(pos, dimension.width, dimension.height);
+    }
+
 
     /**
      * Creates a bounding box that is centered just as far from the minimum corner as from the maximum corner.
