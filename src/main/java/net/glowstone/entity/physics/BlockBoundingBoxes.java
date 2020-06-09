@@ -1,11 +1,82 @@
 package net.glowstone.entity.physics;
 
+import static org.bukkit.Material.ACACIA_DOOR;
+import static org.bukkit.Material.ACACIA_FENCE;
+import static org.bukkit.Material.ACACIA_FENCE_GATE;
+import static org.bukkit.Material.ACACIA_STAIRS;
+import static org.bukkit.Material.BED_BLOCK;
+import static org.bukkit.Material.BIRCH_DOOR;
+import static org.bukkit.Material.BIRCH_FENCE;
+import static org.bukkit.Material.BIRCH_FENCE_GATE;
+import static org.bukkit.Material.BIRCH_WOOD_STAIRS;
+import static org.bukkit.Material.BRICK_STAIRS;
+import static org.bukkit.Material.CACTUS;
+import static org.bukkit.Material.CAKE_BLOCK;
+import static org.bukkit.Material.CARPET;
+import static org.bukkit.Material.CHEST;
+import static org.bukkit.Material.CHORUS_PLANT;
+import static org.bukkit.Material.COBBLESTONE_STAIRS;
+import static org.bukkit.Material.COBBLE_WALL;
+import static org.bukkit.Material.DARK_OAK_DOOR;
+import static org.bukkit.Material.DARK_OAK_FENCE;
+import static org.bukkit.Material.DARK_OAK_FENCE_GATE;
+import static org.bukkit.Material.DARK_OAK_STAIRS;
+import static org.bukkit.Material.DAYLIGHT_DETECTOR;
+import static org.bukkit.Material.DAYLIGHT_DETECTOR_INVERTED;
+import static org.bukkit.Material.ENCHANTMENT_TABLE;
+import static org.bukkit.Material.ENDER_CHEST;
+import static org.bukkit.Material.ENDER_PORTAL_FRAME;
+import static org.bukkit.Material.END_ROD;
+import static org.bukkit.Material.FENCE;
+import static org.bukkit.Material.FENCE_GATE;
+import static org.bukkit.Material.FLOWER_POT;
+import static org.bukkit.Material.GOLD_PLATE;
+import static org.bukkit.Material.IRON_DOOR;
+import static org.bukkit.Material.IRON_DOOR_BLOCK;
+import static org.bukkit.Material.IRON_FENCE;
+import static org.bukkit.Material.IRON_PLATE;
+import static org.bukkit.Material.IRON_TRAPDOOR;
+import static org.bukkit.Material.JUNGLE_DOOR;
+import static org.bukkit.Material.JUNGLE_FENCE;
+import static org.bukkit.Material.JUNGLE_FENCE_GATE;
+import static org.bukkit.Material.JUNGLE_WOOD_STAIRS;
+import static org.bukkit.Material.NETHER_BRICK_STAIRS;
+import static org.bukkit.Material.NETHER_FENCE;
+import static org.bukkit.Material.PURPUR_STAIRS;
+import static org.bukkit.Material.QUARTZ_STAIRS;
+import static org.bukkit.Material.REDSTONE_COMPARATOR;
+import static org.bukkit.Material.REDSTONE_COMPARATOR_OFF;
+import static org.bukkit.Material.REDSTONE_COMPARATOR_ON;
+import static org.bukkit.Material.RED_SANDSTONE_STAIRS;
+import static org.bukkit.Material.SANDSTONE_STAIRS;
+import static org.bukkit.Material.SMOOTH_STAIRS;
+import static org.bukkit.Material.SOIL;
+import static org.bukkit.Material.SOUL_SAND;
+import static org.bukkit.Material.SPRUCE_DOOR;
+import static org.bukkit.Material.SPRUCE_FENCE;
+import static org.bukkit.Material.SPRUCE_FENCE_GATE;
+import static org.bukkit.Material.SPRUCE_WOOD_STAIRS;
+import static org.bukkit.Material.STONE_PLATE;
+import static org.bukkit.Material.TRAPPED_CHEST;
+import static org.bukkit.Material.TRAP_DOOR;
+import static org.bukkit.Material.WATER_LILY;
+import static org.bukkit.Material.WOODEN_DOOR;
+import static org.bukkit.Material.WOOD_DOOR;
+import static org.bukkit.Material.WOOD_PLATE;
+import static org.bukkit.Material.WOOD_STAIRS;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import net.glowstone.block.GlowBlock;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.material.Door;
 import org.bukkit.material.Gate;
@@ -20,6 +91,90 @@ import org.bukkit.util.Vector;
  * This class generates all the boundingboxes for all blocktypes.
  */
 public class BlockBoundingBoxes {
+
+    private static final Set<Material> stairs;
+    private static final Set<Material> fences;
+    private static final Set<Material> doors;
+    private static final Set<Material> fenceGates;
+    private static final ImmutableMap<Material, ImmutablePair<Double, Double>> MATERIALS_BOUNDINGBOX_SIZE;
+
+    static {
+        stairs = ImmutableSet.of(
+                ACACIA_STAIRS,
+                BIRCH_WOOD_STAIRS,
+                DARK_OAK_STAIRS,
+                JUNGLE_WOOD_STAIRS,
+                SPRUCE_WOOD_STAIRS,
+                WOOD_STAIRS,
+                COBBLESTONE_STAIRS,
+                SANDSTONE_STAIRS,
+                BRICK_STAIRS,
+                NETHER_BRICK_STAIRS,
+                SMOOTH_STAIRS,
+                QUARTZ_STAIRS,
+                PURPUR_STAIRS,
+                RED_SANDSTONE_STAIRS
+        );
+        fences = ImmutableSet.of(
+                FENCE,
+                NETHER_FENCE,
+                ACACIA_FENCE,
+                BIRCH_FENCE,
+                DARK_OAK_FENCE,
+                IRON_FENCE,
+                JUNGLE_FENCE,
+                SPRUCE_FENCE
+        );
+        doors = ImmutableSet.of(
+                DARK_OAK_DOOR,
+                ACACIA_DOOR,
+                BIRCH_DOOR,
+                IRON_DOOR,
+                JUNGLE_DOOR,
+                SPRUCE_DOOR,
+                WOODEN_DOOR,
+                WOOD_DOOR,
+                IRON_DOOR_BLOCK
+        );
+        fenceGates = ImmutableSet.of(
+                FENCE_GATE,
+                ACACIA_FENCE_GATE,
+                BIRCH_FENCE_GATE,
+                DARK_OAK_FENCE_GATE,
+                JUNGLE_FENCE_GATE,
+                SPRUCE_FENCE_GATE
+        );
+
+        ImmutableMap.Builder<Material, ImmutablePair<Double, Double>> builder = ImmutableMap.builder();
+        MATERIALS_BOUNDINGBOX_SIZE = builder.put(ENCHANTMENT_TABLE, ImmutablePair.of(1.0, 3.0 / 4.0))
+                                            .put(CHEST, ImmutablePair.of(14.0 / 16.0, 7.0 / 8.0))
+                                            .put(ENDER_CHEST, ImmutablePair.of(14.0 / 16.0, 7.0 / 8.0))
+                                            .put(TRAPPED_CHEST, ImmutablePair.of(14.0 / 16.0, 7.0 / 8.0))
+                                            .put(CACTUS, ImmutablePair.of(14.0 / 16.0, 1.0))
+                                            .put(BED_BLOCK, ImmutablePair.of(1.0, 9.0 / 16.0))
+                                            .put(DAYLIGHT_DETECTOR, ImmutablePair.of(1.0, 3.0 / 8.0))
+                                            .put(DAYLIGHT_DETECTOR_INVERTED, ImmutablePair.of(1.0, 3.0 / 8.0))
+                                            .put(FLOWER_POT, ImmutablePair.of(3.0 / 8.0, 3.0 / 8.0))
+                                            .put(SOUL_SAND, ImmutablePair.of(1.0, 7.0 / 8.0))
+                                            .put(ENDER_PORTAL_FRAME, ImmutablePair.of(1.0, 13.0 / 16.0))
+                                            .put(WATER_LILY, ImmutablePair.of(1.0, 1.0 / 64.0))
+                                            .put(CAKE_BLOCK, ImmutablePair.of(7.0 / 8.0, 7.0 / 16.0))
+                                            .put(TRAP_DOOR, ImmutablePair.of(1.0, 1.0 / 8.0))
+                                            .put(IRON_TRAPDOOR, ImmutablePair.of(1.0, 1.0 / 8.0))
+                                            .put(REDSTONE_COMPARATOR, ImmutablePair.of(1.0, 1.0 / 8.0))
+                                            .put(REDSTONE_COMPARATOR_OFF, ImmutablePair.of(1.0, 1.0 / 8.0))
+                                            .put(REDSTONE_COMPARATOR_ON, ImmutablePair.of(1.0, 1.0 / 8.0))
+                                            .put(CARPET, ImmutablePair.of(1.0, 1.0 / 16.0))
+                                            .put(GOLD_PLATE, ImmutablePair.of(14.0 / 16.0, 0.01))
+                                            .put(STONE_PLATE, ImmutablePair.of(14.0 / 16.0, 0.01))
+                                            .put(IRON_PLATE, ImmutablePair.of(14.0 / 16.0, 0.01))
+                                            .put(WOOD_PLATE, ImmutablePair.of(14.0 / 16.0, 0.01))
+                                            .put(CHORUS_PLANT, ImmutablePair.of(10.0 / 16.0, 3.0 / 4.0))
+                                            .put(SOIL, ImmutablePair.of(1.0, 15.0 / 16.0))
+                                            .put(END_ROD, ImmutablePair.of(4.0 / 16.0, 1.0))
+                                            .build()
+        ;
+    }
 
     /**
      * Generates the correct bounding box for a fence block.
@@ -215,25 +370,20 @@ public class BlockBoundingBoxes {
 
     /**
      * Returns a boolean indicating the alignment of the fence relative to the block.
+     *
      * @param face The face of the block to be checked as gate.
      * @param block The block that is of type fence.
      * @return True if the gate is aligned parallel to the fence, false if not.
      */
     private static boolean isFenceGateAligned(BlockFace face, GlowBlock block) {
         GlowBlock nextBlock = block.getRelative(face);
-        switch (nextBlock.getType()) {
-            case FENCE_GATE:
-            case ACACIA_FENCE_GATE:
-            case BIRCH_FENCE_GATE:
-            case DARK_OAK_FENCE_GATE:
-            case JUNGLE_FENCE_GATE:
-            case SPRUCE_FENCE_GATE:
-                BlockFace gateFace = ((Gate) nextBlock.getState().getData()).getFacing();
-                BlockFace oppositeGateFace = face.getOppositeFace();
-                return gateFace != face && oppositeGateFace != gateFace;
-            default:
-                return false;
+        if (fenceGates.contains(nextBlock.getType())) {
+            BlockFace gateFace = ((Gate) nextBlock.getState().getData()).getFacing();
+            BlockFace oppositeGateFace = face.getOppositeFace();
+            return gateFace != face && oppositeGateFace != gateFace;
         }
+
+        return false;
     }
 
     /**
@@ -245,26 +395,15 @@ public class BlockBoundingBoxes {
      */
     private static boolean canConnectFence(BlockFace face, GlowBlock block) {
         GlowBlock nextBlock = block.getRelative(face);
-        switch (nextBlock.getType()) {
-            case FENCE_GATE:
-            case ACACIA_FENCE_GATE:
-            case BIRCH_FENCE_GATE:
-            case DARK_OAK_FENCE_GATE:
-            case JUNGLE_FENCE_GATE:
-            case SPRUCE_FENCE_GATE:
-                return isFenceGateAligned(face, block);
-            case FENCE:
-            case NETHER_FENCE:
-            case ACACIA_FENCE:
-            case BIRCH_FENCE:
-            case DARK_OAK_FENCE:
-            case IRON_FENCE:
-            case JUNGLE_FENCE:
-            case SPRUCE_FENCE:
-                return true;
-            default:
-                return nextBlock.getType().isOccluding();
+        Material material = nextBlock.getType();
+
+        if (fences.contains(material)) {
+            return true;
+        } else if (fenceGates.contains(material)) {
+            return isFenceGateAligned(face, block);
         }
+
+        return nextBlock.getType().isOccluding();
     }
 
     /**
@@ -276,18 +415,12 @@ public class BlockBoundingBoxes {
      */
     private static boolean canConnectWall(BlockFace face, GlowBlock block) {
         GlowBlock nextBlock = block.getRelative(face);
-        switch (nextBlock.getType()) {
-            case FENCE_GATE:
-            case ACACIA_FENCE_GATE:
-            case BIRCH_FENCE_GATE:
-            case DARK_OAK_FENCE_GATE:
-            case JUNGLE_FENCE_GATE:
-            case SPRUCE_FENCE_GATE:
-                return isFenceGateAligned(face, block);
-            case COBBLE_WALL:
-                return true;
-            default:
-                return nextBlock.getType().isOccluding();
+        if (fenceGates.contains(nextBlock.getType())) {
+            return isFenceGateAligned(face, block);
+        } else if (nextBlock.getType() == COBBLE_WALL) {
+            return true;
+        } else {
+            return nextBlock.getType().isOccluding();
         }
     }
 
@@ -456,7 +589,7 @@ public class BlockBoundingBoxes {
 
     /**
      * Returns the brewing stand bounding boxes.
-     * 
+     *
      * @param loc The location of the boundingbox
      * @return A list with the brewing stand bounding boxes
      */
@@ -469,62 +602,24 @@ public class BlockBoundingBoxes {
     }
 
     /**
-     * Returns the bounding box corresponding to block glow block.
+     * Returns all the bounding boxes that are not edge cases or require special functions.
      *
-     * @param block The location of the block
-     * @return The bounding box
+     * @param loc The location of the bounding box
+     * @param block The corresponding block
+     * @return The List of boundingboxes that corresponds to the block
      */
-    public static List<BoundingBox> getBoundingBoxes(GlowBlock block) {
-        Location loc = block.getLocation().clone();
+    private static List<BoundingBox> getRemainingBoundingBoxes(Location loc, GlowBlock block) {
         switch (block.getType()) {
             case STEP:
             case WOOD_STEP:
             case PURPUR_SLAB:
             case STONE_SLAB2:
                 return getSlabBoundingBoxes(loc, block);
-            case FENCE:
-            case NETHER_FENCE:
-            case ACACIA_FENCE:
-            case BIRCH_FENCE:
-            case DARK_OAK_FENCE:
-            case JUNGLE_FENCE:
-            case SPRUCE_FENCE:
-                return getFenceBoundingBoxes(loc, block);
             case COBBLE_WALL:
                 return getWallBoundingBoxes(loc, block);
-            case FENCE_GATE:
-            case ACACIA_FENCE_GATE:
-            case BIRCH_FENCE_GATE:
-            case DARK_OAK_FENCE_GATE:
-            case JUNGLE_FENCE_GATE:
-            case SPRUCE_FENCE_GATE:
-                return getFenceGateBoundingBoxes(loc, block);
             case SNOW:
                 double snowHeight = block.getState().getRawData() * 1.0 / 7.0;
                 return getBlockBoundingBoxesWithDimension(loc, 1.0, snowHeight);
-            case ENCHANTMENT_TABLE:
-                return getBlockBoundingBoxesWithDimension(loc, 1.0, 3.0 / 4.0);
-            case CHEST:
-            case ENDER_CHEST:
-            case TRAPPED_CHEST:
-                return getBlockBoundingBoxesWithDimension(loc, 14.0 / 16.0, 7.0 / 8.0);
-            case CACTUS:
-                return getBlockBoundingBoxesWithDimension(loc, 14.0 / 16.0, 1.0);
-            case BED_BLOCK:
-                return getBlockBoundingBoxesWithDimension(loc, 1.0, 9.0 / 16.0);
-            case DAYLIGHT_DETECTOR:
-            case DAYLIGHT_DETECTOR_INVERTED:
-                return getBlockBoundingBoxesWithDimension(loc, 1.0, 3.0 / 8.0);
-            case FLOWER_POT:
-                return getBlockBoundingBoxesWithDimension(loc, 3.0 / 8.0, 3.0 / 8.0);
-            case SOUL_SAND:
-                return getBlockBoundingBoxesWithDimension(loc, 1.0, 7.0 / 8.0);
-            case ENDER_PORTAL_FRAME:
-                return getBlockBoundingBoxesWithDimension(loc, 1.0, 13.0 / 16.0);
-            case WATER_LILY:
-                return getBlockBoundingBoxesWithDimension(loc, 1.0, 1.0 / 64.0);
-            case CAKE_BLOCK:
-                return getBlockBoundingBoxesWithDimension(loc, 7.0 / 8.0, 7.0 / 16.0);
             case CAULDRON:
                 return getCauldronBoundingBoxes(loc, 5.0 / 16.0);
             case HOPPER:
@@ -535,52 +630,8 @@ public class BlockBoundingBoxes {
             case STAINED_GLASS_PANE:
             case IRON_FENCE:
                 return getPaneBoundingBoxes(loc, block);
-            case TRAP_DOOR:
-            case IRON_TRAPDOOR:
-            case REDSTONE_COMPARATOR:
-            case REDSTONE_COMPARATOR_OFF:
-            case REDSTONE_COMPARATOR_ON:
-                return getBlockBoundingBoxesWithDimension(loc, 1.0, 1.0 / 8.0);
-            case CARPET:
-                return getBlockBoundingBoxesWithDimension(loc, 1.0, 1.0 / 16.0);
             case SKULL:
                 return getSkullBoundingBoxes(loc, ((Skull) block.getState().getData()));
-            case ACACIA_STAIRS:
-            case BIRCH_WOOD_STAIRS:
-            case DARK_OAK_STAIRS:
-            case JUNGLE_WOOD_STAIRS:
-            case SPRUCE_WOOD_STAIRS:
-            case WOOD_STAIRS:
-            case COBBLESTONE_STAIRS:
-            case SANDSTONE_STAIRS:
-            case BRICK_STAIRS:
-            case NETHER_BRICK_STAIRS:
-            case SMOOTH_STAIRS:
-            case QUARTZ_STAIRS:
-            case PURPUR_STAIRS:
-            case RED_SANDSTONE_STAIRS:
-                return getStairsBoundingBoxes(loc, ((Stairs) block.getState().getData()));
-            case GOLD_PLATE:
-            case STONE_PLATE:
-            case IRON_PLATE:
-            case WOOD_PLATE:
-                return getBlockBoundingBoxesWithDimension(loc, 14.0 / 16.0, 0.01);
-            case CHORUS_PLANT:
-                return getBlockBoundingBoxesWithDimension(loc, 10.0 / 16.0, 3.0 / 4.0);
-            case SOIL:
-                return getBlockBoundingBoxesWithDimension(loc, 1.0, 15.0 / 16.0);
-            case END_ROD:
-                return getBlockBoundingBoxesWithDimension(loc, 4.0 / 16.0, 1.0);
-            case DARK_OAK_DOOR:
-            case ACACIA_DOOR:
-            case BIRCH_DOOR:
-            case IRON_DOOR:
-            case JUNGLE_DOOR:
-            case SPRUCE_DOOR:
-            case WOODEN_DOOR:
-            case WOOD_DOOR:
-            case IRON_DOOR_BLOCK:
-                return getDoorBoundingBoxes(loc, block);
             default:
                 if (block.getType().isSolid()) {
                     return getBlockBoundingBoxesWithDimension(loc, 1.0, 1.0);
@@ -588,5 +639,33 @@ public class BlockBoundingBoxes {
                     return Collections.emptyList();
                 }
         }
+    }
+
+    /**
+     * Returns the bounding box corresponding to block glow block.
+     *
+     * @param block The location of the block
+     * @return The bounding box
+     */
+    public static List<BoundingBox> getBoundingBoxes(GlowBlock block) {
+        Location loc = block.getLocation().clone();
+        Material blockType = block.getType();
+
+        Pair<Double, Double> size = MATERIALS_BOUNDINGBOX_SIZE.get(blockType);
+        if (size != null) {
+            return getBlockBoundingBoxesWithDimension(loc, size.getLeft(), size.getRight());
+        }
+
+        if (fences.contains(blockType)) {
+            return getFenceBoundingBoxes(loc, block);
+        } else if (fenceGates.contains(blockType)) {
+            return getFenceGateBoundingBoxes(loc, block);
+        } else if (stairs.contains(blockType)) {
+            return getStairsBoundingBoxes(loc, ((Stairs) block.getState().getData()));
+        } else if (doors.contains(blockType)) {
+            return getDoorBoundingBoxes(loc, block);
+        }
+
+        return getRemainingBoundingBoxes(loc, block);
     }
 }
