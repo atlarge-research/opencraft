@@ -76,7 +76,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import jdk.internal.util.xml.impl.Pair;
 import net.glowstone.block.GlowBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -457,18 +456,18 @@ public class BlockBoundingBoxes {
     /**
      * Builds the skull bounding box which is dependent on position and facing.
      *
-     * @param loc The location of the skull
+     * @param location The location of the skull
      * @param skull The Skull data
      * @return The bounding box for the skull
      */
-    private static List<BoundingBox> getSkullBoundingBoxes(Location loc, Skull skull) {
+    private static List<BoundingBox> getSkullBoundingBoxes(Location location, Skull skull) {
 
         BlockFace face = skull.getFacing();
         if (face == BlockFace.SELF) {
-            return Collections.singletonList(BoundingBox.fromCenterAndSize(loc.toVector(), 0.5, 0.5));
+            return Collections.singletonList(BoundingBox.fromCenterAndSize(location.toVector(), 0.5, 0.5));
         }
 
-        Location skullLoc = loc.clone().add(0, 0.25, 0);
+        Location skullLoc = location.clone().add(0, 0.25, 0);
 
         if (face == BlockFace.SOUTH) {
             skullLoc.add(0, 0, -0.25);
@@ -486,29 +485,29 @@ public class BlockBoundingBoxes {
     /**
      * Returns the bounding box for the stair by checking the stair data and its surroundings.
      *
-     * @param loc The location of the stair
+     * @param location The location of the stair
      * @param stairs The stair data
      * @return The bounding box of the stair
      */
-    private static List<BoundingBox> getStairsBoundingBoxes(Location loc, Stairs stairs) {
+    private static List<BoundingBox> getStairsBoundingBoxes(Location location, Stairs stairs) {
         BoundingBox base;
         BoundingBox head = null;
 
         if (stairs.isInverted()) {
-            base = BoundingBox.fromDimension(loc.add(0, 0.5, 0).toVector(), HALF_BLOCK);
+            base = BoundingBox.fromDimension(location.add(0, 0.5, 0).toVector(), HALF_BLOCK);
         } else {
-            base = BoundingBox.fromDimension(loc.toVector(), HALF_BLOCK);
+            base = BoundingBox.fromDimension(location.toVector(), HALF_BLOCK);
         }
 
         BlockFace face = stairs.getAscendingDirection();
 
-        Vector origin = loc.clone().toVector();
-        Vector originHalfX = loc.clone().add(0.5, 0.0, 0.0).toVector();
-        Vector originHalfZ = loc.clone().add(0.0, 0.0, 0.5).toVector();
+        Vector origin = location.clone().toVector();
+        Vector originHalfX = location.clone().add(0.5, 0.0, 0.0).toVector();
+        Vector originHalfZ = location.clone().add(0.0, 0.0, 0.5).toVector();
 
-        Vector south = loc.clone().add(1.0, 1.0, 0.5).toVector();
-        Vector full = loc.clone().add(1.0, 1.0, 1.0).toVector();
-        Vector west = loc.clone().add(0.5, 1.0, 1.0).toVector();
+        Vector south = location.clone().add(1.0, 1.0, 0.5).toVector();
+        Vector full = location.clone().add(1.0, 1.0, 1.0).toVector();
+        Vector west = location.clone().add(0.5, 1.0, 1.0).toVector();
 
         if (face == BlockFace.NORTH) {
             head = BoundingBox.fromCorners(origin, south);
@@ -533,25 +532,25 @@ public class BlockBoundingBoxes {
     /**
      * Returns the cauldron bounding box.
      *
-     * @param loc The location of the cauldron
+     * @param location The location of the cauldron
      * @param internalHeight The height of the inside of the cauldron
      * @return Returns the bounding boxes necessary to construct the cauldron collision
      */
-    private static List<BoundingBox> getCauldronBoundingBoxes(Location loc, double internalHeight) {
+    private static List<BoundingBox> getCauldronBoundingBoxes(Location location, double internalHeight) {
 
         double cauldronWidth = 2.0 / 16.0;
-        Vector min = loc.clone().toVector();
-        Vector maxZ = loc.clone().add(cauldronWidth, 1.0, 1.0).toVector();
-        Vector maxX = loc.clone().add(1.0, 1.0, cauldronWidth).toVector();
+        Vector min = location.clone().toVector();
+        Vector maxZ = location.clone().add(cauldronWidth, 1.0, 1.0).toVector();
+        Vector maxX = location.clone().add(1.0, 1.0, cauldronWidth).toVector();
 
-        Vector minX = loc.clone().add(1.0 - cauldronWidth, 1.0, 0.0).toVector();
-        Vector minZ = loc.clone().add(0.0, 1.0, 1.0 - cauldronWidth).toVector();
-        Vector maxXZ = loc.clone().add(1.0, 1.0, 1.0).toVector();
+        Vector minX = location.clone().add(1.0 - cauldronWidth, 1.0, 0.0).toVector();
+        Vector minZ = location.clone().add(0.0, 1.0, 1.0 - cauldronWidth).toVector();
+        Vector maxXZ = location.clone().add(1.0, 1.0, 1.0).toVector();
 
         Dimensions bottom = Dimensions.create(1.0, internalHeight);
 
         return Arrays.asList(
-                BoundingBox.fromDimension(loc.toVector(), bottom),
+                BoundingBox.fromDimension(location.toVector(), bottom),
                 BoundingBox.fromCorners(min, maxX),
                 BoundingBox.fromCorners(min, maxZ),
                 BoundingBox.fromCorners(minX, maxXZ),
@@ -563,11 +562,11 @@ public class BlockBoundingBoxes {
     /**
      * Returns the appropriate slab bounding box.
      *
-     * @param loc The location of the block
+     * @param location The location of the block
      * @param block The location of the block
      * @return The List of boundingboxes for the block
      */
-    private static List<BoundingBox> getSlabBoundingBoxes(Location loc, GlowBlock block) {
+    private static List<BoundingBox> getSlabBoundingBoxes(Location location, GlowBlock block) {
         MaterialData data = block.getState().getData();
 
         boolean inverted;
@@ -579,22 +578,22 @@ public class BlockBoundingBoxes {
         }
 
         if (inverted) {
-            Vector higherOrigin = loc.add(0.0, 0.5, 0.0).toVector();
+            Vector higherOrigin = location.add(0.0, 0.5, 0.0).toVector();
             return Collections.singletonList(BoundingBox.fromDimension(higherOrigin, HALF_BLOCK));
         } else {
-            return Collections.singletonList(BoundingBox.fromDimension(loc.toVector(), HALF_BLOCK));
+            return Collections.singletonList(BoundingBox.fromDimension(location.toVector(), HALF_BLOCK));
         }
     }
 
     /**
      * Returns a boundingboxList with one boundingbox that is centered on the location.
      *
-     * @param loc The location of the boundingbox
+     * @param location The location of the boundingbox
      * @param dimensions The dimensions of the block
      * @return A boundingboxList with the specified boundingbox
      */
-    private static List<BoundingBox> getBlockBoundingBoxesWithDimension(Location loc, Dimensions dimensions) {
-        Vector locationVector = loc.toVector();
+    private static List<BoundingBox> getBlockBoundingBoxesWithDimension(Location location, Dimensions dimensions) {
+        Vector locationVector = location.toVector();
         BoundingBox box = BoundingBox.fromDimension(locationVector, dimensions);
         return Collections.singletonList(box);
     }
@@ -602,11 +601,11 @@ public class BlockBoundingBoxes {
     /**
      * Returns the brewing stand bounding boxes.
      *
-     * @param loc The location of the boundingbox
+     * @param location The location of the boundingbox
      * @return A list with the brewing stand bounding boxes
      */
-    private static List<BoundingBox> getBrewingStandBoundingBoxes(Location loc) {
-        Vector locationVector = loc.toVector();
+    private static List<BoundingBox> getBrewingStandBoundingBoxes(Location location) {
+        Vector locationVector = location.toVector();
         Dimensions base = Dimensions.create(1.0, 1.0 / 8.0);
         Dimensions pole = Dimensions.create(2.0 / 16.0, 7.0 / 8.0);
         return Arrays.asList(
@@ -617,45 +616,45 @@ public class BlockBoundingBoxes {
 
     /**
      * Returns the boundingbox that corresponds to the correct snowheight.
-     * @param loc The location of the boundingbox
+     * @param location The location of the boundingbox
      * @param block The block of the boundingbox
      * @return A full width boundingbox with a height corresponding to the amount of snow
      */
-    private static List<BoundingBox> getSnowBlockBoundingBox(Location loc, GlowBlock block) {
+    private static List<BoundingBox> getSnowBlockBoundingBox(Location location, GlowBlock block) {
         double snowHeight = block.getState().getRawData() * 1.0 / 7.0;
         Dimensions dimensions = Dimensions.create(1.0, snowHeight);
-        return getBlockBoundingBoxesWithDimension(loc, dimensions);
+        return getBlockBoundingBoxesWithDimension(location, dimensions);
     }
 
     /**
      * Returns all the bounding boxes that are not edge cases or require special functions.
      *
-     * @param loc The location of the bounding box
+     * @param location The location of the bounding box
      * @param block The corresponding block
      * @return The List of boundingboxes that corresponds to the block
      */
-    private static List<BoundingBox> getRemainingBoundingBoxes(Location loc, GlowBlock block) {
+    private static List<BoundingBox> getNonGeneralBoundingBoxes(Location location, GlowBlock block) {
         switch (block.getType()) {
             case STEP:
             case WOOD_STEP:
             case PURPUR_SLAB:
             case STONE_SLAB2:
-                return getSlabBoundingBoxes(loc, block);
+                return getSlabBoundingBoxes(location, block);
             case COBBLE_WALL:
-                return getWallBoundingBoxes(loc, block);
+                return getWallBoundingBoxes(location, block);
             case SNOW:
-                return getSnowBlockBoundingBox(loc, block);
+                return getSnowBlockBoundingBox(location, block);
             case CAULDRON:
-                return getCauldronBoundingBoxes(loc, 5.0 / 16.0);
+                return getCauldronBoundingBoxes(location, 5.0 / 16.0);
             case HOPPER:
-                return getCauldronBoundingBoxes(loc, 9.0 / 16.0);
+                return getCauldronBoundingBoxes(location, 9.0 / 16.0);
             case BREWING_STAND:
-                return getBrewingStandBoundingBoxes(loc);
+                return getBrewingStandBoundingBoxes(location);
             case SKULL:
-                return getSkullBoundingBoxes(loc, ((Skull) block.getState().getData()));
+                return getSkullBoundingBoxes(location, ((Skull) block.getState().getData()));
             default:
                 if (block.getType().isSolid()) {
-                    return getBlockBoundingBoxesWithDimension(loc, FULL_BLOCK);
+                    return getBlockBoundingBoxesWithDimension(location, FULL_BLOCK);
                 } else {
                     return Collections.emptyList();
                 }
@@ -690,6 +689,6 @@ public class BlockBoundingBoxes {
             return getPaneBoundingBoxes(loc, block);
         }
 
-        return getRemainingBoundingBoxes(loc, block);
+        return getNonGeneralBoundingBoxes(loc, block);
     }
 }
