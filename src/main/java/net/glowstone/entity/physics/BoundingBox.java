@@ -8,6 +8,7 @@ import org.bukkit.util.Vector;
 public class BoundingBox implements Cloneable {
 
     public static class Dimensions {
+        
         public final double width;
         public final double height;
 
