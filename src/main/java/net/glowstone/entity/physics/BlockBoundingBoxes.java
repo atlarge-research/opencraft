@@ -172,8 +172,7 @@ public class BlockBoundingBoxes {
                                             .put(CHORUS_PLANT, ImmutablePair.of(10.0 / 16.0, 3.0 / 4.0))
                                             .put(SOIL, ImmutablePair.of(1.0, 15.0 / 16.0))
                                             .put(END_ROD, ImmutablePair.of(4.0 / 16.0, 1.0))
-                                            .build()
-        ;
+                                            .build();
     }
 
     /**
@@ -190,7 +189,6 @@ public class BlockBoundingBoxes {
 
         Gate gate = (Gate) block.getState().getData();
         BlockFace gateFace = gate.getFacing();
-
 
         if (gate.isOpen()) {
             return Collections.emptyList();
@@ -648,6 +646,7 @@ public class BlockBoundingBoxes {
      * @return The bounding box
      */
     public static List<BoundingBox> getBoundingBoxes(GlowBlock block) {
+        
         Location loc = block.getLocation().clone();
         Material blockType = block.getType();
 
