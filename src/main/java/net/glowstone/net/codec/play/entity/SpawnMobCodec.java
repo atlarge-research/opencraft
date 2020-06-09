@@ -13,40 +13,38 @@ import net.glowstone.net.message.play.entity.SpawnMobMessage;
 public final class SpawnMobCodec implements Codec<SpawnMobMessage> {
 
     @Override
-    public SpawnMobMessage decode(ByteBuf buf) throws IOException {
-        int id = ByteBufUtils.readVarInt(buf);
-        UUID uuid = GlowBufUtils.readUuid(buf);
-        int type = ByteBufUtils.readVarInt(buf);
-        ;
-        double x = buf.readDouble();
-        double y = buf.readDouble();
-        double z = buf.readDouble();
-        int headPitch = buf.readByte();
-        int pitch = buf.readByte();
-        int rotation = buf.readByte();
-        int velX = buf.readShort();
-        int velY = buf.readShort();
-        int velZ = buf.readShort();
-        List<Entry> list = GlowBufUtils.readMetadata(buf);
-        return new SpawnMobMessage(id, uuid, type, x, y, z, rotation, pitch, headPitch, velX, velY,
-            velZ, list);
+    public SpawnMobMessage decode(ByteBuf buffer) throws IOException {
+        int id = ByteBufUtils.readVarInt(buffer);
+        UUID uuid = GlowBufUtils.readUuid(buffer);
+        int type = ByteBufUtils.readVarInt(buffer);
+        double x = buffer.readDouble();
+        double y = buffer.readDouble();
+        double z = buffer.readDouble();
+        int headPitch = buffer.readByte();
+        int pitch = buffer.readByte();
+        int rotation = buffer.readByte();
+        int velX = buffer.readShort();
+        int velY = buffer.readShort();
+        int velZ = buffer.readShort();
+        List<Entry> list = GlowBufUtils.readMetadata(buffer);
+        return new SpawnMobMessage(id, uuid, type, x, y, z, rotation, pitch, headPitch, velX, velY, velZ, list);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, SpawnMobMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getId());
-        GlowBufUtils.writeUuid(buf, message.getUuid());
-        ByteBufUtils.writeVarInt(buf, message.getType());
-        buf.writeDouble(message.getX());
-        buf.writeDouble(message.getY());
-        buf.writeDouble(message.getZ());
-        buf.writeByte(message.getHeadPitch());
-        buf.writeByte(message.getPitch());
-        buf.writeByte(message.getRotation());
-        buf.writeShort(message.getVelX());
-        buf.writeShort(message.getVelY());
-        buf.writeShort(message.getVelZ());
-        GlowBufUtils.writeMetadata(buf, message.getMetadata());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, SpawnMobMessage message) throws IOException {
+        ByteBufUtils.writeVarInt(buffer, message.getId());
+        GlowBufUtils.writeUuid(buffer, message.getUuid());
+        ByteBufUtils.writeVarInt(buffer, message.getType());
+        buffer.writeDouble(message.getX());
+        buffer.writeDouble(message.getY());
+        buffer.writeDouble(message.getZ());
+        buffer.writeByte(message.getHeadPitch());
+        buffer.writeByte(message.getPitch());
+        buffer.writeByte(message.getRotation());
+        buffer.writeShort(message.getVelX());
+        buffer.writeShort(message.getVelY());
+        buffer.writeShort(message.getVelZ());
+        GlowBufUtils.writeMetadata(buffer, message.getMetadata());
+        return buffer;
     }
 }

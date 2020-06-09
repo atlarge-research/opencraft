@@ -103,8 +103,7 @@ public final class UserListItemCodec implements Codec<UserListItemMessage> {
         ByteBufUtils.writeVarInt(buffer, entries.size());
         for (Entry entry : entries) {
             GlowBufUtils.writeUuid(buffer, entry.uuid);
-
-            // todo: implement the rest of the actions
+            // TODO: implement remaining actions
             switch (action) {
                 case ADD_PLAYER:
                     // this code is somewhat saddening

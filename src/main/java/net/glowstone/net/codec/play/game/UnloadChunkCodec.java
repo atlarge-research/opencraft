@@ -15,9 +15,9 @@ public class UnloadChunkCodec implements Codec<UnloadChunkMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, UnloadChunkMessage message) throws IOException {
-        buf.writeInt(message.getChunkX());
-        buf.writeInt(message.getChunkZ());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, UnloadChunkMessage message) throws IOException {
+        buffer.writeInt(message.getChunkX());
+        buffer.writeInt(message.getChunkZ());
+        return buffer;
     }
 }

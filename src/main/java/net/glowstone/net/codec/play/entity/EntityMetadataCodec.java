@@ -12,16 +12,16 @@ import net.glowstone.net.message.play.entity.EntityMetadataMessage;
 public final class EntityMetadataCodec implements Codec<EntityMetadataMessage> {
 
     @Override
-    public EntityMetadataMessage decode(ByteBuf buf) throws IOException {
-        int id = ByteBufUtils.readVarInt(buf);
-        List<Entry> metadata = GlowBufUtils.readMetadata(buf);
+    public EntityMetadataMessage decode(ByteBuf buffer) throws IOException {
+        int id = ByteBufUtils.readVarInt(buffer);
+        List<Entry> metadata = GlowBufUtils.readMetadata(buffer);
         return new EntityMetadataMessage(id, metadata);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, EntityMetadataMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getId());
-        GlowBufUtils.writeMetadata(buf, message.getEntries());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, EntityMetadataMessage message) throws IOException {
+        ByteBufUtils.writeVarInt(buffer, message.getId());
+        GlowBufUtils.writeMetadata(buffer, message.getEntries());
+        return buffer;
     }
 }

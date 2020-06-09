@@ -22,10 +22,10 @@ public class EntityPropertyCodecTest extends CodecTest<EntityPropertyMessage> {
         int id = 1;
         Map<String, AttributeManager.Property> properties = new HashMap<>();
         AttributeManager.Key key = AttributeManager.Key.KEY_ARMOR;
-        double value = 4.0;
+        double value = 10.0;
         Collection<AttributeModifier> modifiers = new ArrayList<>();
-        modifiers.add(new AttributeModifier("five", 6.0, AttributeModifier.Operation.ADD_NUMBER));
-        properties.put("two", new AttributeManager.Property(key, value, modifiers));
+        modifiers.add(new AttributeModifier(key.toString(), 0.0, AttributeModifier.Operation.ADD_NUMBER));
+        properties.put(key.toString(), new AttributeManager.Property(key, value, modifiers));
         return new EntityPropertyMessage(id, properties);
     }
 }

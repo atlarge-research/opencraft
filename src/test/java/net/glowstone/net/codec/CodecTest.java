@@ -7,7 +7,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.UnpooledByteBufAllocator;
 import java.io.IOException;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 public abstract class CodecTest<Message extends com.flowpowered.network.Message> {
 
@@ -18,7 +18,7 @@ public abstract class CodecTest<Message extends com.flowpowered.network.Message>
     protected abstract Message createMessage();
 
     @Test
-    void encodeAndDecode() throws IOException {
+    public void encodeAndDecode() throws IOException {
         Codec<Message> codec = createCodec();
         Message original = createMessage();
         ByteBuf encoded = ALLOCATOR.buffer();

@@ -10,34 +10,34 @@ import net.glowstone.net.message.play.player.InteractEntityMessage.Action;
 public final class InteractEntityCodec implements Codec<InteractEntityMessage> {
 
     @Override
-    public InteractEntityMessage decode(ByteBuf buf) throws IOException {
-        int id = ByteBufUtils.readVarInt(buf);
-        int action = ByteBufUtils.readVarInt(buf);
+    public InteractEntityMessage decode(ByteBuf buffer) throws IOException {
+        int id = ByteBufUtils.readVarInt(buffer);
+        int action = ByteBufUtils.readVarInt(buffer);
         if (action == Action.INTERACT_AT.ordinal()) {
-            float targetX = buf.readFloat();
-            float targetY = buf.readFloat();
-            float targetZ = buf.readFloat();
-            int hand = ByteBufUtils.readVarInt(buf);
+            float targetX = buffer.readFloat();
+            float targetY = buffer.readFloat();
+            float targetZ = buffer.readFloat();
+            int hand = ByteBufUtils.readVarInt(buffer);
             return new InteractEntityMessage(id, action, targetX, targetY, targetZ, hand);
         } else if (action == Action.INTERACT.ordinal()) {
-            int hand = ByteBufUtils.readVarInt(buf);
+            int hand = ByteBufUtils.readVarInt(buffer);
             return new InteractEntityMessage(id, action, hand);
         }
         return new InteractEntityMessage(id, action);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, InteractEntityMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getId());
-        ByteBufUtils.writeVarInt(buf, message.getAction());
+    public ByteBuf encode(ByteBuf buffer, InteractEntityMessage message) {
+        ByteBufUtils.writeVarInt(buffer, message.getId());
+        ByteBufUtils.writeVarInt(buffer, message.getAction());
         if (message.getAction() == Action.INTERACT_AT.ordinal()) {
-            buf.writeFloat(message.getTargetX());
-            buf.writeFloat(message.getTargetY());
-            buf.writeFloat(message.getTargetZ());
-            ByteBufUtils.writeVarInt(buf, message.getHand());
+            buffer.writeFloat(message.getTargetX());
+            buffer.writeFloat(message.getTargetY());
+            buffer.writeFloat(message.getTargetZ());
+            ByteBufUtils.writeVarInt(buffer, message.getHand());
         } else if (message.getAction() == Action.INTERACT.ordinal()) {
-            ByteBufUtils.writeVarInt(buf, message.getHand());
+            ByteBufUtils.writeVarInt(buffer, message.getHand());
         }
-        return buf;
+        return buffer;
     }
 }

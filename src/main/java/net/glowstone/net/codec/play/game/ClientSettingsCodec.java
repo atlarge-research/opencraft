@@ -9,24 +9,24 @@ import net.glowstone.net.message.play.game.ClientSettingsMessage;
 public final class ClientSettingsCodec implements Codec<ClientSettingsMessage> {
 
     @Override
-    public ClientSettingsMessage decode(ByteBuf buf) throws IOException {
-        String locale = ByteBufUtils.readUTF8(buf);
-        int viewDistance = buf.readByte();
-        int chatFlags = ByteBufUtils.readVarInt(buf);
-        boolean colors = buf.readBoolean();
-        int skinFlags = buf.readUnsignedByte();
-        int hand = ByteBufUtils.readVarInt(buf);
+    public ClientSettingsMessage decode(ByteBuf buffer) throws IOException {
+        String locale = ByteBufUtils.readUTF8(buffer);
+        int viewDistance = buffer.readByte();
+        int chatFlags = ByteBufUtils.readVarInt(buffer);
+        boolean colors = buffer.readBoolean();
+        int skinFlags = buffer.readUnsignedByte();
+        int hand = ByteBufUtils.readVarInt(buffer);
         return new ClientSettingsMessage(locale, viewDistance, chatFlags, colors, skinFlags, hand);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, ClientSettingsMessage message) throws IOException {
-        ByteBufUtils.writeUTF8(buf, message.getLocale());
-        buf.writeByte(message.getViewDistance());
-        ByteBufUtils.writeVarInt(buf, message.getChatFlags());
-        buf.writeBoolean(message.isChatColors());
-        buf.writeByte(message.getSkinFlags());
-        ByteBufUtils.writeVarInt(buf, message.getHand());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, ClientSettingsMessage message) throws IOException {
+        ByteBufUtils.writeUTF8(buffer, message.getLocale());
+        buffer.writeByte(message.getViewDistance());
+        ByteBufUtils.writeVarInt(buffer, message.getChatFlags());
+        buffer.writeBoolean(message.isChatColors());
+        buffer.writeByte(message.getSkinFlags());
+        ByteBufUtils.writeVarInt(buffer, message.getHand());
+        return buffer;
     }
 }

@@ -2,24 +2,23 @@ package net.glowstone.net.codec.play.inv;
 
 import com.flowpowered.network.Codec;
 import io.netty.buffer.ByteBuf;
-import java.io.IOException;
 import net.glowstone.net.message.play.inv.TransactionMessage;
 
 public final class TransactionCodec implements Codec<TransactionMessage> {
 
     @Override
-    public TransactionMessage decode(ByteBuf buf) throws IOException {
-        int id = buf.readUnsignedByte();
-        int action = buf.readShort();
-        boolean accepted = buf.readBoolean();
+    public TransactionMessage decode(ByteBuf buffer) {
+        int id = buffer.readUnsignedByte();
+        int action = buffer.readShort();
+        boolean accepted = buffer.readBoolean();
         return new TransactionMessage(id, action, accepted);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, TransactionMessage message) throws IOException {
-        buf.writeByte(message.getId());
-        buf.writeShort(message.getTransaction());
-        buf.writeBoolean(message.isAccepted());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, TransactionMessage message) {
+        buffer.writeByte(message.getId());
+        buffer.writeShort(message.getTransaction());
+        buffer.writeBoolean(message.isAccepted());
+        return buffer;
     }
 }

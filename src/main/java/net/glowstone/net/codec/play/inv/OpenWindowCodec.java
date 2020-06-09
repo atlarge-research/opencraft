@@ -30,7 +30,6 @@ public final class OpenWindowCodec implements Codec<OpenWindowMessage> {
         GlowBufUtils.writeChat(buffer, message.getTitle());
         buffer.writeByte(message.getSlots());
         if (message.getEntityId() != 0) {
-            // magic number 11 for AnimalChest type which Bukkit doesn't seem to know about
             buffer.writeInt(message.getEntityId());
         }
         return buffer;

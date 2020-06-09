@@ -3,6 +3,7 @@ package net.glowstone.net.codec.play.scoreboard;
 import com.flowpowered.network.Codec;
 import com.flowpowered.network.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.DecoderException;
 import java.io.IOException;
 import net.glowstone.net.message.play.scoreboard.ScoreboardObjectiveMessage;
 
@@ -10,7 +11,7 @@ public final class ScoreboardObjectiveCodec implements Codec<ScoreboardObjective
 
     @Override
     public ScoreboardObjectiveMessage decode(ByteBuf buffer) {
-        throw new UnsupportedOperationException("Cannot decode ScoreboardObjectiveMessage");
+        throw new DecoderException("Cannot decode ScoreboardObjectiveMessage");
     }
 
     @Override

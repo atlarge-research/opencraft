@@ -9,16 +9,16 @@ import net.glowstone.net.message.play.entity.EntityHeadRotationMessage;
 public final class EntityHeadRotationCodec implements Codec<EntityHeadRotationMessage> {
 
     @Override
-    public EntityHeadRotationMessage decode(ByteBuf buf) throws IOException {
-        int id = ByteBufUtils.readVarInt(buf);
-        int rotation = buf.readByte();
+    public EntityHeadRotationMessage decode(ByteBuf buffer) throws IOException {
+        int id = ByteBufUtils.readVarInt(buffer);
+        int rotation = buffer.readByte();
         return new EntityHeadRotationMessage(id, rotation);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, EntityHeadRotationMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getId());
-        buf.writeByte(message.getRotation());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, EntityHeadRotationMessage message) {
+        ByteBufUtils.writeVarInt(buffer, message.getId());
+        buffer.writeByte(message.getRotation());
+        return buffer;
     }
 }

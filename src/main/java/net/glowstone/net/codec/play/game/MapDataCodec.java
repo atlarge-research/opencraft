@@ -46,7 +46,7 @@ public final class MapDataCodec implements Codec<MapDataMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buffer, MapDataMessage message) throws IOException {
+    public ByteBuf encode(ByteBuf buffer, MapDataMessage message) {
 
         List<Icon> icons = message.getIcons();
 

@@ -9,18 +9,18 @@ import net.glowstone.net.message.play.player.PlayerActionMessage;
 public final class PlayerActionCodec implements Codec<PlayerActionMessage> {
 
     @Override
-    public PlayerActionMessage decode(ByteBuf buf) throws IOException {
-        int id = ByteBufUtils.readVarInt(buf);
-        int action = buf.readByte();
-        int jumpBoost = ByteBufUtils.readVarInt(buf);
+    public PlayerActionMessage decode(ByteBuf buffer) throws IOException {
+        int id = ByteBufUtils.readVarInt(buffer);
+        int action = buffer.readByte();
+        int jumpBoost = ByteBufUtils.readVarInt(buffer);
         return new PlayerActionMessage(id, action, jumpBoost);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, PlayerActionMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getId());
-        buf.writeByte(message.getAction());
-        ByteBufUtils.writeVarInt(buf, message.getJumpBoost());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, PlayerActionMessage message) {
+        ByteBufUtils.writeVarInt(buffer, message.getId());
+        buffer.writeByte(message.getAction());
+        ByteBufUtils.writeVarInt(buffer, message.getJumpBoost());
+        return buffer;
     }
 }

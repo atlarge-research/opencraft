@@ -11,25 +11,25 @@ import org.bukkit.util.BlockVector;
 public final class BlockPlacementCodec implements Codec<BlockPlacementMessage> {
 
     @Override
-    public BlockPlacementMessage decode(ByteBuf buf) throws IOException {
-        BlockVector pos = GlowBufUtils.readBlockPosition(buf);
-        int direction = buf.readByte();
-        int hand = ByteBufUtils.readVarInt(buf);
-        float cursorX = buf.readFloat();
-        float cursorY = buf.readFloat();
-        float cursorZ = buf.readFloat();
+    public BlockPlacementMessage decode(ByteBuf buffer) throws IOException {
+        BlockVector pos = GlowBufUtils.readBlockPosition(buffer);
+        int direction = buffer.readByte();
+        int hand = ByteBufUtils.readVarInt(buffer);
+        float cursorX = buffer.readFloat();
+        float cursorY = buffer.readFloat();
+        float cursorZ = buffer.readFloat();
         return new BlockPlacementMessage(pos.getBlockX(), pos.getBlockY(), pos.getBlockZ(),
             direction, hand, cursorX, cursorY, cursorZ);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, BlockPlacementMessage message) throws IOException {
-        GlowBufUtils.writeBlockPosition(buf, message.getX(), message.getY(), message.getZ());
-        buf.writeByte(message.getDirection());
-        ByteBufUtils.writeVarInt(buf, message.getHand());
-        buf.writeFloat(message.getCursorX());
-        buf.writeFloat(message.getCursorY());
-        buf.writeFloat(message.getCursorZ());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, BlockPlacementMessage message) {
+        GlowBufUtils.writeBlockPosition(buffer, message.getX(), message.getY(), message.getZ());
+        buffer.writeByte(message.getDirection());
+        ByteBufUtils.writeVarInt(buffer, message.getHand());
+        buffer.writeFloat(message.getCursorX());
+        buffer.writeFloat(message.getCursorY());
+        buffer.writeFloat(message.getCursorZ());
+        return buffer;
     }
 }

@@ -9,16 +9,16 @@ import net.glowstone.net.message.play.entity.AnimateEntityMessage;
 public final class AnimateEntityCodec implements Codec<AnimateEntityMessage> {
 
     @Override
-    public AnimateEntityMessage decode(ByteBuf buf) throws IOException {
-        int id = ByteBufUtils.readVarInt(buf);
-        int animation = buf.readUnsignedByte();
+    public AnimateEntityMessage decode(ByteBuf buffer) throws IOException {
+        int id = ByteBufUtils.readVarInt(buffer);
+        int animation = buffer.readUnsignedByte();
         return new AnimateEntityMessage(id, animation);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, AnimateEntityMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getId());
-        buf.writeByte(message.getAnimation());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, AnimateEntityMessage message) {
+        ByteBufUtils.writeVarInt(buffer, message.getId());
+        buffer.writeByte(message.getAnimation());
+        return buffer;
     }
 }

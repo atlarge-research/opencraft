@@ -2,7 +2,6 @@ package net.glowstone.net.codec.play.game;
 
 import com.flowpowered.network.Codec;
 import io.netty.buffer.ByteBuf;
-import java.io.IOException;
 import net.glowstone.net.GlowBufUtils;
 import net.glowstone.net.message.play.game.PlayEffectMessage;
 import org.bukkit.util.BlockVector;
@@ -10,7 +9,7 @@ import org.bukkit.util.BlockVector;
 public final class PlayEffectCodec implements Codec<PlayEffectMessage> {
 
     @Override
-    public PlayEffectMessage decode(ByteBuf buffer) throws IOException {
+    public PlayEffectMessage decode(ByteBuf buffer) {
         int id = buffer.readInt();
         BlockVector position = GlowBufUtils.readBlockPosition(buffer);
         int x = position.getBlockX();
@@ -22,7 +21,7 @@ public final class PlayEffectCodec implements Codec<PlayEffectMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buffer, PlayEffectMessage message) throws IOException {
+    public ByteBuf encode(ByteBuf buffer, PlayEffectMessage message) {
         buffer.writeInt(message.getId());
         GlowBufUtils.writeBlockPosition(buffer, message.getX(), message.getY(), message.getZ());
         buffer.writeInt(message.getData());
