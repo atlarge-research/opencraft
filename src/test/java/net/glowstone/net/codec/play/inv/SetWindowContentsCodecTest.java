@@ -1,12 +1,12 @@
 package net.glowstone.net.codec.play.inv;
 
 import com.flowpowered.network.Codec;
-import net.glowstone.net.codec.CodecTest;
+import net.glowstone.net.codec.MockedCodecTest;
 import net.glowstone.net.message.play.inv.SetWindowContentsMessage;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class SetWindowContentsCodecTest extends CodecTest<SetWindowContentsMessage> {
+public class SetWindowContentsCodecTest extends MockedCodecTest<SetWindowContentsMessage> {
 
     @Override
     protected Codec<SetWindowContentsMessage> createCodec() {

@@ -1,12 +1,12 @@
 package net.glowstone.net.codec.play.inv;
 
 import com.flowpowered.network.Codec;
-import net.glowstone.net.codec.CodecTest;
+import net.glowstone.net.codec.MockedCodecTest;
 import net.glowstone.net.message.play.inv.CreativeItemMessage;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-public class CreativeItemCodecTest extends CodecTest<CreativeItemMessage> {
+public class CreativeItemCodecTest extends MockedCodecTest<CreativeItemMessage> {
 
     @Override
     protected Codec<CreativeItemMessage> createCodec() {
