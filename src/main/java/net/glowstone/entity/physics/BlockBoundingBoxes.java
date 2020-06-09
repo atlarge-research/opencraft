@@ -633,7 +633,7 @@ public class BlockBoundingBoxes {
      * @param block The corresponding block
      * @return The List of boundingboxes that corresponds to the block
      */
-    private static List<BoundingBox> getNonGeneralBoundingBoxes(Location location, GlowBlock block) {
+    private static List<BoundingBox> getNonGeneralBlockBoundingBoxes(Location location, GlowBlock block) {
         switch (block.getType()) {
             case STEP:
             case WOOD_STEP:
@@ -689,6 +689,6 @@ public class BlockBoundingBoxes {
             return getPaneBoundingBoxes(loc, block);
         }
 
-        return getNonGeneralBoundingBoxes(loc, block);
+        return getNonGeneralBlockBoundingBoxes(loc, block);
     }
 }
