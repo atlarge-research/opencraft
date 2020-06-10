@@ -7,6 +7,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 import javax.jms.Connection;
+import javax.jms.IllegalStateException;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
@@ -26,7 +27,7 @@ import net.glowstone.messaging.Broker;
  * @param <Subscriber> The type of subscribers that is allowed to subscribe to topics.
  * @param <Message> The type of messages that is allowed to be published to a jms topic.
  */
-public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subscriber, Message> {
+public final class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subscriber, Message> {
 
     private final Connection connection;
     private final Session session;
@@ -48,8 +49,9 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
     public JmsBroker(Connection connection, JmsCodec<Message> codec) throws JMSException {
 
         this.connection = connection;
+        this.connection.setExceptionListener(Throwable::printStackTrace);
         this.connection.start();
-        session = connection.createSession(true, Session.SESSION_TRANSACTED);
+        this.session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         this.codec = codec;
 
         jmsTopics = new HashMap<>();
@@ -149,7 +151,7 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
 
                 MessageConsumer consumer = consumers.remove(subscriber);
                 if (consumer != null) {
-                    consumer.setMessageListener(null);
+                    consumer.close();
                 }
 
                 if (consumers.isEmpty()) {
@@ -181,8 +183,11 @@ public class JmsBroker<Topic, Subscriber, Message> implements Broker<Topic, Subs
                 producer.send(jmsMessage);
             }
 
-        } catch (JMSException e) {
-            throw new RuntimeException("Failed to publish to JMS broker", e);
+        } catch (IllegalStateException exception) {
+            System.err.println("Message was published after the JMS broker was closed");
+
+        } catch (JMSException exception) {
+            throw new RuntimeException("Failed to publish to JMS broker", exception);
 
         } finally {
             lock.unlock();

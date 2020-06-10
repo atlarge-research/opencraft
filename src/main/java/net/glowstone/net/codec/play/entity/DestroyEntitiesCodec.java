@@ -11,21 +11,21 @@ import net.glowstone.net.message.play.entity.DestroyEntitiesMessage;
 public final class DestroyEntitiesCodec implements Codec<DestroyEntitiesMessage> {
 
     @Override
-    public DestroyEntitiesMessage decode(ByteBuf buf) throws IOException {
-        int size = ByteBufUtils.readVarInt(buf);
+    public DestroyEntitiesMessage decode(ByteBuf buffer) throws IOException {
+        int size = ByteBufUtils.readVarInt(buffer);
         List<Integer> ids = new ArrayList<>();
         for (int i = 0; i < size; i++) {
-            ids.add(ByteBufUtils.readVarInt(buf));
+            ids.add(ByteBufUtils.readVarInt(buffer));
         }
         return new DestroyEntitiesMessage(ids);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, DestroyEntitiesMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getIds().size());
+    public ByteBuf encode(ByteBuf buffer, DestroyEntitiesMessage message) {
+        ByteBufUtils.writeVarInt(buffer, message.getIds().size());
         for (int id : message.getIds()) {
-            ByteBufUtils.writeVarInt(buf, id);
+            ByteBufUtils.writeVarInt(buffer, id);
         }
-        return buf;
+        return buffer;
     }
 }

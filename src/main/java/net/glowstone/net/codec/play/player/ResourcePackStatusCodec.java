@@ -9,14 +9,14 @@ import net.glowstone.net.message.play.player.ResourcePackStatusMessage;
 public final class ResourcePackStatusCodec implements Codec<ResourcePackStatusMessage> {
 
     @Override
-    public ResourcePackStatusMessage decode(ByteBuf buf) throws IOException {
-        int result = ByteBufUtils.readVarInt(buf);
+    public ResourcePackStatusMessage decode(ByteBuf buffer) throws IOException {
+        int result = ByteBufUtils.readVarInt(buffer);
         return new ResourcePackStatusMessage(result);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, ResourcePackStatusMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getResult());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, ResourcePackStatusMessage message) {
+        ByteBufUtils.writeVarInt(buffer, message.getResult());
+        return buffer;
     }
 }

@@ -9,26 +9,26 @@ import net.glowstone.net.message.play.entity.EntityTeleportMessage;
 public final class EntityTeleportCodec implements Codec<EntityTeleportMessage> {
 
     @Override
-    public EntityTeleportMessage decode(ByteBuf buf) throws IOException {
-        int id = ByteBufUtils.readVarInt(buf);
-        double x = buf.readDouble();
-        double y = buf.readDouble();
-        double z = buf.readDouble();
-        int rotation = buf.readByte();
-        int pitch = buf.readByte();
-        boolean ground = buf.readBoolean();
+    public EntityTeleportMessage decode(ByteBuf buffer) throws IOException {
+        int id = ByteBufUtils.readVarInt(buffer);
+        double x = buffer.readDouble();
+        double y = buffer.readDouble();
+        double z = buffer.readDouble();
+        int rotation = buffer.readByte();
+        int pitch = buffer.readByte();
+        boolean ground = buffer.readBoolean();
         return new EntityTeleportMessage(id, x, y, z, rotation, pitch, ground);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, EntityTeleportMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getId());
-        buf.writeDouble(message.getX());
-        buf.writeDouble(message.getY());
-        buf.writeDouble(message.getZ());
-        buf.writeByte(message.getRotation());
-        buf.writeByte(message.getPitch());
-        buf.writeBoolean(message.isOnGround());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, EntityTeleportMessage message) {
+        ByteBufUtils.writeVarInt(buffer, message.getId());
+        buffer.writeDouble(message.getX());
+        buffer.writeDouble(message.getY());
+        buffer.writeDouble(message.getZ());
+        buffer.writeByte(message.getRotation());
+        buffer.writeByte(message.getPitch());
+        buffer.writeBoolean(message.isOnGround());
+        return buffer;
     }
 }

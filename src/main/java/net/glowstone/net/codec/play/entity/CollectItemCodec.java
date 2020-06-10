@@ -9,18 +9,18 @@ import net.glowstone.net.message.play.entity.CollectItemMessage;
 public final class CollectItemCodec implements Codec<CollectItemMessage> {
 
     @Override
-    public CollectItemMessage decode(ByteBuf buf) throws IOException {
-        int id = ByteBufUtils.readVarInt(buf);
-        int collector = ByteBufUtils.readVarInt(buf);
-        int count = ByteBufUtils.readVarInt(buf);
+    public CollectItemMessage decode(ByteBuf buffer) throws IOException {
+        int id = ByteBufUtils.readVarInt(buffer);
+        int collector = ByteBufUtils.readVarInt(buffer);
+        int count = ByteBufUtils.readVarInt(buffer);
         return new CollectItemMessage(id, collector, count);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, CollectItemMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getId());
-        ByteBufUtils.writeVarInt(buf, message.getCollector());
-        ByteBufUtils.writeVarInt(buf, message.getCount());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, CollectItemMessage message) {
+        ByteBufUtils.writeVarInt(buffer, message.getId());
+        ByteBufUtils.writeVarInt(buffer, message.getCollector());
+        ByteBufUtils.writeVarInt(buffer, message.getCount());
+        return buffer;
     }
 }

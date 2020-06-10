@@ -13,28 +13,28 @@ import net.glowstone.net.message.play.entity.SpawnPlayerMessage;
 public final class SpawnPlayerCodec implements Codec<SpawnPlayerMessage> {
 
     @Override
-    public SpawnPlayerMessage decode(ByteBuf buf) throws IOException {
-        int id = ByteBufUtils.readVarInt(buf);
-        UUID uuid = GlowBufUtils.readUuid(buf);
-        double x = buf.readDouble();
-        double y = buf.readDouble();
-        double z = buf.readDouble();
-        int rotation = buf.readByte();
-        int pitch = buf.readByte();
-        List<Entry> list = GlowBufUtils.readMetadata(buf);
+    public SpawnPlayerMessage decode(ByteBuf buffer) throws IOException {
+        int id = ByteBufUtils.readVarInt(buffer);
+        UUID uuid = GlowBufUtils.readUuid(buffer);
+        double x = buffer.readDouble();
+        double y = buffer.readDouble();
+        double z = buffer.readDouble();
+        int rotation = buffer.readByte();
+        int pitch = buffer.readByte();
+        List<Entry> list = GlowBufUtils.readMetadata(buffer);
         return new SpawnPlayerMessage(id, uuid, x, y, z, rotation, pitch, list);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, SpawnPlayerMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getId());
-        GlowBufUtils.writeUuid(buf, message.getUuid());
-        buf.writeDouble(message.getX());
-        buf.writeDouble(message.getY());
-        buf.writeDouble(message.getZ());
-        buf.writeByte(message.getRotation());
-        buf.writeByte(message.getPitch());
-        GlowBufUtils.writeMetadata(buf, message.getMetadata());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, SpawnPlayerMessage message) throws IOException {
+        ByteBufUtils.writeVarInt(buffer, message.getId());
+        GlowBufUtils.writeUuid(buffer, message.getUuid());
+        buffer.writeDouble(message.getX());
+        buffer.writeDouble(message.getY());
+        buffer.writeDouble(message.getZ());
+        buffer.writeByte(message.getRotation());
+        buffer.writeByte(message.getPitch());
+        GlowBufUtils.writeMetadata(buffer, message.getMetadata());
+        return buffer;
     }
 }

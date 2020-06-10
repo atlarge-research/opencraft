@@ -9,14 +9,14 @@ import net.glowstone.net.message.play.player.PlayerSwingArmMessage;
 public final class PlayerSwingArmCodec implements Codec<PlayerSwingArmMessage> {
 
     @Override
-    public PlayerSwingArmMessage decode(ByteBuf buf) throws IOException {
-        int hand = ByteBufUtils.readVarInt(buf);
+    public PlayerSwingArmMessage decode(ByteBuf buffer) throws IOException {
+        int hand = ByteBufUtils.readVarInt(buffer);
         return new PlayerSwingArmMessage(hand);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, PlayerSwingArmMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getHand());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, PlayerSwingArmMessage message) {
+        ByteBufUtils.writeVarInt(buffer, message.getHand());
+        return buffer;
     }
 }

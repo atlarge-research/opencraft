@@ -18,12 +18,12 @@ public class VehicleMoveCodec implements Codec<VehicleMoveMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, VehicleMoveMessage message) throws IOException {
-        buf.writeDouble(message.getX());
-        buf.writeDouble(message.getY());
-        buf.writeDouble(message.getZ());
-        buf.writeFloat(message.getYaw());
-        buf.writeFloat(message.getPitch());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, VehicleMoveMessage message) throws IOException {
+        buffer.writeDouble(message.getX());
+        buffer.writeDouble(message.getY());
+        buffer.writeDouble(message.getZ());
+        buffer.writeFloat(message.getYaw());
+        buffer.writeFloat(message.getPitch());
+        return buffer;
     }
 }

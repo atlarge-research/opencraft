@@ -17,10 +17,10 @@ public final class HealthCodec implements Codec<HealthMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, HealthMessage message) throws IOException {
-        buf.writeFloat(message.getHealth());
-        ByteBufUtils.writeVarInt(buf, message.getFood());
-        buf.writeFloat(message.getSaturation());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, HealthMessage message) {
+        buffer.writeFloat(message.getHealth());
+        ByteBufUtils.writeVarInt(buffer, message.getFood());
+        buffer.writeFloat(message.getSaturation());
+        return buffer;
     }
 }

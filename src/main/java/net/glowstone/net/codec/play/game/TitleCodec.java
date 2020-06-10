@@ -31,23 +31,22 @@ public final class TitleCodec implements Codec<TitleMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, TitleMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getAction().ordinal());
+    public ByteBuf encode(ByteBuf buffer, TitleMessage message) throws IOException {
+        ByteBufUtils.writeVarInt(buffer, message.getAction().ordinal());
         switch (message.getAction()) {
             case TITLE:
             case SUBTITLE:
             case ACTION:
-                ByteBufUtils.writeUTF8(buf, message.getText().encode());
+                ByteBufUtils.writeUTF8(buffer, message.getText().encode());
                 break;
             case TIMES:
-                buf.writeInt(message.getFadeIn());
-                buf.writeInt(message.getStay());
-                buf.writeInt(message.getFadeOut());
+                buffer.writeInt(message.getFadeIn());
+                buffer.writeInt(message.getStay());
+                buffer.writeInt(message.getFadeOut());
                 break;
             default:
-                // TODO: Should this raise a warning?
                 // do nothing
         }
-        return buf;
+        return buffer;
     }
 }
