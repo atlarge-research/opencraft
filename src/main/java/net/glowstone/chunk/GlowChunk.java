@@ -2,13 +2,13 @@ package net.glowstone.chunk;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -184,7 +184,7 @@ public class GlowChunk implements Chunk {
             }
         }
 
-        return states.toArray(new GlowBlockState[states.size()]);
+        return states.toArray(new GlowBlockState[0]);
     }
 
     public Collection<BlockEntity> getRawBlockEntities() {
@@ -896,9 +896,12 @@ public class GlowChunk implements Chunk {
     @Data
     public static final class Key {
 
+        private static final int INITIAL_CAPACITY = 512;
+
+        private static final float LOAD_FACTOR = 0.5F;
+
         // Key cache storage
-        private static final Long2ObjectOpenHashMap<Key> keys
-            = new Long2ObjectOpenHashMap<>(512, 0.5F);
+        private static final Map<Long, Key> keys = new ConcurrentHashMap<>(INITIAL_CAPACITY, LOAD_FACTOR);
 
         /**
          * The x-coordinate.
