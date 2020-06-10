@@ -1,6 +1,7 @@
 package net.glowstone.executor;
 
 import com.flowpowered.network.Message;
+import java.util.Objects;
 import net.glowstone.GlowWorld;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
@@ -80,5 +81,25 @@ public final class ChunkRunnable extends PriorityRunnable {
         session.send(message);
 
         chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
+    }
+
+    @Override
+    public boolean equals(Object object) {
+
+        if (this == object) {
+            return true;
+        }
+
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+
+        ChunkRunnable other = (ChunkRunnable) object;
+        return Objects.equals(player, other.player) && Objects.equals(chunk, other.chunk);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(player, chunk);
     }
 }

@@ -2,6 +2,7 @@ package net.glowstone.executor;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -50,7 +51,7 @@ public final class PriorityExecutor<GenericPriorityRunnable extends PriorityRunn
             Collection<GenericPriorityRunnable> toExecute,
             Predicate<GenericPriorityRunnable> predicate
     ) {
-        Collection<GenericPriorityRunnable> removed = new ArrayList<>();
+        Collection<GenericPriorityRunnable> removed = new HashSet<>();
 
         queue.transaction(queue -> {
             queue.forEach(GenericPriorityRunnable::updatePriority);

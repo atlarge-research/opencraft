@@ -593,7 +593,7 @@ public class GlowWorld implements World {
     private void updateAreasOfInterest(Collection<GlowPlayer> players) {
 
         List<ChunkRunnable> chunksToStream = new ArrayList<>();
-        List<Pair<GlowChunk, GlowPlayer>> chunksToUnload = new ArrayList<>();
+        List<ChunkRunnable> chunksToUnload = new ArrayList<>();
 
         Map<GlowPlayer, AreaOfInterest> areasOfInterest = players.stream()
                 .collect(Collectors.toMap(Function.identity(), GlowPlayer::getAreaOfInterest));
@@ -619,15 +619,10 @@ public class GlowWorld implements World {
             }
         });
 
-        previousAreasOfInterest = areasOfInterest;
-
         Collection<ChunkRunnable> cancelled = executor.executeAndCancel(chunksToStream, this::shouldBeUnloaded);
+        unloadChunks(chunksToUnload, cancelled);
 
-        Set<Pair<GlowChunk, GlowPlayer>> cancelledSet = cancelled.stream()
-                .map(runnable -> Pair.of(runnable.getChunk(), runnable.getPlayer()))
-                .collect(Collectors.toSet());
-
-        unloadChunks(chunksToUnload, cancelledSet);
+        previousAreasOfInterest = areasOfInterest;
     }
 
     /**
@@ -644,7 +639,7 @@ public class GlowWorld implements World {
             AreaOfInterest areaOfInterest,
             AreaOfInterest previousAreaOfInterest,
             List<ChunkRunnable> chunksToStream,
-            List<Pair<GlowChunk, GlowPlayer>> chunksToUnload
+            List<ChunkRunnable> chunksToUnload
     ) {
 
         Location currentLocation = areaOfInterest.getLocation();
@@ -672,7 +667,8 @@ public class GlowWorld implements World {
                             || Math.abs(x - currentX) > currentRadius
                             || Math.abs(z - currentZ) > currentRadius) {
                         GlowChunk chunk = getChunkAt(x, z);
-                        chunksToUnload.add(Pair.of(chunk, player));
+                        ChunkRunnable runnable = new ChunkRunnable(player, chunk);
+                        chunksToUnload.add(runnable);
                     }
                 }
             }
@@ -725,11 +721,7 @@ public class GlowWorld implements World {
      * @param areaOfInterest The last area of interest of this player.
      * @param chunksToUnload The chunks that have to be unloaded, relevant for the executor.
      */
-    private void removeChunks(
-            GlowPlayer player,
-            AreaOfInterest areaOfInterest,
-            List<Pair<GlowChunk, GlowPlayer>> chunksToUnload
-    ) {
+    private void removeChunks(GlowPlayer player, AreaOfInterest areaOfInterest, List<ChunkRunnable> chunksToUnload) {
 
         Location location = areaOfInterest.getLocation();
         int viewDistance = areaOfInterest.getViewDistance();
@@ -741,7 +733,8 @@ public class GlowWorld implements World {
         for (int x = centerX - radius; x <= centerX + radius; x++) {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
                 GlowChunk chunk = getChunkAt(x, z);
-                chunksToUnload.add(Pair.of(chunk, player));
+                ChunkRunnable runnable = new ChunkRunnable(player, chunk);
+                chunksToUnload.add(runnable);
             }
         }
     }
@@ -753,18 +746,16 @@ public class GlowWorld implements World {
      * @param toUnload The chunks to be unloaded.
      * @param cancelled The chunks that have been cancelled.
      */
-    private void unloadChunks(
-            Collection<Pair<GlowChunk, GlowPlayer>> toUnload,
-            Set<Pair<GlowChunk, GlowPlayer>> cancelled
-    ) {
-        toUnload.forEach(pair -> {
-            if (!cancelled.contains(pair)) {
+    private void unloadChunks(Collection<ChunkRunnable> toUnload, Collection<ChunkRunnable> cancelled) {
+        toUnload.forEach(runnable -> {
+            if (!cancelled.contains(runnable)) {
 
-                GlowChunk chunk = pair.getLeft();
-                GlowPlayer player = pair.getRight();
+                GlowPlayer player = runnable.getPlayer();
+                GlowChunk chunk = runnable.getChunk();
 
                 Message message = new UnloadChunkMessage(chunk.getX(), chunk.getZ());
                 player.getSession().send(message);
+
                 GlowChunk.Key key = GlowChunk.Key.of(chunk.getX(), chunk.getZ());
                 player.getChunkLock().release(key);
             }
