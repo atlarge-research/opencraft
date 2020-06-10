@@ -492,7 +492,7 @@ public class GlowWorld implements World {
 
         // Setup messaging system
         ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
-        broker = Brokers.newConcurrentBroker();
+        broker = Brokers.newBroker(server.getBrokerConfig());
         Filter<Player, Message> filter = new PlayerFilter();
         messagingSystem = new MessagingSystem<>(policy, broker, filter);
 

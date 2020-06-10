@@ -8,6 +8,6 @@ final class ConcurrentBrokerTest extends BrokerTest {
 
     @Override
     protected ConcurrentBroker<String, Subscriber, String> createBroker() {
-        return new ConcurrentBroker<>(ConcurrentChannel::new);
+        return new ConcurrentBroker<>(() -> new ConcurrentChannel<>(4));
     }
 }

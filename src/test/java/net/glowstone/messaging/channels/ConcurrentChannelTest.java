@@ -7,6 +7,6 @@ final class ConcurrentChannelTest extends ChannelTest {
 
     @Override
     protected ConcurrentChannel<Subscriber, String> createChannel() {
-        return new ConcurrentChannel<>();
+        return new ConcurrentChannel<>(4);
     }
 }

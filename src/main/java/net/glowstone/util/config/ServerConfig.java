@@ -389,10 +389,17 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
     public enum Key {
 
         // Opencraft
-        OPENCRAFT_COLLECTOR("opencraft.collector", false, Migrate.PROPS, "opencraft-collector",
-                Boolean.class::isInstance),
-        OPENCRAFT_POLICY("opencraft.policy", "Chunk", Migrate.PROPS, "opencraft-policy", String.class::isInstance),
-        OPENCRAFT_BROKER("opencraft.broker", "Concurrent", Migrate.PROPS, "opencraft-broker", String.class::isInstance),
+        OPENCRAFT_COLLECTOR("opencraft.collector", false, Boolean.class::isInstance),
+        OPENCRAFT_POLICY("opencraft.policy", "Chunk", String.class::isInstance),
+        OPENCRAFT_BROKER_TYPE("opencraft.broker.type", "readwrite", String.class::isInstance),
+        OPENCRAFT_BROKER_HOST("opencraft.broker.host", "localhost", String.class::isInstance),
+        OPENCRAFT_BROKER_PORT("opencraft.broker.port", 0, Integer.class::isInstance),
+        OPENCRAFT_BROKER_VIRTUAL_HOST("opencraft.broker.virtualHost", "", String.class::isInstance),
+        OPENCRAFT_BROKER_USERNAME("opencraft.broker.username", "", String.class::isInstance),
+        OPENCRAFT_BROKER_PASSWORD("opencraft.broker.password", "", String.class::isInstance),
+        OPENCRAFT_BROKER_CHANNEL_TYPE("opencraft.broker.channel.type", "unsafe", String.class::isInstance),
+        OPENCRAFT_BROKER_CHANNEL_PARALLELISM_THRESHOLD("opencraft.broker.channel.parallelismThreshold", 4,
+                Integer.class::isInstance),
 
         // server
         SERVER_IP("server.ip", "", Migrate.PROPS, "server-ip", String.class::isInstance),
