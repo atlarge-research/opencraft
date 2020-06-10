@@ -14,6 +14,6 @@ public class CombatEventCodecTest extends CodecTest<CombatEventMessage> {
 
     @Override
     protected CombatEventMessage createMessage() {
-        return new CombatEventMessage(CombatEventMessage.Event.ENTER_COMBAT, 2, 3);
+        return new CombatEventMessage(CombatEventMessage.Event.END_COMBAT, 2, 3);
     }
 }

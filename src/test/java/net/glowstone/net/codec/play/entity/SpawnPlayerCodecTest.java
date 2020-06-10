@@ -19,7 +19,7 @@ public class SpawnPlayerCodecTest extends CodecTest<SpawnPlayerMessage> {
     @Override
     protected SpawnPlayerMessage createMessage() {
         List<MetadataMap.Entry> entries = new ArrayList<>();
-        entries.add(new MetadataMap.Entry(MetadataIndex.STATUS, 2));
+        entries.add(new MetadataMap.Entry(MetadataIndex.STATUS, (byte) 2));
         return new SpawnPlayerMessage(1, UUID.randomUUID(), 3.0, 4.0, 5.0, 6, 7, entries);
     }
 }

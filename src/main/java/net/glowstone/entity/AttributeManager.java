@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -383,6 +384,42 @@ public class AttributeManager {
         public Collection<AttributeModifier> getModifiers() {
             return modifiers.values();
         }
-    }
 
+        @Override
+        public String toString() {
+            return "Property{"
+                    + "manager=" + manager
+                    + ", key=" + key
+                    + ", value=" + value
+                    + ", modifiers=" + modifiers
+                    + ", cachedValue=" + cachedValue
+                    + ", isCacheUpToDate=" + isCacheUpToDate
+                    + '}';
+        }
+
+        @Override
+        public boolean equals(Object object) {
+
+            if (this == object) {
+                return true;
+            }
+
+            if (object == null || getClass() != object.getClass()) {
+                return false;
+            }
+
+            Property property = (Property) object;
+            return Double.compare(property.value, value) == 0
+                    && Double.compare(property.cachedValue, cachedValue) == 0
+                    && isCacheUpToDate == property.isCacheUpToDate
+                    && Objects.equals(manager, property.manager)
+                    && key == property.key
+                    && Objects.equals(modifiers, property.modifiers);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(manager, key, value, modifiers, cachedValue, isCacheUpToDate);
+        }
+    }
 }

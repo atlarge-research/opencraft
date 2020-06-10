@@ -42,6 +42,7 @@ public class EntityPropertyCodec implements Codec<EntityPropertyMessage> {
 
             AttributeManager.Key key = AttributeManager.Key.fromName(name);
             AttributeManager.Property property = new AttributeManager.Property(key, value, modifiers);
+            property.getValue();
             properties.put(name, property);
         }
         return new EntityPropertyMessage(id, properties);

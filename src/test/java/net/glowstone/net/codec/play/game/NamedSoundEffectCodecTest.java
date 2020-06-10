@@ -9,7 +9,7 @@ public class NamedSoundEffectCodecTest extends CodecTest<NamedSoundEffectMessage
 
     @Override
     protected Codec<NamedSoundEffectMessage> createCodec() {
-        return null;
+        return new NamedSoundEffectCodec();
     }
 
     @Override

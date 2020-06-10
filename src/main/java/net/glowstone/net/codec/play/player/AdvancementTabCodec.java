@@ -11,11 +11,11 @@ public class AdvancementTabCodec implements Codec<AdvancementTabMessage> {
     @Override
     public AdvancementTabMessage decode(ByteBuf buffer) throws IOException {
         int action = ByteBufUtils.readVarInt(buffer);
-        if (action == AdvancementTabMessage.ACTION_CLOSE) {
-            return new AdvancementTabMessage();
+        if (action == AdvancementTabMessage.ACTION_OPEN) {
+            String tabId = ByteBufUtils.readUTF8(buffer);
+            return new AdvancementTabMessage(action, tabId);
         }
-        String tabId = ByteBufUtils.readUTF8(buffer);
-        return new AdvancementTabMessage(action, tabId);
+        return new AdvancementTabMessage();
     }
 
     @Override

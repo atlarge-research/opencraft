@@ -6,12 +6,35 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import java.io.IOException;
 import net.glowstone.net.message.play.scoreboard.ScoreboardObjectiveMessage;
+import net.glowstone.scoreboard.RenderType;
 
 public final class ScoreboardObjectiveCodec implements Codec<ScoreboardObjectiveMessage> {
 
     @Override
-    public ScoreboardObjectiveMessage decode(ByteBuf buffer) {
-        throw new DecoderException("Cannot decode ScoreboardObjectiveMessage");
+    public ScoreboardObjectiveMessage decode(ByteBuf buffer) throws IOException {
+        String name = ByteBufUtils.readUTF8(buffer);
+        byte action = buffer.readByte();
+        switch (action) {
+
+            // CREATE
+            case 0:
+                String displayName = ByteBufUtils.readUTF8(buffer);
+                return ScoreboardObjectiveMessage.create(name, displayName);
+
+            // REMOVE
+            case 1:
+                return ScoreboardObjectiveMessage.remove(name);
+
+            // UPDATE
+            case 2:
+                String updatedDisplayName = ByteBufUtils.readUTF8(buffer);
+                String renderTypeName = ByteBufUtils.readUTF8(buffer);
+                RenderType renderType = RenderType.valueOf(renderTypeName);
+                return ScoreboardObjectiveMessage.update(name, updatedDisplayName, renderType);
+
+            default:
+                throw new DecoderException("Unsupported action: " + action);
+        }
     }
 
     @Override

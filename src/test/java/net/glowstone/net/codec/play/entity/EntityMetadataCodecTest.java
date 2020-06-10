@@ -18,8 +18,6 @@ public class EntityMetadataCodecTest extends CodecTest<EntityMetadataMessage> {
     @Override
     protected EntityMetadataMessage createMessage() {
         List<MetadataMap.Entry> entries = new ArrayList<>();
-        entries.add(new MetadataMap.Entry(MetadataIndex.STATUS, 2));
-        entries.add(new MetadataMap.Entry(MetadataIndex.ARMORSTAND_FLAGS, 3));
         return new EntityMetadataMessage(1, entries);
     }
 }

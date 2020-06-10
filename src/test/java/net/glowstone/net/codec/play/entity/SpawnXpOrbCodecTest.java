@@ -8,7 +8,7 @@ public class SpawnXpOrbCodecTest extends CodecTest<SpawnXpOrbMessage> {
 
     @Override
     protected Codec<SpawnXpOrbMessage> createCodec() {
-        return null;
+        return new SpawnXpOrbCodec();
     }
 
     @Override

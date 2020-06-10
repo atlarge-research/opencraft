@@ -24,7 +24,6 @@ public class EntityPropertyCodecTest extends CodecTest<EntityPropertyMessage> {
         AttributeManager.Key key = AttributeManager.Key.KEY_ARMOR;
         double value = 10.0;
         Collection<AttributeModifier> modifiers = new ArrayList<>();
-        modifiers.add(new AttributeModifier(key.toString(), 0.0, AttributeModifier.Operation.ADD_NUMBER));
         properties.put(key.toString(), new AttributeManager.Property(key, value, modifiers));
         return new EntityPropertyMessage(id, properties);
     }

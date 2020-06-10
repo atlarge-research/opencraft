@@ -8,7 +8,7 @@ public class UnlockRecipesCodecTest extends CodecTest<UnlockRecipesMessage> {
 
     @Override
     protected Codec<UnlockRecipesMessage> createCodec() {
-        return null;
+        return new UnlockRecipesCodec();
     }
 
     @Override

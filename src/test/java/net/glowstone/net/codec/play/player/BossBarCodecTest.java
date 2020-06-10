@@ -14,6 +14,6 @@ public class BossBarCodecTest extends CodecTest<BossBarMessage> {
 
     @Override
     protected BossBarMessage createMessage() {
-        return new BossBarMessage(UUID.randomUUID(), BossBarMessage.Action.ADD, 1.0f);
+        return new BossBarMessage(UUID.randomUUID(), BossBarMessage.Action.UPDATE_HEALTH, 1.0f);
     }
 }

@@ -19,7 +19,7 @@ public final class SpawnXpOrbCodec implements Codec<SpawnXpOrbMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buffer, SpawnXpOrbMessage message) throws IOException {
+    public ByteBuf encode(ByteBuf buffer, SpawnXpOrbMessage message) {
         ByteBufUtils.writeVarInt(buffer, message.getId());
         buffer.writeDouble(message.getX());
         buffer.writeDouble(message.getY());

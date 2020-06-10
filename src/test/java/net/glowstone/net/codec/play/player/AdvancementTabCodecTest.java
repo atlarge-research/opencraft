@@ -13,6 +13,6 @@ public class AdvancementTabCodecTest extends CodecTest<AdvancementTabMessage> {
 
     @Override
     protected AdvancementTabMessage createMessage() {
-        return new AdvancementTabMessage(1, "two");
+        return new AdvancementTabMessage(AdvancementTabMessage.ACTION_OPEN, "tab");
     }
 }

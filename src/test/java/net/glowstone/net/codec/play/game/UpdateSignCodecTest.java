@@ -16,7 +16,9 @@ public class UpdateSignCodecTest extends CodecTest<UpdateSignMessage> {
     protected UpdateSignMessage createMessage() {
         TextMessage[] lines = new TextMessage[] {
                 new TextMessage("one"),
-                new TextMessage("two")
+                new TextMessage("two"),
+                new TextMessage("three"),
+                new TextMessage("four")
         };
         return new UpdateSignMessage(1, 2, 3, lines);
     }

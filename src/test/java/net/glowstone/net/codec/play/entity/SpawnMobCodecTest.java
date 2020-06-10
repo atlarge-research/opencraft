@@ -21,7 +21,7 @@ public class SpawnMobCodecTest extends CodecTest<SpawnMobMessage> {
     protected SpawnMobMessage createMessage() {
         Location location = new Location(null, 5.0, 6.0, 7.0);
         List<MetadataMap.Entry> entries = new ArrayList<>();
-        entries.add(new MetadataMap.Entry(MetadataIndex.TAMEABLEAANIMAL_STATUS, 9));
+        entries.add(new MetadataMap.Entry(MetadataIndex.STATUS, (byte) 1));
         return new SpawnMobMessage(1, UUID.randomUUID(), 3, location, entries);
     }
 }
