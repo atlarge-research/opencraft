@@ -1,4 +1,4 @@
-package net.glowstone.util.config;
+package net.glowstone.util.config.messaging;
 
 import lombok.Data;
 
@@ -7,7 +7,8 @@ import lombok.Data;
  * factory, in particular in the newChannelFactory method.
  */
 @Data
-public class ChannelConfig {
-    private final String type;
-    private final Integer parallelismThreshold;
+public final class ChannelConfig {
+
+    private String type = "unsafe";
+    private Integer parallelismThreshold;
 }

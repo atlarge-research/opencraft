@@ -14,8 +14,8 @@ import net.glowstone.messaging.channels.ConcurrentChannel;
 import net.glowstone.messaging.channels.GuavaChannel;
 import net.glowstone.messaging.channels.ReadWriteChannel;
 import net.glowstone.messaging.channels.UnsafeChannel;
-import net.glowstone.util.config.BrokerConfig;
-import net.glowstone.util.config.ChannelConfig;
+import net.glowstone.util.config.messaging.BrokerConfig;
+import net.glowstone.util.config.messaging.ChannelConfig;
 import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
@@ -32,7 +32,12 @@ public final class Brokers {
      * @return the created broker.
      */
     public static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newBroker(BrokerConfig config) {
+
         String type = config.getType();
+        if (type == null) {
+            throw new IllegalArgumentException("Broker type missing from configuration");
+        }
+
         switch (type.toLowerCase()) {
 
             case "activemq":
@@ -48,7 +53,7 @@ public final class Brokers {
                 return newReadWriteBroker(config.getChannel());
 
             default:
-                throw new RuntimeException("Unknown broker type: " + type);
+                throw new IllegalArgumentException("Unsupported broker type: " + type);
         }
     }
 
@@ -63,12 +68,16 @@ public final class Brokers {
     }
 
     private static <Subscriber> ChannelFactory<Subscriber, Message> newChannelFactory(ChannelConfig config) {
+
         String type = config.getType();
+        if (type == null) {
+            throw new IllegalArgumentException("Channel type missing from configuration");
+        }
+
         switch (type.toLowerCase()) {
 
             case "concurrent":
-                int parallelismThreshold = config.getParallelismThreshold();
-                return () -> new ConcurrentChannel<>(parallelismThreshold);
+                return newConcurrentChannelFactory(config);
 
             case "guava":
                 return GuavaChannel::new;
@@ -80,8 +89,16 @@ public final class Brokers {
                 return UnsafeChannel::new;
 
             default:
-                throw new RuntimeException("Unknown channel type: " + type);
+                throw new RuntimeException("Unsupported channel type: " + type);
         }
+    }
+
+    private static <Subscriber> ChannelFactory<Subscriber, Message> newConcurrentChannelFactory(ChannelConfig config) {
+        Integer parallelismThreshold = config.getParallelismThreshold();
+        if (parallelismThreshold == null) {
+            throw new IllegalArgumentException("Parallelism threshold missing from configuration");
+        }
+        return () -> new ConcurrentChannel<>(parallelismThreshold);
     }
 
     private static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newActivemqBroker(BrokerConfig config) {

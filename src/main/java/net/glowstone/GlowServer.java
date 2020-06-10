@@ -152,11 +152,13 @@ import net.glowstone.util.ShutdownMonitorThread;
 import net.glowstone.util.TextMessage;
 import net.glowstone.util.bans.GlowBanList;
 import net.glowstone.util.bans.UuidListFile;
-import net.glowstone.util.config.BrokerConfig;
-import net.glowstone.util.config.ChannelConfig;
+import net.glowstone.util.config.messaging.BrokerConfig;
+import net.glowstone.util.config.messaging.ChannelConfig;
 import net.glowstone.util.config.ServerConfig;
 import net.glowstone.util.config.ServerConfig.Key;
 import net.glowstone.util.config.WorldConfig;
+import net.glowstone.util.config.messaging.MessagingSystemConfig;
+import net.glowstone.util.config.messaging.Yaml;
 import net.glowstone.util.library.Library;
 import net.glowstone.util.library.LibraryKey;
 import net.glowstone.util.library.LibraryManager;
@@ -288,6 +290,8 @@ public class GlowServer implements Server {
      * The crafting manager for this server.
      */
     private final CraftingManager craftingManager = new CraftingManager();
+
+    private final MessagingSystemConfig messagingSystemConfig;
 
     /**
      * The configuration for the server.
@@ -526,6 +530,12 @@ public class GlowServer implements Server {
         nameBans = new GlowBanList(this, Type.NAME);
         ipBans = new GlowBanList(this, Type.IP);
 
+        messagingSystemConfig = Yaml.loadOrCreate(
+                "config/messaging.yml",
+                MessagingSystemConfig.class,
+                MessagingSystemConfig::new
+        );
+
         loadConfig();
     }
 
@@ -535,18 +545,7 @@ public class GlowServer implements Server {
      * @return the broker configuration.
      */
     public BrokerConfig getBrokerConfig() {
-        return new BrokerConfig(
-                config.getString(Key.OPENCRAFT_BROKER_TYPE),
-                config.getString(Key.OPENCRAFT_BROKER_HOST),
-                config.getInt(Key.OPENCRAFT_BROKER_PORT),
-                config.getString(Key.OPENCRAFT_BROKER_VIRTUAL_HOST),
-                config.getString(Key.OPENCRAFT_BROKER_USERNAME),
-                config.getString(Key.OPENCRAFT_BROKER_PASSWORD),
-                new ChannelConfig(
-                        config.getString(Key.OPENCRAFT_BROKER_CHANNEL_TYPE),
-                        config.getInt(Key.OPENCRAFT_BROKER_CHANNEL_PARALLELISM_THRESHOLD)
-                )
-        );
+        return messagingSystemConfig.getBroker();
     }
 
     /**
@@ -981,7 +980,6 @@ public class GlowServer implements Server {
      */
     @Override
     public void shutdown() {
-        worlds.getWorlds().forEach(GlowWorld::shutdown);
         shutdown(getShutdownMessage());
     }
 
@@ -991,6 +989,7 @@ public class GlowServer implements Server {
      * @param message Message to send to all players as they are kicked
      */
     public void shutdown(String message) {
+
         // Just in case this gets called twice
         if (isShuttingDown) {
             return;
@@ -1017,6 +1016,9 @@ public class GlowServer implements Server {
         if (rconServer != null) {
             rconServer.shutdown();
         }
+
+        // Shutdown worlds
+        worlds.getWorlds().forEach(GlowWorld::shutdown);
 
         // Save worlds
         for (World world : getWorlds()) {
