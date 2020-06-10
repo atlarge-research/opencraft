@@ -19,7 +19,7 @@
         <minecraft.version>1.12.2</minecraft.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <powermock.version>2.0.0</powermock.version>
+        <powermock.version>2.0.7</powermock.version>
         <junit.jupiter.version>5.6.2</junit.jupiter.version>
         <junit.vintage.version>5.6.2</junit.vintage.version>
         <checkstyle.version>8.29</checkstyle.version>
