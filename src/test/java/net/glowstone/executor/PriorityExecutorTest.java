@@ -1,8 +1,6 @@
 package net.glowstone.executor;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,10 +11,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import net.glowstone.chunk.GlowChunk;
-import net.glowstone.entity.GlowPlayer;
 import net.glowstone.messaging.TimeBasedTest;
-import net.glowstone.util.Coordinates;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -26,31 +21,14 @@ import org.junit.jupiter.api.BeforeEach;
  */
 class PriorityExecutorTest {
 
-    private PriorityExecutor executor;
-    private GlowChunk chunk;
-    private GlowPlayer playerOrigin;
-    private GlowPlayer player;
-    private GlowPlayer playerFurther;
+    private PriorityExecutor<TestPriorityRunnable> executor;
 
     /**
      * Setup the priority executor and the required mocks.
      */
     @BeforeEach
     void beforeEach() {
-
-        executor = new PriorityExecutor(1);
-
-        chunk = mock(GlowChunk.class);
-        when(chunk.getCenterCoordinates()).thenReturn(new Coordinates(0, 0));
-
-        playerOrigin = mock(GlowPlayer.class);
-        when(playerOrigin.getCoordinates()).thenReturn(new Coordinates(0, 0));
-
-        player = mock(GlowPlayer.class);
-        when(player.getCoordinates()).thenReturn(new Coordinates(10, 20));
-
-        playerFurther = mock(GlowPlayer.class);
-        when(playerFurther.getCoordinates()).thenReturn(new Coordinates(100, 25));
+        executor = new PriorityExecutor<>(1);
     }
 
     /**
@@ -71,10 +49,14 @@ class PriorityExecutorTest {
     @TimeBasedTest
     void executeAndCancel() throws ExecutionException, InterruptedException, TimeoutException {
 
+        final double highPriority = 0.0;
+        final double mediumPriority = 10.0;
+        final double lowPriority = 120.0;
+
         CountDownLatch latch = new CountDownLatch(1);
         CompletableFuture<Boolean> future = new CompletableFuture<>();
 
-        ChunkRunnable blocking = new ChunkRunnable(playerOrigin, chunk, () -> {
+        TestPriorityRunnable blocking = new TestPriorityRunnable(highPriority, () -> {
             try {
                 latch.await();
             } catch (InterruptedException exception) {
@@ -82,23 +64,41 @@ class PriorityExecutorTest {
             }
         });
 
-        ChunkRunnable toBeCancelled = new ChunkRunnable(player, chunk, () -> future.complete(false));
+        TestPriorityRunnable toBeCancelled = new TestPriorityRunnable(mediumPriority, () -> future.complete(false));
 
         executor.executeAndCancel(Arrays.asList(blocking, toBeCancelled), runnable -> false);
 
-        ChunkRunnable toBeExecuted = new ChunkRunnable(playerFurther, chunk, () -> future.complete(true));
+        TestPriorityRunnable toBeExecuted = new TestPriorityRunnable(lowPriority, () -> future.complete(true));
 
-        Collection<ChunkRunnable> notCancelled = executor.executeAndCancel(new ArrayList<>(), runnable -> false);
+        Collection<TestPriorityRunnable> notCancelled = executor.executeAndCancel(new ArrayList<>(), runnable -> false);
         assertTrue(notCancelled.isEmpty());
 
-        Collection<ChunkRunnable> cancelled = executor.executeAndCancel(
-                Collections.singleton(toBeExecuted),
-                runnable -> runnable.getPlayer() == player
-        );
+        Collection<TestPriorityRunnable> cancelled =
+                executor.executeAndCancel(Collections.singleton(toBeExecuted), runnable -> runnable == toBeCancelled);
 
         latch.countDown();
 
         assertTrue(future.get(50L, TimeUnit.MILLISECONDS));
         assertTrue(cancelled.contains(toBeCancelled));
+    }
+
+    private static final class TestPriorityRunnable extends PriorityRunnable {
+
+        private final Runnable runnable;
+
+        public TestPriorityRunnable(double priority, Runnable runnable) {
+            setPriority(priority);
+            this.runnable = runnable;
+        }
+
+        @Override
+        public void updatePriority() {
+            // not relevant for these tests
+        }
+
+        @Override
+        public void run() {
+            runnable.run();
+        }
     }
 }

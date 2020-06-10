@@ -443,7 +443,7 @@ public class GlowWorld implements World {
 
     private final MessagingSystem<Chunk, Object, Player, Message> messagingSystem;
 
-    private final PriorityExecutor executor;
+    private final PriorityExecutor<ChunkRunnable> executor;
 
     private final Queue<BlockChangeMessage> blockChanges;
 
@@ -506,6 +506,15 @@ public class GlowWorld implements World {
             uid = UUID.randomUUID();
         }
 
+        ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
+        broker = Brokers.newReadWriteBroker();
+        Filter<Player, Message> filter = new PlayerFilter();
+        messagingSystem = new MessagingSystem<>(policy, broker, filter);
+
+        executor = new PriorityExecutor<>();
+        blockChanges = new ConcurrentLinkedDeque<>();
+        afterBlockChanges = new LinkedList<>();
+
         chunkManager = new ChunkManager(this, storage.getChunkIoService(), generator);
         structures = storage.getStructureDataService().readStructuresData();
         functions = storage.getFunctionIoService().readFunctions().stream()
@@ -522,15 +531,6 @@ public class GlowWorld implements World {
         activeChunksSet = new HashSet<>();
         initialized = true;
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
-
-        ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
-        broker = Brokers.newReadWriteBroker();
-        Filter<Player, Message> filter = new PlayerFilter();
-        messagingSystem = new MessagingSystem<>(policy, broker, filter);
-
-        executor = new PriorityExecutor();
-        blockChanges = new ConcurrentLinkedDeque<>();
-        afterBlockChanges = new LinkedList<>();
 
         previousAreasOfInterest = new HashMap<>();
     }
@@ -623,7 +623,7 @@ public class GlowWorld implements World {
         Collection<ChunkRunnable> cancelled = executor.executeAndCancel(chunksToStream, this::shouldBeUnloaded);
 
         Set<Pair<GlowChunk, GlowPlayer>> cancelledSet = cancelled.stream()
-                .map(ChunkRunnable::getChunkAndPlayer)
+                .map(runnable -> Pair.of(runnable.getChunk(), runnable.getPlayer()))
                 .collect(Collectors.toSet());
 
         unloadChunks(chunksToUnload, cancelledSet);
@@ -664,8 +664,6 @@ public class GlowWorld implements World {
             return;
         }
 
-        GlowSession session = player.getSession();
-
         if (previousLocation.getWorld() == this) {
             for (int x = previousX - previousRadius; x <= previousX + previousRadius; x++) {
                 for (int z = previousZ - previousRadius; z <= previousZ + previousRadius; z++) {
@@ -685,19 +683,8 @@ public class GlowWorld implements World {
                     if (previousLocation.getWorld() != this
                             || Math.abs(x - previousX) > previousRadius
                             || Math.abs(z - previousZ) > previousRadius) {
-
-                        getChunkManager().forcePopulation(x, z);
-                        GlowChunk.Key key = GlowChunk.Key.of(x, z);
-                        player.getChunkLock().acquire(key);
-
                         GlowChunk chunk = getChunkAt(x, z);
-                        ChunkRunnable chunkRunnable = new ChunkRunnable(player, chunk, () -> {
-                            boolean skylight = getEnvironment() == Environment.NORMAL;
-                            Message message = chunk.toMessage(skylight);
-                            session.send(message);
-                            chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
-                        });
-
+                        ChunkRunnable chunkRunnable = new ChunkRunnable(player, chunk);
                         chunksToStream.add(chunkRunnable);
                     }
                 }
@@ -721,25 +708,11 @@ public class GlowWorld implements World {
         int viewDistance = areaOfInterest.getViewDistance();
         int radius = Math.min(server.getViewDistance(), 1 + viewDistance);
 
-        GlowSession session = player.getSession();
-
         for (int x = centerX - radius; x <= centerX + radius; x++) {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
-
-                getChunkManager().forcePopulation(x, z);
-                GlowChunk.Key key = GlowChunk.Key.of(x, z);
-                player.getChunkLock().acquire(key);
-
                 GlowChunk chunk = getChunkAt(x, z);
-                ChunkRunnable chunkRunnable = new ChunkRunnable(player, chunk, () -> {
-                    boolean skylight = getEnvironment() == Environment.NORMAL;
-                    Message message = chunk.toMessage(skylight);
-                    session.send(message);
-                    chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
-                });
-
+                ChunkRunnable chunkRunnable = new ChunkRunnable(player, chunk);
                 chunksToStream.add(chunkRunnable);
-
             }
         }
     }
@@ -1122,13 +1095,6 @@ public class GlowWorld implements World {
             }
         }
         return true;
-    }
-
-    public void broadcastBlockChangeInRange(GlowChunk.Key chunkKey, BlockChangeMessage message) {
-        // TODO: This may cause duplicate messages to be send, this implementation is required when creating a new world
-        getRawPlayers().stream()
-                .filter(player -> player.canSeeChunk(chunkKey))
-                .forEach(player -> addBlockChange(message));
     }
 
     private void maybeStrikeLightningInChunk(int cx, int cz) {
