@@ -74,10 +74,10 @@ import net.glowstone.net.codec.play.game.UserListHeaderFooterCodec;
 import net.glowstone.net.codec.play.game.UserListItemCodec;
 import net.glowstone.net.codec.play.game.WorldBorderCodec;
 import net.glowstone.net.codec.play.inv.CloseWindowCodec;
-import net.glowstone.net.codec.play.inv.HeldItemCodec;
 import net.glowstone.net.codec.play.inv.OpenWindowCodec;
 import net.glowstone.net.codec.play.inv.SetWindowContentsCodec;
 import net.glowstone.net.codec.play.inv.SetWindowSlotCodec;
+import net.glowstone.net.codec.play.inv.SymmetricHeldItemCodec;
 import net.glowstone.net.codec.play.inv.TransactionCodec;
 import net.glowstone.net.codec.play.inv.WindowPropertyCodec;
 import net.glowstone.net.codec.play.player.AdvancementsCodec;
@@ -253,7 +253,7 @@ public final class CompositeCodec implements JmsCodec<Message> {
         // TODO: Select Advancement Tab
         register(WorldBorderMessage.class, new WorldBorderCodec());
         register(CameraMessage.class, new CameraCodec());
-        register(HeldItemMessage.class, new HeldItemCodec());
+        register(HeldItemMessage.class, new SymmetricHeldItemCodec());
         register(ScoreboardDisplayMessage.class, new ScoreboardDisplayCodec());
         register(EntityMetadataMessage.class, new EntityMetadataCodec());
         register(AttachEntityMessage.class, new AttachEntityCodec());
