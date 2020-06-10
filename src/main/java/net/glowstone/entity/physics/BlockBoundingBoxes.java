@@ -43,6 +43,7 @@ import static org.bukkit.Material.JUNGLE_FENCE_GATE;
 import static org.bukkit.Material.JUNGLE_WOOD_STAIRS;
 import static org.bukkit.Material.NETHER_BRICK_STAIRS;
 import static org.bukkit.Material.NETHER_FENCE;
+import static org.bukkit.Material.PURPUR_SLAB;
 import static org.bukkit.Material.PURPUR_STAIRS;
 import static org.bukkit.Material.QUARTZ_STAIRS;
 import static org.bukkit.Material.REDSTONE_COMPARATOR;
@@ -58,7 +59,9 @@ import static org.bukkit.Material.SPRUCE_FENCE;
 import static org.bukkit.Material.SPRUCE_FENCE_GATE;
 import static org.bukkit.Material.SPRUCE_WOOD_STAIRS;
 import static org.bukkit.Material.STAINED_GLASS_PANE;
+import static org.bukkit.Material.STEP;
 import static org.bukkit.Material.STONE_PLATE;
+import static org.bukkit.Material.STONE_SLAB2;
 import static org.bukkit.Material.THIN_GLASS;
 import static org.bukkit.Material.TRAPPED_CHEST;
 import static org.bukkit.Material.TRAP_DOOR;
@@ -67,6 +70,7 @@ import static org.bukkit.Material.WOODEN_DOOR;
 import static org.bukkit.Material.WOOD_DOOR;
 import static org.bukkit.Material.WOOD_PLATE;
 import static org.bukkit.Material.WOOD_STAIRS;
+import static org.bukkit.Material.WOOD_STEP;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -101,6 +105,7 @@ public class BlockBoundingBoxes {
     private static final Set<Material> DOORS;
     private static final Set<Material> PANES;
     private static final Set<Material> GATES;
+    private static final Set<Material> SLABS;
     private static final Map<Material, Dimensions> BOUNDINGBOX_SIZES;
 
     static {
@@ -158,6 +163,13 @@ public class BlockBoundingBoxes {
                 THIN_GLASS,
                 STAINED_GLASS_PANE,
                 IRON_FENCE
+        );
+
+        SLABS = ImmutableSet.of(
+                STEP,
+                WOOD_STEP,
+                PURPUR_SLAB,
+                STONE_SLAB2
         );
 
         ImmutableMap.Builder<Material, Dimensions> builder = ImmutableMap.builder();
@@ -633,13 +645,8 @@ public class BlockBoundingBoxes {
      * @param block The corresponding block
      * @return The List of boundingboxes that corresponds to the block
      */
-    private static List<BoundingBox> getNonGeneralBlockBoundingBoxes(Location location, GlowBlock block) {
+    private static List<BoundingBox> getBoundingBoxesRemainingBlocks(Location location, GlowBlock block) {
         switch (block.getType()) {
-            case STEP:
-            case WOOD_STEP:
-            case PURPUR_SLAB:
-            case STONE_SLAB2:
-                return getSlabBoundingBoxes(location, block);
             case COBBLE_WALL:
                 return getWallBoundingBoxes(location, block);
             case SNOW:
@@ -687,8 +694,10 @@ public class BlockBoundingBoxes {
             return getDoorBoundingBoxes(loc, block);
         } else if (PANES.contains(blockType)) {
             return getPaneBoundingBoxes(loc, block);
+        } else if (SLABS.contains(blockType)) {
+            return getSlabBoundingBoxes(loc, block);
         }
 
-        return getNonGeneralBlockBoundingBoxes(loc, block);
+        return getBoundingBoxesRemainingBlocks(loc, block);
     }
 }
