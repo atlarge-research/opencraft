@@ -1025,9 +1025,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * Spawn and destroy entities that come within or out of the player's view distance.
      */
     public void spawnEntities() {
-
         worldLock.writeLock().lock();
         try {
+
             // Remove entities that are no longer visible
             List<GlowEntity> removeEntities = new LinkedList<>();
             List<GlowEntity> destroyEntities = new LinkedList<>();

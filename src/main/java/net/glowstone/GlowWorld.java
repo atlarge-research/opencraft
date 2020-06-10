@@ -551,6 +551,7 @@ public class GlowWorld implements World {
      * Updates all the entities within this world.
      */
     public void pulse() {
+
         List<GlowPlayer> players = entityManager.getPlayers();
         players.forEach(GlowPlayer::updateKnownChunks);
 
