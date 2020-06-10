@@ -106,7 +106,6 @@ public final class UserListItemCodec implements Codec<UserListItemMessage> {
             // TODO: implement remaining actions
             switch (action) {
                 case ADD_PLAYER:
-                    // this code is somewhat saddening
                     ByteBufUtils.writeUTF8(buffer, entry.profile.getName());
                     ByteBufUtils.writeVarInt(buffer, entry.profile.getProperties().size());
                     for (ProfileProperty property : entry.profile.getProperties()) {

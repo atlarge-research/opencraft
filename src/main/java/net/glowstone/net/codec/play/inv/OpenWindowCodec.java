@@ -17,7 +17,7 @@ public final class OpenWindowCodec implements Codec<OpenWindowMessage> {
         TextMessage title = GlowBufUtils.readChat(buffer);
         byte slots = buffer.readByte();
         int entityId = 0;
-        if (buffer.readableBytes() >= Integer.BYTES) {
+        if (buffer.readableBytes() >= 0) {
             entityId = buffer.getInt(buffer.readerIndex());
         }
         return new OpenWindowMessage(id, type, title, slots, entityId);

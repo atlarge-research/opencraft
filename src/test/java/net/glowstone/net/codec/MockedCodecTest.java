@@ -17,16 +17,35 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+/**
+ * The MockedCodecTest class tests functionality that all codecs should be able to provide. However, it runs these
+ * tests using the PowerMockRunner, such that a static method in the Glowkit library can be mocked.
+ *
+ * @param <Message> the type of message that should be encoded and decoded by the codec.
+ */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Bukkit.class)
 public abstract class MockedCodecTest<Message extends com.flowpowered.network.Message> {
 
     private static final ByteBufAllocator ALLOCATOR = UnpooledByteBufAllocator.DEFAULT;
 
+    /**
+     * Create a new codec.
+     *
+     * @return the created codec.
+     */
     protected abstract Codec<Message> createCodec();
 
+    /**
+     * Create a new message.
+     *
+     * @return the created message.
+     */
     protected abstract Message createMessage();
 
+    /**
+     * Setup the mocked getItemFactory method required for testing certain codecs.
+     */
     @Before
     public void setUp() {
 
@@ -36,6 +55,11 @@ public abstract class MockedCodecTest<Message extends com.flowpowered.network.Me
         when(Bukkit.getItemFactory()).thenReturn(itemFactory);
     }
 
+    /**
+     * Verify that a message that is encoded and then decoded is equal to its original.
+     *
+     * @throws IOException whenever an IOException occurs during either encoding or decoding.
+     */
     @Test
     public void encodeAndDecode() throws IOException {
         Codec<Message> codec = createCodec();

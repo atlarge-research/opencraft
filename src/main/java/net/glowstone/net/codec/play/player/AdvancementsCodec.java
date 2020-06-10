@@ -29,12 +29,12 @@ public class AdvancementsCodec implements Codec<AdvancementsMessage> {
         Map<NamespacedKey, Advancement> advancements = new HashMap<>(advancementCount);
         for (int advancementIndex = 0; advancementIndex < advancementCount; advancementIndex++) {
 
-            NamespacedKey key = readNamedspacedKey(buffer);
+            NamespacedKey key = readNamespacedKey(buffer);
 
             boolean hasParent = buffer.readBoolean();
             GlowAdvancement parent = null;
             if (hasParent) {
-                NamespacedKey parentKey = readNamedspacedKey(buffer);
+                NamespacedKey parentKey = readNamespacedKey(buffer);
                 parent = new GlowAdvancement(parentKey, null);
             }
 
@@ -58,7 +58,6 @@ public class AdvancementsCodec implements Codec<AdvancementsMessage> {
                 display = new GlowAdvancementDisplay(title, description, icon, type, x, y);
             }
 
-
             GlowAdvancement advancement = new GlowAdvancement(key, parent, display);
             advancements.put(key, advancement);
         }
@@ -66,7 +65,7 @@ public class AdvancementsCodec implements Codec<AdvancementsMessage> {
         int removalCount = ByteBufUtils.readVarInt(buffer);
         List<NamespacedKey> removals = new ArrayList<>();
         for (int removalIndex = 0; removalIndex < removalCount; removalIndex++) {
-            NamespacedKey key = readNamedspacedKey(buffer);
+            NamespacedKey key = readNamespacedKey(buffer);
             removals.add(key);
         }
 
@@ -75,11 +74,18 @@ public class AdvancementsCodec implements Codec<AdvancementsMessage> {
         return new AdvancementsMessage(clear, advancements, removals);
     }
 
-    private NamespacedKey readNamedspacedKey(ByteBuf buffer) throws IOException {
+    /**
+     * Read the stringified namespaced key from the buffer and create a NamespacedKey object from it.
+     *
+     * @param buffer the buffer from which to read the key.
+     * @return the NamespacedKey object.
+     * @throws IOException whenever the received key was incorrectly formatted.
+     */
+    private NamespacedKey readNamespacedKey(ByteBuf buffer) throws IOException {
         String concatenated = ByteBufUtils.readUTF8(buffer);
         String[] components = concatenated.split(":");
         if (components.length != 2) {
-            throw new DecoderException("Could not parse name-spaced key: " + concatenated);
+            throw new DecoderException("Could not parse namespaced key: " + concatenated);
         }
         String namespace = components[0];
         String key = components[1];
