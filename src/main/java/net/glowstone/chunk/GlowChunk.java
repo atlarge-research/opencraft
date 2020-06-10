@@ -896,8 +896,12 @@ public class GlowChunk implements Chunk {
     @Data
     public static final class Key {
 
+        private static final int INITIAL_CAPACITY = 512;
+
+        private static final float LOAD_FACTOR = 0.5F;
+
         // Key cache storage
-        private static final Map<Long, Key> keys = new ConcurrentHashMap<>(512, 0.5F);
+        private static final Map<Long, Key> keys = new ConcurrentHashMap<>(INITIAL_CAPACITY, LOAD_FACTOR);
 
         /**
          * The x-coordinate.
