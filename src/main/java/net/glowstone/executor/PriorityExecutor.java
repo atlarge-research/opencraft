@@ -11,10 +11,10 @@ import java.util.function.Predicate;
  * The executor that can run the ChunkRunnables. ChunkRunnables that are closed to the player are prioritized, since
  * they are the most relevant to the player.
  */
-public final class PriorityExecutor<PriorityRunnable extends net.glowstone.executor.PriorityRunnable> {
+public final class PriorityExecutor<GenericPriorityRunnable extends PriorityRunnable> {
 
     private final ThreadPoolExecutor executor;
-    private final SortableBlockingQueue<PriorityRunnable> queue;
+    private final SortableBlockingQueue<GenericPriorityRunnable> queue;
 
     /**
      * Create a PriorityExecutor that can run ChunkRunnables. The PriorityExecutor uses a thread pool executor
@@ -25,7 +25,7 @@ public final class PriorityExecutor<PriorityRunnable extends net.glowstone.execu
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     public PriorityExecutor(int poolSize) throws IllegalArgumentException {
-        queue = new SortableBlockingQueue<>(PriorityRunnable::compareTo);
+        queue = new SortableBlockingQueue<>(GenericPriorityRunnable::compareTo);
         BlockingQueue<Runnable> castedQueue = (BlockingQueue<Runnable>) ((BlockingQueue) queue);
         executor = new ThreadPoolExecutor(poolSize, poolSize, 0L, TimeUnit.MILLISECONDS, castedQueue);
         executor.prestartAllCoreThreads();
@@ -46,14 +46,14 @@ public final class PriorityExecutor<PriorityRunnable extends net.glowstone.execu
      * @param predicate The predicate used to determine which runnables should be removed.
      * @return the removed runnables.
      */
-    public Collection<PriorityRunnable> executeAndCancel(
-            Collection<PriorityRunnable> toExecute,
-            Predicate<PriorityRunnable> predicate
+    public Collection<GenericPriorityRunnable> executeAndCancel(
+            Collection<GenericPriorityRunnable> toExecute,
+            Predicate<GenericPriorityRunnable> predicate
     ) {
-        Collection<PriorityRunnable> removed = new ArrayList<>();
+        Collection<GenericPriorityRunnable> removed = new ArrayList<>();
 
         queue.transaction(queue -> {
-            queue.forEach(PriorityRunnable::updatePriority);
+            queue.forEach(GenericPriorityRunnable::updatePriority);
             queue.removeIf(runnable -> {
                 if (predicate.test(runnable)) {
                     removed.add(runnable);

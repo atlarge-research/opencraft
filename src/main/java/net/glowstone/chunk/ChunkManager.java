@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Graham Edgecombe
  */
-public final class ChunkManager {
+public class ChunkManager {
 
     /**
      * The world this ChunkManager is managing.

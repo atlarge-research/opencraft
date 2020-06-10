@@ -63,6 +63,7 @@ public final class ChunkRunnable extends PriorityRunnable {
 
     @Override
     public void run() {
+
         GlowSession session = player.getSession();
         GlowWorld world = chunk.getWorld();
         int x = chunk.getX();

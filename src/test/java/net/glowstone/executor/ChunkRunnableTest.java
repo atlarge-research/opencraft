@@ -29,7 +29,6 @@ class ChunkRunnableTest {
     private final int chunkZ = 10;
     private BlockEntity blockEntityOne;
     private BlockEntity blockEntityTwo;
-    private GlowChunk chunk;
     private ChunkDataMessage chunkDataMessage;
     private ChunkManager.ChunkLock chunkLock;
     private ChunkManager chunkManager;
@@ -43,7 +42,6 @@ class ChunkRunnableTest {
 
         blockEntityOne = mock(BlockEntity.class);
         blockEntityTwo = mock(BlockEntity.class);
-        chunk = mock(GlowChunk.class);
         chunkDataMessage = new ChunkDataMessage(chunkX, chunkZ, false, 0, null, null);
         chunkManager = mock(ChunkManager.class);
         chunkLock = mock(ChunkManager.ChunkLock.class);
@@ -52,6 +50,7 @@ class ChunkRunnableTest {
 
         when(world.getChunkManager()).thenReturn(chunkManager);
 
+        GlowChunk chunk = mock(GlowChunk.class);
         when(chunk.getX()).thenReturn(chunkX);
         when(chunk.getZ()).thenReturn(chunkZ);
         when(chunk.getCenterCoordinates()).thenReturn(new Coordinates(chunkX, chunkZ));
