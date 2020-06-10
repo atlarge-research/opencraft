@@ -97,6 +97,7 @@ import net.glowstone.net.message.play.game.UserListHeaderFooterMessage;
 import net.glowstone.net.message.play.game.UserListItemMessage;
 import net.glowstone.net.message.play.game.UserListItemMessage.Entry;
 import net.glowstone.net.message.play.inv.CloseWindowMessage;
+import net.glowstone.net.message.play.inv.HeldItemMessage;
 import net.glowstone.net.message.play.inv.OpenWindowMessage;
 import net.glowstone.net.message.play.inv.SetWindowContentsMessage;
 import net.glowstone.net.message.play.inv.SetWindowSlotMessage;
@@ -587,9 +588,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         return currentFishingHook.get();
     }
 
-    @Getter
-    private final AreaOfInterest previousAreaOfInterest;
-
     /**
      * Creates a new player and adds it to the world.
      *
@@ -620,8 +618,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         server.getPlayerStatisticIoService().readStatistics(this);
         recipeMonitor = new PlayerRecipeMonitor(this);
 
-        previousAreaOfInterest = new AreaOfInterest(null, getViewDistance());
-
         updateBossBars();
     }
 
@@ -644,6 +640,15 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      */
     public Set<Chunk> getKnownChunks() {
         return knownChunks;
+    }
+
+    /**
+     * Get the current area of interest of this player.
+     *
+     * @return The current area of interest.
+     */
+    public AreaOfInterest getAreaOfInterest() {
+        return new AreaOfInterest(getLocation(), getViewDistance());
     }
 
     /**
@@ -752,6 +757,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         invMonitor = new InventoryMonitor(getOpenInventory());
         updateInventory(); // send inventory contents
+        session.send(new HeldItemMessage(getInventory().getHeldItemSlot()));
         session.send(recipeMonitor.createInitMessage());
 
         if (!server.getResourcePackUrl().isEmpty()) {
@@ -1019,51 +1025,56 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * Spawn and destroy entities that come within or out of the player's view distance.
      */
     public void spawnEntities() {
+        worldLock.writeLock().lock();
+        try {
 
-        // Remove entities that are no longer visible
-        List<GlowEntity> removeEntities = new LinkedList<>();
-        List<GlowEntity> destroyEntities = new LinkedList<>();
-        for (GlowEntity entity : knownEntities) {
+            // Remove entities that are no longer visible
+            List<GlowEntity> removeEntities = new LinkedList<>();
+            List<GlowEntity> destroyEntities = new LinkedList<>();
+            for (GlowEntity entity : knownEntities) {
 
-            if (!isWithinDistance(entity) || entity.isRemoved()) {
-                removeEntities.add(entity);
+                if (!isWithinDistance(entity) || entity.isRemoved()) {
+                    removeEntities.add(entity);
+                }
+
+                if (!isWithinDistance(entity)) {
+                    destroyEntities.add(entity);
+                }
             }
 
-            if (!isWithinDistance(entity)) {
-                destroyEntities.add(entity);
+            for (GlowEntity entity : removeEntities) {
+                knownEntities.remove(entity);
             }
+
+            if (!destroyEntities.isEmpty()) {
+                List<Integer> destroyIds = removeEntities.stream()
+                        .map(GlowEntity::getEntityId)
+                        .collect(Collectors.toList());
+                session.send(new DestroyEntitiesMessage(destroyIds));
+            }
+
+            // Add entities that have become visible
+            knownChunks.forEach(key ->
+                    world.getChunkAt(key.getX(), key.getZ()).getRawEntities().stream()
+                            .filter(entity -> this != entity
+                                    && isWithinDistance(entity)
+                                    && !entity.isDead()
+                                    && !knownEntities.contains(entity)
+                                    && !hiddenEntities.contains(entity.getUniqueId()))
+                            .forEach((entity) -> {
+
+                                worldLock.readLock().lock();
+                                try {
+                                    knownEntities.add(entity);
+                                } finally {
+                                    worldLock.readLock().unlock();
+                                }
+
+                                entity.createSpawnMessage().forEach(session::send);
+                            }));
+        } finally {
+            worldLock.writeLock().unlock();
         }
-
-        for (GlowEntity entity : removeEntities) {
-            knownEntities.remove(entity);
-        }
-
-        if (!destroyEntities.isEmpty()) {
-            List<Integer> destroyIds = removeEntities.stream()
-                    .map(GlowEntity::getEntityId)
-                    .collect(Collectors.toList());
-            session.send(new DestroyEntitiesMessage(destroyIds));
-        }
-
-        // Add entities that have become visible
-        knownChunks.forEach(key ->
-                world.getChunkAt(key.getX(), key.getZ()).getRawEntities().stream()
-                        .filter(entity -> this != entity
-                                && isWithinDistance(entity)
-                                && !entity.isDead()
-                                && !knownEntities.contains(entity)
-                                && !hiddenEntities.contains(entity.getUniqueId()))
-                        .forEach((entity) -> {
-
-                            worldLock.readLock().lock();
-                            try {
-                                knownEntities.add(entity);
-                            } finally {
-                                worldLock.readLock().unlock();
-                            }
-
-                            entity.createSpawnMessage().forEach(session::send);
-                        }));
     }
 
     @Override

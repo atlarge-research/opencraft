@@ -7,7 +7,6 @@ import net.glowstone.EventFactory;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.GlowBlockState;
 import net.glowstone.block.ItemTable;
-import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.scheduler.PulseTask;
@@ -289,9 +288,8 @@ public class BlockRedstone extends BlockNeedsAttached {
 
     @Override
     public void receivePulse(GlowBlock me) {
-        GlowChunk.Key key = GlowChunk.Key.of(me.getX() >> 4, me.getZ() >> 4);
         BlockChangeMessage bcmsg = new BlockChangeMessage(me.getX(), me.getY(), me.getZ(),
             me.getTypeId(), me.getData());
-        me.getWorld().broadcastBlockChangeInRange(key, bcmsg);
+        me.getWorld().addBlockChange(bcmsg);
     }
 }

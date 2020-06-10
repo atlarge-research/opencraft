@@ -4,6 +4,7 @@ import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This class stores variables relevant for the player. These variables can be used to store old values to check for
@@ -16,7 +17,7 @@ public final class AreaOfInterest {
 
     @Getter
     @Setter
-    private Integer viewDistance;
+    private int viewDistance;
 
     /**
      * Create an AreaOfInterest object.
@@ -24,7 +25,7 @@ public final class AreaOfInterest {
      * @param location The location to be stored.
      * @param viewDistance The viewdistance to be stored.
      */
-    public AreaOfInterest(Location location, Integer viewDistance) {
+    public AreaOfInterest(@NotNull Location location, int viewDistance) {
         this.location = location;
         this.viewDistance = viewDistance;
     }
@@ -35,22 +36,7 @@ public final class AreaOfInterest {
      * @return A clone of the location.
      */
     public Location getLocation() {
-        if (location == null) {
-            return null;
-        }
         return location.clone();
-    }
-
-    /**
-     * Getter for the view distance.
-     *
-     * @return The view distance.
-     */
-    public Integer getViewDistance() {
-        if (viewDistance == null) {
-            return null;
-        }
-        return viewDistance;
     }
 
     @Override
