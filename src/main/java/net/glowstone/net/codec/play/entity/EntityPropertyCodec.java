@@ -3,12 +3,14 @@ package net.glowstone.net.codec.play.entity;
 import com.flowpowered.network.Codec;
 import com.flowpowered.network.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.DecoderException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import net.glowstone.entity.AttributeManager.Property;
+import java.util.UUID;
+import net.glowstone.entity.AttributeManager;
 import net.glowstone.net.GlowBufUtils;
 import net.glowstone.net.message.play.entity.EntityPropertyMessage;
 import org.bukkit.attribute.AttributeModifier;
@@ -17,31 +19,58 @@ public class EntityPropertyCodec implements Codec<EntityPropertyMessage> {
 
     @Override
     public EntityPropertyMessage decode(ByteBuf buffer) throws IOException {
-        throw new DecoderException("Cannot decode EntityPropertyMessage!");
+        int id = ByteBufUtils.readVarInt(buffer);
+        int propertiesSize = buffer.readInt();
+        Map<String, AttributeManager.Property> properties = new HashMap<>(propertiesSize);
+        for (int propertyIndex = 0; propertyIndex < propertiesSize; propertyIndex++) {
+
+            String name = ByteBufUtils.readUTF8(buffer);
+            double value = buffer.readDouble();
+
+            int modifiersSize = ByteBufUtils.readVarInt(buffer);
+            Collection<AttributeModifier> modifiers = new ArrayList<>(modifiersSize);
+            for (int modifierIndex = 0; modifierIndex < modifiersSize; modifierIndex++) {
+
+                UUID uuid = GlowBufUtils.readUuid(buffer);
+                double amount = buffer.readDouble();
+                byte ordinal = buffer.readByte();
+
+                AttributeModifier.Operation operation = AttributeModifier.Operation.values()[ordinal];
+                AttributeModifier modifier = new AttributeModifier(uuid, name, amount, operation);
+                modifiers.add(modifier);
+            }
+
+            AttributeManager.Key key = AttributeManager.Key.fromName(name);
+            AttributeManager.Property property = new AttributeManager.Property(key, value, modifiers);
+            property.getValue();
+            properties.put(name, property);
+        }
+        return new EntityPropertyMessage(id, properties);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, EntityPropertyMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getId());
-        Map<String, Property> props = message.getProperties();
-        buf.writeInt(props.size());
-        for (Entry<String, Property> property : props.entrySet()) {
-            ByteBufUtils.writeUTF8(buf, property.getKey());
-            buf.writeDouble(property.getValue().getValue());
+    public ByteBuf encode(ByteBuf buffer, EntityPropertyMessage message) throws IOException {
+        ByteBufUtils.writeVarInt(buffer, message.getId());
+        Map<String, AttributeManager.Property> props = message.getProperties();
+        buffer.writeInt(props.size());
+        for (Entry<String, AttributeManager.Property> property : props.entrySet()) {
+
+            ByteBufUtils.writeUTF8(buffer, property.getKey());
+            buffer.writeDouble(property.getValue().getValue());
 
             Collection<AttributeModifier> modifiers = property.getValue().getModifiers();
             if (modifiers == null) {
-                ByteBufUtils.writeVarInt(buf, 0);
+                ByteBufUtils.writeVarInt(buffer, 0);
             } else {
-                ByteBufUtils.writeVarInt(buf, modifiers.size());
+                ByteBufUtils.writeVarInt(buffer, modifiers.size());
                 for (AttributeModifier modifier : modifiers) {
-                    GlowBufUtils.writeUuid(buf, modifier.getUniqueId());
-                    buf.writeDouble(modifier.getAmount());
-                    buf.writeByte(modifier.getOperation().ordinal());
+                    GlowBufUtils.writeUuid(buffer, modifier.getUniqueId());
+                    buffer.writeDouble(modifier.getAmount());
+                    buffer.writeByte(modifier.getOperation().ordinal());
                 }
             }
         }
 
-        return buf;
+        return buffer;
     }
 }

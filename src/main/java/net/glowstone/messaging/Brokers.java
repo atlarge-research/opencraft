@@ -8,15 +8,12 @@ import javax.jms.JMSException;
 import net.glowstone.messaging.brokers.ChannelFactory;
 import net.glowstone.messaging.brokers.ConcurrentBroker;
 import net.glowstone.messaging.brokers.JmsBroker;
-import net.glowstone.messaging.brokers.JmsCodec;
 import net.glowstone.messaging.brokers.ReadWriteBroker;
-import net.glowstone.messaging.brokers.codecs.ProtocolCodec;
+import net.glowstone.messaging.brokers.codecs.CompositeCodec;
 import net.glowstone.messaging.channels.ConcurrentChannel;
 import net.glowstone.messaging.channels.GuavaChannel;
 import net.glowstone.messaging.channels.ReadWriteChannel;
 import net.glowstone.messaging.channels.UnsafeChannel;
-import net.glowstone.net.protocol.GlowProtocol;
-import net.glowstone.net.protocol.PlayProtocol;
 import net.glowstone.util.config.BrokerConfig;
 import net.glowstone.util.config.ChannelConfig;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -30,12 +27,11 @@ public final class Brokers {
      * Create a broker based on the given configuration.
      *
      * @param config the configuration to be used.
-     * @param <T> the type of topics that is allowed to identify channels.
-     * @param <S> the type of subscribers that is allowed to subscribe to a channel.
-     * @param <M> the type of messages that is allowed to be published to a channel.
+     * @param <Topic> the type of topics that is allowed to identify channels.
+     * @param <Subscriber> the type of subscribers that is allowed to subscribe to a channel.
      * @return the created broker.
      */
-    public static <T, S, M extends Message> Broker<T, S, M> newBroker(BrokerConfig config) {
+    public static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newBroker(BrokerConfig config) {
         String type = config.getType();
         switch (type.toLowerCase()) {
 
@@ -56,17 +52,17 @@ public final class Brokers {
         }
     }
 
-    private static <T, S, M> Broker<T, S, M> newConcurrentBroker(ChannelConfig config) {
-        ChannelFactory<S, M> factory = newChannelFactory(config);
+    private static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newConcurrentBroker(ChannelConfig config) {
+        ChannelFactory<Subscriber, Message> factory = newChannelFactory(config);
         return new ConcurrentBroker<>(factory);
     }
 
-    private static <T, S, M> Broker<T, S, M> newReadWriteBroker(ChannelConfig config) {
-        ChannelFactory<S, M> factory = newChannelFactory(config);
+    private static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newReadWriteBroker(ChannelConfig config) {
+        ChannelFactory<Subscriber, Message> factory = newChannelFactory(config);
         return new ReadWriteBroker<>(factory);
     }
 
-    private static <S, M> ChannelFactory<S, M> newChannelFactory(ChannelConfig config) {
+    private static <Subscriber> ChannelFactory<Subscriber, Message> newChannelFactory(ChannelConfig config) {
         String type = config.getType();
         switch (type.toLowerCase()) {
 
@@ -88,7 +84,7 @@ public final class Brokers {
         }
     }
 
-    private static <T, S, M extends Message> Broker<T, S, M> newActivemqBroker(BrokerConfig config) {
+    private static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newActivemqBroker(BrokerConfig config) {
         try {
             String url = "tcp://" + config.getHost() + ":" + config.getPort();
             ConnectionFactory factory = new ActiveMQConnectionFactory(url);
@@ -99,7 +95,7 @@ public final class Brokers {
         }
     }
 
-    private static <T, S, M extends Message> Broker<T, S, M> newRabbitmqBroker(BrokerConfig config) {
+    private static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newRabbitmqBroker(BrokerConfig config) {
         try {
             RMQConnectionFactory factory = new RMQConnectionFactory();
             factory.setHost(config.getHost());
@@ -112,10 +108,9 @@ public final class Brokers {
         }
     }
 
-    private static <T, S, M extends Message> Broker<T, S, M> newJmsBroker(Connection connection) {
+    private static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newJmsBroker(Connection connection) {
         try {
-            GlowProtocol protocol = new PlayProtocol();
-            JmsCodec<M> codec = new ProtocolCodec<>(protocol);
+            CompositeCodec codec = new CompositeCodec();
             return new JmsBroker<>(connection, codec);
         } catch (JMSException e) {
             throw new RuntimeException(e);

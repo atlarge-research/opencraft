@@ -11,18 +11,18 @@ import org.bukkit.inventory.ItemStack;
 public final class EntityEquipmentCodec implements Codec<EntityEquipmentMessage> {
 
     @Override
-    public EntityEquipmentMessage decode(ByteBuf buf) throws IOException {
-        int id = ByteBufUtils.readVarInt(buf);
-        int slot = ByteBufUtils.readVarInt(buf);
-        ItemStack stack = GlowBufUtils.readSlot(buf);
+    public EntityEquipmentMessage decode(ByteBuf buffer) throws IOException {
+        int id = ByteBufUtils.readVarInt(buffer);
+        int slot = ByteBufUtils.readVarInt(buffer);
+        ItemStack stack = GlowBufUtils.readSlot(buffer);
         return new EntityEquipmentMessage(id, slot, stack);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, EntityEquipmentMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getId());
-        ByteBufUtils.writeVarInt(buf, message.getSlot());
-        GlowBufUtils.writeSlot(buf, message.getStack());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, EntityEquipmentMessage message) {
+        ByteBufUtils.writeVarInt(buffer, message.getId());
+        ByteBufUtils.writeVarInt(buffer, message.getSlot());
+        GlowBufUtils.writeSlot(buffer, message.getStack());
+        return buffer;
     }
 }

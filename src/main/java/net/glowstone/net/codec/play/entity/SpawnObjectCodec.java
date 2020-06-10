@@ -11,36 +11,36 @@ import net.glowstone.net.message.play.entity.SpawnObjectMessage;
 public final class SpawnObjectCodec implements Codec<SpawnObjectMessage> {
 
     @Override
-    public SpawnObjectMessage decode(ByteBuf buf) throws IOException {
-        int id = ByteBufUtils.readVarInt(buf);
-        UUID uuid = GlowBufUtils.readUuid(buf);
-        int type = buf.readByte();
-        double x = buf.readDouble();
-        double y = buf.readDouble();
-        double z = buf.readDouble();
-        int pitch = buf.readByte();
-        int yaw = buf.readByte();
-        int data = buf.readInt();
-        int velX = buf.readShort();
-        int velY = buf.readShort();
-        int velZ = buf.readShort();
+    public SpawnObjectMessage decode(ByteBuf buffer) throws IOException {
+        int id = ByteBufUtils.readVarInt(buffer);
+        UUID uuid = GlowBufUtils.readUuid(buffer);
+        int type = buffer.readByte();
+        double x = buffer.readDouble();
+        double y = buffer.readDouble();
+        double z = buffer.readDouble();
+        int pitch = buffer.readByte();
+        int yaw = buffer.readByte();
+        int data = buffer.readInt();
+        int velX = buffer.readShort();
+        int velY = buffer.readShort();
+        int velZ = buffer.readShort();
         return new SpawnObjectMessage(id, uuid, type, x, y, z, pitch, yaw, data, velX, velY, velZ);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, SpawnObjectMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getId());
-        GlowBufUtils.writeUuid(buf, message.getUuid());
-        buf.writeByte(message.getType());
-        buf.writeDouble(message.getX());
-        buf.writeDouble(message.getY());
-        buf.writeDouble(message.getZ());
-        buf.writeByte(message.getPitch());
-        buf.writeByte(message.getYaw());
-        buf.writeInt(message.getData());
-        buf.writeShort(message.getVelX());
-        buf.writeShort(message.getVelY());
-        buf.writeShort(message.getVelZ());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, SpawnObjectMessage message) {
+        ByteBufUtils.writeVarInt(buffer, message.getId());
+        GlowBufUtils.writeUuid(buffer, message.getUuid());
+        buffer.writeByte(message.getType());
+        buffer.writeDouble(message.getX());
+        buffer.writeDouble(message.getY());
+        buffer.writeDouble(message.getZ());
+        buffer.writeByte(message.getPitch());
+        buffer.writeByte(message.getYaw());
+        buffer.writeInt(message.getData());
+        buffer.writeShort(message.getVelX());
+        buffer.writeShort(message.getVelY());
+        buffer.writeShort(message.getVelZ());
+        return buffer;
     }
 }

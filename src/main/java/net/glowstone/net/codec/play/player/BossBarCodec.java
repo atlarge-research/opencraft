@@ -3,6 +3,7 @@ package net.glowstone.net.codec.play.player;
 import com.flowpowered.network.Codec;
 import com.flowpowered.network.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.DecoderException;
 import java.io.IOException;
 import java.util.UUID;
 import net.glowstone.net.GlowBufUtils;
@@ -16,6 +17,7 @@ public class BossBarCodec implements Codec<BossBarMessage> {
 
     @Override
     public BossBarMessage decode(ByteBuf buffer) throws IOException {
+
         UUID uuid = GlowBufUtils.readUuid(buffer);
         Action action = Action.fromInt(ByteBufUtils.readVarInt(buffer));
 
@@ -43,42 +45,41 @@ public class BossBarCodec implements Codec<BossBarMessage> {
                 flags = buffer.readByte();
                 return new BossBarMessage(uuid, action, flags);
             default:
-                //INFO: This return is dead code. We would NPE before on the action line.
-                return null;
+                throw new DecoderException("Unsupported action: " + action);
         }
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, BossBarMessage message) throws IOException {
-        GlowBufUtils.writeUuid(buf, message.getUuid());
-        ByteBufUtils.writeVarInt(buf, message.getAction().ordinal());
+    public ByteBuf encode(ByteBuf buffer, BossBarMessage message) throws IOException {
+
+        GlowBufUtils.writeUuid(buffer, message.getUuid());
+        ByteBufUtils.writeVarInt(buffer, message.getAction().ordinal());
 
         switch (message.getAction()) {
             case ADD:
-                GlowBufUtils.writeChat(buf, message.getTitle());
-                buf.writeFloat(message.getHealth());
-                ByteBufUtils.writeVarInt(buf, message.getColor().ordinal());
-                ByteBufUtils.writeVarInt(buf, message.getDivision().ordinal());
-                buf.writeByte(message.getFlags());
+                GlowBufUtils.writeChat(buffer, message.getTitle());
+                buffer.writeFloat(message.getHealth());
+                ByteBufUtils.writeVarInt(buffer, message.getColor().ordinal());
+                ByteBufUtils.writeVarInt(buffer, message.getDivision().ordinal());
+                buffer.writeByte(message.getFlags());
                 break;
             case UPDATE_HEALTH:
-                buf.writeFloat(message.getHealth());
+                buffer.writeFloat(message.getHealth());
                 break;
             case UPDATE_TITLE:
-                GlowBufUtils.writeChat(buf, message.getTitle());
+                GlowBufUtils.writeChat(buffer, message.getTitle());
                 break;
             case UPDATE_STYLE:
-                ByteBufUtils.writeVarInt(buf, message.getColor().ordinal());
-                ByteBufUtils.writeVarInt(buf, message.getDivision().ordinal());
+                ByteBufUtils.writeVarInt(buffer, message.getColor().ordinal());
+                ByteBufUtils.writeVarInt(buffer, message.getDivision().ordinal());
                 break;
             case UPDATE_FLAGS:
-                buf.writeByte(message.getFlags());
+                buffer.writeByte(message.getFlags());
                 break;
             default:
                 // do nothing
-                // TODO: should this raise a warning?
         }
-        return buf;
+        return buffer;
     }
 
 

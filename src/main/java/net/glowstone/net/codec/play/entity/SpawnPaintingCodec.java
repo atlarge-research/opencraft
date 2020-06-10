@@ -12,23 +12,30 @@ import org.bukkit.util.BlockVector;
 public final class SpawnPaintingCodec implements Codec<SpawnPaintingMessage> {
 
     @Override
-    public SpawnPaintingMessage decode(ByteBuf buf) throws IOException {
-        int id = ByteBufUtils.readVarInt(buf);
-        UUID uuid = GlowBufUtils.readUuid(buf);
-        String title = ByteBufUtils.readUTF8(buf);
-        BlockVector vector = GlowBufUtils.readBlockPosition(buf);
-        int facing = buf.readByte();
-        return new SpawnPaintingMessage(id, uuid, title, vector.getBlockX(), vector.getBlockY(),
-            vector.getBlockZ(), facing);
+    public SpawnPaintingMessage decode(ByteBuf buffer) throws IOException {
+        int id = ByteBufUtils.readVarInt(buffer);
+        UUID uuid = GlowBufUtils.readUuid(buffer);
+        String title = ByteBufUtils.readUTF8(buffer);
+        BlockVector vector = GlowBufUtils.readBlockPosition(buffer);
+        int facing = buffer.readByte();
+        return new SpawnPaintingMessage(
+                id,
+                uuid,
+                title,
+                vector.getBlockX(),
+                vector.getBlockY(),
+                vector.getBlockZ(),
+                facing
+        );
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, SpawnPaintingMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getId());
-        GlowBufUtils.writeUuid(buf, message.getUniqueId());
-        ByteBufUtils.writeUTF8(buf, message.getTitle());
-        GlowBufUtils.writeBlockPosition(buf, message.getX(), message.getY(), message.getZ());
-        buf.writeByte(message.getFacing());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, SpawnPaintingMessage message) throws IOException {
+        ByteBufUtils.writeVarInt(buffer, message.getId());
+        GlowBufUtils.writeUuid(buffer, message.getUniqueId());
+        ByteBufUtils.writeUTF8(buffer, message.getTitle());
+        GlowBufUtils.writeBlockPosition(buffer, message.getX(), message.getY(), message.getZ());
+        buffer.writeByte(message.getFacing());
+        return buffer;
     }
 }

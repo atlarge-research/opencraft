@@ -21,14 +21,14 @@ public final class PositionRotationCodec implements Codec<PositionRotationMessag
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, PositionRotationMessage message) throws IOException {
-        buf.writeDouble(message.getX());
-        buf.writeDouble(message.getY());
-        buf.writeDouble(message.getZ());
-        buf.writeFloat(message.getRotation());
-        buf.writeFloat(message.getPitch());
-        buf.writeByte(message.getFlags());
-        ByteBufUtils.writeVarInt(buf, message.getTeleportId());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, PositionRotationMessage message) {
+        buffer.writeDouble(message.getX());
+        buffer.writeDouble(message.getY());
+        buffer.writeDouble(message.getZ());
+        buffer.writeFloat(message.getRotation());
+        buffer.writeFloat(message.getPitch());
+        buffer.writeByte(message.getFlags());
+        ByteBufUtils.writeVarInt(buffer, message.getTeleportId());
+        return buffer;
     }
 }

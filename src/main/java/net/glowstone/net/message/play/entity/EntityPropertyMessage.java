@@ -10,4 +10,5 @@ public final class EntityPropertyMessage implements Message {
 
     private final int id;
     private final Map<String, Property> properties;
+
 }

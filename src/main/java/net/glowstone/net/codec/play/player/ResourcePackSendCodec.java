@@ -16,9 +16,9 @@ public final class ResourcePackSendCodec implements Codec<ResourcePackSendMessag
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, ResourcePackSendMessage message) throws IOException {
-        ByteBufUtils.writeUTF8(buf, message.getUrl());
-        ByteBufUtils.writeUTF8(buf, message.getHash());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, ResourcePackSendMessage message) throws IOException {
+        ByteBufUtils.writeUTF8(buffer, message.getUrl());
+        ByteBufUtils.writeUTF8(buffer, message.getHash());
+        return buffer;
     }
 }

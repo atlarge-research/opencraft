@@ -9,19 +9,17 @@ import net.glowstone.net.message.play.game.PluginMessage;
 public final class PluginMessageCodec implements Codec<PluginMessage> {
 
     @Override
-    public PluginMessage decode(ByteBuf buf) throws IOException {
-        String channel = ByteBufUtils.readUTF8(buf);
-
-        // todo: maybe store a ByteBuf in the message instead?
-        byte[] data = new byte[buf.readableBytes()];
-        buf.readBytes(data);
+    public PluginMessage decode(ByteBuf buffer) throws IOException {
+        String channel = ByteBufUtils.readUTF8(buffer);
+        byte[] data = new byte[buffer.readableBytes()];
+        buffer.readBytes(data);
         return new PluginMessage(channel, data);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, PluginMessage message) throws IOException {
-        ByteBufUtils.writeUTF8(buf, message.getChannel());
-        buf.writeBytes(message.getData());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, PluginMessage message) throws IOException {
+        ByteBufUtils.writeUTF8(buffer, message.getChannel());
+        buffer.writeBytes(message.getData());
+        return buffer;
     }
 }

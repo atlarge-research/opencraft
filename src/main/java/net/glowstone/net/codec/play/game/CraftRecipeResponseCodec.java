@@ -9,16 +9,16 @@ import net.glowstone.net.message.play.game.CraftRecipeResponseMessage;
 public final class CraftRecipeResponseCodec implements Codec<CraftRecipeResponseMessage> {
 
     @Override
-    public CraftRecipeResponseMessage decode(ByteBuf buf) throws IOException {
-        int windowId = buf.readByte();
-        int recipeId = ByteBufUtils.readVarInt(buf);
+    public CraftRecipeResponseMessage decode(ByteBuf buffer) throws IOException {
+        int windowId = buffer.readByte();
+        int recipeId = ByteBufUtils.readVarInt(buffer);
         return new CraftRecipeResponseMessage(windowId, recipeId);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, CraftRecipeResponseMessage message) throws IOException {
-        buf.writeByte(message.getWindowId());
-        ByteBufUtils.writeVarInt(buf, message.getRecipeId());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, CraftRecipeResponseMessage message) {
+        buffer.writeByte(message.getWindowId());
+        ByteBufUtils.writeVarInt(buffer, message.getRecipeId());
+        return buffer;
     }
 }

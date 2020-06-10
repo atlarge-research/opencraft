@@ -10,6 +10,7 @@ public final class EncryptionKeyRequestCodec implements Codec<EncryptionKeyReque
 
     @Override
     public EncryptionKeyRequestMessage decode(ByteBuf buffer) throws IOException {
+
         String sessionId = ByteBufUtils.readUTF8(buffer);
 
         byte[] publicKey = new byte[ByteBufUtils.readVarInt(buffer)];
@@ -22,14 +23,16 @@ public final class EncryptionKeyRequestCodec implements Codec<EncryptionKeyReque
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, EncryptionKeyRequestMessage message) throws IOException {
-        ByteBufUtils.writeUTF8(buf, message.getSessionId());
+    public ByteBuf encode(ByteBuf buffer, EncryptionKeyRequestMessage message) throws IOException {
 
-        ByteBufUtils.writeVarInt(buf, message.getPublicKey().length);
-        buf.writeBytes(message.getPublicKey());
+        ByteBufUtils.writeUTF8(buffer, message.getSessionId());
 
-        ByteBufUtils.writeVarInt(buf, message.getVerifyToken().length);
-        buf.writeBytes(message.getVerifyToken());
-        return buf;
+        ByteBufUtils.writeVarInt(buffer, message.getPublicKey().length);
+        buffer.writeBytes(message.getPublicKey());
+
+        ByteBufUtils.writeVarInt(buffer, message.getVerifyToken().length);
+        buffer.writeBytes(message.getVerifyToken());
+
+        return buffer;
     }
 }

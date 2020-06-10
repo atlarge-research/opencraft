@@ -10,16 +10,16 @@ import net.glowstone.util.TextMessage;
 public final class ChatCodec implements Codec<ChatMessage> {
 
     @Override
-    public ChatMessage decode(ByteBuf buf) throws IOException {
-        TextMessage message = GlowBufUtils.readChat(buf);
-        int mode = buf.readByte();
+    public ChatMessage decode(ByteBuf buffer) throws IOException {
+        TextMessage message = GlowBufUtils.readChat(buffer);
+        int mode = buffer.readByte();
         return new ChatMessage(message, mode);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, ChatMessage message) throws IOException {
-        GlowBufUtils.writeChat(buf, message.getText());
-        buf.writeByte(message.getMode());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, ChatMessage message) throws IOException {
+        GlowBufUtils.writeChat(buffer, message.getText());
+        buffer.writeByte(message.getMode());
+        return buffer;
     }
 }

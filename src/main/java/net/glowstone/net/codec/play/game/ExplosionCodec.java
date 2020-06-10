@@ -2,8 +2,8 @@ package net.glowstone.net.codec.play.game;
 
 import com.flowpowered.network.Codec;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.DecoderException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import net.glowstone.net.message.play.game.ExplosionMessage;
 import net.glowstone.net.message.play.game.ExplosionMessage.Record;
@@ -12,28 +12,49 @@ public class ExplosionCodec implements Codec<ExplosionMessage> {
 
     @Override
     public ExplosionMessage decode(ByteBuf buffer) throws IOException {
-        throw new DecoderException("Cannot decode ExplosionMessage");
+
+        float x = buffer.readFloat();
+        float y = buffer.readFloat();
+        float z = buffer.readFloat();
+        float radius = buffer.readFloat();
+
+        int size = buffer.readInt();
+        Collection<Record> records = new ArrayList<>(size);
+        for (int index = 0; index < size; index++) {
+            byte recordX = buffer.readByte();
+            byte recordY = buffer.readByte();
+            byte recordZ = buffer.readByte();
+            Record record = new Record(recordX, recordY, recordZ);
+            records.add(record);
+        }
+
+        float playerMotionX = buffer.readFloat();
+        float playerMotionY = buffer.readFloat();
+        float playerMotionZ = buffer.readFloat();
+
+        return new ExplosionMessage(x, y, z, radius, playerMotionX, playerMotionY, playerMotionZ, records);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, ExplosionMessage message) throws IOException {
-        buf.writeFloat(message.getX());
-        buf.writeFloat(message.getY());
-        buf.writeFloat(message.getZ());
-        buf.writeFloat(message.getRadius());
+    public ByteBuf encode(ByteBuf buffer, ExplosionMessage message) throws IOException {
+
+        buffer.writeFloat(message.getX());
+        buffer.writeFloat(message.getY());
+        buffer.writeFloat(message.getZ());
+        buffer.writeFloat(message.getRadius());
 
         Collection<Record> records = message.getRecords();
-        buf.writeInt(records.size());
+        buffer.writeInt(records.size());
         for (Record record : records) {
-            buf.writeByte(record.getX());
-            buf.writeByte(record.getY());
-            buf.writeByte(record.getZ());
+            buffer.writeByte(record.getX());
+            buffer.writeByte(record.getY());
+            buffer.writeByte(record.getZ());
         }
 
-        buf.writeFloat(message.getPlayerMotionX());
-        buf.writeFloat(message.getPlayerMotionY());
-        buf.writeFloat(message.getPlayerMotionZ());
+        buffer.writeFloat(message.getPlayerMotionX());
+        buffer.writeFloat(message.getPlayerMotionY());
+        buffer.writeFloat(message.getPlayerMotionZ());
 
-        return buf;
+        return buffer;
     }
 }

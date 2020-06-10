@@ -22,14 +22,14 @@ public final class JoinGameCodec implements Codec<JoinGameMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, JoinGameMessage message) throws IOException {
-        buf.writeInt(message.getId());
-        buf.writeByte(message.getMode());
-        buf.writeInt(message.getDimension());
-        buf.writeByte(message.getDifficulty());
-        buf.writeByte(message.getMaxPlayers());
-        ByteBufUtils.writeUTF8(buf, message.getLevelType());
-        buf.writeBoolean(message.isReducedDebugInfo());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, JoinGameMessage message) throws IOException {
+        buffer.writeInt(message.getId());
+        buffer.writeByte(message.getMode());
+        buffer.writeInt(message.getDimension());
+        buffer.writeByte(message.getDifficulty());
+        buffer.writeByte(message.getMaxPlayers());
+        ByteBufUtils.writeUTF8(buffer, message.getLevelType());
+        buffer.writeBoolean(message.isReducedDebugInfo());
+        return buffer;
     }
 }
