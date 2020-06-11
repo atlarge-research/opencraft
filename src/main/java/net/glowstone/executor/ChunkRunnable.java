@@ -6,7 +6,9 @@ import net.glowstone.GlowWorld;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.net.GlowSession;
+import net.glowstone.util.AreaOfInterest;
 import net.glowstone.util.Coordinates;
+import org.bukkit.Server;
 import org.bukkit.World;
 
 /**
@@ -51,14 +53,31 @@ public final class ChunkRunnable extends PriorityRunnable {
     }
 
     /**
+     * Check whether the chunk runnable should be cancelled. The decision is made based on the distance between the
+     * server's view distance, the player's view distance and position, and the chunk's position.
+     *
+     * @return whether the runnable should be cancelled.
+     */
+    public boolean shouldBeCancelled() {
+
+        Server server = player.getServer();
+        AreaOfInterest area = player.getAreaOfInterest();
+        int radius = area.getRadius(server.getViewDistance());
+
+        return player.getWorld() != chunk.getWorld()
+                || Math.abs(area.getCenterX() - chunk.getX()) > radius
+                || Math.abs(area.getCenterZ() - chunk.getZ()) > radius;
+    }
+
+    /**
      * Update the priority of the ChunkRunnable. This is computed by calculating the distance between the center of the
      * chunk the player.
      */
     @Override
     public void updatePriority() {
         Coordinates chunkCenter = chunk.getCenterCoordinates();
-        Coordinates playerCoords = player.getCoordinates();
-        double squaredDistance = chunkCenter.squaredDistance(playerCoords);
+        Coordinates playerCoordinates = player.getCoordinates();
+        double squaredDistance = chunkCenter.squaredDistance(playerCoordinates);
         setPriority(squaredDistance);
     }
 

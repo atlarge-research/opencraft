@@ -23,10 +23,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
@@ -78,7 +76,6 @@ import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
 import net.glowstone.util.AreaOfInterest;
 import net.glowstone.util.BlockStateDelegate;
-import net.glowstone.util.Coordinates;
 import net.glowstone.util.GameRuleManager;
 import net.glowstone.util.RayUtil;
 import net.glowstone.util.TickUtil;
@@ -606,6 +603,8 @@ public class GlowWorld implements World {
         Set<GlowPlayer> previousPlayers = previousAreas.keySet();
         Sets.SetView<GlowPlayer> allPlayers = Sets.union(currentPlayers, previousPlayers);
 
+        // TODO: Reduce re-subscription of players.
+
         // Update the messaging system
         allPlayers.forEach(player -> {
             Session session = player.getSession();
@@ -613,100 +612,104 @@ public class GlowWorld implements World {
         });
 
         // Find chunks to load
-        Collection<ChunkRunnable> chunksToLoad = allPlayers.parallelStream()
+        List<ChunkRunnable> chunksToLoad = allPlayers.parallelStream()
                 .flatMap(player -> {
                     AreaOfInterest current = currentAreas.get(player);
                     AreaOfInterest previous = previousAreas.get(player);
-                    return streamChunksToLoad(current, previous)
+                    return getChunksToLoad(current, previous).stream()
                             .map(chunk -> new ChunkRunnable(player, chunk));
                 })
                 .collect(Collectors.toList());
+
+        // Enqueue chunks for loading
+        Set<ChunkRunnable> cancelled = executor.executeAndCancel(chunksToLoad, ChunkRunnable::shouldBeCancelled);
 
         // Find chunks to unload
         Stream<ChunkRunnable> chunksToUnload = allPlayers.parallelStream()
                 .flatMap(player -> {
                     AreaOfInterest current = currentAreas.get(player);
                     AreaOfInterest previous = previousAreas.get(player);
-                    return streamChunksToUnload(current, previous)
+                    return getChunksToUnload(current, previous).stream()
                             .map(chunk -> new ChunkRunnable(player, chunk));
-                });
-
-        // Enqueue chunks for loading
-        Set<ChunkRunnable> cancelled = executor.executeAndCancel(chunksToLoad, this::shouldBeUnloaded);
+                })
+                .filter(chunk -> !cancelled.contains(chunk));
 
         // Unload chunks that have not been cancelled
-        unloadChunks(chunksToUnload, cancelled);
+        unloadChunks(chunksToUnload);
 
         // Update the previous areas of interest
         previousAreas = currentAreas;
     }
 
     /**
-     * Stream chunks that are in the current area of interest, but not in the previous.
+     * List chunks that are in the current area of interest, but not in the previous.
      *
      * @param current the current area of interest.
      * @param previous the previous area of interest.
-     * @return the stream of chunks.
+     * @return the list of chunks.
      */
-    private Stream<GlowChunk> streamChunksToLoad(AreaOfInterest current, AreaOfInterest previous) {
-        return streamDifference(current, previous);
+    private List<GlowChunk> getChunksToLoad(AreaOfInterest current, AreaOfInterest previous) {
+        return getDifference(current, previous);
     }
 
     /**
-     * Stream chunks that are in the previous area of interest, but not in the current.
+     * Find chunks that are in the previous area of interest, but not in the current.
      *
      * @param current the current area of interest.
      * @param previous the previous area of interest.
-     * @return the stream of chunks.
+     * @return the list of chunks.
      */
-    private Stream<GlowChunk> streamChunksToUnload(AreaOfInterest current, AreaOfInterest previous) {
-        return streamDifference(previous, current);
+    private List<GlowChunk> getChunksToUnload(AreaOfInterest current, AreaOfInterest previous) {
+        return getDifference(previous, current);
     }
 
     /**
-     * Stream the chunks that are in the first area of interest, but not in the second.
+     * Find the chunks that are in the first area of interest, but not in the second.
      *
      * @param first the first area of interest.
      * @param second the second area of interest.
-     * @return the stream of chunks.
+     * @return the list of chunks.
      */
-    private Stream<GlowChunk> streamDifference(AreaOfInterest first, AreaOfInterest second) {
+    private List<GlowChunk> getDifference(AreaOfInterest first, AreaOfInterest second) {
 
-        if (first == null) {
-            return Stream.empty();
-        }
-
-        if (second == null) {
-            return streamArea(first);
+        if (first == null || first.equals(second)) {
+            return new ArrayList<>();
         }
 
         int limit = server.getViewDistance();
-        return streamArea(first).filter(chunk -> !second.contains(chunk, limit));
-    }
 
-    /**
-     * Stream the chunks in the given area.
-     *
-     * @param areaOfInterest the area of interest.
-     * @return the stream of chunks.
-     */
-    private Stream<GlowChunk> streamArea(AreaOfInterest areaOfInterest) {
-        int centerX = areaOfInterest.getCenterX();
-        int centerZ = areaOfInterest.getCenterZ();
-        int limit = server.getViewDistance();
-        int radius = areaOfInterest.getRadius(limit);
-        return streamRange(centerX, radius).flatMap(x -> streamRange(centerZ, radius).map(z -> getChunkAt(x, z)));
-    }
+        int cx1 = first.getCenterX();
+        int cz1 = first.getCenterZ();
+        int r1 = first.getRadius(limit);
 
-    /**
-     * Stream the integers within the radius of the given center.
-     *
-     * @param center the center value.
-     * @param radius the radius value.
-     * @return a stream of integers.
-     */
-    private Stream<Integer> streamRange(int center, int radius) {
-        return IntStream.rangeClosed(center - radius, center + radius).boxed();
+        if (second == null || first.getWorld() != second.getWorld()) {
+            int count = (2 * r1 + 1) * (2 * r1 + 1);
+            List<GlowChunk> chunks = new ArrayList<>(count);
+            for (int x = cx1 - r1; x <= cx1 + r1; x++) {
+                for (int z = cz1 - r1; z <= cz1 + r1; z++) {
+                    GlowChunk chunk = getChunkAt(x, z);
+                    chunks.add(chunk);
+                }
+            }
+            return chunks;
+        }
+
+        int cx2 = second.getCenterX();
+        int cz2 = second.getCenterZ();
+        int r2 = second.getRadius(limit);
+
+        // TODO: Optimize the following loop. Could we store a cached list of chunks in the AreaOfInterest?
+
+        List<GlowChunk> chunks = new ArrayList<>();
+        for (int x = cx1 - r1; x <= cx1 + r1; x++) {
+            for (int z = cz1 - r1; z <= cz1 + r1; z++) {
+                if (Math.abs(x - cx2) >= r2 || Math.abs(z - cz2) >= r2) {
+                    GlowChunk chunk = getChunkAt(x, z);
+                    chunks.add(chunk);
+                }
+            }
+        }
+        return chunks;
     }
 
     /**
@@ -714,37 +717,19 @@ public class GlowWorld implements World {
      * were never streamed to the player.
      *
      * @param toUnload The chunks to be unloaded.
-     * @param cancelled The chunks that have been cancelled.
      */
-    private void unloadChunks(Stream<ChunkRunnable> toUnload, Set<ChunkRunnable> cancelled) {
-        toUnload.filter(runnable -> !cancelled.contains(runnable))
-                .forEach(runnable -> {
+    private void unloadChunks(Stream<ChunkRunnable> toUnload) {
+        toUnload.forEach(runnable -> {
 
-                    GlowPlayer player = runnable.getPlayer();
-                    GlowChunk chunk = runnable.getChunk();
+            GlowPlayer player = runnable.getPlayer();
+            GlowChunk chunk = runnable.getChunk();
 
-                    Message message = new UnloadChunkMessage(chunk.getX(), chunk.getZ());
-                    player.getSession().send(message);
+            Message message = new UnloadChunkMessage(chunk.getX(), chunk.getZ());
+            player.getSession().send(message);
 
-                    GlowChunk.Key key = GlowChunk.Key.of(chunk.getX(), chunk.getZ());
-                    player.getChunkLock().release(key);
-                });
-    }
-
-    /**
-     * Check whether the runnable should be removed from the queue.
-     *
-     * @param runnable the runnable to be checked.
-     * @return whether the runnable should be removed.
-     */
-    private boolean shouldBeUnloaded(ChunkRunnable runnable) {
-
-        GlowPlayer player = runnable.getPlayer();
-        GlowChunk chunk = runnable.getChunk();
-
-        AreaOfInterest area = player.getAreaOfInterest();
-        int limit = server.getViewDistance();
-        return area.contains(chunk, limit);
+            GlowChunk.Key key = GlowChunk.Key.of(chunk.getX(), chunk.getZ());
+            player.getChunkLock().release(key);
+        });
     }
 
     /**

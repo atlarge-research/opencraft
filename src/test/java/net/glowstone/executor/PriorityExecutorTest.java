@@ -74,7 +74,7 @@ class PriorityExecutorTest {
         assertTrue(notCancelled.isEmpty());
 
         Collection<TestPriorityRunnable> cancelled =
-                executor.executeAndCancel(Collections.singleton(toBeExecuted), runnable -> runnable == toBeCancelled);
+                executor.executeAndCancel(Collections.singletonList(toBeExecuted), runnable -> runnable == toBeCancelled);
 
         latch.countDown();
 

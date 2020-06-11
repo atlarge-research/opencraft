@@ -3,6 +3,7 @@ package net.glowstone.executor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -49,7 +50,7 @@ public final class PriorityExecutor<GenericPriorityRunnable extends PriorityRunn
      * @return the removed runnables.
      */
     public Set<GenericPriorityRunnable> executeAndCancel(
-            Collection<GenericPriorityRunnable> toExecute,
+            List<GenericPriorityRunnable> toExecute,
             Predicate<GenericPriorityRunnable> predicate
     ) {
         Set<GenericPriorityRunnable> cancelled = new HashSet<>();

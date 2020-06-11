@@ -39,7 +39,7 @@ public final class AreaOfInterest {
     }
 
     public int getRadius(int limit) {
-        return Math.min(viewDistance, limit);
+        return Math.min(viewDistance + 1, limit);
     }
 
     public boolean contains(Chunk chunk, int limit) {
