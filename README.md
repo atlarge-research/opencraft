@@ -5,27 +5,31 @@ Opencraft is a fork of [Glowstone](https://atlarge.ewi.tudelft.nl/gitlab/opencra
 
 ![](https://atlarge.ewi.tudelft.nl/gitlab/opencraft/opencraft/badges/development/pipeline.svg)
 
-## Configuration and setup for the Opencraft messaging system
+# Configuration and setup for the Opencraft messaging system
 
 Opencraft allows you to configure the messaging system. The messaging system in Opencraft determines the way the communication occurs between the client and server. For instance, it determines to which clients each message needs to be sent and it determines how this communication takes place. The messaging systems consists of the following three core parts: a broker, policy and filter. These three parts can all be configured.
 
 The broker ensures that all subscribers that are interested in a specific topic receive all messages that are related to that topic. The policy decides which topics get created and who is subscribed to each topic. And the filter filters out messages to subscribers if they are not supposed to receive them. For instance, a client is not supposed to receive their own block break animation message, because it will result in visual glitches when breaking a block.
 
-### Broker configuration and setup
+## Broker configuration and setup
 
-The configuration options can be editted in the `opencraft.yml` file located in the `config` folder of the server. This section wil provide more information about how to configure each broker for Opencraft.
+The configuration options can be edited in the `opencraft.yml` file located in the `config` folder of the server. This section wil provide more information about how to configure each broker for Opencraft.
 
-#### ActiveMQ broker
+All the brokers for Opencraft fall into one of two categories. Java Message System (JMS) brokers and Channel brokers. The main difference between JMS brokers and Channel brokers is that the JMS brokers are run in a separate process, while the Channel brokers are run internally in the Opencraft server. See the following sections for more information about the different brokers.
+
+### JMS brokers
+
+As mentioned previously, the JMS brokers use and implement the [JMS API](https://www.oracle.com/technical-resources/articles/java/intro-java-message-service.html). The advantage of JMS is that only the underlying backend has to change and not the entire broker, whenever you want to use a different backend.
+
+The JMS brokers are run in a separate process. This even allows the brokers to be run on a different machine than the server. The main disadvantage of this approach is that there are extra serialization and deserialization steps required compared to the Channel brokers. The advantage of this approach is that the Opencraft server and the brokers can scale independently. For instance, both backends currently available for the JMS broker can scale over multiple machines.
+
+#### ActiveMQ
 
 The ActiveMQ broker uses [ActiveMQ](https://activemq.apache.org/) under the hood to manage the communication. ActiveMQ runs separately from the Opencraft server and thus needs to be setup separately.
 
-##### ActiveMQ Setup
+To setup ActiveMQ follow [these instructions](https://activemq.apache.org/getting-started) for ActiveMQ version 5.15. Once you have setup ActiveMQ you can start configuring it.
 
-To setup ActiveMQ follow [these instructions](https://activemq.apache.org/getting-started) for ActiveMQ version 5.15.
-
-##### ActiveMQ Configuration
-
-The broker has the following configuration options for ActiveMQ. These options can be editted in the `opencraft.yml` file located in the `config` folder of the server.
+The ActiveMQ broker has the following configuration options. These options can be edited in the `opencraft.yml` file located in the `config` folder of the server.
 
 ```yaml
 opencraft:
@@ -41,9 +45,7 @@ opencraft:
             parallelismThreshold: 4 # Irrelevant for ActiveMQ.
 ```
 
-#### RabbitMQ broker
-
-##### RabbitMQ Setup
+#### RabbitMQ
 
 To setup RabbitMQ follow [these instructions](https://www.rabbitmq.com/download.html) for RabbitMQ version 2.1. To run the RabbitMQ broker it is also required to install the `rabbitmq_jms_topic_exchange` plugin. This can be done using the following command:
 
@@ -51,9 +53,7 @@ To setup RabbitMQ follow [these instructions](https://www.rabbitmq.com/download.
 rabbitmq-plugins enable rabbitmq_jms_topic_exchange
 ```
 
-##### RabbitMQ Configuration
-
-The broker has the following configuration options for RabbitMQ.
+Once you have setup RabbitMQ, you can start configuring it. The RabbitMQ broker has the following configuration options.
 
 ```yaml
 opencraft:
@@ -70,7 +70,7 @@ opencraft:
 
 ```
 
-## Changing the Code
+# Changing the Code
 
 We use [git flow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow) to create and maintain a clean commit history.
 
@@ -90,7 +90,7 @@ git push -u origin <your-local-branch-name-here>
 
 Once that is completed a merge request can be created using the GitLab interface.
 
-## Updating Opencraft with Glowstone
+# Updating Opencraft with Glowstone
 
 When compiling for the first time, you'll likely need to pull new commits from Glowstone's repository. Merge this code into the `dev` branch without fast-forwarding. E.g.,
 
@@ -103,13 +103,13 @@ git merge --no-ff upstream/dev
 
 There is a reasonable chance that this results in conflicting files—Glowstone's developers may have edited the code were inspecting or monitoring. **Merge these conflicts carefully.** Our existing modifications can be crucial for somebody else's experiments. If you don't know what to do, contact one of the other Opencraft team-members.
 
-## Running Experiments
+# Running Experiments
 
 Presumably you are modifying the code to support your experiments. After modifying the code, you can build the project to create a JAR that includes all dependencies.
 
 After running the experiments, you **must** complete the steps listed here for reproducibility purposes:
 
-### Building the Code
+## Building the Code
 
 To build the code, simply run `make`.[^1] This creates two files:
 
@@ -124,7 +124,7 @@ The JAR file is the executable that you can use in your experiments.
 
 The `X` is simply an ever-increasing counter that prevents multiple builds on the same day from overwriting each other.
 
-## Allowing Others to Reproduce Your Experiments
+# Allowing Others to Reproduce Your Experiments
 
 1. From the commit you used to build the version of Glowstone used in your experiments, create a tag using `git tag -a YYYYMMDD-X -m "project-[your-project-name-here]"`.
 2. Push the tag to Gitlab using `git push origin YYYYMMDD-X`.
