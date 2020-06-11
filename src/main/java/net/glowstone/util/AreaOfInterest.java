@@ -1,9 +1,9 @@
 package net.glowstone.util;
 
 import java.util.Objects;
-import lombok.Getter;
-import lombok.Setter;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -12,12 +12,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class AreaOfInterest {
 
-    @Setter
-    private Location location;
-
-    @Getter
-    @Setter
-    private int viewDistance;
+    private final Location location;
+    private final int viewDistance;
 
     /**
      * Create an AreaOfInterest object.
@@ -30,13 +26,27 @@ public final class AreaOfInterest {
         this.viewDistance = viewDistance;
     }
 
-    /**
-     * Getter for the location.
-     *
-     * @return A clone of the location.
-     */
-    public Location getLocation() {
-        return location.clone();
+    public World getWorld() {
+        return location.getWorld();
+    }
+
+    public int getCenterX() {
+        return location.getBlockX() >> 4;
+    }
+
+    public int getCenterZ() {
+        return location.getBlockZ() >> 4;
+    }
+
+    public int getRadius(int limit) {
+        return Math.min(viewDistance, limit);
+    }
+
+    public boolean contains(Chunk chunk, int limit) {
+        int radius = getRadius(limit);
+        return chunk.getWorld() == getWorld()
+                && Math.abs(chunk.getX() - getCenterX()) <= radius
+                && Math.abs(chunk.getZ() - getCenterZ()) <= radius;
     }
 
     @Override

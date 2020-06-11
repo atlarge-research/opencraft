@@ -15,31 +15,6 @@ import org.junit.jupiter.api.Test;
 public class AreaOfInterestTest {
 
     /**
-     * Test that the location is cloned when getter is called.
-     */
-    @Test
-    void getLocationTest() {
-        Location location = new Location(null, 1, 1, 1);
-        AreaOfInterest areaOfInterest = new AreaOfInterest(location, 0);
-
-        Location cloneLocation = areaOfInterest.getLocation();
-        cloneLocation.setX(3);
-
-        assertNotEquals(location, cloneLocation);
-    }
-
-    /**
-     * Test the view distance is returned when the getter is called.
-     */
-    @Test
-    void getViewDistanceTest() {
-        Location location = new Location(null, 1, 1, 1);
-        AreaOfInterest areaOfInterest = new AreaOfInterest(location, 4);
-
-        assertEquals(4, areaOfInterest.getViewDistance());
-    }
-
-    /**
      * Test that equals works with a null location
      */
     @Test
