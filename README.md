@@ -7,7 +7,7 @@ Opencraft is a fork of [Glowstone](https://atlarge.ewi.tudelft.nl/gitlab/opencra
 
 # Configuration and setup for the Opencraft messaging system
 
-Opencraft allows you to configure the messaging system. The messaging system in Opencraft determines the way the communication occurs between the client and server. For instance, it determines to which clients each message needs to be sent and it determines how this communication takes place. The messaging systems consists of the following three core parts: a broker, policy and filter. These three parts can all be configured.
+Opencraft allows you to configure the messaging system. The messaging system in Opencraft determines the way the communication occurs between the client and server. For instance, it determines to which clients each message needs to be sent and it determines how this communication takes place. The messaging systems consists of the following three core parts: a broker, policy and filter. The first two parts can be configured.
 
 The broker ensures that all subscribers that are interested in a specific topic receive all messages that are related to that topic. The policy decides which topics get created and who is subscribed to each topic. And the filter filters out messages to subscribers if they are not supposed to receive them. For instance, a client is not supposed to receive their own block break animation message, because it will result in visual glitches when breaking a block.
 
@@ -16,7 +16,7 @@ Besides the Minecraft specific configuration options, there are also configurati
 ```yaml
 opencraft:
     collector: false # Determines whether to enable the yardstick collector. See https://atlarge.ewi.tudelft.nl/gitlab/opencraft/yardstick for more information.
-    policy: Chunk
+    policy: chunk
     broker:
         type: readwrite
         host: localhost
@@ -117,6 +117,14 @@ There are currently four types of channels:
 4. **UnsafeChannel:** This channel does not guarantee any thread-safety. In theory this should not be a problem, since all Channel brokers should not access the same channel at the same time. 
 
 Each of these brokers can be enabled by changing the `channel type` to respectively: `concurrent`, `guava`, `readwrite` or `unsafe`.
+
+## Policy configuration
+
+The policy of the messaging system determines for which topics channels are created and which subscribers are subscribed to a topic. Furthermore, it also determines which messages are sent to each topic.
+
+Currently, only the Chunk policy has been implemented. The policy interface is implemented in such a way that it is easy to create new policies in the future. The Chunk policy creates separate channels for each chunk. Each player subscribes to chunks that are within their view distance. Whenever an update occurs within a chunk, the update message will be sent to the channel of that chunk.
+
+The policy can be configured by changing the `policy` setting. Currently, it can only be set to `chunk`.
 
 # Changing the Code
 
