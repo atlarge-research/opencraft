@@ -82,7 +82,13 @@ git pull origin/dev
 git flow feature start
 ```
 
-Add code to your liking until it does what you need it to do. Then run `git flow feature finish` to merge these changes back into the `dev` branch.
+Once you have completed your feature, you can make a merge request to merge it into `dev`. If you have not yet pushed your branch to opencraft repository, you will have to do that now. You can do that by issuing the following git command:
+
+```bash
+git push -u origin <your-local-branch-name-here>
+```
+
+Once that is completed a merge request can be created using the GitLab interface.
 
 ## Updating Opencraft with Glowstone
 
