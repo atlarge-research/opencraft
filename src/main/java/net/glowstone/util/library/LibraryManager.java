@@ -31,6 +31,7 @@ import net.glowstone.util.config.ServerConfig;
  * Simple library manager which downloads external dependencies.
  */
 public final class LibraryManager {
+
     /**
      * The Maven repository to download from.
      */
@@ -258,10 +259,12 @@ public final class LibraryManager {
      * An enum containing the supported hash algorithms.
      */
     public enum HashAlgorithm {
+
         /**
          * The SHA-1 hash algorithm.
          */
         SHA1(Hashing.sha1(), "sha1"),
+
         /**
          * The MD5 hash algorithm.
          */
@@ -272,6 +275,7 @@ public final class LibraryManager {
          */
         @Getter
         private final HashFunction function;
+
         /**
          * The name of the algorithm, used in configuration files.
          */

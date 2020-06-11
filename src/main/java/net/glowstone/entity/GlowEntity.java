@@ -7,9 +7,10 @@ import com.flowpowered.network.Message;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -18,12 +19,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import net.glowstone.EventFactory;
 import net.glowstone.GlowServer;
 import net.glowstone.GlowWorld;
+import net.glowstone.block.GlowBlock;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.meta.MetadataIndex;
 import net.glowstone.entity.meta.MetadataIndex.StatusFlags;
@@ -32,10 +34,9 @@ import net.glowstone.entity.meta.MetadataMap.Entry;
 import net.glowstone.entity.objects.GlowItemFrame;
 import net.glowstone.entity.objects.GlowLeashHitch;
 import net.glowstone.entity.objects.GlowPainting;
+import net.glowstone.entity.physics.BlockBoundingBoxes;
 import net.glowstone.entity.physics.BoundingBox;
 import net.glowstone.entity.physics.EntityBoundingBox;
-import net.glowstone.net.GlowSession;
-import net.glowstone.net.message.play.entity.AttachEntityMessage;
 import net.glowstone.net.message.play.entity.EntityMetadataMessage;
 import net.glowstone.net.message.play.entity.EntityRotationMessage;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
@@ -45,10 +46,14 @@ import net.glowstone.net.message.play.entity.RelativeEntityPositionMessage;
 import net.glowstone.net.message.play.entity.RelativeEntityPositionRotationMessage;
 import net.glowstone.net.message.play.entity.SetPassengerMessage;
 import net.glowstone.net.message.play.player.InteractEntityMessage;
+import net.glowstone.util.Coordinates;
 import net.glowstone.util.Position;
 import net.glowstone.util.UuidUtils;
+import net.glowstone.util.Vectors;
+import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Chunk;
 import org.bukkit.EntityEffect;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -93,100 +98,133 @@ import org.spigotmc.event.player.PlayerSpawnLocationEvent;
  * @author Graham Edgecombe
  */
 public abstract class GlowEntity implements Entity {
+
     /**
      * An ID to use in network messages when the protocol calls for a 32-bit entity ID, but the
      * relevant Object doesn't exist, isn't an Entity, or is in a different World (and thus a
      * different space for 32-bit entity IDs).
      */
     public static final int ENTITY_ID_NOBODY = -1;
+
+    /**
+     * The offset to be used during collision.
+     */
+    public static final double COLLISION_OFFSET = 0.00001;
+
     /**
      * The metadata store for entities.
      */
     private static final MetadataStore<Entity> bukkitMetadata = new EntityMetadataStore();
     private static final Vector zeroG = new Vector();
+
+    /**
+     * A list containing all the block faces adjacent to the player.
+     */
+    private static final List<BlockFace> FACES = Arrays.asList(BlockFace.EAST, BlockFace.WEST, BlockFace.SOUTH,
+            BlockFace.NORTH, BlockFace.DOWN, BlockFace.SELF, BlockFace.NORTH_EAST,
+            BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST);
+
     /**
      * The server this entity belongs to.
      */
     @Getter
     protected final GlowServer server;
+
     /**
      * The entity's metadata.
      */
     protected final MetadataMap metadata = new MetadataMap(getClass());
+
     /**
      * The current position.
      */
     protected final Location location;
+
     /**
      * The position in the last cycle.
      */
     protected final Location previousLocation;
+
     /**
-     * The entity's velocity, applied each tick.
+         * The entity's velocity, applied each tick.
      */
     protected final Vector velocity = new Vector();
+
     /**
      * A list of entities currently riding this entity.
      */
     private final List<Entity> passengers = new ArrayList<>();
+
     /**
      * The original location of this entity.
      */
     @Getter
     private final Location origin;
+
     /**
      * All entities that currently have this entity as leash holder.
      */
     @Getter
     private final List<GlowEntity> leashedEntities = Lists.newArrayList();
+
     /**
      * List of custom String data for the entity.
      */
     @Getter
     private final List<String> customTags = Lists.newArrayList();
+
     /**
      * The world this entity belongs to. Guarded by {@link #worldLock}.
      */
     @Getter
     protected GlowWorld world;
+
     /**
      * Lock to prevent concurrent modifications affected by switching worlds.
      */
     protected final ReadWriteLock worldLock = new ReentrantReadWriteLock();
+
     /**
      * A flag indicating if this entity is currently active.
      */
     protected boolean active = true;
+
     /**
      * This entity's current identifier for its world.
      */
     @Getter
     protected int entityId;
+
     /**
      * Whether the entity should have its position resent as if teleported.
      */
     @Getter
     protected boolean teleported;
+
     /**
      * Whether the entity should have its velocity resent.
      */
     protected boolean velocityChanged;
+
     /**
      * A counter of how long this entity has existed.
      */
     @Getter
     @Setter
     protected int ticksLived;
+
     /**
      * The entity this entity is currently riding.
      */
     @Getter
     protected GlowEntity vehicle;
+
     /**
      * The entity's bounding box, or null if it has no physical presence.
      */
     protected EntityBoundingBox boundingBox;
     protected boolean passengerChanged;
+
     /**
      * Whether this entity was forcibly removed from the world.
      */
@@ -197,10 +235,10 @@ public abstract class GlowEntity implements Entity {
      * Velocity reduction applied each tick in air.
      * For example, if the multiplier is 0.98,
      * the entity will lose 2% of its velocity each physics tick.
-     * The default value 1 indicates no air drag.
+     * The default value 0.98 indicates little airdrag.
      */
     @Setter
-    protected double airDrag = 1;
+    protected double airDragMultiplier = 0.98;
 
     /**
      * Velocity reduction applied each tick in water.
@@ -213,10 +251,10 @@ public abstract class GlowEntity implements Entity {
 
     /**
      * Gravity acceleration applied each tick.
-     * The default value (0,0,0) indicates no gravity acceleration.
+     * The default value (0,-0.098,0) approximates Minecraft's gravity well.
      */
     @Setter
-    protected Vector gravityAccel = new Vector(0, 0, 0);
+    protected Vector gravityAccel = new Vector(0, -0.098, 0);
 
     /**
      * The slipperiness multiplier applied according to the block this entity was on.
@@ -224,57 +262,62 @@ public abstract class GlowEntity implements Entity {
     protected double slipMultiplier = 0.6;
 
     /**
-     * If drag is applied before appling acceleration while calculating physics.
-     */
-    @Setter
-    protected boolean applyDragBeforeAccel = false;
-
-    /**
      * This entity's unique id.
      */
     private UUID uuid;
+
     /**
      * An EntityDamageEvent representing the last damage cause on this entity.
      */
     @Getter
     @Setter
     private EntityDamageEvent lastDamageCause;
+
     /**
      * A flag indicting if the entity is on the ground.
      */
     @Getter
     private boolean onGround = false;
+
     /**
      * The distance the entity is currently falling without touching the ground.
      */
     @Getter
     private float fallDistance;
+
     /**
      * How long the entity has been on fire, or 0 if it is not.
      */
     @Getter
     @Setter
     private int fireTicks;
+
+    private int portalTicks;
+
     /**
      * Whether gravity applies to the entity.
      */
     @Setter
     private boolean gravity = true;
+
     /**
      * Whether friction applies to the entity.
      */
     @Setter
     private boolean friction = true;
+
     /**
      * Whether this entity is invulnerable.
      */
     @Getter
     @Setter
     private boolean invulnerable;
+
     /**
      * The leash holders uuid of the entity. Will be null after the entities first tick.
      */
     private UUID leashHolderUniqueId;
+
     /**
      * Has the leash holder of the entity changed.
      */
@@ -282,16 +325,19 @@ public abstract class GlowEntity implements Entity {
 
     ////////////////////////////////////////////////////////////////////////////
     // Command sender
+
     /**
      * The leash holder of the entity.
      */
     private GlowEntity leashHolder;
+
     /**
      * The Nether portal cooldown for the entity.
      */
     @Getter
     @Setter
     private int portalCooldown;
+
     /**
      * Whether this entity has operator permissions.
      */
@@ -315,6 +361,8 @@ public abstract class GlowEntity implements Entity {
         this.origin = location.clone();
         this.previousLocation = location.clone();
         this.location = location.clone();
+
+        portalTicks = 0;
 
         // this is so dirty I washed my hands after writing it.
         if (this instanceof GlowPlayer) {
@@ -593,30 +641,24 @@ public abstract class GlowEntity implements Entity {
 
         pulsePhysics();
 
-        if (hasMoved()) {
-            Block currentBlock = location.getBlock();
-            if (currentBlock.getType() == Material.ENDER_PORTAL) {
-                EventFactory.getInstance()
-                    .callEvent(new EntityPortalEnterEvent(this, currentBlock.getLocation()));
-                if (server.getAllowEnd()) {
-                    Location previousLocation = location.clone();
-                    boolean success;
-                    if (getWorld().getEnvironment() == Environment.THE_END) {
-                        success = teleportToSpawn();
-                    } else {
-                        success = teleportToEnd();
-                    }
-                    if (success) {
-                        EntityPortalExitEvent e = EventFactory.getInstance()
-                            .callEvent(new EntityPortalExitEvent(this, previousLocation,
-                                location
-                                    .clone(), velocity.clone(), new Vector()));
-                        if (!e.getAfter().equals(velocity)) {
-                            setVelocity(e.getAfter());
-                        }
-                    }
+        Block currentBlock = location.getBlock();
+        if (currentBlock.getType() == Material.ENDER_PORTAL || currentBlock.getType() == Material.PORTAL) {
+
+            if (this instanceof GlowPlayer) {
+                GlowPlayer player = (GlowPlayer) this;
+                if (player.getGameMode() == GameMode.CREATIVE) {
+                    portalTicks = 80;
                 }
             }
+
+            portalTicks++;
+            if (portalTicks >= 80) {
+                portalTicks = 0;
+                interactWithPortal(currentBlock);
+            }
+
+        } else {
+            portalTicks = 0;
         }
 
         if (leashHolderUniqueId != null && ticksLived < 2) {
@@ -627,6 +669,52 @@ public abstract class GlowEntity implements Entity {
             }
             setLeashHolder(any.orElse(null));
             leashHolderUniqueId = null;
+        }
+    }
+
+    /**
+     * Fire when a entity interacts with a portal. Checks if the entity is allowed to teleport to another world and
+     * handles transporting of entity.
+     * @param portal The block the entity interacts with.
+     */
+    private void interactWithPortal(Block portal) {
+
+        Location previousLocation = location.clone();
+        EntityPortalEnterEvent portalEnterEvent = new EntityPortalEnterEvent(this, portal.getLocation());
+
+        boolean success = false;
+
+        if (portal.getType() == Material.ENDER_PORTAL && server.getAllowEnd()) {
+            EventFactory.getInstance().callEvent(portalEnterEvent);
+            if (getWorld().getEnvironment() == Environment.THE_END) {
+                success = teleportToSpawn();
+            } else {
+                success = teleportToEnd();
+            }
+        } else if (portal.getType() == Material.PORTAL && server.getAllowNether()) {
+            EventFactory.getInstance().callEvent(portalEnterEvent);
+            if (getWorld().getEnvironment() == Environment.NETHER) {
+                success = teleportToSpawn();
+            } else {
+                success = teleportToNether();
+            }
+        } else {
+            // not a portal or not allowed to teleport.
+        }
+
+        if (success) {
+            EntityPortalExitEvent portalExitEvent = new EntityPortalExitEvent(
+                    this,
+                    previousLocation,
+                    location.clone(),
+                    velocity.clone(),
+                    new Vector()
+            );
+            portalExitEvent = EventFactory.getInstance().callEvent(portalExitEvent);
+            if (!portalExitEvent.getAfter().equals(velocity)) {
+                setVelocity(portalExitEvent.getAfter());
+            }
+
         }
     }
 
@@ -769,48 +857,12 @@ public abstract class GlowEntity implements Entity {
     public abstract List<Message> createSpawnMessage();
 
     /**
-     * Creates a List of {@link Message} which can be sent to a client directly after the entity is
-     * spawned.
-     *
-     * @param session Session to update this entity for
-     * @return A message which can spawn this entity.
-     */
-    public List<Message> createAfterSpawnMessage(GlowSession session) {
-        List<Message> result = Lists.newArrayList();
-
-        GlowPlayer player = session.getPlayer();
-        if (player == null) {
-            // Player disconnected while this task was pending
-            return result;
-        }
-        boolean visible = player.canSeeEntity(this);
-        for (GlowEntity leashedEntity : leashedEntities) {
-            if (visible && player.canSeeEntity(leashedEntity)) {
-                int attached = player.getEntityId() == this.getEntityId() ? 0
-                    : leashedEntity.getEntityId();
-                int holder = this.getEntityId();
-
-                result.add(new AttachEntityMessage(attached, holder));
-            }
-        }
-
-        if (isLeashed() && visible && player.canSeeEntity(leashHolder)) {
-            int attached = player.getEntityId() == this.getEntityId() ? 0 : this.getEntityId();
-            int holder = leashHolder.getEntityId();
-
-            result.add(new AttachEntityMessage(attached, holder));
-        }
-
-        return result;
-    }
-
-    /**
      * Creates a {@link Message} which can be sent to a client to update this entity.
      *
-     * @param session Session to update this entity for
      * @return A message which can update this entity.
      */
-    public List<Message> createUpdateMessage(GlowSession session) {
+    public List<Message> createUpdateMessage() {
+
         double x = location.getX();
         double y = location.getY();
         double z = location.getZ();
@@ -823,8 +875,12 @@ public abstract class GlowEntity implements Entity {
         dy *= 128;
         dz *= 128;
 
-        boolean teleport = dx > Short.MAX_VALUE || dy > Short.MAX_VALUE || dz > Short.MAX_VALUE
-            || dx < Short.MIN_VALUE || dy < Short.MIN_VALUE || dz < Short.MIN_VALUE;
+        boolean teleport = dx > Short.MAX_VALUE
+                || dy > Short.MAX_VALUE
+                || dz > Short.MAX_VALUE
+                || dx < Short.MIN_VALUE
+                || dy < Short.MIN_VALUE
+                || dz < Short.MIN_VALUE;
 
         List<Message> result = new LinkedList<>();
 
@@ -837,14 +893,19 @@ public abstract class GlowEntity implements Entity {
             int yaw = Position.getIntYaw(location);
             int pitch = Position.getIntPitch(location);
             if (moved) {
-                result.add(new RelativeEntityPositionRotationMessage(entityId,
-                    (short) dx, (short) dy, (short) dz, yaw, pitch));
+                result.add(new RelativeEntityPositionRotationMessage(
+                        entityId,
+                        (short) dx,
+                        (short) dy,
+                        (short) dz,
+                        yaw,
+                        pitch
+                ));
             } else {
                 result.add(new EntityRotationMessage(entityId, yaw, pitch));
             }
         } else if (moved) {
-            result.add(new RelativeEntityPositionMessage(
-                entityId, (short) dx, (short) dy, (short) dz));
+            result.add(new RelativeEntityPositionMessage(entityId, (short) dx, (short) dy, (short) dz));
         }
 
         // send changed metadata
@@ -859,27 +920,16 @@ public abstract class GlowEntity implements Entity {
         }
 
         if (passengerChanged) {
+
             // A player can be a passenger of any arbitrary entity, e.g. a boat
             // In case the current session belongs to this player passenger
             // We need to send the self_id
-            List<Integer> passengerIds = new ArrayList<>();
-            getPassengers().forEach(e -> passengerIds.add(e.getEntityId()));
-            result.add(new SetPassengerMessage(getEntityId(), passengerIds.stream()
-                .mapToInt(Integer::intValue).toArray()));
+
+            int[] passengerIds = getPassengers().stream()
+                    .mapToInt(Entity::getEntityId)
+                    .toArray();
+            result.add(new SetPassengerMessage(getEntityId(), passengerIds));
             passengerChanged = false;
-        }
-
-        if (leashHolderChanged) {
-            int attached =
-                isLeashed() && session.getPlayer().getEntityId() == leashHolder.getEntityId()
-                    ? 0 : this.getEntityId();
-            int holder = !isLeashed() ? -1 : leashHolder.getEntityId();
-
-            // When the leashHolder is not visible, the AttachEntityMessage will be created in
-            // createAfterSpawnMessage()
-            if (!isLeashed() || session.getPlayer().canSeeEntity(leashHolder)) {
-                result.add(new AttachEntityMessage(attached, holder));
-            }
         }
 
         return result;
@@ -957,6 +1007,41 @@ public abstract class GlowEntity implements Entity {
         return true;
     }
 
+    /**
+     * Teleport this entity to the Nether. If no Nether world is loaded this does nothing.
+     *
+     * @return {@code true} if the teleport was successful.
+     */
+    protected boolean teleportToNether() {
+
+        if (!server.getAllowNether()) {
+            return false;
+        }
+
+        Location target = null;
+        for (World world : server.getWorlds()) {
+            if (world.getEnvironment() == Environment.NETHER) {
+                target = world.getSpawnLocation();
+                break;
+            }
+        }
+
+        if (target == null) {
+            return false;
+        }
+
+        EntityPortalEvent event = new EntityPortalEvent(this, location.clone(), target, null);
+        event = EventFactory.getInstance().callEvent(event);
+        if (event.isCancelled()) {
+            return false;
+        }
+
+        target = event.getTo();
+        teleport(target);
+
+        return true;
+    }
+
     protected void setSize(float xz, float y) {
         setBoundingBox(xz, y);
     }
@@ -974,17 +1059,15 @@ public abstract class GlowEntity implements Entity {
     public boolean isTouchingMaterial(Material material) {
         if (boundingBox == null) {
             // less accurate calculation if no bounding box is present
-            for (BlockFace face : new BlockFace[] {BlockFace.EAST, BlockFace.WEST, BlockFace.SOUTH,
-                BlockFace.NORTH, BlockFace.DOWN, BlockFace.SELF, BlockFace.NORTH_EAST,
-                BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST}) {
+            for (BlockFace face : FACES) {
                 if (getLocation().getBlock().getRelative(face).getType() == material) {
                     return true;
                 }
             }
         } else {
             // bounding box-based calculation
-            Vector min = boundingBox.minCorner;
-            Vector max = boundingBox.maxCorner;
+            Vector min = Vectors.floor(boundingBox.minCorner);
+            Vector max = Vectors.ceil(boundingBox.maxCorner);
             for (int x = min.getBlockX(); x <= max.getBlockX(); ++x) {
                 for (int y = min.getBlockY(); y <= max.getBlockY(); ++y) {
                     for (int z = min.getBlockZ(); z <= max.getBlockZ(); ++z) {
@@ -1017,68 +1100,147 @@ public abstract class GlowEntity implements Entity {
         return boundingBox != null && boundingBox.intersects(box);
     }
 
-    protected void pulsePhysics() {
-        // The pending locaiton and the block at that location
-        Location pendingLocation = location.clone().add(velocity);
-        Block pendingBlock = pendingLocation.getBlock();
+    /**
+     * Get all block bounding boxes that are within range of the given BoundingBox.
+     *
+     * @param broadPhaseBox The BoundingBox to be used as block range
+     * @return All boundingboxes from blocks that intersect with the give BoundingBox
+     */
+    List<BoundingBox> getIntersectingBlockBoundingBoxes(BoundingBox broadPhaseBox) {
 
-        if (pendingBlock.getType().isSolid()) {
-            Location pendingLocationX = location.clone().add(velocity.getX(), 0, 0);
-            if (pendingLocationX.getBlock().getType().isSolid()) {
-                velocity.setX(0);
-            }
-
-            Location pendingLocationY = location.clone().add(0, velocity.getY(), 0);
-            if (pendingLocationY.getBlock().getType().isSolid()) {
-                velocity.setY(0);
-            }
-
-            Location pendingLocationZ = location.clone().add(0, 0, velocity.getZ());
-            if (pendingLocationZ.getBlock().getType().isSolid()) {
-                velocity.setZ(0);
-            }
-            if (this instanceof Projectile) {
-                EventFactory.getInstance()
-                    .callEvent(new ProjectileHitEvent((Projectile) this, pendingBlock));
-            }
-            collide(pendingBlock);
-        } else {
-            if (hasFriction()) {
-                // apply friction and gravity
-                if (location.getBlock().getType() == Material.WATER) {
-                    velocity.multiply(liquidDrag);
-                    velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-                } else if (location.getBlock().getType() == Material.LAVA) {
-                    velocity.multiply(liquidDrag - 0.3);
-                    velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-                } else {
-                    if (applyDragBeforeAccel) {
-                        velocity.setY(airDrag * velocity.getY() + getGravityAccel().getY());
-                    } else {
-                        velocity.setY(airDrag * (velocity.getY() + getGravityAccel().getY()));
-                    }
-
-                    if (isOnGround()) {
-                        velocity.setX(velocity.getX() * slipMultiplier);
-                        velocity.setY(0);
-                        velocity.setZ(velocity.getZ() * slipMultiplier);
-                    } else {
-                        velocity.setX(velocity.getX() * airDrag);
-                        velocity.setZ(velocity.getZ() * airDrag);
-                    }
-                }
-            } else if (hasGravity() && !isOnGround()) {
-                switch (location.getBlock().getType()) {
-                    case WATER:
-                    case LAVA:
-                        velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-                        break;
-                    default:
-                        velocity.setY(velocity.getY() + getGravityAccel().getY() / 4);
-                }
-            }
-            setRawLocation(pendingLocation);
+        if (broadPhaseBox == null) {
+            return Collections.emptyList();
         }
+
+        Vector min = broadPhaseBox.minCorner;
+        min.setY(min.getY() - 1);
+        Vector max = broadPhaseBox.maxCorner;
+
+        List<GlowBlock> glowBlocks = world.getOverlappingBlocks(min, max);
+
+        List<BoundingBox> intersectingBoxes = glowBlocks.stream()
+                .map(BlockBoundingBoxes::getBoundingBoxes)
+                .flatMap(List::stream)
+                .filter(box -> box.intersects(broadPhaseBox))
+                .collect(Collectors.toList());
+
+        return intersectingBoxes;
+    }
+
+    /**
+     * Computes the velocity that is will be applied to the user this tick.
+     */
+    protected void computeVelocity() {
+        if (hasFriction() && location != null) {
+
+            Material material = location.getBlock().getType();
+
+            // apply friction and gravity
+            if (material == Material.WATER || material == Material.STATIONARY_WATER) {
+                velocity.multiply(liquidDrag);
+                velocity.setY(velocity.getY() + getGravityAccel().getY() / 4.0);
+            } else if (material == Material.LAVA || material == Material.STATIONARY_LAVA) {
+                velocity.multiply(liquidDrag - 0.3);
+                velocity.setY(velocity.getY() + getGravityAccel().getY() / 4.0);
+            } else {
+                velocity.setY(airDragMultiplier * velocity.getY() + getGravityAccel().getY());
+
+                double drag = airDragMultiplier;
+                if (isOnGround()) {
+                    drag = slipMultiplier;
+                }
+
+                velocity.setX(velocity.getX() * drag);
+                velocity.setZ(velocity.getZ() * drag);
+            }
+        }
+    }
+
+    /**
+     * Tests entity collision with the blocks around the entity and generates the response displacement.
+     */
+    protected Location resolveCollisions() {
+
+        Location pendingLocation = location.clone();
+        // The fraction of this tick's time that has been processed. 0.0 indicating none and 1.0 indicating completion.
+        double elapsedTime = 0.0;
+
+        // Break if we won't be moving.
+        while (velocity.length() > 0.0 && elapsedTime < 1.0) {
+
+            if (this.boundingBox == null) {
+                break;
+            }
+
+            // Compute the remaining time and velocity during this cycle.
+            double remainingTime = 1.0d - elapsedTime;
+            Vector remainingDisplacement = velocity.clone().multiply(remainingTime);
+
+            // Create a bounding box at the correct location and find the ones it interacts with.
+            EntityBoundingBox pendingBox = this.boundingBox.createCopyAt(pendingLocation);
+            BoundingBox broadPhaseBox = pendingBox.getBroadPhase(velocity);
+            List<BoundingBox> intersectingBoxes = getIntersectingBlockBoundingBoxes(broadPhaseBox);
+
+            // Break if there is nothing to collide with.
+            if (intersectingBoxes.isEmpty()) {
+                break;
+            }
+
+            // Find the closest one.
+            Pair<Double, Vector> closest = intersectingBoxes.stream()
+                    .map(box -> pendingBox.sweptAxisAlignedBoundingBox(remainingDisplacement, box))
+                    .min(Comparator.comparingDouble(Pair::getLeft))
+                    .get();
+
+            // Move up to the collided with box.
+            double collisionTime = closest.getLeft();
+            Vector normal = closest.getRight();
+            Vector displacement = remainingDisplacement.clone().multiply(collisionTime);
+            Vector collisionOffsetVector = normal.clone().multiply(COLLISION_OFFSET);
+            pendingLocation.add(displacement);
+            pendingLocation.add(collisionOffsetVector);
+
+            elapsedTime += collisionTime * remainingTime;
+
+            // Break if we didn't actually collide.
+            if (collisionTime >= 1.0) {
+                break;
+            }
+
+            // Cancel out velocity in the direction of the collided with box.
+            velocity.subtract(Vectors.project(velocity, normal));
+
+            // Handle projectile interaction
+            if (this instanceof Projectile) {
+
+                Projectile projectile = (Projectile) this;
+                Block block = pendingLocation.getBlock();
+
+                ProjectileHitEvent event = new ProjectileHitEvent(projectile, block);
+                EventFactory.getInstance().callEvent(event);
+
+                collide(block);
+
+                // TODO: Break here? it might possible that a projectile removes itself after colliding which
+                //  could introduce bugs here
+            }
+        }
+
+        // Perform the last step (only step when no collisions occur)
+        Vector displacement = velocity.clone().multiply(1.0 - elapsedTime);
+        pendingLocation.add(displacement);
+
+        return pendingLocation;
+    }
+
+    /**
+     * Calculate all the physics that impact the entity.
+     */
+    protected void pulsePhysics() {
+        computeVelocity();
+        Location finalLocation = resolveCollisions();
+        setRawLocation(finalLocation);
+        updateBoundingBox();
     }
 
     /**
@@ -1135,7 +1297,7 @@ public abstract class GlowEntity implements Entity {
         this.setPassenger(null);
         leaveVehicle();
         ImmutableList.copyOf(this.leashedEntities)
-            .forEach(e -> unleash(e, UnleashReason.HOLDER_GONE));
+                .forEach(e -> unleash(e, UnleashReason.HOLDER_GONE));
 
         if (isLeashed()) {
             unleash(this, UnleashReason.HOLDER_GONE);
@@ -1179,7 +1341,7 @@ public abstract class GlowEntity implements Entity {
         }
     }
 
-    public void playEffectKnownAndSelf(EntityEffect type) {
+    void playEffectKnownAndSelf(EntityEffect type) {
         if (type.getApplicable().isInstance(this)) {
             EntityStatusMessage message = new EntityStatusMessage(entityId, type);
             if (this instanceof GlowPlayer) {
@@ -1275,7 +1437,7 @@ public abstract class GlowEntity implements Entity {
         }
 
         if (EventFactory.getInstance()
-            .callEvent(new EntityDismountEvent(passenger, this)).isCancelled()) {
+                .callEvent(new EntityDismountEvent(passenger, this)).isCancelled()) {
             return false;
         }
 
@@ -1287,7 +1449,7 @@ public abstract class GlowEntity implements Entity {
 
         if (this instanceof Vehicle && glowPassenger instanceof LivingEntity) {
             VehicleExitEvent event = EventFactory.getInstance()
-                .callEvent(new VehicleExitEvent((Vehicle) this, (LivingEntity) glowPassenger));
+                    .callEvent(new VehicleExitEvent((Vehicle) this, (LivingEntity) glowPassenger));
             if (event.isCancelled()) {
                 return false;
             }
@@ -1321,13 +1483,13 @@ public abstract class GlowEntity implements Entity {
 
         if (this instanceof Vehicle) {
             VehicleEnterEvent event = EventFactory.getInstance().callEvent(
-                new VehicleEnterEvent((Vehicle) this, passenger));
+                    new VehicleEnterEvent((Vehicle) this, passenger));
             if (event.isCancelled()) {
                 return false;
             }
         }
         EntityMountEvent event = EventFactory.getInstance().callEvent(
-            new EntityMountEvent(passenger, this));
+                new EntityMountEvent(passenger, this));
         if (event.isCancelled()) {
             return false;
         }
@@ -1623,6 +1785,15 @@ public abstract class GlowEntity implements Entity {
             return;
         }
         this.leashHolderUniqueId = uniqueId;
+    }
+
+    /**
+     * Get the coordinates of the entity.
+     *
+     * @return The x and z coordinates of the entity.
+     */
+    public Coordinates getCoordinates() {
+        return new Coordinates(location.getX(), location.getZ());
     }
 
     /**

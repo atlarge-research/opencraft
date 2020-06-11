@@ -3,7 +3,6 @@ package net.glowstone.block.blocktype;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import lombok.Getter;
 import net.glowstone.EventFactory;
 import net.glowstone.GlowWorld;
@@ -29,6 +28,7 @@ import org.bukkit.material.PistonBaseMaterial;
 public class BlockPiston extends BlockDirectional {
 
     private static final int PUSH_LIMIT = 12;
+
     /**
      * The piston is either non-sticky (default), or has a sticky behavior.
      *

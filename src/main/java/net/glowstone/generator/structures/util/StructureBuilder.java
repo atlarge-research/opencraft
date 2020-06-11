@@ -26,15 +26,18 @@ public class StructureBuilder {
      * The world this structure is built in.
      */
     private final World world;
+
     /**
      * The structure piece whose coordinate origin and orientation we're using.
      */
     private final GlowStructurePiece structure;
+
     /**
      * The bounding box in which to operate; not necessarily the same as the structure piece's
      * bounding box.
      */
     private final StructureBoundingBox boundingBox;
+
     /**
      * The BlockStateDelegate used to read and write blocks.
      */

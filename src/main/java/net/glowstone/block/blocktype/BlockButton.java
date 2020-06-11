@@ -80,8 +80,13 @@ public class BlockButton extends BlockAttachable {
     }
 
     @Override
-    public void placeBlock(GlowPlayer player, GlowBlockState state, BlockFace face,
-        ItemStack holding, Vector clickedLoc) {
+    public void placeBlock(
+            GlowPlayer player,
+            GlowBlockState state,
+            BlockFace face,
+            ItemStack holding,
+            Vector clickedLoc
+    ) {
         super.placeBlock(player, state, face, holding, clickedLoc);
 
         MaterialData data = state.getData();

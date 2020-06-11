@@ -2,6 +2,7 @@ package net.glowstone.block;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,11 +51,13 @@ public class GlowBlock implements Block {
     private static final BlockFace[] ADJACENT = new BlockFace[]{
         BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP,
         BlockFace.DOWN};
+
     /**
      * The metadata store for blocks.
      */
     private static final MetadataStore<Block> metadata = new BlockMetadataStore();
     private static final Map<GlowBlock, List<Long>> counterMap = new HashMap<>();
+
     @Getter
     private final int x;
     @Getter
@@ -501,12 +504,20 @@ public class GlowBlock implements Block {
 
     @Override
     public Collection<ItemStack> getDrops() {
-        return ItemTable.instance().getBlock(getType()).getMinedDrops(this);
+        BlockType type = ItemTable.instance().getBlock(getType());
+        if (type == null) {
+            return Collections.emptyList();
+        }
+        return type.getMinedDrops(this);
     }
 
     @Override
     public Collection<ItemStack> getDrops(ItemStack tool) {
-        return ItemTable.instance().getBlock(getType()).getDrops(this, tool);
+        BlockType type = ItemTable.instance().getBlock(getType());
+        if (type == null) {
+            return Collections.emptyList();
+        }
+        return type.getDrops(this, tool);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -588,8 +599,7 @@ public class GlowBlock implements Block {
     /**
      * Increments the count of recent state changes. Used to implement redstone-torch burnout.
      *
-     * @param timeout the number of game ticks before this state change is no longer considered
-     *     recent
+     * @param timeout the number of game ticks before this state change is no longer considered recent
      */
     public void count(int timeout) {
         GlowBlock target = this;

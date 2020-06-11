@@ -31,10 +31,12 @@ public class GlowInventoryView extends InventoryView {
     // but this messes up the calculations in InventoryView which expect CRAFTING but also
     // apply to CREATIVE.
     private final InventoryType type;
+
     /**
      * The inventory in the top half of the window.
      */
     private final Inventory topInventory;
+
     /**
      * The inventory in the bottom half of the window.
      */

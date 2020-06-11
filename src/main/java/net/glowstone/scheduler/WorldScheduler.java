@@ -1,5 +1,6 @@
 package net.glowstone.scheduler;
 
+import com.atlarge.yscollector.YSCollector;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.logging.Level;
 import lombok.Getter;
 import net.glowstone.GlowServer;
 import net.glowstone.GlowWorld;
+import net.glowstone.util.config.ServerConfig;
 
 /**
  * Manager for world thread pool.
@@ -166,7 +168,10 @@ public class WorldScheduler {
             try {
                 while (!isInterrupted() && !tickEnd.isTerminated()) {
                     tickBegin.arriveAndAwaitAdvance();
-                    com.atlarge.yscollector.YSCollector.start("world_" + world.getName() + "_tick", "World thread: Duration processing tick.");
+                    if (ServerConfig.Key.OPENCRAFT_COLLECTOR.equals(true)) {
+                        YSCollector.start("world_" + world.getName() + "_tick",
+                                "World thread: Duration processing tick.");
+                    }
                     try {
                         world.pulse();
                     } catch (Exception e) {
@@ -175,7 +180,9 @@ public class WorldScheduler {
                     } finally {
                         tickEnd.arriveAndAwaitAdvance();
                     }
-                    com.atlarge.yscollector.YSCollector.stop("world_" + world.getName() + "_tick");
+                    if (ServerConfig.Key.OPENCRAFT_COLLECTOR.equals(true)) {
+                        YSCollector.stop("world_" + world.getName() + "_tick");
+                    }
                 }
             } finally {
                 tickBegin.arriveAndDeregister();

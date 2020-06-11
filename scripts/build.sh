@@ -10,4 +10,4 @@ esac
 cd "$BINDIR"
 
 # Build Glowstone
-(cd .. && mvn -s settings.xml -T 1C -B package)
+(cd .. && mvn -T 1C -B package)

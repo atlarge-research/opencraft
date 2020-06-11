@@ -6,6 +6,7 @@ import org.bukkit.entity.Vehicle;
 import org.bukkit.event.vehicle.VehicleCreateEvent;
 
 public abstract class GlowVehicle extends GlowEntity implements Vehicle {
+
     /**
      * Creates a vehicle and adds it to the specified world.
      *

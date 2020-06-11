@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.GlowBlockState;
 import net.glowstone.block.blocktype.BlockBanner;
@@ -50,8 +51,10 @@ public class BannerEntity extends BlockEntity {
     public void update(GlowPlayer player) {
         super.update(player);
         CompoundTag nbt = new CompoundTag();
+        GlowWorld world = player.getWorld();
         saveNbt(nbt);
-        player.sendBlockEntityChange(getBlock().getLocation(), GlowBlockEntity.BANNER, nbt);
+        // TODO: it is possible that this causes a broadcast message to be sent multiple times.
+        world.sendBlockEntityChange(getBlock().getLocation(), GlowBlockEntity.BANNER, nbt);
     }
 
     public List<Pattern> getPatterns() {

@@ -39,6 +39,7 @@ import org.yaml.snakeyaml.error.YAMLException;
 public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
 
     public static final int DEFAULT_PORT = 25565;
+
     /**
      * The directory configurations are stored in.
      */
@@ -82,12 +83,9 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         this.parameters = parameters;
 
         config.options().indent(4).copyHeader(true).header(
-                "glowstone.yml is the main configuration file for a Glowstone server\n"
+                "opencraft.yml is the main configuration file for a Opencraft server\n"
                         + "It contains everything from server.properties and bukkit.yml in a\n"
-                        + "normal CraftBukkit installation.\n\n"
-                        + "Configuration entries are documented on the wiki: "
-                        + "https://github.com/GlowstoneMC/Glowstone/wiki/Configuration-Guide\n"
-                        + "For help, join us on Discord: https://discord.gg/TFJqhsC");
+                        + "normal CraftBukkit installation.\n");
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -389,10 +387,17 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
      * with any other instances of emptyLIst. Use a new instance of an empty ArrayList instead.
      */
     public enum Key {
+
+        // Opencraft
+        OPENCRAFT_COLLECTOR("opencraft.collector", false, Migrate.PROPS, "opencraft-collector",
+                Boolean.class::isInstance),
+        OPENCRAFT_POLICY("opencraft.policy", "Chunk", Migrate.PROPS, "opencraft-policy", String.class::isInstance),
+        OPENCRAFT_BROKER("opencraft.broker", "Concurrent", Migrate.PROPS, "opencraft-broker", String.class::isInstance),
+
         // server
         SERVER_IP("server.ip", "", Migrate.PROPS, "server-ip", String.class::isInstance),
         SERVER_PORT("server.port", DEFAULT_PORT, Migrate.PROPS, "server-port", Validators.PORT),
-        SERVER_NAME("server.name", "Glowstone Server", Migrate.PROPS, "server-name",
+        SERVER_NAME("server.name", "Opencraft Server", Migrate.PROPS, "server-name",
                 String.class::isInstance),
         LOG_FILE("server.log-file", "logs/log-%D.txt", String.class::isInstance),
         ONLINE_MODE("server.online-mode", true, Migrate.PROPS, "online-mode",
@@ -401,7 +406,7 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
                 Validators.POSITIVE_INTEGER),
         WHITELIST("server.whitelisted", false, Migrate.PROPS, "white-list",
                 Boolean.class::isInstance),
-        MOTD("server.motd", "A Glowstone server", Migrate.PROPS, "motd",
+        MOTD("server.motd", "An Opencraft server", Migrate.PROPS, "motd",
                 String.class::isInstance),
         SHUTDOWN_MESSAGE("server.shutdown-message", "Server shutting down.", Migrate.BUKKIT,
                 "settings.shutdown-message", String.class::isInstance),
@@ -416,9 +421,9 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
                 String.class::isInstance),
 
         // game props
-        GAMEMODE("game.gamemode", "SURVIVAL", Migrate.PROPS, "gamemode",
+        GAMEMODE("game.gamemode", "CREATIVE", Migrate.PROPS, "gamemode",
                 Validators.forEnum(GameMode.class)),
-        FORCE_GAMEMODE("game.gamemode-force", false, Migrate.PROPS, "force-gamemode",
+        FORCE_GAMEMODE("game.gamemode-force", true, Migrate.PROPS, "force-gamemode",
                 Boolean.class::isInstance),
         DIFFICULTY("game.difficulty", "NORMAL", Migrate.PROPS, "difficulty",
                 Validators.forEnum(Difficulty.class)),
@@ -524,7 +529,7 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
                 Boolean.class::isInstance),
         RCON_ENABLED("extras.rcon-enabled", false, Migrate.PROPS, "enable-rcon",
                 Boolean.class::isInstance),
-        RCON_PASSWORD("extras.rcon-password", "glowstone", Migrate.PROPS, "rcon.password",
+        RCON_PASSWORD("extras.rcon-password", "opencraft", Migrate.PROPS, "rcon.password",
                 String.class::isInstance),
         RCON_PORT("extras.rcon-port", 25575, Migrate.PROPS, "rcon.port", Validators.PORT),
         RCON_COLORS("extras.rcon-colors", true,
@@ -559,7 +564,7 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         LIBRARY_CHECKSUM_VALIDATION("libraries.checksum-validation", true,
                 Boolean.class::isInstance),
         LIBRARY_REPOSITORY_URL("libraries.repository-url",
-                "https://repo.glowstone.net/service/local/repositories/central/content/",
+                "https://repo.glowstone.net/repository/maven-public/",
                 String.class::isInstance),
         LIBRARY_DOWNLOAD_ATTEMPTS("libraries.download-attempts", 2,
                 Validators.POSITIVE_INTEGER),
@@ -634,32 +639,39 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
     }
 
     static class Validators {
+
         /**
          * Checks if the value is positive (over zero).
          */
         static final Predicate<Number> POSITIVE = (number) -> number.doubleValue() > 0;
+
         /**
          * Checks if the value is integer-typed and positive.
          */
         static final Predicate<Integer> POSITIVE_INTEGER = typeCheck(Integer.class).and(
                 POSITIVE);
+
         /**
          * Checks if the value is zero.
          */
         static final Predicate<Number> ZERO = (number) -> number.doubleValue() == 0;
+
         /**
          * Checks if the value is greater than (positive) or equal to zero.
          */
         static final Predicate<Number> ABSOLUTE = POSITIVE.or(ZERO);
+
         /**
          * Checks if the value is integer-typed and either positive or zero.
          */
         static final Predicate<?> NON_NEGATIVE_INTEGER = typeCheck(Integer.class).and(ABSOLUTE);
+
         /**
          * Checks if the value is a valid port number.
          */
         static final Predicate<Integer> PORT = typeCheck(Integer.class)
                 .and(POSITIVE).and((number) -> number < 49152);
+
         /**
          * Checks if the value is a valid {@link WorldType} name.
          */

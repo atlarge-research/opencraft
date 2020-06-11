@@ -50,6 +50,7 @@ public class GlowPlayerInventory extends GlowInventory implements PlayerInventor
      */
     @Getter
     private final GlowCraftingInventory craftingInventory;
+
     /**
      * Tracker for inventory drags by this player.
      *
@@ -57,11 +58,13 @@ public class GlowPlayerInventory extends GlowInventory implements PlayerInventor
      */
     @Getter
     private final DragTracker dragTracker = new DragTracker();
+
     /**
      * The current held item slot.
      */
     @Getter
     private int heldItemSlot;
+
     /**
      * The human entity for this inventory, stored for location.
      */

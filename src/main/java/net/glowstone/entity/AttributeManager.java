@@ -193,11 +193,13 @@ public class AttributeManager {
          */
         @Getter
         private final double def;
+
         /**
          * Minimum attribute value.
          */
         @Getter
         private final double min;
+
         /**
          * Maximum attribute value.
          */

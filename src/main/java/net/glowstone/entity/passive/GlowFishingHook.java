@@ -75,14 +75,17 @@ public class GlowFishingHook extends GlowProjectile implements FishHook {
      * fishing pole.
      */
     private static final int MINIMUM_BASE_WAIT = 5;
+
     /**
      * The maximum time, in seconds, to make the player wait for a bite.
      */
     private static final int MAXIMUM_WAIT = 45;
+
     /**
      * Waiting time saved per level of lure (down to a minimum of zero).
      */
     private static final int SECONDS_SAVED_PER_LURE_LEVEL = 5;
+
     /**
      * Waiting time in ticks after a bite, before it is considered missed if the player hasn't
      * clicked.
