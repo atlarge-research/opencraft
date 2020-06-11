@@ -570,6 +570,8 @@ public class GlowWorld implements World {
 
         broadcastEntityRemovals(entities);
         broadcastEntityUpdates(entities);
+
+        // TODO: Refactor entity spawning
         players.forEach(GlowPlayer::spawnEntities);
 
         entities.forEach(GlowEntity::reset);
