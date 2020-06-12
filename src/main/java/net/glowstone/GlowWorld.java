@@ -25,7 +25,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -106,7 +105,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Item;
-import org.bukkit.entity.LightningStrike;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -161,8 +159,6 @@ public class GlowWorld implements World {
 
     /**
      * Get the world's parent server.
-     *
-     * @return The GlowServer for the world.
      */
     @Getter
     private final GlowServer server;
@@ -175,16 +171,12 @@ public class GlowWorld implements World {
 
     /**
      * The chunk manager.
-     *
-     * @return The ChunkManager for the world.
      */
     @Getter
     private final ChunkManager chunkManager;
 
     /**
      * The storage provider for the world.
-     *
-     * @return The {@link WorldStorageProvider}.
      */
     @Getter
     private final WorldStorageProvider storage;
@@ -196,8 +188,6 @@ public class GlowWorld implements World {
 
     /**
      * The entity manager.
-     *
-     * @return the entity manager
      */
     @Getter
     private final EntityManager entityManager;
@@ -240,30 +230,6 @@ public class GlowWorld implements World {
      */
     private final ConcurrentSet<Location> tickMap;
 
-    private final Spigot spigot = new Spigot() {
-        @Override
-        public void playEffect(Location location, Effect effect) {
-            GlowWorld.this.playEffect(location, effect, 0);
-        }
-
-        @Override
-        public void playEffect(Location location, Effect effect, int id, int data, float offsetX,
-                               float offsetY, float offsetZ, float speed, int particleCount, int radius) {
-            showParticle(location, effect, id, data, offsetX, offsetY, offsetZ, speed,
-                particleCount, radius);
-        }
-
-        @Override
-        public LightningStrike strikeLightning(Location loc, boolean isSilent) {
-            return strikeLightningFireEvent(loc, false, isSilent);
-        }
-
-        @Override
-        public LightningStrike strikeLightningEffect(Location loc, boolean isSilent) {
-            return strikeLightningFireEvent(loc, true, isSilent);
-        }
-    };
-
     /**
      * The world border.
      */
@@ -300,7 +266,7 @@ public class GlowWorld implements World {
     /**
      * Whether to populate chunkManager when they are anchored.
      */
-    private boolean populateAnchoredChunks;
+    private final boolean populateAnchoredChunks;
 
     /**
      * Whether PvP is allowed in this world.
@@ -424,20 +390,19 @@ public class GlowWorld implements World {
     @Getter
     @Setter
     private int ambientSpawnLimit;
-    private Map<Integer, GlowStructure> structures;
+    private final Map<Integer, GlowStructure> structures;
 
     /**
      * The maximum height at which players may place blocks.
      */
     @Getter
-    private int maxHeight;
-    private Set<GlowChunk.Key> activeChunksSet;
+    private final int maxHeight;
 
     /**
      * Whether the world has been initialized (i.e. loading/spawn generation is completed).
      */
     @Getter
-    private boolean initialized;
+    private final boolean initialized;
 
     private final Broker<Chunk, Player, Message> broker;
 
@@ -454,12 +419,12 @@ public class GlowWorld implements World {
     /**
      * Creates a new world from the options in the given WorldCreator.
      *
-     * @param server               The server for the world.
-     * @param creator              The WorldCreator to use.
+     * @param server The server for the world.
+     * @param creator The WorldCreator to use.
      * @param worldStorageProvider The storage provider to use.
      */
-    public GlowWorld(GlowServer server, WorldCreator creator,
-                     WorldStorageProvider worldStorageProvider) {
+    public GlowWorld(GlowServer server, WorldCreator creator, WorldStorageProvider worldStorageProvider) {
+
         this.server = server;
 
         // set up values from WorldCreator
@@ -477,7 +442,7 @@ public class GlowWorld implements World {
         gameRuleMap = new GameRuleManager();
         tickMap = new ConcurrentSet<>();
 
-        // set up values from server defaults
+        // Set up values from server defaults
         ticksPerAnimalSpawns = server.getTicksPerAnimalSpawns();
         ticksPerMonsterSpawns = server.getTicksPerMonsterSpawns();
         monsterSpawnLimit = server.getMonsterSpawnLimit();
@@ -498,10 +463,11 @@ public class GlowWorld implements World {
         messagingSystem = new MessagingSystem<>(policy, broker, filter);
 
         executor = new PriorityExecutor<>();
+        previousAreas = ImmutableMap.of();
         blockChanges = new ConcurrentLinkedDeque<>();
         afterBlockChanges = new LinkedList<>();
 
-        // read in world data
+        // Read in world data
         WorldFinalValues values;
         values = storage.getMetadataService().readWorldData();
         if (values != null) {
@@ -529,11 +495,8 @@ public class GlowWorld implements World {
         setKeepSpawnInMemory(keepSpawnLoaded);
 
         server.getLogger().info("Preparing spawn for " + name + ": done");
-        activeChunksSet = new HashSet<>();
         initialized = true;
         EventFactory.getInstance().callEvent(new WorldLoadEvent(this));
-
-        previousAreas = ImmutableMap.of();
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -1157,7 +1120,6 @@ public class GlowWorld implements World {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T extends Entity> Collection<T> getEntitiesByClass(Class<T> cls) {
         return entityManager.getEntitiesByClass(cls);
     }
@@ -1785,74 +1747,78 @@ public class GlowWorld implements World {
     // Entity spawning
 
     @Override
-    public <T extends Entity> T spawn(Location location,
-                                      Class<T> clazz) throws IllegalArgumentException {
-        return (T) spawn(location, EntityRegistry.getEntity(clazz), SpawnReason.CUSTOM);
+    @SuppressWarnings("unchecked")
+    public <T extends Entity> T spawn(Location location, Class<T> type) throws IllegalArgumentException {
+        return (T) spawn(location, EntityRegistry.getEntity(type), SpawnReason.CUSTOM);
     }
 
     @Override
-    public <T extends Entity> T spawn(Location location, Class<T> clazz,
-                                      Consumer<T> function) throws IllegalArgumentException {
-        return null; // TODO: work on type mismatches
+    public <T extends Entity> T spawn(
+            Location location,
+            Class<T> type,
+            Consumer<T> function
+    ) throws IllegalArgumentException {
+        // TODO: work on type mismatches
+        return null;
     }
 
     /**
      * Spawns an entity.
      *
-     * @param location the {@link Location} to spawn the entity at
-     * @param clazz    the class of the {@link Entity} to spawn
-     * @param reason   the reason for the spawning of the entity
-     * @return an instance of the spawned {@link Entity}
-     * @throws IllegalArgumentException TODO: document the reason this can happen
+     * @param location The {@link Location} to spawn the entity at.
+     * @param type The class of the {@link Entity} to spawn.
+     * @param reason The reason for the spawning of the entity.
+     * @return an instance of the spawned {@link Entity}.
+     * @throws IllegalArgumentException whenever the location or type is null.
      */
-    public GlowEntity spawn(Location location, Class<? extends GlowEntity> clazz,
-                            SpawnReason reason) throws IllegalArgumentException {
-        checkNotNull(location);
-        checkNotNull(clazz);
+    public GlowEntity spawn(
+            Location location,
+            Class<? extends GlowEntity> type,
+            SpawnReason reason
+    ) throws IllegalArgumentException {
 
-        GlowEntity entity = null;
+        checkNotNull(location);
+        checkNotNull(type);
 
         Location entitySpawnLocation = location.clone();
-
         Block blockUnderEntityWithinOffset = location.clone().subtract(0, GlowEntity.COLLISION_OFFSET, 0).getBlock();
-
         if (blockUnderEntityWithinOffset.getType() != Material.AIR) {
             entitySpawnLocation.add(0, GlowEntity.COLLISION_OFFSET, 0);
         }
 
+        if (EntityRegistry.getEntity(type) == null) {
+            throw new UnsupportedOperationException("Entity type not registered: " + type);
+        }
+
         try {
-            if (EntityRegistry.getEntity(clazz) != null) {
-                entity = EntityStorage.create(clazz, entitySpawnLocation);
-            }
-            // function.accept(entity); TODO: work on type mismatches
+
+            GlowEntity entity = EntityStorage.create(type, entitySpawnLocation);
+
             EntitySpawnEvent spawnEvent = null;
+            EventFactory eventFactory = EventFactory.getInstance();
             if (entity instanceof LivingEntity) {
-                spawnEvent = EventFactory.getInstance()
-                    .callEvent(new CreatureSpawnEvent((LivingEntity) entity, reason));
-            } else if (!(entity instanceof Item)) { // ItemSpawnEvent is called elsewhere
-                spawnEvent = EventFactory.getInstance().callEvent(new EntitySpawnEvent(entity));
+                spawnEvent = eventFactory.callEvent(new CreatureSpawnEvent((LivingEntity) entity, reason));
+            } else if (!(entity instanceof Item)) {
+                spawnEvent = eventFactory.callEvent(new EntitySpawnEvent(entity));
             }
+
             if (spawnEvent != null && spawnEvent.isCancelled()) {
-                // TODO: separate spawning and construction for better event cancellation
                 entity.remove();
             } else {
-                List<Message> spawnMessage = entity.createSpawnMessage();
-                final GlowEntity finalEntity = entity;
-                getRawPlayers().stream().filter(player -> player.canSeeEntity(finalEntity))
-                    .forEach(player -> player.getSession().sendAll(spawnMessage
-                        .toArray(new Message[spawnMessage.size()])));
+                List<Message> spawnMessages = entity.createSpawnMessage();
+                spawnMessages.forEach(message -> messagingSystem.broadcast(entity, message));
             }
-        } catch (NoSuchMethodError | IllegalAccessError e) {
-            GlowServer.logger.log(Level.WARNING, "Invalid entity spawn: ", e);
-        } catch (Throwable t) {
-            GlowServer.logger.log(Level.SEVERE, "Unable to spawn entity: ", t);
-        }
 
-        if (entity != null) {
             return entity;
+
+        } catch (NoSuchMethodError | IllegalAccessError exception) {
+            GlowServer.logger.log(Level.WARNING, "Invalid entity spawn: ", exception);
+
+        } catch (Throwable throwable) {
+            GlowServer.logger.log(Level.SEVERE, "Unable to spawn entity: ", throwable);
         }
 
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("Could not spawn entity of type: " + type);
     }
 
     /**
@@ -1993,8 +1959,7 @@ public class GlowWorld implements World {
         return spawn(loc, type.getEntityClass());
     }
 
-    private GlowLightningStrike strikeLightningFireEvent(Location loc, boolean effect,
-                                                         boolean isSilent) {
+    private GlowLightningStrike strikeLightningFireEvent(Location loc, boolean effect, boolean isSilent) {
         checkNotNull(loc);
         GlowLightningStrike strike = new GlowLightningStrike(loc, effect, isSilent);
         LightningStrikeEvent event = new LightningStrikeEvent(this, strike);
@@ -2235,7 +2200,7 @@ public class GlowWorld implements World {
 
     @Override
     public Spigot spigot() {
-        return spigot;
+        throw new UnsupportedOperationException("Spigot is not supported");
     }
 
     /**
