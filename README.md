@@ -157,7 +157,7 @@ git checkout dev
 git merge --no-ff upstream/dev
 ```
 
-There is a reasonable chance that this results in conflicting files—Glowstone's developers may have edited the code were inspecting or monitoring. **Merge these conflicts carefully.** Our existing modifications can be crucial for somebody else's experiments. If you don't know what to do, contact one of the other Opencraft team-members.
+There is a reasonable chance that this results in conflicting files, Glowstone's developers may have edited the code were inspecting or monitoring. **Merge these conflicts carefully.** Our existing modifications can be crucial for somebody else's experiments. If you don't know what to do, contact one of the other Opencraft team-members.
 
 # Running Experiments
 
