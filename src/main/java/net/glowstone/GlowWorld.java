@@ -594,51 +594,46 @@ public class GlowWorld implements World {
      */
     private void updateAreasOfInterest(Collection<GlowPlayer> players) {
 
-        // Compute current areas of interest
         ImmutableMap.Builder<GlowPlayer, AreaOfInterest> currentAreasBuilder = ImmutableMap.builder();
         players.forEach(player -> currentAreasBuilder.put(player, player.getAreaOfInterest()));
         ImmutableMap<GlowPlayer, AreaOfInterest> currentAreas = currentAreasBuilder.build();
 
-        // Collect all current and previous players
         Set<GlowPlayer> currentPlayers = currentAreas.keySet();
         Set<GlowPlayer> previousPlayers = previousAreas.keySet();
         Sets.SetView<GlowPlayer> allPlayers = Sets.union(currentPlayers, previousPlayers);
 
-        // TODO: Reduce re-subscription of players.
-
-        // Update the messaging system
         allPlayers.forEach(player -> {
             Session session = player.getSession();
             messagingSystem.update(player, session::send);
         });
 
-        // Find chunks to load
         List<ChunkRunnable> chunksToLoad = allPlayers.parallelStream()
-                .flatMap(player -> {
+                .map(player -> {
                     AreaOfInterest current = currentAreas.get(player);
                     AreaOfInterest previous = previousAreas.get(player);
-                    return getChunksToLoad(current, previous).stream()
-                            .map(chunk -> new ChunkRunnable(player, chunk));
+                    return getChunksToLoad(player, current, previous);
                 })
+                .flatMap(List::stream)
                 .collect(Collectors.toList());
 
-        // Enqueue chunks for loading
+        if (chunksToLoad.size() > 0) {
+            System.out.println("Load: " + chunksToLoad.size());
+        }
+
         Set<ChunkRunnable> cancelled = executor.executeAndCancel(chunksToLoad, ChunkRunnable::shouldBeCancelled);
 
-        // Find chunks to unload
-        Stream<ChunkRunnable> chunksToUnload = allPlayers.parallelStream()
-                .flatMap(player -> {
+        List<ChunkRunnable> chunksToUnload = allPlayers.parallelStream()
+                .map(player -> {
                     AreaOfInterest current = currentAreas.get(player);
                     AreaOfInterest previous = previousAreas.get(player);
-                    return getChunksToUnload(current, previous).stream()
-                            .map(chunk -> new ChunkRunnable(player, chunk));
+                    return getChunksToUnload(player, current, previous);
                 })
-                .filter(chunk -> !cancelled.contains(chunk));
+                .flatMap(List::stream)
+                .filter(runnable -> !cancelled.contains(runnable))
+                .collect(Collectors.toList());
 
-        // Unload chunks that have not been cancelled
         unloadChunks(chunksToUnload);
 
-        // Update the previous areas of interest
         previousAreas = currentAreas;
     }
 
@@ -649,8 +644,8 @@ public class GlowWorld implements World {
      * @param previous the previous area of interest.
      * @return the list of chunks.
      */
-    private List<GlowChunk> getChunksToLoad(AreaOfInterest current, AreaOfInterest previous) {
-        return getDifference(current, previous);
+    private List<ChunkRunnable> getChunksToLoad(GlowPlayer player, AreaOfInterest current, AreaOfInterest previous) {
+        return getDifference(player, current, previous);
     }
 
     /**
@@ -660,8 +655,8 @@ public class GlowWorld implements World {
      * @param previous the previous area of interest.
      * @return the list of chunks.
      */
-    private List<GlowChunk> getChunksToUnload(AreaOfInterest current, AreaOfInterest previous) {
-        return getDifference(previous, current);
+    private List<ChunkRunnable> getChunksToUnload(GlowPlayer player, AreaOfInterest current, AreaOfInterest previous) {
+        return getDifference(player, previous, current);
     }
 
     /**
@@ -671,7 +666,7 @@ public class GlowWorld implements World {
      * @param second the second area of interest.
      * @return the list of chunks.
      */
-    private List<GlowChunk> getDifference(AreaOfInterest first, AreaOfInterest second) {
+    private List<ChunkRunnable> getDifference(GlowPlayer player, AreaOfInterest first, AreaOfInterest second) {
 
         if (first == null || first.equals(second)) {
             return new ArrayList<>();
@@ -684,33 +679,32 @@ public class GlowWorld implements World {
         int r1 = first.getRadius(limit);
 
         if (second == null || first.getWorld() != second.getWorld()) {
-            int count = (2 * r1 + 1) * (2 * r1 + 1);
-            List<GlowChunk> chunks = new ArrayList<>(count);
+            List<ChunkRunnable> runnables = new ArrayList<>();
             for (int x = cx1 - r1; x <= cx1 + r1; x++) {
                 for (int z = cz1 - r1; z <= cz1 + r1; z++) {
                     GlowChunk chunk = getChunkAt(x, z);
-                    chunks.add(chunk);
+                    ChunkRunnable runnable = new ChunkRunnable(player, chunk);
+                    runnables.add(runnable);
                 }
             }
-            return chunks;
+            return runnables;
         }
 
         int cx2 = second.getCenterX();
         int cz2 = second.getCenterZ();
         int r2 = second.getRadius(limit);
 
-        // TODO: Optimize the following loop. Could we store a cached list of chunks in the AreaOfInterest?
-
-        List<GlowChunk> chunks = new ArrayList<>();
+        List<ChunkRunnable> runnables = new ArrayList<>();
         for (int x = cx1 - r1; x <= cx1 + r1; x++) {
             for (int z = cz1 - r1; z <= cz1 + r1; z++) {
-                if (Math.abs(x - cx2) >= r2 || Math.abs(z - cz2) >= r2) {
+                if (Math.abs(x - cx2) > r2 || Math.abs(z - cz2) > r2) {
                     GlowChunk chunk = getChunkAt(x, z);
-                    chunks.add(chunk);
+                    ChunkRunnable runnable = new ChunkRunnable(player, chunk);
+                    runnables.add(runnable);
                 }
             }
         }
-        return chunks;
+        return runnables;
     }
 
     /**
@@ -719,17 +713,19 @@ public class GlowWorld implements World {
      *
      * @param toUnload The chunks to be unloaded.
      */
-    private void unloadChunks(Stream<ChunkRunnable> toUnload) {
+    private void unloadChunks(List<ChunkRunnable> toUnload) {
         toUnload.forEach(runnable -> {
 
             GlowPlayer player = runnable.getPlayer();
             GlowChunk chunk = runnable.getChunk();
 
             Message message = new UnloadChunkMessage(chunk.getX(), chunk.getZ());
-            player.getSession().send(message);
+            Session session = player.getSession();
+            session.send(message);
 
             GlowChunk.Key key = GlowChunk.Key.of(chunk.getX(), chunk.getZ());
-            player.getChunkLock().release(key);
+            ChunkLock lock = player.getChunkLock();
+            lock.release(key);
         });
     }
 
@@ -741,11 +737,23 @@ public class GlowWorld implements World {
      * @return the set of active chunks around the given players.
      */
     private Set<GlowChunk> findActiveChunks(Collection<GlowPlayer> players) {
-        return players.stream()
-                .map(GlowPlayer::getKnownChunks)
-                .flatMap(Collection::stream)
-                .map(GlowChunk.class::cast)
-                .collect(Collectors.toSet());
+        Set<GlowChunk> chunks = new HashSet<>();
+        players.forEach(player -> {
+
+            AreaOfInterest area = player.getAreaOfInterest();
+            int cx = area.getCenterX();
+            int cz = area.getCenterZ();
+            int limit = server.getViewDistance();
+            int r1 = area.getRadius(limit);
+
+            for (int x = cx - r1; x <= cx + r1; x++) {
+                for (int z = cz - r1; z <= cz + r1; z++) {
+                    GlowChunk chunk = getChunkAt(x, z);
+                    chunks.add(chunk);
+                }
+            }
+        });
+        return chunks;
     }
 
     /**

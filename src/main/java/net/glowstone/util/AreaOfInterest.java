@@ -12,7 +12,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class AreaOfInterest {
 
-    private final Location location;
+    private final int x;
+    private final int z;
+    private final World world;
     private final int viewDistance;
 
     /**
@@ -22,20 +24,22 @@ public final class AreaOfInterest {
      * @param viewDistance The viewdistance to be stored.
      */
     public AreaOfInterest(@NotNull Location location, int viewDistance) {
-        this.location = location;
+        x = location.getBlockX() >> 4;
+        z = location.getBlockZ() >> 4;
+        world = location.getWorld();
         this.viewDistance = viewDistance;
     }
 
-    public World getWorld() {
-        return location.getWorld();
-    }
-
     public int getCenterX() {
-        return location.getBlockX() >> 4;
+        return x;
     }
 
     public int getCenterZ() {
-        return location.getBlockZ() >> 4;
+        return z;
+    }
+
+    public World getWorld() {
+        return world;
     }
 
     public int getRadius(int limit) {
@@ -62,11 +66,14 @@ public final class AreaOfInterest {
 
         AreaOfInterest that = (AreaOfInterest) other;
 
-        return Objects.equals(viewDistance, that.viewDistance) && Objects.equals(location, that.location);
+        return x == that.x
+                && z == that.z
+                && Objects.equals(world, that.world)
+                && Objects.equals(viewDistance, that.viewDistance);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(location, viewDistance);
+        return Objects.hash(x, z, world, viewDistance);
     }
 }
