@@ -568,7 +568,6 @@ public class GlowWorld implements World {
 
         entities.forEach(GlowEntity::pulse);
 
-        broadcastEntityRemovals(entities);
         broadcastEntityUpdates(entities);
 
         // TODO: Refactor entity spawning
@@ -904,24 +903,15 @@ public class GlowWorld implements World {
      * @param entities The entities for which update messages should be generated.
      */
     private void broadcastEntityUpdates(Collection<GlowEntity> entities) {
-        entities.forEach(entity -> {
-            List<Message> messages = entity.createUpdateMessage();
-            messages.forEach(message -> messagingSystem.broadcast(entity, message));
-        });
-    }
-
-    /**
-     * Broadcast the removal of entities.
-     *
-     * @param entities A collection of all entities that should be checked for removal.
-     */
-    private void broadcastEntityRemovals(Collection<GlowEntity> entities) {
-        entities.forEach(entity -> {
+        entities.parallelStream().forEach(entity -> {
             if (entity.isRemoved()) {
                 int id = entity.getEntityId();
                 List<Integer> ids = Collections.singletonList(id);
                 Message message = new DestroyEntitiesMessage(ids);
                 messagingSystem.broadcast(entity, message);
+            } else {
+                List<Message> messages = entity.createUpdateMessage();
+                messages.forEach(message -> messagingSystem.broadcast(entity, message));
             }
         });
     }

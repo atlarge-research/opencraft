@@ -70,6 +70,11 @@ public final class ChunkPolicy implements Policy<Chunk, Object, Player> {
             return Collections.singletonList(chunk);
         }
 
+        if (publisher instanceof Location) {
+            Chunk chunk = ((Location) publisher).getChunk();
+            return Collections.singletonList(chunk);
+        }
+
         throw new UnsupportedOperationException("Cannot select target topic for type: " + publisher.getClass());
     }
 }
