@@ -1,4 +1,4 @@
-package net.glowstone.messaging.brokers.codecs;
+package net.glowstone.messaging.codecs;
 
 import com.flowpowered.network.Codec;
 import com.flowpowered.network.Message;
@@ -14,7 +14,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.jms.BytesMessage;
 import javax.jms.JMSException;
 import javax.jms.Session;
-import net.glowstone.messaging.brokers.JmsCodec;
 import net.glowstone.net.codec.KickCodec;
 import net.glowstone.net.codec.play.entity.AnimateEntityCodec;
 import net.glowstone.net.codec.play.entity.AttachEntityCodec;
@@ -171,6 +170,7 @@ import net.glowstone.net.message.play.scoreboard.ScoreboardDisplayMessage;
 import net.glowstone.net.message.play.scoreboard.ScoreboardObjectiveMessage;
 import net.glowstone.net.message.play.scoreboard.ScoreboardScoreMessage;
 import net.glowstone.net.message.play.scoreboard.ScoreboardTeamMessage;
+import science.atlarge.opencraft.messaging.brokers.JmsCodec;
 
 /**
  * The composite codec combines all gameplay related codecs into a single codec for use by the JMS based brokers.
