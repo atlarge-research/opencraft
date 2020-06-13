@@ -11,9 +11,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import net.glowstone.messaging.TimeBasedTest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class that verifies whether the PriorityExecutor can get drained of not yet executed runnables and whether
@@ -46,7 +46,7 @@ class PriorityExecutorTest {
      * @throws InterruptedException Whenever the future's getter is interrupted.
      * @throws TimeoutException Whenever the timeout is reached on the future's getter.
      */
-    @TimeBasedTest
+    @Test
     void executeAndCancel() throws ExecutionException, InterruptedException, TimeoutException {
 
         final double highPriority = 0.0;
