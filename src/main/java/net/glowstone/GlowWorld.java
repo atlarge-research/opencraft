@@ -18,11 +18,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -69,7 +68,6 @@ import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.message.play.entity.DestroyEntitiesMessage;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
-import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
 import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
@@ -82,7 +80,6 @@ import net.glowstone.util.Vectors;
 import net.glowstone.util.collection.ConcurrentSet;
 import net.glowstone.util.config.WorldConfig;
 import net.glowstone.util.nbt.CompoundTag;
-import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.BlockChangeDelegate;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
@@ -129,7 +126,6 @@ import org.bukkit.metadata.MetadataStoreBase;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.messaging.StandardMessenger;
-import org.bukkit.util.BlockVector;
 import org.bukkit.util.Consumer;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NonNls;
@@ -410,10 +406,6 @@ public class GlowWorld implements World {
 
     private final PriorityExecutor<ChunkRunnable> executor;
 
-    private final Queue<BlockChangeMessage> blockChanges;
-
-    private final List<Pair<GlowChunk.Key, Message>> afterBlockChanges;
-
     private ImmutableMap<GlowPlayer, AreaOfInterest> previousAreas;
 
     /**
@@ -464,8 +456,6 @@ public class GlowWorld implements World {
 
         executor = new PriorityExecutor<>();
         previousAreas = ImmutableMap.of();
-        blockChanges = new ConcurrentLinkedDeque<>();
-        afterBlockChanges = new LinkedList<>();
 
         // Read in world data
         WorldFinalValues values;
@@ -525,7 +515,6 @@ public class GlowWorld implements World {
         pulseTickMap();
         Set<GlowChunk> activeChunks = findActiveChunks(players);
         updateBlocksInChunks(activeChunks);
-        processBlockChanges();
 
         List<GlowEntity> entities = entityManager.getAll();
 
@@ -534,7 +523,8 @@ public class GlowWorld implements World {
         broadcastEntityUpdates(entities);
 
         // TODO: Refactor entity spawning
-        players.forEach(GlowPlayer::spawnEntities);
+//        players.forEach(GlowPlayer::spawnEntities);
+        broadcastEntitySpawns(players, entities);
 
         entities.forEach(GlowEntity::reset);
 
@@ -578,10 +568,6 @@ public class GlowWorld implements World {
                 })
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
-
-        if (chunksToLoad.size() > 0) {
-            System.out.println("Load: " + chunksToLoad.size());
-        }
 
         Set<ChunkRunnable> cancelled = executor.executeAndCancel(chunksToLoad, ChunkRunnable::shouldBeCancelled);
 
@@ -779,7 +765,7 @@ public class GlowWorld implements World {
         int materialId = material.getId();
         BlockChangeMessage message = new BlockChangeMessage(loc.getBlockX(), loc.getBlockY(), loc
                 .getBlockZ(), materialId, data);
-        addBlockChange(message);
+        broadcastBlockChange(message);
     }
 
     /**
@@ -802,7 +788,7 @@ public class GlowWorld implements World {
                 type.getValue(),
                 nbt
         );
-        addAfterBlockChange(location, message);
+        broadcastAfterBlockChange(location, message);
     }
 
     /**
@@ -810,8 +796,9 @@ public class GlowWorld implements World {
      *
      * @param message The message to be stored.
      */
-    public void addBlockChange(BlockChangeMessage message) {
-        blockChanges.add(message);
+    public void broadcastBlockChange(BlockChangeMessage message) {
+        GlowBlock block = getBlockAt(message.getX(), message.getY(), message.getZ());
+        messagingSystem.broadcast(block, message);
     }
 
     /**
@@ -820,52 +807,8 @@ public class GlowWorld implements World {
      * @param location The location of the block change.
      * @param message The message to be stored.
      */
-    public void addAfterBlockChange(Location location, Message message) {
-        Chunk chunk = location.getChunk();
-        GlowChunk.Key key = GlowChunk.Key.of(chunk.getX(), chunk.getZ());
-        afterBlockChanges.add(Pair.of(key, message));
-    }
-
-    /**
-     * Process and send pending BlockChangeMessages for each chunk. Messages are published to the corresponding
-     * chunks to players that are interested.
-     */
-    private void processBlockChanges() {
-
-        Map<Chunk, Map<BlockVector, BlockChangeMessage>> chunks = new HashMap<>();
-        while (true) {
-
-            BlockChangeMessage message = blockChanges.poll();
-            if (message == null) {
-                break;
-            }
-
-            Chunk chunk = getChunkAt(message.getX() >> 4, message.getZ() >> 4);
-            Map<BlockVector, BlockChangeMessage> map = chunks.computeIfAbsent(chunk, c -> new HashMap<>());
-            BlockVector vector = new BlockVector(message.getX(), message.getY(), message.getZ());
-            map.put(vector, message);
-        }
-
-        for (Map.Entry<Chunk, Map<BlockVector, BlockChangeMessage>> entry : chunks.entrySet()) {
-
-            Chunk chunk = entry.getKey();
-            List<BlockChangeMessage> values = new ArrayList<>(entry.getValue().values());
-
-            if (values.size() == 1) {
-                messagingSystem.broadcast(chunk, values.get(0));
-            } else if (values.size() > 1) {
-                Message message = new MultiBlockChangeMessage(chunk.getX(), chunk.getZ(), values);
-                messagingSystem.broadcast(chunk, message);
-            }
-        }
-
-        List<Pair<GlowChunk.Key, Message>> postMessages = new ArrayList<>(afterBlockChanges);
-        afterBlockChanges.removeAll(postMessages);
-        postMessages.forEach(pair -> {
-            GlowChunk.Key key = pair.getLeft();
-            Message message = pair.getRight();
-            messagingSystem.broadcast(getChunkAt(key.getX(), key.getZ()), message);
-        });
+    public void broadcastAfterBlockChange(Location location, Message message) {
+        messagingSystem.broadcast(location, message);
     }
 
     /**
@@ -874,17 +817,83 @@ public class GlowWorld implements World {
      * @param entities The entities for which update messages should be generated.
      */
     private void broadcastEntityUpdates(Collection<GlowEntity> entities) {
-        entities.parallelStream().forEach(entity -> {
-            if (entity.isRemoved()) {
-                int id = entity.getEntityId();
-                List<Integer> ids = Collections.singletonList(id);
-                Message message = new DestroyEntitiesMessage(ids);
-                messagingSystem.broadcast(entity, message);
-            } else {
-                List<Message> messages = entity.createUpdateMessage();
-                messages.forEach(message -> messagingSystem.broadcast(entity, message));
-            }
+        entities.forEach(entity -> {
+            List<Message> messages = entity.createUpdateMessage();
+            messages.forEach(message -> messagingSystem.broadcast(entity, message));
         });
+    }
+
+    private Map<GlowEntity, Chunk> previousEntityChunks = new HashMap<>();
+
+    private static final class Transition {
+
+        private final GlowEntity entity;
+        private final Chunk source;
+        private final Chunk destination;
+        private List<Message> spawnMessages;
+
+        private Transition(GlowEntity entity, Chunk source, Chunk destination) {
+            this.entity = entity;
+            this.source = source;
+            this.destination = destination;
+        }
+
+        private boolean hasMoved() {
+            return source != destination;
+        }
+
+        private List<Message> getSpawnMessages() {
+            if (spawnMessages == null) {
+                spawnMessages = entity.createSpawnMessage();
+            }
+            return spawnMessages;
+        }
+    }
+
+    private void broadcastEntitySpawns(Collection<GlowPlayer> players, Collection<GlowEntity> entities) {
+
+        int limit = server.getViewDistance();
+
+        Map<GlowEntity, Chunk> currentEntityChunks = entities.stream()
+                .collect(Collectors.toMap(Function.identity(), GlowEntity::getChunk));
+
+        Set<GlowEntity> currentEntities = currentEntityChunks.keySet();
+        Set<GlowEntity> previousEntities = previousEntityChunks.keySet();
+
+        Sets.SetView<GlowEntity> allEntities = Sets.union(currentEntities, previousEntities);
+
+        allEntities.stream()
+                .map(entity -> {
+                    Chunk destination = currentEntityChunks.get(entity);
+                    Chunk source = previousEntityChunks.get(entity);
+                    return new Transition(entity, source, destination);
+                })
+                .filter(Transition::hasMoved)
+                .forEach(transition -> players.forEach(player -> {
+
+                    if (transition.entity == player) {
+                        return;
+                    }
+
+                    Session session = player.getSession();
+                    AreaOfInterest area = player.getAreaOfInterest();
+
+                    if (transition.source != null && area.contains(transition.source, limit)) {
+                        if (transition.destination == null || !area.contains(transition.destination, limit)) {
+                            int id = transition.entity.getEntityId();
+                            List<Integer> ids = Collections.singletonList(id);
+                            Message message = new DestroyEntitiesMessage(ids);
+                            session.send(message);
+                        }
+                    } else {
+                        if (transition.destination != null && area.contains(transition.destination, limit)) {
+                            List<Message> messages = transition.getSpawnMessages();
+                            messages.forEach(session::send);
+                        }
+                    }
+                }));
+
+        previousEntityChunks = currentEntityChunks;
     }
 
     private void saveWorld() {

@@ -290,6 +290,6 @@ public class BlockRedstone extends BlockNeedsAttached {
     public void receivePulse(GlowBlock me) {
         BlockChangeMessage bcmsg = new BlockChangeMessage(me.getX(), me.getY(), me.getZ(),
             me.getTypeId(), me.getData());
-        me.getWorld().addBlockChange(bcmsg);
+        me.getWorld().broadcastBlockChange(bcmsg);
     }
 }

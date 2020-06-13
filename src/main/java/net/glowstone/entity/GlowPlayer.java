@@ -3459,7 +3459,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 location.getBlockZ(),
                 destroyStage
         );
-        world.addAfterBlockChange(block.getLocation(), message);
+        world.broadcastAfterBlockChange(block.getLocation(), message);
     }
 
     private void pulseDigging() {
