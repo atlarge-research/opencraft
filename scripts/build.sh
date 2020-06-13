@@ -9,5 +9,5 @@ case "${OS}" in
 esac
 cd "$BINDIR"
 
-# Build Glowstone
+# Build Opencraft
 (cd .. && mvn -T 1C -B package)

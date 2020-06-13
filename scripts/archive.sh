@@ -15,12 +15,12 @@ for i in {1..1000}; do
 		break
 	fi
 	if [ $i -eq "1000" ]; then
-		echo "Congratulations, you've compiled Glowstone 1000 times today!"
+		echo "Congratulations, you've compiled Opencraft 1000 times today!"
 		echo "Unfortunately, the build script is not prepared for this and will exit now."
 		exit 1
 	fi
 done
 
 ./scripts/build.sh
-cp target/glowstone.jar ${FILE}.jar
+cp target/opencraft.jar ${FILE}.jar
 zip -r ${FILE}.zip . --exclude builds .DS_Store

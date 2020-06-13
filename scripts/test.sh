@@ -13,8 +13,8 @@ fi
 # or if we didn't build, just run
 if [ $? -eq 0 ] || [ "$1" == "run" ];
 then
-  # Run Glowstone
+  # Run Opencraft
   (cd ../target && ../scripts/start.sh)
 else
-  echo "Glowstone did not build successfully."
+  echo "Opencraft did not build successfully."
 fi

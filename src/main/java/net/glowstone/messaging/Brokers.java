@@ -73,7 +73,7 @@ public final class Brokers {
             case "guava":
                 return GuavaChannel::new;
 
-            case "readWrite":
+            case "readwrite":
                 return ReadWriteChannel::new;
 
             case "unsafe":

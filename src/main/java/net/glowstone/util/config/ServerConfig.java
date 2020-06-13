@@ -390,7 +390,7 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
 
         // Opencraft
         OPENCRAFT_COLLECTOR("opencraft.collector", false, Boolean.class::isInstance),
-        OPENCRAFT_POLICY("opencraft.policy", "Chunk", String.class::isInstance),
+        OPENCRAFT_POLICY("opencraft.policy", "chunk", String.class::isInstance),
         OPENCRAFT_BROKER_TYPE("opencraft.broker.type", "readwrite", String.class::isInstance),
         OPENCRAFT_BROKER_HOST("opencraft.broker.host", "localhost", String.class::isInstance),
         OPENCRAFT_BROKER_PORT("opencraft.broker.port", 0, Integer.class::isInstance),
