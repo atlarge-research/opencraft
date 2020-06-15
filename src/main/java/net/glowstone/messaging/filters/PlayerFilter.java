@@ -3,7 +3,6 @@ package net.glowstone.messaging.filters;
 import com.flowpowered.network.Message;
 import java.util.Map;
 import java.util.function.Function;
-import net.glowstone.messaging.Filter;
 import net.glowstone.net.message.play.entity.EntityEquipmentMessage;
 import net.glowstone.net.message.play.entity.EntityHeadRotationMessage;
 import net.glowstone.net.message.play.entity.EntityMetadataMessage;
@@ -17,6 +16,7 @@ import net.glowstone.net.message.play.entity.SpawnPlayerMessage;
 import net.glowstone.net.message.play.game.BlockBreakAnimationMessage;
 import net.glowstone.net.message.play.player.UseBedMessage;
 import org.bukkit.entity.Player;
+import science.atlarge.opencraft.messaging.Filter;
 
 /**
  * The player filter prevents players from receiving messages the Minecraft client does not expect.

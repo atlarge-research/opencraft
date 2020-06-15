@@ -17,7 +17,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import net.glowstone.messaging.TimeBasedTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -153,7 +152,7 @@ class SortableBlockingQueueTest {
     /**
      * Verify that an element can be offered to the queue with a timeout.
      */
-    @TimeBasedTest
+    @Test
     void offerTimeoutTest() {
         queue.offer(1, 50L, TimeUnit.MILLISECONDS);
         assertTrue(queue.contains(1));
@@ -177,7 +176,7 @@ class SortableBlockingQueueTest {
      * @throws InterruptedException thrown when the element could not be taken out of the queue.
      * @throws ExecutionException thrown whenever the take method is interrupted by another thread.
      */
-    @TimeBasedTest
+    @Test
     void takeWaitTest() throws InterruptedException, ExecutionException {
         CompletableFuture<Integer> future = new CompletableFuture<>();
         CountDownLatch latch = new CountDownLatch(1);
@@ -201,7 +200,7 @@ class SortableBlockingQueueTest {
      *
      * @throws InterruptedException thrown whenever the poll method is interrupted by another thread.
      */
-    @TimeBasedTest
+    @Test
     void pollTimeoutTest() throws InterruptedException {
         queue.add(1);
         assertEquals(1, queue.poll(50L, TimeUnit.MILLISECONDS));
@@ -214,7 +213,7 @@ class SortableBlockingQueueTest {
      * @throws InterruptedException thrown whenever the element cannot be retrieved.
      * @throws ExecutionException thrown whenever the poll method is interrupted by another thread.
      */
-    @TimeBasedTest
+    @Test
     void pollTimeoutWaitTest() throws InterruptedException, ExecutionException {
         CompletableFuture<Integer> future = new CompletableFuture<>();
         CountDownLatch latch = new CountDownLatch(1);
@@ -238,7 +237,7 @@ class SortableBlockingQueueTest {
      *
      * @throws InterruptedException thrown whenever the poll method is interrupted by another thread.
      */
-    @TimeBasedTest
+    @Test
     void pollTimeoutEmptyTest() throws InterruptedException {
         assertNull(queue.poll(50L, TimeUnit.MILLISECONDS));
     }
@@ -418,6 +417,7 @@ class SortableBlockingQueueTest {
     void clearTest() {
         queue.add(1);
         queue.clear();
+        //noinspection ConstantConditions
         assertTrue(queue.isEmpty());
     }
 
@@ -495,6 +495,7 @@ class SortableBlockingQueueTest {
         queue.add(1);
         queue.add(2);
         Collection<Integer> elements = new ArrayList<>();
+        //noinspection UseBulkOperation
         queue.forEach(elements::add);
         assertTrue(elements.containsAll(Arrays.asList(1, 2)));
     }
@@ -576,7 +577,7 @@ class SortableBlockingQueueTest {
     /**
      * Verify that a transaction is performed as a single atomic operation.
      */
-    @TimeBasedTest
+    @Test
     void transactionTest() {
 
         CountDownLatch first = new CountDownLatch(1);

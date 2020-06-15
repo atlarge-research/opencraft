@@ -3,13 +3,13 @@ package net.glowstone.messaging.policies;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import net.glowstone.messaging.Policy;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import science.atlarge.opencraft.messaging.Policy;
 
 /**
  * Defines a mapping from players to chunks of interest and from objects to the chunk in which they reside.

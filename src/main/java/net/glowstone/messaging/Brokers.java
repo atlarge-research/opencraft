@@ -1,22 +1,20 @@
 package net.glowstone.messaging;
 
 import com.flowpowered.network.Message;
-import com.rabbitmq.jms.admin.RMQConnectionFactory;
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
 import javax.jms.JMSException;
-import net.glowstone.messaging.brokers.ChannelFactory;
-import net.glowstone.messaging.brokers.ConcurrentBroker;
-import net.glowstone.messaging.brokers.JmsBroker;
-import net.glowstone.messaging.brokers.ReadWriteBroker;
-import net.glowstone.messaging.brokers.codecs.CompositeCodec;
-import net.glowstone.messaging.channels.ConcurrentChannel;
-import net.glowstone.messaging.channels.GuavaChannel;
-import net.glowstone.messaging.channels.ReadWriteChannel;
-import net.glowstone.messaging.channels.UnsafeChannel;
+import net.glowstone.messaging.codecs.CompositeCodec;
 import net.glowstone.util.config.BrokerConfig;
 import net.glowstone.util.config.ChannelConfig;
-import org.apache.activemq.ActiveMQConnectionFactory;
+import science.atlarge.opencraft.messaging.Broker;
+import science.atlarge.opencraft.messaging.brokers.ActivemqBroker;
+import science.atlarge.opencraft.messaging.brokers.ChannelFactory;
+import science.atlarge.opencraft.messaging.brokers.ConcurrentBroker;
+import science.atlarge.opencraft.messaging.brokers.RabbitmqBroker;
+import science.atlarge.opencraft.messaging.brokers.ReadWriteBroker;
+import science.atlarge.opencraft.messaging.channels.ConcurrentChannel;
+import science.atlarge.opencraft.messaging.channels.GuavaChannel;
+import science.atlarge.opencraft.messaging.channels.ReadWriteChannel;
+import science.atlarge.opencraft.messaging.channels.UnsafeChannel;
 
 /**
  * A factory class to for creating multiple types of brokers.
@@ -67,13 +65,12 @@ public final class Brokers {
         switch (type.toLowerCase()) {
 
             case "concurrent":
-                int parallelismThreshold = config.getParallelismThreshold();
-                return () -> new ConcurrentChannel<>(parallelismThreshold);
+                return ConcurrentChannel::new;
 
             case "guava":
                 return GuavaChannel::new;
 
-            case "readWrite":
+            case "readwrite":
                 return ReadWriteChannel::new;
 
             case "unsafe":
@@ -86,10 +83,12 @@ public final class Brokers {
 
     private static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newActivemqBroker(BrokerConfig config) {
         try {
-            String url = "tcp://" + config.getHost() + ":" + config.getPort();
-            ConnectionFactory factory = new ActiveMQConnectionFactory(url);
-            Connection connection = factory.createConnection(config.getUsername(), config.getPassword());
-            return newJmsBroker(connection);
+            String host = config.getHost();
+            int port = config.getPort();
+            String username = config.getUsername();
+            String password = config.getPassword();
+            CompositeCodec codec = new CompositeCodec();
+            return new ActivemqBroker<>(codec, host, port, username, password);
         } catch (JMSException e) {
             throw new RuntimeException(e);
         }
@@ -97,21 +96,13 @@ public final class Brokers {
 
     private static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newRabbitmqBroker(BrokerConfig config) {
         try {
-            RMQConnectionFactory factory = new RMQConnectionFactory();
-            factory.setHost(config.getHost());
-            factory.setPort(config.getPort());
-            factory.setVirtualHost(config.getVirtualHost());
-            Connection connection = factory.createTopicConnection(config.getUsername(), config.getPassword());
-            return newJmsBroker(connection);
-        } catch (JMSException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newJmsBroker(Connection connection) {
-        try {
+            String host = config.getHost();
+            int port = config.getPort();
+            String username = config.getUsername();
+            String password = config.getPassword();
+            String virtualHost = config.getVirtualHost();
             CompositeCodec codec = new CompositeCodec();
-            return new JmsBroker<>(connection, codec);
+            return new RabbitmqBroker<>(codec, host, port, username, password, virtualHost);
         } catch (JMSException e) {
             throw new RuntimeException(e);
         }

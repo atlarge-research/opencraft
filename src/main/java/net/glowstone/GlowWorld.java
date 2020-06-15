@@ -59,10 +59,7 @@ import net.glowstone.generator.structures.GlowStructure;
 import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
-import net.glowstone.messaging.Broker;
 import net.glowstone.messaging.Brokers;
-import net.glowstone.messaging.Filter;
-import net.glowstone.messaging.MessagingSystem;
 import net.glowstone.messaging.filters.PlayerFilter;
 import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.message.play.entity.DestroyEntitiesMessage;
@@ -129,6 +126,9 @@ import org.bukkit.plugin.messaging.StandardMessenger;
 import org.bukkit.util.Consumer;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NonNls;
+import science.atlarge.opencraft.messaging.Broker;
+import science.atlarge.opencraft.messaging.Filter;
+import science.atlarge.opencraft.messaging.MessagingSystem;
 
 /**
  * A class which represents the in-game world.
