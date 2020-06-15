@@ -38,11 +38,8 @@ test:
     - build
   script:
     - mvn $MAVEN_CLI_OPTS test
-    - mkdir public
-    - mv target/site/jacoco/index.html public
+    - cat target/site/jacoco/index.html public | grep -o '.*'
   artifacts:
-    paths:
-      - public
     reports:
       junit:
         - target/surefire-reports/TEST-*.xml
