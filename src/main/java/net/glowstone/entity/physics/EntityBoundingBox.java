@@ -1,5 +1,6 @@
 package net.glowstone.entity.physics;
 
+import net.glowstone.util.Vectors;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Location;
@@ -57,121 +58,143 @@ public class EntityBoundingBox extends BoundingBox {
         return broadPhase;
     }
 
+    /**
+     * Returns the inverse exit position vector.
+     * @param velocity The velocity of the entity
+     * @param staticBox The bounding box to check collision with
+     * @return The inverse exit position vector
+     */
+    private Vector getInverseExit(Vector velocity, BoundingBox staticBox) {
+
+        Vector inverseExit = new Vector();
+
+        if (velocity.getX() > 0.0f) {
+            inverseExit.setX(staticBox.maxCorner.getX() - this.minCorner.getX());
+        } else {
+            inverseExit.setX(staticBox.minCorner.getX() - this.maxCorner.getX());
+        }
+
+        if (velocity.getY() > 0.0f) {
+            inverseExit.setY(staticBox.maxCorner.getY() - this.minCorner.getY());
+        } else {
+            inverseExit.setY(staticBox.minCorner.getY() - this.maxCorner.getY());
+        }
+
+        if (velocity.getZ() > 0.0f) {
+            inverseExit.setZ(staticBox.maxCorner.getZ() - this.minCorner.getZ());
+        } else {
+            inverseExit.setZ(staticBox.minCorner.getZ() - this.maxCorner.getZ());
+        }
+
+        return inverseExit;
+    }
+
+    /**
+     * Returns the inverse entry position vector.
+     * @param velocity The velocity of the entity
+     * @param staticBox The bounding box to check collision with
+     * @return The inverse entry position vector
+     */
+    private Vector getInverseEntry(Vector velocity, BoundingBox staticBox) {
+
+        Vector inverseEntry = new Vector();
+
+        if (velocity.getX() > 0.0f) {
+            inverseEntry.setX(staticBox.minCorner.getX() - maxCorner.getX());
+        } else {
+            inverseEntry.setX(staticBox.maxCorner.getX() - minCorner.getX());
+        }
+
+        if (velocity.getY() > 0.0f) {
+            inverseEntry.setY(staticBox.minCorner.getY() - maxCorner.getY());
+        } else {
+            inverseEntry.setY(staticBox.maxCorner.getY() - minCorner.getY());
+        }
+
+        if (velocity.getZ() > 0.0f) {
+            inverseEntry.setZ(staticBox.minCorner.getZ() - maxCorner.getZ());
+        } else {
+            inverseEntry.setZ(staticBox.maxCorner.getZ() - minCorner.getZ());
+        }
+
+        return inverseEntry;
+    }
+
+    /**
+     * Returns the surface normal of the surface that gets collided with first.
+     * @param entry The entry vector of the collision
+     * @param inverseEntry The inverse entry vector
+     * @return The normal with which collision occurs
+     */
+    private Vector getClosestNormalSurface(Vector entry, Vector inverseEntry) {
+
+        Vector normal = new Vector(0.0, 0.0, 0.0);
+
+        if (entry.getZ() > entry.getX()) {
+            if (entry.getZ() > entry.getY()) {
+                if (inverseEntry.getZ() < 0.0d) {
+                    normal.setZ(1.0d);
+                } else {
+                    normal.setZ(-1.0d);
+                }
+            } else {
+                if (inverseEntry.getY() < 0.0d) {
+                    normal.setY(1.0d);
+                } else {
+                    normal.setY(-1.0d);
+                }
+            }
+        } else {
+            if (entry.getX() > entry.getY()) {
+                if (inverseEntry.getX() < 0.0d) {
+                    normal.setX(1.0d);
+                } else {
+                    normal.setX(-1.0d);
+                }
+            } else {
+                if (inverseEntry.getY() < 0.0d) {
+                    normal.setY(1.0d);
+                } else {
+                    normal.setY(-1.0d);
+                }
+            }
+        }
+
+        return normal;
+    }
+
 
     /**
      * This function implements swept AABB collision detection as specified in the link below
      * https://www.gamedev.net/tutorials/programming/general-and-gameplay-programming/swept-aabb-collision-detection-and-response-r3084/
      *
-     * @param vel The displacement that will be applied to the entityboundingbox
+     * @param velocity The displacement that will be applied to the entityboundingbox
      * @param staticBox The static box which will be checked for collision
      * @return A pair containing a double between 0.0 and 1.0 that indicates the amount
      *      of displacement that can be done without collision
      *      And a vector containing the normal in the place of collision
      */
-    public Pair<Double, Vector> sweptAxisAlignedBoundingBox(Vector vel, BoundingBox staticBox) {
+    public Pair<Double, Vector> sweptAxisAlignedBoundingBox(Vector velocity, BoundingBox staticBox) {
 
-        double invEntryX;
-        double invEntryY;
-        double invEntryZ;
-        double invExitX;
-        double invExitY;
-        double invExitZ;
+        Vector inverseEntry = getInverseEntry(velocity, staticBox);
+        Vector inverseExit = getInverseExit(velocity, staticBox);
 
-        Vector normal = new Vector(0.0, 0.0, 0.0);
+        Vector entry = inverseEntry.clone().divide(velocity);
+        Vector exit = inverseExit.clone().divide(velocity);
 
-        // find the distance between the objects on the near and far sides for both x,y and z
-        if (vel.getX() > 0.0f) {
-            invEntryX = staticBox.minCorner.getX() - this.maxCorner.getX();
-            invExitX = staticBox.maxCorner.getX() - this.minCorner.getX();
-        } else {
-            invEntryX = staticBox.maxCorner.getX() - this.minCorner.getX();
-            invExitX = staticBox.minCorner.getX() - this.maxCorner.getX();
-        }
-
-        if (vel.getY() > 0.0f) {
-            invEntryY = staticBox.minCorner.getY() - this.maxCorner.getY();
-            invExitY = staticBox.maxCorner.getY() - this.minCorner.getY();
-        } else {
-            invEntryY = staticBox.maxCorner.getY() - this.minCorner.getY();
-            invExitY = staticBox.minCorner.getY() - this.maxCorner.getY();
-        }
-
-        if (vel.getZ() > 0.0f) {
-            invEntryZ = staticBox.minCorner.getZ() - this.maxCorner.getZ();
-            invExitZ = staticBox.maxCorner.getZ() - this.minCorner.getZ();
-        } else {
-            invEntryZ = staticBox.maxCorner.getZ() - this.minCorner.getZ();
-            invExitZ = staticBox.minCorner.getZ() - this.maxCorner.getZ();
-        }
-
-        double exitX;
-        double exitY;
-        double exitZ;
-        Vector entry = new Vector();
-
-        // If the velocity is 0 then there is no exit or entry on that axis
-        if (vel.getX() == 0.0f) {
-            entry.setX(Double.NEGATIVE_INFINITY);
-            exitX = Double.POSITIVE_INFINITY;
-        } else {
-            entry.setX(invEntryX / vel.getX());
-            exitX = invExitX / vel.getX();
-        }
-
-        if (vel.getY() == 0.0f) {
-            entry.setY(Double.NEGATIVE_INFINITY);
-            exitY = Double.POSITIVE_INFINITY;
-        } else {
-            entry.setY(invEntryY / vel.getY());
-            exitY = invExitY / vel.getY();
-        }
-
-        if (vel.getZ() == 0.0f) {
-            entry.setZ(Double.NEGATIVE_INFINITY);
-            exitZ = Double.POSITIVE_INFINITY;
-        } else {
-            entry.setZ(invEntryZ / vel.getZ());
-            exitZ = invExitZ / vel.getZ();
-        }
+        Vectors.flipInfinity(entry);
+        Vectors.flipInfinity(exit);
 
         double entryTime = Math.max(entry.getX(), Math.max(entry.getY(), entry.getZ()));
-        double exitTime = Math.min(exitX, Math.min(exitY, exitZ));
+        double exitTime = Math.min(exit.getX(), Math.min(exit.getY(), exit.getZ()));
 
-        if (entryTime > exitTime || entry.getX() < 0.0d && entry.getY() < 0.0d && entry.getZ() < 0.0d
-                || entry.getX() > 1.0d || entry.getY() > 1.0d || entry.getZ() > 1.0d) {
-            // If there are no collision return 1.0d indicating that the full velocity vector can be applied
-            return new ImmutablePair<>(1.0d, normal);
+        boolean isEntryOnNegativeVelocity = entry.getX() < 0.0d && entry.getY() < 0.0d && entry.getZ() < 0.0d;
+        boolean isEntryAfterVelocity = entry.getX() > 1.0d || entry.getY() > 1.0d || entry.getZ() > 1.0d;
+
+        if (entryTime > exitTime || isEntryOnNegativeVelocity || isEntryAfterVelocity) {
+            return new ImmutablePair<>(1.0d, new Vector(0.0d, 0.0d, 0.0d));
         } else {
-            // Find the shortest entry distance, take the normal from that collision
-            if (entry.getZ() > entry.getX()) {
-                if (entry.getZ() > entry.getY()) {
-                    if (invEntryZ < 0.0d) {
-                        normal.setZ(1.0d);
-                    } else {
-                        normal.setZ(-1.0d);
-                    }
-                } else {
-                    if (invEntryY < 0.0d) {
-                        normal.setY(1.0d);
-                    } else {
-                        normal.setY(-1.0d);
-                    }
-                }
-            } else {
-                if (entry.getX() > entry.getY()) {
-                    if (invEntryX < 0.0d) {
-                        normal.setX(1.0d);
-                    } else {
-                        normal.setX(-1.0d);
-                    }
-                } else {
-                    if (invEntryY < 0.0d) {
-                        normal.setY(1.0d);
-                    } else {
-                        normal.setY(-1.0d);
-                    }
-                }
-            }
+            Vector normal = getClosestNormalSurface(entry, inverseEntry);
             return new ImmutablePair<>(entryTime, normal);
         }
     }

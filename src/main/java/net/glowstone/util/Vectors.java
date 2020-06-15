@@ -121,4 +121,24 @@ public class Vectors {
         double z = Math.abs(diagonal.getZ());
         return x * y * z;
     }
+
+    /**
+     * Checks every axis on the vector for the INFINITY value and flip it if found
+     *
+     * @param vector The vector to flip the INFINITY values of
+     */
+    public static void flipInfinity(Vector vector) {
+
+        if (Double.isInfinite(vector.getX())) {
+            vector.setX(vector.getX() * -1);
+        }
+
+        if (Double.isInfinite(vector.getY())) {
+            vector.setY(vector.getY() * -1);
+        }
+
+        if (Double.isInfinite(vector.getZ())) {
+            vector.setZ(vector.getZ() * -1);
+        }
+    }
 }
