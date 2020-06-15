@@ -65,8 +65,7 @@ public final class Brokers {
         switch (type.toLowerCase()) {
 
             case "concurrent":
-                int parallelismThreshold = config.getParallelismThreshold();
-                return () -> new ConcurrentChannel<>(parallelismThreshold);
+                return ConcurrentChannel::new;
 
             case "guava":
                 return GuavaChannel::new;
