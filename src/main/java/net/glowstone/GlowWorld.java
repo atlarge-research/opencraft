@@ -400,8 +400,6 @@ public class GlowWorld implements World {
     @Getter
     private final boolean initialized;
 
-    private final Broker<Chunk, Player, Message> broker;
-
     private final MessagingSystem<Chunk, Object, Player, Message> messagingSystem;
 
     private final PriorityExecutor<ChunkRunnable> executor;
@@ -450,7 +448,7 @@ public class GlowWorld implements World {
 
         // Setup messaging system
         ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
-        broker = Brokers.newBroker(server.getBrokerConfig());
+        Broker<Chunk, Player, Message> broker = Brokers.newBroker(server.getBrokerConfig());
         Filter<Player, Message> filter = new PlayerFilter();
         messagingSystem = new MessagingSystem<>(policy, broker, filter);
 
@@ -523,8 +521,8 @@ public class GlowWorld implements World {
         broadcastEntityUpdates(entities);
 
         // TODO: Refactor entity spawning
-//        players.forEach(GlowPlayer::spawnEntities);
-        broadcastEntitySpawns(players, entities);
+        players.forEach(GlowPlayer::spawnEntities);
+//        broadcastEntitySpawns(players, entities);
 
         entities.forEach(GlowEntity::reset);
 
@@ -821,79 +819,6 @@ public class GlowWorld implements World {
             List<Message> messages = entity.createUpdateMessage();
             messages.forEach(message -> messagingSystem.broadcast(entity, message));
         });
-    }
-
-    private Map<GlowEntity, Chunk> previousEntityChunks = new HashMap<>();
-
-    private static final class Transition {
-
-        private final GlowEntity entity;
-        private final Chunk source;
-        private final Chunk destination;
-        private List<Message> spawnMessages;
-
-        private Transition(GlowEntity entity, Chunk source, Chunk destination) {
-            this.entity = entity;
-            this.source = source;
-            this.destination = destination;
-        }
-
-        private boolean hasMoved() {
-            return source != destination;
-        }
-
-        private List<Message> getSpawnMessages() {
-            if (spawnMessages == null) {
-                spawnMessages = entity.createSpawnMessage();
-            }
-            return spawnMessages;
-        }
-    }
-
-    private void broadcastEntitySpawns(Collection<GlowPlayer> players, Collection<GlowEntity> entities) {
-
-        int limit = server.getViewDistance();
-
-        Map<GlowEntity, Chunk> currentEntityChunks = entities.stream()
-                .collect(Collectors.toMap(Function.identity(), GlowEntity::getChunk));
-
-        Set<GlowEntity> currentEntities = currentEntityChunks.keySet();
-        Set<GlowEntity> previousEntities = previousEntityChunks.keySet();
-
-        Sets.SetView<GlowEntity> allEntities = Sets.union(currentEntities, previousEntities);
-
-        allEntities.stream()
-                .map(entity -> {
-                    Chunk destination = currentEntityChunks.get(entity);
-                    Chunk source = previousEntityChunks.get(entity);
-                    return new Transition(entity, source, destination);
-                })
-                .filter(Transition::hasMoved)
-                .forEach(transition -> players.forEach(player -> {
-
-                    if (transition.entity == player) {
-                        return;
-                    }
-
-                    Session session = player.getSession();
-                    AreaOfInterest area = player.getAreaOfInterest();
-
-                    if (transition.source != null && area.contains(transition.source, limit)) {
-                        if (transition.destination == null || !area.contains(transition.destination, limit)) {
-                            int id = transition.entity.getEntityId();
-                            List<Integer> ids = Collections.singletonList(id);
-                            Message message = new DestroyEntitiesMessage(ids);
-                            session.send(message);
-                        }
-                    } else {
-                        if (transition.destination != null && area.contains(transition.destination, limit)) {
-                            List<Message> messages = transition.getSpawnMessages();
-                            messages.forEach(session::send);
-                        }
-                    }
-                }));
-
-        previousEntityChunks = currentEntityChunks;
     }
 
     private void saveWorld() {
@@ -1520,17 +1445,6 @@ public class GlowWorld implements World {
         return blocks;
     }
 
-    /**
-     * Returns all blocks that are within the coordinates of the BoundingBox.
-     *
-     * @param boundingBox The BoundingBox that will be used to get all the blocks
-     * @return All blocks that are contained or touch the bounding box
-     */
-    public List<GlowBlock> getOverlappingBlocks(final BoundingBox boundingBox) {
-        return getOverlappingBlocks(boundingBox.minCorner, boundingBox.maxCorner);
-    }
-
-
     @Override
     public int getBlockTypeIdAt(Location location) {
         return getBlockTypeIdAt(location.getBlockX(), location.getBlockY(), location.getBlockZ());
@@ -1559,27 +1473,6 @@ public class GlowWorld implements World {
     @Override
     public Block getHighestBlockAt(Location location) {
         return getBlockAt(location.getBlockX(), getHighestBlockYAt(location), location.getBlockZ());
-    }
-
-    /**
-     * Gets the lowest block at the given {@link Location} such that the block
-     * and all blocks above it are either air or one of the given materials.
-     *
-     * @param location Coordinates to get the highest block
-     * @param except   Blocks to exclude in addition to air
-     * @return Highest non-empty block
-     */
-    public Block getHighestBlockAt(Location location, Material... except) {
-        Block block = getHighestBlockAt(location);
-        List<Material> array = Arrays.asList(except);
-        for (int i = 0; i < 6; i++) {
-            block = block.getLocation().clone().subtract(0, i == 0 ? 0 : 1, 0).getBlock();
-            if (block.getType() == Material.AIR || array.contains(block.getType())) {
-                continue;
-            }
-            return block;
-        }
-        return getHighestBlockAt(location);
     }
 
     @Override
@@ -2584,7 +2477,7 @@ public class GlowWorld implements World {
      */
     public void shutdown() {
         executor.shutdown();
-        broker.close();
+        messagingSystem.close();
     }
 
     @Override
