@@ -123,7 +123,7 @@ public class Vectors {
     }
 
     /**
-     * Checks every axis on the vector for the INFINITY value and flip it if found
+     * Checks every axis on the vector for the INFINITY value and flip it if found.
      *
      * @param vector The vector to flip the INFINITY values of
      */
