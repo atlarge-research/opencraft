@@ -77,7 +77,7 @@ public class EntityBoundingBox extends BoundingBox {
         double invExitY;
         double invExitZ;
 
-        Vector normal = new Vector();
+        Vector normal = new Vector(0.0, 0.0, 0.0);
 
         // find the distance between the objects on the near and far sides for both x,y and z
         if (vel.getX() > 0.0f) {
@@ -104,53 +104,47 @@ public class EntityBoundingBox extends BoundingBox {
             invExitZ = staticBox.minCorner.getZ() - this.maxCorner.getZ();
         }
 
-        double entryX;
-        double entryY;
-        double entryZ;
         double exitX;
         double exitY;
         double exitZ;
+        Vector entry = new Vector();
 
         // If the velocity is 0 then there is no exit or entry on that axis
         if (vel.getX() == 0.0f) {
-            entryX = Double.NEGATIVE_INFINITY;
+            entry.setX(Double.NEGATIVE_INFINITY);
             exitX = Double.POSITIVE_INFINITY;
         } else {
-            entryX = invEntryX / vel.getX();
+            entry.setX(invEntryX / vel.getX());
             exitX = invExitX / vel.getX();
         }
 
         if (vel.getY() == 0.0f) {
-            entryY = Double.NEGATIVE_INFINITY;
+            entry.setY(Double.NEGATIVE_INFINITY);
             exitY = Double.POSITIVE_INFINITY;
         } else {
-            entryY = invEntryY / vel.getY();
+            entry.setY(invEntryY / vel.getY());
             exitY = invExitY / vel.getY();
         }
 
         if (vel.getZ() == 0.0f) {
-            entryZ = Double.NEGATIVE_INFINITY;
+            entry.setZ(Double.NEGATIVE_INFINITY);
             exitZ = Double.POSITIVE_INFINITY;
         } else {
-            entryZ = invEntryZ / vel.getZ();
+            entry.setZ(invEntryZ / vel.getZ());
             exitZ = invExitZ / vel.getZ();
         }
 
-        double entryTime = Math.max(entryX, Math.max(entryY, entryZ));
+        double entryTime = Math.max(entry.getX(), Math.max(entry.getY(), entry.getZ()));
         double exitTime = Math.min(exitX, Math.min(exitY, exitZ));
 
-        normal.setX(0.0d);
-        normal.setY(0.0d);
-        normal.setZ(0.0d);
-
-        if (entryTime > exitTime || entryX < 0.0d && entryY < 0.0d && entryZ < 0.0d
-                || entryX > 1.0d || entryY > 1.0d || entryZ > 1.0d) {
+        if (entryTime > exitTime || entry.getX() < 0.0d && entry.getY() < 0.0d && entry.getZ() < 0.0d
+                || entry.getX() > 1.0d || entry.getY() > 1.0d || entry.getZ() > 1.0d) {
             // If there are no collision return 1.0d indicating that the full velocity vector can be applied
             return new ImmutablePair<>(1.0d, normal);
         } else {
             // Find the shortest entry distance, take the normal from that collision
-            if (entryZ > entryX) {
-                if (entryZ > entryY) {
+            if (entry.getZ() > entry.getX()) {
+                if (entry.getZ() > entry.getY()) {
                     if (invEntryZ < 0.0d) {
                         normal.setZ(1.0d);
                     } else {
@@ -164,7 +158,7 @@ public class EntityBoundingBox extends BoundingBox {
                     }
                 }
             } else {
-                if (entryX > entryY) {
+                if (entry.getX() > entry.getY()) {
                     if (invEntryX < 0.0d) {
                         normal.setX(1.0d);
                     } else {
