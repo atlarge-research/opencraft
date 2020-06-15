@@ -38,7 +38,7 @@ test:
     - build
   script:
     - mvn $MAVEN_CLI_OPTS test
-    - cat target/site/jacoco/index.html | grep -o '.*'
+    - cat target/site/jacoco/index.html | grep -oP 'Total.*?([0-9]{1,3})%.*?([0-9]{1,3})%' | grep -oE '[^ ]+$' | grep -oE '[0-9]{1,3}%' | xargs -I {} echo 'Total {}'
   coverage: "/Total.*?([0-9]{1,3})%/"
   artifacts:
     reports:
