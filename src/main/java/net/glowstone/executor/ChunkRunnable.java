@@ -3,10 +3,10 @@ package net.glowstone.executor;
 import com.flowpowered.network.Message;
 import java.util.Objects;
 import net.glowstone.GlowWorld;
+import net.glowstone.chunk.AreaOfInterest;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.net.GlowSession;
-import net.glowstone.chunk.AreaOfInterest;
 import net.glowstone.util.Coordinates;
 import org.bukkit.World;
 

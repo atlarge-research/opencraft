@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -30,7 +29,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -44,9 +42,9 @@ import net.glowstone.block.ItemTable;
 import net.glowstone.block.blocktype.BlockBed;
 import net.glowstone.block.itemtype.ItemFood;
 import net.glowstone.block.itemtype.ItemType;
+import net.glowstone.chunk.AreaOfInterest;
 import net.glowstone.chunk.ChunkManager.ChunkLock;
 import net.glowstone.chunk.GlowChunk.Key;
-import net.glowstone.command.LocalizedEnumNames;
 import net.glowstone.constants.GameRules;
 import net.glowstone.constants.GlowAchievement;
 import net.glowstone.constants.GlowEffect;
@@ -60,7 +58,6 @@ import net.glowstone.entity.meta.profile.GlowPlayerProfile;
 import net.glowstone.entity.monster.GlowBoss;
 import net.glowstone.entity.objects.GlowItem;
 import net.glowstone.entity.passive.GlowFishingHook;
-import net.glowstone.i18n.GlowstoneMessages;
 import net.glowstone.inventory.GlowInventory;
 import net.glowstone.inventory.GlowInventoryView;
 import net.glowstone.inventory.InventoryMonitor;
@@ -106,7 +103,6 @@ import net.glowstone.net.message.play.player.ResourcePackSendMessage;
 import net.glowstone.net.message.play.player.UseBedMessage;
 import net.glowstone.scoreboard.GlowScoreboard;
 import net.glowstone.scoreboard.GlowTeam;
-import net.glowstone.chunk.AreaOfInterest;
 import net.glowstone.util.Convert;
 import net.glowstone.util.DeprecatedMethodException;
 import net.glowstone.util.EntityUtils;
@@ -208,15 +204,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      */
     public static final int HOOK_MAX_DISTANCE = 32;
 
-    private static final Achievement[] ACHIEVEMENT_VALUES = Achievement.values();
-    private static final LocalizedEnumNames<Achievement> ACHIEVEMENT_NAMES = new LocalizedEnumNames<Achievement>(
-            (Function<String, Achievement>) Achievement::valueOf,
-            "glowstone.achievement.unknown",
-            null,
-            "maps/achievement",
-            true
-    );
-
     /**
      * The network session attached to this player.
      */
@@ -232,11 +219,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * The entities that are hidden from the client.
      */
     private final Set<UUID> hiddenEntities = new HashSet<>();
-
-    /**
-     * The chunks that the client knows about.
-     */
-    private final Set<Chunk> knownChunks = new HashSet<>();
 
     /**
      * The set of plugin channels this player is listening on.
@@ -405,7 +387,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      */
     @Getter
     private boolean bedSpawnForced;
+
     private final Player.Spigot spigot = new Player.Spigot() {
+
         @Override
         public void playEffect(Location location, Effect effect, int id, int data, float offsetX,
                 float offsetY, float offsetZ, float speed, int particleCount, int radius) {
@@ -440,7 +424,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         @Override
         public Set<Player> getHiddenPlayers() {
-            return hiddenEntities.stream().map(Bukkit::getPlayer).filter(Objects::nonNull)
+            return hiddenEntities.stream()
+                    .map(Bukkit::getPlayer)
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
         }
 
@@ -804,7 +790,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      */
     @Override
     public void remove() {
-        knownChunks.clear();
         chunkLock.clear();
         saveData();
         getInventory().removeViewer(this);
@@ -827,7 +812,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * @param async if true, the player's data is saved asynchronously
      */
     public void remove(boolean async) {
-        knownChunks.clear();
         chunkLock.clear();
         saveData(async);
         getInventory().removeViewer(this);
@@ -1048,7 +1032,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * @param location The location to place the player.
      */
     private void spawnAt(Location location) {
+
         GlowWorld oldWorld;
+
         // switch worlds
         worldLock.writeLock().lock();
         try {
@@ -1062,8 +1048,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         }
 
         // switch chunk set
-        // no need to send chunk unload messages - respawn unloads all chunks
-        knownChunks.clear();
         chunkLock.clear();
         chunkLock = world.newChunkLock(getName());
 
@@ -1115,6 +1099,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * Respawn the player after they have died.
      */
     public void respawn() {
+
         if (!isDead()) {
             return;
         }
@@ -2731,14 +2716,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         stats.setAchievement(achievement, true);
         sendAchievement(achievement, true);
-
-        if (server.getAnnounceAchievements()) {
-            // TODO: Add hover effect
-            server.broadcastMessage(GlowstoneMessages.Achievement.EARNED.get(
-                    getName(),
-                    ACHIEVEMENT_NAMES.valueToName(Locale.getDefault(), achievement)
-            ));
-        }
         return true;
     }
 
