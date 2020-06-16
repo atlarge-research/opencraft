@@ -60,6 +60,7 @@ public class EntityBoundingBox extends BoundingBox {
 
     /**
      * Returns the inverse exit position vector.
+     *
      * @param velocity The velocity of the entity
      * @param staticBox The bounding box to check collision with
      * @return The inverse exit position vector
@@ -91,6 +92,7 @@ public class EntityBoundingBox extends BoundingBox {
 
     /**
      * Returns the inverse entry position vector.
+     *
      * @param velocity The velocity of the entity
      * @param staticBox The bounding box to check collision with
      * @return The inverse entry position vector
@@ -122,6 +124,7 @@ public class EntityBoundingBox extends BoundingBox {
 
     /**
      * Returns the surface normal of the surface that gets collided with first.
+     *
      * @param entry The entry vector of the collision
      * @param inverseEntry The inverse entry vector
      * @return The normal with which collision occurs
@@ -179,8 +182,8 @@ public class EntityBoundingBox extends BoundingBox {
         Vector inverseEntry = getInverseEntry(velocity, staticBox);
         Vector inverseExit = getInverseExit(velocity, staticBox);
 
-        Vector entry = inverseEntry.clone().divide(velocity);
-        Vector exit = inverseExit.clone().divide(velocity);
+        Vector entry = inverseEntry.divide(velocity);
+        Vector exit = inverseExit.divide(velocity);
 
         Vectors.flipInfinity(entry);
         Vectors.flipInfinity(exit);
