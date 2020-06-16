@@ -106,7 +106,7 @@ import net.glowstone.net.message.play.player.ResourcePackSendMessage;
 import net.glowstone.net.message.play.player.UseBedMessage;
 import net.glowstone.scoreboard.GlowScoreboard;
 import net.glowstone.scoreboard.GlowTeam;
-import net.glowstone.util.AreaOfInterest;
+import net.glowstone.chunk.AreaOfInterest;
 import net.glowstone.util.Convert;
 import net.glowstone.util.DeprecatedMethodException;
 import net.glowstone.util.EntityUtils;
@@ -209,16 +209,16 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     public static final int HOOK_MAX_DISTANCE = 32;
 
     private static final Achievement[] ACHIEVEMENT_VALUES = Achievement.values();
-    private static final LocalizedEnumNames<Achievement> ACHIEVEMENT_NAMES
-            = new LocalizedEnumNames<Achievement>(
-                    (Function<String, Achievement>) Achievement::valueOf,
+    private static final LocalizedEnumNames<Achievement> ACHIEVEMENT_NAMES = new LocalizedEnumNames<Achievement>(
+            (Function<String, Achievement>) Achievement::valueOf,
             "glowstone.achievement.unknown",
-            null, "maps/achievement", true);
+            null,
+            "maps/achievement",
+            true
+    );
 
     /**
      * The network session attached to this player.
-     *
-     * @return The GlowSession of the player.
      */
     @Getter
     private final GlowSession session;
@@ -232,11 +232,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * The entities that are hidden from the client.
      */
     private final Set<UUID> hiddenEntities = new HashSet<>();
-
-    /**
-     * The chunks that the client knows about.
-     */
-    private final Set<Chunk> previousChunks = new HashSet<>();
 
     /**
      * The chunks that the client knows about.
@@ -277,8 +272,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
     /**
      * The time the player joined, in milliseconds, to be saved as last played time.
-     *
-     * @return The player's join time.
      */
     @Getter
     private long joinTime;
@@ -368,7 +361,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     /**
      * Recipes this player has unlocked.
      */
-    private Collection<Recipe> recipes = new HashSet<>();
+    private final Collection<Recipe> recipes = new HashSet<>();
 
     /**
      * This player's current time offset.
@@ -409,8 +402,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
     /**
      * Whether to use the bed spawn even if there is no bed block.
-     *
-     * @return Whether the player is forced to spawn at their bed.
      */
     @Getter
     private boolean bedSpawnForced;
@@ -625,24 +616,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     // Internals
 
     /**
-     * Get chunks previously within view distance of the player.
-     *
-     * @return a set of chunks.
-     */
-    public Set<Chunk> getPreviousChunks() {
-        return previousChunks;
-    }
-
-    /**
-     * Get the chunks currently within view distance of the player.
-     *
-     * @return a set of chunks.
-     */
-    public Set<Chunk> getKnownChunks() {
-        return knownChunks;
-    }
-
-    /**
      * Get the current area of interest of this player.
      *
      * @return The current area of interest.
@@ -667,7 +640,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 return loc;
             }
         }
-
         return findSafeSpawnLocation(session.getServer().getWorlds().get(0).getSpawnLocation());
     }
 
@@ -680,6 +652,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * @return The location to spawn the player at.
      */
     private static Location findSafeSpawnLocation(Location spawn) {
+
         World world = spawn.getWorld();
         int blockX = spawn.getBlockX();
         int blockY = spawn.getBlockY();
@@ -692,7 +665,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         for (; y <= highestY; y++) {
             Material type = world.getBlockAt(blockX, y, blockZ).getType();
             boolean safe = Material.AIR.equals(type);
-
             if (wasPreviousSafe && safe) {
                 y--;
                 break;
@@ -722,9 +694,16 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         setGameModeDefaults();
 
-        session.send(new JoinGameMessage(getEntityId(), gameMode, world.getEnvironment().getId(), world
-                .getDifficulty().getValue(), session.getServer().getMaxPlayers(), type, world
-                .getGameRuleMap().getBoolean(GameRules.REDUCED_DEBUG_INFO)));
+        Message joinMessage = new JoinGameMessage(
+                getEntityId(),
+                gameMode,
+                world.getEnvironment().getId(),
+                world.getDifficulty().getValue(),
+                session.getServer().getMaxPlayers(),
+                type,
+                world.getGameRuleMap().getBoolean(GameRules.REDUCED_DEBUG_INFO)
+        );
+        session.send(joinMessage);
 
         // send server brand and supported plugin channels
         Message pluginMessage = PluginMessage.fromString("MC|Brand", server.getName());
@@ -814,8 +793,10 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
     @Override
     public boolean canTakeDamage(DamageCause damageCause) {
-        return damageCause == DamageCause.FALL ? !getAllowFlight() && super
-                .canTakeDamage(damageCause) : super.canTakeDamage(damageCause);
+        if (damageCause == DamageCause.FALL) {
+            return !getAllowFlight() && super.canTakeDamage(damageCause);
+        }
+        return super.canTakeDamage(damageCause);
     }
 
     /**
@@ -823,7 +804,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      */
     @Override
     public void remove() {
-        previousChunks.clear();
         knownChunks.clear();
         chunkLock.clear();
         saveData();
@@ -847,7 +827,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * @param async if true, the player's data is saved asynchronously
      */
     public void remove(boolean async) {
-        previousChunks.clear();
         knownChunks.clear();
         chunkLock.clear();
         saveData(async);
@@ -995,33 +974,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     }
 
     /**
-     * Streams chunks to the player's client.
-     */
-    public void updateKnownChunks() {
-
-        int centralX = location.getBlockX() >> 4;
-        int centralZ = location.getBlockZ() >> 4;
-        int radius = Math.min(server.getViewDistance(), 1 + settings.getViewDistance());
-
-        if (viewDistanceChanged || prevCentralX != centralX || prevCentralZ != centralZ) {
-
-            previousChunks.clear();
-            previousChunks.addAll(knownChunks);
-            knownChunks.clear();
-
-            for (int x = centralX - radius; x <= centralX + radius; x++) {
-                for (int z = centralZ - radius; z <= centralZ + radius; z++) {
-                    Chunk chunk = world.getChunkAt(x, z);
-                    knownChunks.add(chunk);
-                }
-            }
-
-            prevCentralX = centralX;
-            prevCentralZ = centralZ;
-        }
-    }
-
-    /**
      * Spawn and destroy entities that come within or out of the player's view distance.
      */
     public void spawnEntities() {
@@ -1042,9 +994,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 }
             }
 
-            for (GlowEntity entity : removeEntities) {
-                knownEntities.remove(entity);
-            }
+            knownEntities.removeAll(removeEntities);
 
             if (!destroyEntities.isEmpty()) {
                 List<Integer> destroyIds = removeEntities.stream()
@@ -1054,24 +1004,25 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             }
 
             // Add entities that have become visible
-            knownChunks.forEach(key ->
-                    world.getChunkAt(key.getX(), key.getZ()).getRawEntities().stream()
-                            .filter(entity -> this != entity
-                                    && isWithinDistance(entity)
-                                    && !entity.isDead()
-                                    && !knownEntities.contains(entity)
-                                    && !hiddenEntities.contains(entity.getUniqueId()))
-                            .forEach((entity) -> {
+            AreaOfInterest area = getAreaOfInterest();
+            area.forEach(chunk -> {
+                chunk.getRawEntities().stream()
+                        .filter(entity -> this != entity
+                                && isWithinDistance(entity)
+                                && !entity.isDead()
+                                && !knownEntities.contains(entity)
+                                && !hiddenEntities.contains(entity.getUniqueId()))
+                        .forEach((entity) -> {
+                            worldLock.readLock().lock();
+                            try {
+                                knownEntities.add(entity);
+                            } finally {
+                                worldLock.readLock().unlock();
+                            }
+                            entity.createSpawnMessage().forEach(session::send);
+                        });
+            });
 
-                                worldLock.readLock().lock();
-                                try {
-                                    knownEntities.add(entity);
-                                } finally {
-                                    worldLock.readLock().unlock();
-                                }
-
-                                entity.createSpawnMessage().forEach(session::send);
-                            }));
         } finally {
             worldLock.writeLock().unlock();
         }
@@ -1112,7 +1063,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         // switch chunk set
         // no need to send chunk unload messages - respawn unloads all chunks
-        previousChunks.clear();
         knownChunks.clear();
         chunkLock.clear();
         chunkLock = world.newChunkLock(getName());
@@ -1226,7 +1176,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      */
     public boolean canSeeChunk(Key key) {
         Chunk chunk = world.getChunkAt(key.getX(), key.getZ());
-        return knownChunks.contains(chunk);
+        AreaOfInterest area = getAreaOfInterest();
+        return area.contains(chunk);
     }
 
     /**
@@ -2782,9 +2733,11 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         sendAchievement(achievement, true);
 
         if (server.getAnnounceAchievements()) {
-            // todo: make message fancier (hover)
+            // TODO: Add hover effect
             server.broadcastMessage(GlowstoneMessages.Achievement.EARNED.get(
-                    getName(), ACHIEVEMENT_NAMES.valueToName(Locale.getDefault(), achievement)));
+                    getName(),
+                    ACHIEVEMENT_NAMES.valueToName(Locale.getDefault(), achievement)
+            ));
         }
         return true;
     }

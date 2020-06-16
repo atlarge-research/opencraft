@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import net.glowstone.chunk.AreaOfInterest;
 import org.bukkit.Location;
 import org.junit.jupiter.api.Test;
 

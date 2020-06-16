@@ -6,9 +6,8 @@ import net.glowstone.GlowWorld;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.net.GlowSession;
-import net.glowstone.util.AreaOfInterest;
+import net.glowstone.chunk.AreaOfInterest;
 import net.glowstone.util.Coordinates;
-import org.bukkit.Server;
 import org.bukkit.World;
 
 /**
@@ -59,14 +58,8 @@ public final class ChunkRunnable extends PriorityRunnable {
      * @return whether the runnable should be cancelled.
      */
     public boolean shouldBeCancelled() {
-
-        Server server = player.getServer();
         AreaOfInterest area = player.getAreaOfInterest();
-        int radius = area.getRadius(server.getViewDistance());
-
-        return player.getWorld() != chunk.getWorld()
-                || Math.abs(area.getCenterX() - chunk.getX()) > radius
-                || Math.abs(area.getCenterZ() - chunk.getZ()) > radius;
+        return !area.contains(chunk);
     }
 
     /**

@@ -10,10 +10,7 @@ import com.google.common.collect.Sets;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -62,13 +58,12 @@ import net.glowstone.io.entity.EntityStorage;
 import net.glowstone.messaging.Brokers;
 import net.glowstone.messaging.filters.PlayerFilter;
 import net.glowstone.messaging.policies.ChunkPolicy;
-import net.glowstone.net.message.play.entity.DestroyEntitiesMessage;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.net.message.play.game.UnloadChunkMessage;
 import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.net.message.play.player.ServerDifficultyMessage;
-import net.glowstone.util.AreaOfInterest;
+import net.glowstone.chunk.AreaOfInterest;
 import net.glowstone.util.BlockStateDelegate;
 import net.glowstone.util.GameRuleManager;
 import net.glowstone.util.RayUtil;
@@ -506,7 +501,6 @@ public class GlowWorld implements World {
     public void pulse() {
 
         List<GlowPlayer> players = entityManager.getPlayers();
-        players.forEach(GlowPlayer::updateKnownChunks);
 
         updateAreasOfInterest(players);
 
@@ -520,9 +514,7 @@ public class GlowWorld implements World {
 
         broadcastEntityUpdates(entities);
 
-        // TODO: Refactor entity spawning
         players.forEach(GlowPlayer::spawnEntities);
-//        broadcastEntitySpawns(players, entities);
 
         entities.forEach(GlowEntity::reset);
 
@@ -619,38 +611,26 @@ public class GlowWorld implements World {
             return new ArrayList<>();
         }
 
-        int limit = server.getViewDistance();
-
-        int cx1 = first.getCenterX();
-        int cz1 = first.getCenterZ();
-        int r1 = first.getRadius(limit);
-
         if (second == null || first.getWorld() != second.getWorld()) {
             List<ChunkRunnable> runnables = new ArrayList<>();
-            for (int x = cx1 - r1; x <= cx1 + r1; x++) {
-                for (int z = cz1 - r1; z <= cz1 + r1; z++) {
-                    GlowChunk chunk = getChunkAt(x, z);
-                    ChunkRunnable runnable = new ChunkRunnable(player, chunk);
-                    runnables.add(runnable);
-                }
-            }
+            first.forEach(chunk -> {
+                ChunkRunnable runnable = new ChunkRunnable(player, chunk);
+                runnables.add(runnable);
+            });
             return runnables;
         }
 
         int cx2 = second.getCenterX();
         int cz2 = second.getCenterZ();
-        int r2 = second.getRadius(limit);
+        int r2 = second.getRadius();
 
         List<ChunkRunnable> runnables = new ArrayList<>();
-        for (int x = cx1 - r1; x <= cx1 + r1; x++) {
-            for (int z = cz1 - r1; z <= cz1 + r1; z++) {
-                if (Math.abs(x - cx2) > r2 || Math.abs(z - cz2) > r2) {
-                    GlowChunk chunk = getChunkAt(x, z);
-                    ChunkRunnable runnable = new ChunkRunnable(player, chunk);
-                    runnables.add(runnable);
-                }
+        first.forEach(chunk -> {
+            if (Math.abs(chunk.getX() - cx2) > r2 || Math.abs(chunk.getZ() - cz2) > r2) {
+                ChunkRunnable runnable = new ChunkRunnable(player, chunk);
+                runnables.add(runnable);
             }
-        }
+        });
         return runnables;
     }
 
@@ -686,19 +666,8 @@ public class GlowWorld implements World {
     private Set<GlowChunk> findActiveChunks(Collection<GlowPlayer> players) {
         Set<GlowChunk> chunks = new HashSet<>();
         players.forEach(player -> {
-
             AreaOfInterest area = player.getAreaOfInterest();
-            int cx = area.getCenterX();
-            int cz = area.getCenterZ();
-            int limit = server.getViewDistance();
-            int r1 = area.getRadius(limit);
-
-            for (int x = cx - r1; x <= cx + r1; x++) {
-                for (int z = cz - r1; z <= cz + r1; z++) {
-                    GlowChunk chunk = getChunkAt(x, z);
-                    chunks.add(chunk);
-                }
-            }
+            area.forEach(chunks::add);
         });
         return chunks;
     }
@@ -761,8 +730,10 @@ public class GlowWorld implements World {
      */
     public void sendBlockChange(Location loc, Material material, byte data) {
         int materialId = material.getId();
-        BlockChangeMessage message = new BlockChangeMessage(loc.getBlockX(), loc.getBlockY(), loc
-                .getBlockZ(), materialId, data);
+        BlockChangeMessage message = new BlockChangeMessage(
+                loc.getBlockX(),
+                loc.getBlockY(),
+                loc.getBlockZ(), materialId, data);
         broadcastBlockChange(message);
     }
 
