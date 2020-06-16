@@ -1,6 +1,7 @@
 package net.glowstone.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import org.bukkit.util.Vector;
@@ -149,5 +150,21 @@ public class VectorsTest {
     public void computeVolumeTest() {
         Vector vector = new Vector(5.0, 1.0, 3.0);
         assertEquals(15.0, Vectors.computeVolume(vector), Double.MIN_VALUE);
+    }
+
+    @Test
+    public void flipInfinityTest() {
+        Vector positiveInfinity = new Vector(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, 5.0);
+        Vector flipped = new Vector(Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY, 5.0);
+        Vectors.flipInfinity(positiveInfinity);
+        assertTrue(Vectors.equals(positiveInfinity, flipped));
+    }
+
+    @Test
+    public void flipInfinityNegativeTest() {
+        Vector positiveInfinity = new Vector(Double.NEGATIVE_INFINITY, 2.0, 5.0);
+        Vector flipped = new Vector(Double.POSITIVE_INFINITY, 2.0, 5.0);
+        Vectors.flipInfinity(positiveInfinity);
+        assertTrue(Vectors.equals(positiveInfinity, flipped));
     }
 }
