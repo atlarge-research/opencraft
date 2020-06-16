@@ -12,26 +12,31 @@ import org.bukkit.util.Vector;
 public class EntityBoundingBox extends BoundingBox {
 
     private final double width;
-    private final double vertSize;
+    private final double height;
     private final double depth;
 
-    public EntityBoundingBox(double horizSize, double vertSize) {
-        this(horizSize, vertSize, horizSize);
+    /**
+     * Create an EntityBoundingBox with the given size.
+     *
+     * @param horizontalSize the width and depth of the box.
+     * @param verticalSize the height of the box.
+     */
+    public EntityBoundingBox(double horizontalSize, double verticalSize) {
+        this(horizontalSize, verticalSize, horizontalSize);
     }
 
     /**
      * Creates an instance with the given size.
      *
      * @param width the size on the X axis
-     * @param vertSize the size on the Y axis
+     * @param height the size on the Y axis
      * @param depth the size on the Z axis
      */
-    public EntityBoundingBox(double width, double vertSize, double depth) {
+    public EntityBoundingBox(double width, double height, double depth) {
         this.width = width;
-        this.vertSize = vertSize;
+        this.height = height;
         this.depth = depth;
     }
-
 
     /**
      * Calculates the broadPhase of an entity with a given velocity.
@@ -166,7 +171,6 @@ public class EntityBoundingBox extends BoundingBox {
         return normal;
     }
 
-
     /**
      * This function implements swept AABB collision detection as specified in the link below
      * https://www.gamedev.net/tutorials/programming/general-and-gameplay-programming/swept-aabb-collision-detection-and-response-r3084/
@@ -204,7 +208,7 @@ public class EntityBoundingBox extends BoundingBox {
 
     @Override
     public Vector getSize() {
-        return new Vector(width, vertSize, depth);
+        return new Vector(width, height, depth);
     }
 
     /**
@@ -219,7 +223,7 @@ public class EntityBoundingBox extends BoundingBox {
         minCorner.setY(y);
         minCorner.setZ(z - depth / 2);
         maxCorner.setX(x + width / 2);
-        maxCorner.setY(y + vertSize);
+        maxCorner.setY(y + height);
         maxCorner.setZ(z + depth / 2);
     }
 
@@ -230,7 +234,7 @@ public class EntityBoundingBox extends BoundingBox {
      * @return a copy of the current bounding box.
      */
     public EntityBoundingBox createCopyAt(Location center) {
-        EntityBoundingBox box = new EntityBoundingBox(width, vertSize, depth);
+        EntityBoundingBox box = new EntityBoundingBox(width, height, depth);
         box.setCenter(center.getX(), center.getY(), center.getZ());
         return box;
     }
