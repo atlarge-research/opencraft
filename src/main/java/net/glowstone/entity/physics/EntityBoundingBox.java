@@ -182,7 +182,7 @@ public class EntityBoundingBox extends BoundingBox {
         Vector inverseEntry = getInverseEntry(velocity, staticBox);
         Vector inverseExit = getInverseExit(velocity, staticBox);
 
-        Vector entry = inverseEntry.divide(velocity);
+        Vector entry = inverseEntry.clone().divide(velocity);
         Vector exit = inverseExit.divide(velocity);
 
         Vectors.flipInfinity(entry);
