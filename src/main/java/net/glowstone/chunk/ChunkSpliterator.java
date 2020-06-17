@@ -4,6 +4,9 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 import net.glowstone.GlowWorld;
 
+/**
+ * The chunk spliterator allows for traversal of an area of interest, either directly or via a stream.
+ */
 public final class ChunkSpliterator implements Spliterator<GlowChunk> {
 
     private final AreaOfInterest area;
@@ -11,6 +14,11 @@ public final class ChunkSpliterator implements Spliterator<GlowChunk> {
     private int z;
     private int size;
 
+    /**
+     * Create a spliterator over the given area.
+     *
+     * @param area the area of interest.
+     */
     ChunkSpliterator(AreaOfInterest area) {
         this.area = area;
         int radius = area.getRadius();

@@ -3,12 +3,20 @@ package net.glowstone.chunk;
 import java.util.Iterator;
 import net.glowstone.GlowWorld;
 
+/**
+ * The chunk iterator allows for traversal of an area of interest, either directly or via a for-loop.
+ */
 public class ChunkIterator implements Iterator<GlowChunk> {
 
     private final AreaOfInterest area;
     private int x;
     private int z;
 
+    /**
+     * Create a chunk iterator over the given area.
+     *
+     * @param area the area of interest.
+     */
     ChunkIterator(AreaOfInterest area) {
         this.area = area;
         x = area.getCenterX() - area.getRadius();
