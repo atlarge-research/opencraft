@@ -74,20 +74,62 @@ public class ItemFlintAndSteel extends ItemTool {
             return false;
         }
 
-        int height = getPortalLengthDirection(cornerBlock, BlockFace.UP);
         int width = getPortalLengthDirection(cornerBlock, direction);
-        if (height < 3 || width < 2) {
+        int height = getPortalLengthDirection(cornerBlock, BlockFace.UP);
+        if (width < 2 || height < 3) {
             return false;
         }
 
         GlowBlock blockFloor = cornerBlock.getRelative(BlockFace.DOWN);
-        for (int i = 0; i < width; i++) {
-            if (blockFloor.getType() != Material.OBSIDIAN) {
-                return false;
-            }
-            blockFloor = blockFloor.getRelative(direction);
+        GlowBlock blockCeiling = cornerBlock.getRelative(BlockFace.UP, height);
+        if (!hasHorizontalPortal(blockFloor, direction, width)
+                || !hasHorizontalPortal(blockCeiling, direction, width)) {
+            return false;
         }
 
+        if (!hasSidesPortal(cornerBlock, direction, width, height)) {
+            return false;
+        }
+
+        if (checkInsidePortal(cornerBlock, direction, width, height)) {
+            fillPortal(cornerBlock, direction, width, height, player);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Check if the portal in the horizontal direction is correct. This method is used for checking if the top and
+     * bottom of the portal consists completely of obsidian blocks along the width of the portal.
+     *
+     * @param block The block to start checking from.
+     * @param direction The horizontal direction to build the portal in.
+     * @param width The amount of blocks to check in the direction of the portal.
+     * @return Whether the complete horizontal length of either the top or bottom of the portal consists of obsidian
+     *         blocks.
+     */
+    private boolean hasHorizontalPortal(GlowBlock block, BlockFace direction, int width) {
+        for (int i = 0; i < width; i++) {
+            if (block.getType() != Material.OBSIDIAN) {
+                return false;
+            }
+            block = block.getRelative(direction);
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if both sides of the portal completely consist of obsidian blocks.
+     *
+     * @param cornerBlock The block in the bottom corner of the portal to start checking from.
+     * @param direction The horizontal direction to build the portal in.
+     * @param width The width of the portal.
+     * @param height The height of the portal.
+     * @return Whether the sides of the portal are completely made of obsidian blocks.
+     */
+    private boolean hasSidesPortal(GlowBlock cornerBlock, BlockFace direction, int width, int height) {
         GlowBlock sideBlock = cornerBlock.getRelative(direction.getOppositeFace());
         GlowBlock oppositeSideBlock = cornerBlock.getRelative(direction, width);
         for (int i = 0; i < height; i++) {
@@ -100,42 +142,30 @@ public class ItemFlintAndSteel extends ItemTool {
             oppositeSideBlock = oppositeSideBlock.getRelative(BlockFace.UP);
         }
 
-        GlowBlock blockCeiling = cornerBlock.getRelative(BlockFace.UP, height);
-        for (int i = 0; i < width; i++) {
-            if (blockCeiling.getType() != Material.OBSIDIAN) {
-                return false;
-            }
-            blockCeiling = blockCeiling.getRelative(direction);
-        }
-
-        return fillPortal(height, width, cornerBlock, direction, player);
+        return true;
     }
 
     /**
-     * Check if the inside of the portal is not obstructed by other blocks and then fill it with portal blocks.
+     * Check if the inside of the portal is not obstructed by other blocks.
      *
-     * @param height The height of the inside of the portal
-     * @param width The width of the inside of the portal
      * @param cornerBlock The block in a bottom corner of the portal.
      * @param direction The horizontal direction to build the portal in.
-     * @return Whether the portal was succesfully activated or not.
+     * @param width The width of the inside of the portal
+     * @param height The height of the inside of the portal.
+     * @return Whether the inside of the portal only contains air or not.
      */
-    private boolean fillPortal(int height, int width, GlowBlock cornerBlock, BlockFace direction, GlowPlayer player) {
+    private boolean checkInsidePortal(GlowBlock cornerBlock, BlockFace direction, int width, int height) {
         GlowBlock current;
-        List<BlockState> blocks = new ArrayList<>();
         boolean success = true;
 
         for (int i = 0; i < height; i++) {
 
             current = cornerBlock.getRelative(BlockFace.UP, i);
-
             for (int j = 0; j < width; j++) {
-
                 if (current.getType() != Material.AIR) {
                     success = false;
                     break;
                 }
-
                 current = current.getRelative(direction);
             }
 
@@ -144,6 +174,20 @@ public class ItemFlintAndSteel extends ItemTool {
             }
         }
 
+        return success;
+    }
+
+    /**
+     * Fill the inside of the portal with portal blocks.
+     *
+     * @param cornerBlock The block in a bottom corner of the portal.
+     * @param direction The horizontal direction to build the portal in.
+     * @param width The width of the inside of the portal
+     * @param height The height of the inside of the portal.
+     * @param player The player that activated the portal.
+     */
+    private void fillPortal(GlowBlock cornerBlock, BlockFace direction, int width, int height, GlowPlayer player) {
+
         byte data;
         if (direction == BlockFace.EAST || direction == BlockFace.WEST) {
             data = 1;
@@ -151,27 +195,24 @@ public class ItemFlintAndSteel extends ItemTool {
             data = 2;
         }
 
-        if (success) {
-
-            for (int i = 0; i < height; i++) {
-                current = cornerBlock.getRelative(BlockFace.UP, i);
-                for (int j = 0; j < width; j++) {
-                    current.setType(Material.PORTAL, data, false);
-                    blocks.add(current.getState());
-                    current = current.getRelative(direction);
-                }
-            }
-
-            EntityCreatePortalEvent event = new EntityCreatePortalEvent(player, blocks, PortalType.NETHER);
-            event = EventFactory.getInstance().callEvent(event);
-            if (!event.isCancelled()) {
-                for (BlockState state : blocks) {
-                    state.update(true);
-                }
+        GlowBlock current;
+        List<BlockState> blocks = new ArrayList<>();
+        for (int i = 0; i < height; i++) {
+            current = cornerBlock.getRelative(BlockFace.UP, i);
+            for (int j = 0; j < width; j++) {
+                current.setType(Material.PORTAL, data, false);
+                blocks.add(current.getState());
+                current = current.getRelative(direction);
             }
         }
 
-        return success;
+        EntityCreatePortalEvent event = new EntityCreatePortalEvent(player, blocks, PortalType.NETHER);
+        event = EventFactory.getInstance().callEvent(event);
+        if (!event.isCancelled()) {
+            for (BlockState state : blocks) {
+                state.update(true);
+            }
+        }
     }
 
     /**
@@ -179,7 +220,7 @@ public class ItemFlintAndSteel extends ItemTool {
      *
      * @param block The block to start checking for the position.
      * @param direction The direction to try and build the portal in, we need to move in the opposite direction to
-     *                  start at the correct corner.
+     *        start at the correct corner.
      * @return The position of the corner of a portal. This position will always be at the bottom.
      */
     private GlowBlock getPortalPosition(GlowBlock block, BlockFace direction) {
