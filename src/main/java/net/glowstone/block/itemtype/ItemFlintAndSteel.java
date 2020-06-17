@@ -91,12 +91,12 @@ public class ItemFlintAndSteel extends ItemTool {
             return false;
         }
 
-        if (checkInsidePortal(cornerBlock, direction, width, height)) {
-            fillPortal(cornerBlock, direction, width, height, player);
-            return true;
-        } else {
+        if (!checkInsidePortal(cornerBlock, direction, width, height)) {
             return false;
         }
+
+        fillPortal(cornerBlock, direction, width, height, player);
+        return true;
     }
 
     /**
