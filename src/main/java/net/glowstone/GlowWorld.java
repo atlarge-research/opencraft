@@ -395,10 +395,6 @@ public class GlowWorld implements World {
     @Getter
     private final boolean initialized;
 
-    private final int ticksPerSecond = 20;
-    private int tickCount = 0;
-    private final int[] updates = new int[ticksPerSecond * 60];
-    private final int[] broadcasts = new int[ticksPerSecond * 60];
     private final MessagingSystem<Chunk, Object, Player, Message> messagingSystem;
 
     private final PriorityExecutor<ChunkRunnable> executor;
@@ -416,7 +412,7 @@ public class GlowWorld implements World {
 
         this.server = server;
 
-        // set up values from WorldCreator
+        // Set up values from WorldCreator
         name = creator.name();
         environment = creator.environment();
         worldType = creator.type();
@@ -445,7 +441,7 @@ public class GlowWorld implements World {
         seaLevel = GlowServer.getWorldConfig().getInt(WorldConfig.Key.SEA_LEVEL);
         worldBorder = new GlowWorldBorder(this);
 
-        // Setup messaging system
+        // Set up messaging system
         ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
         Broker<Chunk, Player, Message> broker = Brokers.newBroker(server.getBrokerConfig());
         Filter<Player, Message> filter = new PlayerFilter();
@@ -531,26 +527,6 @@ public class GlowWorld implements World {
         handleSleepAndWake(players);
 
         saveWorld();
-
-        if (name.equals("world")) {
-            tickCount++;
-            if (tickCount % (ticksPerSecond * 5) == 0) {
-
-                int totalUpdates = 0;
-                int totalBroadcasts = 0;
-                for (int index = 0; index < ticksPerSecond * 5; index++) {
-                    totalUpdates += updates[index];
-                    totalBroadcasts += broadcasts[index];
-                }
-                tickCount = 0;
-
-                double averageUpdates = totalUpdates / (5.0 * ticksPerSecond);
-                double averageBroadcasts = totalBroadcasts / (5.0 * ticksPerSecond);
-                System.out.println(name + " - Updates: " + averageUpdates + ", Broadcasts: " + averageBroadcasts);
-            }
-            updates[tickCount] = 0;
-            broadcasts[tickCount] = 0;
-        }
     }
 
     /**
@@ -572,7 +548,6 @@ public class GlowWorld implements World {
         allPlayers.forEach(player -> {
             Session session = player.getSession();
             messagingSystem.update(player, session::send);
-            updates[tickCount % updates.length] += 1;
         });
 
         List<ChunkRunnable> chunksToLoad = allPlayers.parallelStream()
@@ -645,13 +620,9 @@ public class GlowWorld implements World {
             return runnables;
         }
 
-        int cx2 = second.getCenterX();
-        int cz2 = second.getCenterZ();
-        int r2 = second.getRadius();
-
         List<ChunkRunnable> runnables = new ArrayList<>();
         first.forEach(chunk -> {
-            if (Math.abs(chunk.getX() - cx2) > r2 || Math.abs(chunk.getZ() - cz2) > r2) {
+            if (!second.contains(chunk)) {
                 ChunkRunnable runnable = new ChunkRunnable(player, chunk);
                 runnables.add(runnable);
             }
@@ -749,16 +720,19 @@ public class GlowWorld implements World {
     /**
      * Send a change for a block to be processed.
      *
-     * @param loc The location of the material that has to be changed.
+     * @param location The location of the material that has to be changed.
      * @param material The affected material.
      * @param data Necessary data for the change.
      */
-    public void sendBlockChange(Location loc, Material material, byte data) {
+    public void sendBlockChange(Location location, Material material, byte data) {
         int materialId = material.getId();
         BlockChangeMessage message = new BlockChangeMessage(
-                loc.getBlockX(),
-                loc.getBlockY(),
-                loc.getBlockZ(), materialId, data);
+                location.getBlockX(),
+                location.getBlockY(),
+                location.getBlockZ(),
+                materialId,
+                data
+        );
         broadcastBlockChange(message);
     }
 
@@ -793,7 +767,6 @@ public class GlowWorld implements World {
     public void broadcastBlockChange(BlockChangeMessage message) {
         GlowBlock block = getBlockAt(message.getX(), message.getY(), message.getZ());
         messagingSystem.broadcast(block, message);
-        broadcasts[tickCount % broadcasts.length] += 1;
     }
 
     /**
@@ -804,7 +777,6 @@ public class GlowWorld implements World {
      */
     public void broadcastAfterBlockChange(Location location, Message message) {
         messagingSystem.broadcast(location, message);
-        broadcasts[tickCount % broadcasts.length] += 1;
     }
 
     /**
@@ -815,10 +787,7 @@ public class GlowWorld implements World {
     private void broadcastEntityUpdates(Collection<GlowEntity> entities) {
         entities.forEach(entity -> {
             List<Message> messages = entity.createUpdateMessage();
-            messages.forEach(message -> {
-                messagingSystem.broadcast(entity, message);
-                broadcasts[tickCount % broadcasts.length] += 1;
-            });
+            messages.forEach(message -> messagingSystem.broadcast(entity, message));
         });
     }
 
