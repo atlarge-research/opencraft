@@ -27,7 +27,12 @@ public final class AreaOfInterest implements Iterable<GlowChunk> {
      * @param location The location to be stored.
      * @param viewDistance The viewdistance to be stored.
      */
-    public AreaOfInterest(@NotNull Location location, int viewDistance) {
+    public AreaOfInterest(Location location, int viewDistance) {
+
+        if (location == null) {
+            throw new IllegalArgumentException("Location cannot be null");
+        }
+
         world = (GlowWorld) location.getWorld();
         centerX = location.getBlockX() >> 4;
         centerZ = location.getBlockZ() >> 4;
