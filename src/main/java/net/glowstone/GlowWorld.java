@@ -1683,36 +1683,41 @@ public class GlowWorld implements World {
         checkNotNull(location);
         checkNotNull(type);
 
+
         Location entitySpawnLocation = location.clone();
         Block blockUnderEntityWithinOffset = location.clone().subtract(0, GlowEntity.COLLISION_OFFSET, 0).getBlock();
         if (blockUnderEntityWithinOffset.getType() != Material.AIR) {
             entitySpawnLocation.add(0, GlowEntity.COLLISION_OFFSET, 0);
         }
 
-        if (EntityRegistry.getEntity(type) == null) {
-            throw new UnsupportedOperationException("Entity type not registered: " + type);
-        }
-
+        GlowEntity entity = null;
         try {
 
-            GlowEntity entity = EntityStorage.create(type, entitySpawnLocation);
+            if (EntityRegistry.getEntity(type) != null) {
+                entity = EntityStorage.create(type, entitySpawnLocation);
+            }
 
             EntitySpawnEvent spawnEvent = null;
-            EventFactory eventFactory = EventFactory.getInstance();
             if (entity instanceof LivingEntity) {
-                spawnEvent = eventFactory.callEvent(new CreatureSpawnEvent((LivingEntity) entity, reason));
-            } else if (!(entity instanceof Item)) {
-                spawnEvent = eventFactory.callEvent(new EntitySpawnEvent(entity));
+                spawnEvent = EventFactory.getInstance()
+                        .callEvent(new CreatureSpawnEvent((LivingEntity) entity, reason));
+            } else if (!(entity instanceof Item)) { // ItemSpawnEvent is called elsewhere
+                spawnEvent = EventFactory.getInstance().callEvent(new EntitySpawnEvent(entity));
             }
 
             if (spawnEvent != null && spawnEvent.isCancelled()) {
+                // TODO: separate spawning and construction for better event cancellation
                 entity.remove();
             } else {
-                List<Message> spawnMessages = entity.createSpawnMessage();
-                spawnMessages.forEach(message -> messagingSystem.broadcast(entity, message));
+                List<Message> spawnMessage = entity.createSpawnMessage();
+                final GlowEntity finalEntity = entity;
+                getRawPlayers().stream()
+                        .filter(player -> player.canSeeEntity(finalEntity))
+                        .forEach(player -> {
+                            Session session = player.getSession();
+                            session.sendAll(spawnMessage.toArray(new Message[0]));
+                        });
             }
-
-            return entity;
 
         } catch (NoSuchMethodError | IllegalAccessError exception) {
             GlowServer.logger.log(Level.WARNING, "Invalid entity spawn: ", exception);
@@ -1721,7 +1726,11 @@ public class GlowWorld implements World {
             GlowServer.logger.log(Level.SEVERE, "Unable to spawn entity: ", throwable);
         }
 
-        throw new UnsupportedOperationException("Could not spawn entity of type: " + type);
+        if (entity != null) {
+            return entity;
+        }
+
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     /**
