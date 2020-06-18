@@ -15,17 +15,17 @@ public class Benchmarker {
         public double relativeUtilization;
         public long playerCount;
 
-        public BenchMarkData(long timeMilliseconds, double relativeUtilization, long playerCount) {
+        public BenchMarkData(long timeMilliseconds, long playerCount, double relativeUtilization) {
             this.timeMilliseconds = timeMilliseconds;
-            this.relativeUtilization = relativeUtilization;
             this.playerCount = playerCount;
+            this.relativeUtilization = relativeUtilization;
         }
 
         @Override
         public String toString() {
             return timeMilliseconds +
-                    "," + relativeUtilization +
                     "," + playerCount +
+                    "," + relativeUtilization +
                     '\n';
         }
     }
