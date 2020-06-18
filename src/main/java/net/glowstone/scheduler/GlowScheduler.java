@@ -247,13 +247,7 @@ public final class GlowScheduler implements BukkitScheduler {
         // Benchmark
         long tickEnd = System.currentTimeMillis();
         long playerCount = this.server.getOnlinePlayers().size();
-        double relativeUtilization = ((tickEnd-tickStart)/ 50.00) * 100.0;
-        Benchmarker.BenchMarkData benchMarkData = new Benchmarker.BenchMarkData(
-                tickEnd,
-                relativeUtilization,
-                playerCount
-        );
-        Benchmarker.getInstance().submitTickData(benchMarkData);
+        Benchmarker.getInstance().submitTickData(tickStart, tickEnd, playerCount);
     }
 
     @Override
