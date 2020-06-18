@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import net.glowstone.EventFactory;
+import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.GlowBlockState;
 import net.glowstone.block.ItemTable;
@@ -287,9 +288,15 @@ public class BlockRedstone extends BlockNeedsAttached {
     }
 
     @Override
-    public void receivePulse(GlowBlock me) {
-        BlockChangeMessage bcmsg = new BlockChangeMessage(me.getX(), me.getY(), me.getZ(),
-            me.getTypeId(), me.getData());
-        me.getWorld().addBlockChange(bcmsg);
+    public void receivePulse(GlowBlock current) {
+        BlockChangeMessage message = new BlockChangeMessage(
+                current.getX(),
+                current.getY(),
+                current.getZ(),
+                current.getTypeId(),
+                current.getData()
+        );
+        GlowWorld world = current.getWorld();
+        world.broadcastBlockChange(message);
     }
 }

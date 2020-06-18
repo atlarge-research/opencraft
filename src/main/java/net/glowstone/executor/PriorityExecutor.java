@@ -1,7 +1,8 @@
 package net.glowstone.executor;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -46,27 +47,26 @@ public final class PriorityExecutor<GenericPriorityRunnable extends PriorityRunn
      * @param predicate The predicate used to determine which runnables should be removed.
      * @return the removed runnables.
      */
-    public Collection<GenericPriorityRunnable> executeAndCancel(
-            Collection<GenericPriorityRunnable> toExecute,
+    public Set<GenericPriorityRunnable> executeAndCancel(
+            List<GenericPriorityRunnable> toExecute,
             Predicate<GenericPriorityRunnable> predicate
     ) {
-        Collection<GenericPriorityRunnable> removed = new ArrayList<>();
+        Set<GenericPriorityRunnable> cancelled = new HashSet<>();
 
         queue.transaction(queue -> {
             queue.forEach(GenericPriorityRunnable::updatePriority);
             queue.removeIf(runnable -> {
                 if (predicate.test(runnable)) {
-                    removed.add(runnable);
+                    cancelled.add(runnable);
                     return true;
                 }
-
                 return false;
             });
             queue.addAll(toExecute);
             queue.sort();
         });
 
-        return removed;
+        return cancelled;
     }
 
     /**

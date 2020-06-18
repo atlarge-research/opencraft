@@ -240,7 +240,7 @@ public class GlowBlock implements Block {
                 && getRelative(BlockFace.UP).getType() == Material.DOUBLE_PLANT) {
             world.getChunkAtAsync(this, c -> ((GlowChunk) c).setType(x & 0xf, z & 0xf, y + 1, 0));
             BlockChangeMessage bcmsg = new BlockChangeMessage(x, y + 1, z, 0, 0);
-            world.addBlockChange(bcmsg);
+            world.broadcastBlockChange(bcmsg);
         }
 
         if (applyPhysics) {
@@ -248,7 +248,7 @@ public class GlowBlock implements Block {
         }
 
         BlockChangeMessage bcmsg = new BlockChangeMessage(x, y, z, type, data);
-        world.addBlockChange(bcmsg);
+        world.broadcastBlockChange(bcmsg);
 
         return true;
     }
@@ -309,7 +309,7 @@ public class GlowBlock implements Block {
         }
 
         BlockChangeMessage bcmsg = new BlockChangeMessage(x, y, z, getTypeId(), data);
-        world.addBlockChange(bcmsg);
+        world.broadcastBlockChange(bcmsg);
     }
 
     @Override

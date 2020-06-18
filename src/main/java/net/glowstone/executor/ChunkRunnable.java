@@ -1,7 +1,9 @@
 package net.glowstone.executor;
 
 import com.flowpowered.network.Message;
+import java.util.Objects;
 import net.glowstone.GlowWorld;
+import net.glowstone.chunk.AreaOfInterest;
 import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.net.GlowSession;
@@ -50,14 +52,25 @@ public final class ChunkRunnable extends PriorityRunnable {
     }
 
     /**
+     * Check whether the chunk runnable should be cancelled. The decision is made based on the distance between the
+     * server's view distance, the player's view distance and position, and the chunk's position.
+     *
+     * @return whether the runnable should be cancelled.
+     */
+    public boolean shouldBeCancelled() {
+        AreaOfInterest area = player.getAreaOfInterest();
+        return !area.contains(chunk);
+    }
+
+    /**
      * Update the priority of the ChunkRunnable. This is computed by calculating the distance between the center of the
      * chunk the player.
      */
     @Override
     public void updatePriority() {
         Coordinates chunkCenter = chunk.getCenterCoordinates();
-        Coordinates playerCoords = player.getCoordinates();
-        double squaredDistance = chunkCenter.squaredDistance(playerCoords);
+        Coordinates playerCoordinates = player.getCoordinates();
+        double squaredDistance = chunkCenter.squaredDistance(playerCoordinates);
         setPriority(squaredDistance);
     }
 
@@ -80,5 +93,25 @@ public final class ChunkRunnable extends PriorityRunnable {
         session.send(message);
 
         chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
+    }
+
+    @Override
+    public boolean equals(Object object) {
+
+        if (this == object) {
+            return true;
+        }
+
+        if (object == null || getClass() != object.getClass()) {
+            return false;
+        }
+
+        ChunkRunnable other = (ChunkRunnable) object;
+        return Objects.equals(player, other.player) && Objects.equals(chunk, other.chunk);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(player, chunk);
     }
 }

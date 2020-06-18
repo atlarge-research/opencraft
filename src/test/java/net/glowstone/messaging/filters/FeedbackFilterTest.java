@@ -11,18 +11,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Verify that the PlayerFilter filters the correct typed and valued messages.
+ * Verify that the FeedbackFilter filters the correct typed and valued messages.
  */
-class PlayerFilterTest {
+class FeedbackFilterTest {
 
     private static final int PLAYER_ID = 1;
 
-    private PlayerFilter filter;
+    private FeedbackFilter filter;
     private Player player;
 
     @BeforeEach
     void beforeEach() {
-        filter = new PlayerFilter();
+        filter = new FeedbackFilter();
         player = mock(Player.class);
         when(player.getEntityId()).thenReturn(PLAYER_ID);
     }

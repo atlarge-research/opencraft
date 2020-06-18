@@ -19,16 +19,17 @@ import org.bukkit.entity.Player;
 import science.atlarge.opencraft.messaging.Filter;
 
 /**
- * The player filter prevents players from receiving messages the Minecraft client does not expect.
+ * The feedback filter prevents players from receiving messages the Minecraft client does not expect. This prevents a
+ * feedback loop that would cause player movement to jitter.
  */
-public final class PlayerFilter implements Filter<Player, Message> {
+public final class FeedbackFilter implements Filter<Player, Message> {
 
     private final Map<Class<? extends Message>, Function<Message, Integer>> getters;
 
     /**
-     * Create a player filter.
+     * Create a feedback filter.
      */
-    public PlayerFilter() {
+    public FeedbackFilter() {
         getters = new ClassToGetterMapBuilder<Message, Integer>()
                 .put(BlockBreakAnimationMessage.class, BlockBreakAnimationMessage::getId)
                 .put(EntityTeleportMessage.class, EntityTeleportMessage::getId)

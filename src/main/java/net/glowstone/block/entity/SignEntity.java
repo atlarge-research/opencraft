@@ -68,7 +68,7 @@ public class SignEntity extends BlockEntity {
                 GlowBlockEntity.SIGN.getValue(),
                 tag
         );
-        world.addAfterBlockChange(location, message);
+        world.broadcastAfterBlockChange(location, message);
     }
 
     @Override
