@@ -22,6 +22,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
+import net.glowstone.Benchmarker;
 import net.glowstone.GlowServer;
 import net.glowstone.net.SessionRegistry;
 import org.bukkit.Server;
@@ -185,6 +186,7 @@ public final class GlowScheduler implements BukkitScheduler {
     private void pulse() {
         com.atlarge.yscollector.YSCollector.start("tick", "The duration of a tick."); // YSCollector
         primaryThread = Thread.currentThread();
+        long tickStart = System.currentTimeMillis();
 
         // Process player packets
         com.atlarge.yscollector.YSCollector.start("tick_network", "The duration of a tick processing the network"); // YSCollector
@@ -241,6 +243,17 @@ public final class GlowScheduler implements BukkitScheduler {
         com.atlarge.yscollector.YSCollector.stop("tick_worlds"); // YSCollector
 
         com.atlarge.yscollector.YSCollector.stop("tick"); // YSCollector
+
+        // Benchmark
+        long tickEnd = System.currentTimeMillis();
+        long playerCount = this.server.getOnlinePlayers().size();
+        double relativeUtilization = ((tickEnd-tickStart)/ 50.00) * 100.0;
+        Benchmarker.BenchMarkData benchMarkData = new Benchmarker.BenchMarkData(
+                tickEnd,
+                relativeUtilization,
+                playerCount
+        );
+        Benchmarker.getInstance().submitTickData(benchMarkData);
     }
 
     @Override
