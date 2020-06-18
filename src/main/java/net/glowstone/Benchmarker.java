@@ -44,25 +44,25 @@ public class Benchmarker {
 
     private Benchmarker() {
         EXECUTOR.submit(() -> {
-                            while(!Thread.interrupted()) {
-                                BenchMarkData data = QUEUE.poll();
-                                if (data != null) {
-                                    try {
-                                        FileWriter fileWriter = new FileWriter(FILE, true);
+                            try {
+                                FileWriter fileWriter = new FileWriter(FILE, true);
+                                while (!Thread.interrupted()) {
+                                    BenchMarkData data = QUEUE.poll();
+                                    if (data != null) {
                                         fileWriter.write(data.toString());
+                                        fileWriter.flush();
+                                    }
+                                    try {
+                                        Thread.sleep(50);
+                                    } catch (InterruptedException e) {
                                         fileWriter.close();
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
                                     }
                                 }
-                                try {
-                                    Thread.sleep(50);
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
+                                fileWriter.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
                         }
-
         );
     }
 
