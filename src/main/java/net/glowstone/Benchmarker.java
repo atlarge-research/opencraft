@@ -7,9 +7,6 @@ import java.time.LocalDateTime;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import org.apache.commons.io.FileUtils;
 
 public class Benchmarker {
     public static class BenchMarkData {
@@ -48,9 +45,10 @@ public class Benchmarker {
                                 FileWriter fileWriter = new FileWriter(FILE, true);
                                 while (!Thread.interrupted()) {
                                     BenchMarkData data = QUEUE.poll();
-                                    if (data != null) {
+                                    while (data != null) {
                                         fileWriter.write(data.toString());
                                         fileWriter.flush();
+                                        data = QUEUE.poll();
                                     }
                                     try {
                                         Thread.sleep(50);
@@ -70,13 +68,17 @@ public class Benchmarker {
         return Loader.INSTANCE;
     }
 
-    public void submitTickData(BenchMarkData benchMarkData) {
+    public void submitTickData(long tickStart, long tickEnd, long playerCount) {
+        double relativeUtilization = ((tickEnd-tickStart)/ 50.00) * 100.0;
+        BenchMarkData benchMarkData = new BenchMarkData(
+                tickEnd,
+                relativeUtilization,
+                playerCount
+        );
         try {
             QUEUE.put(benchMarkData);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
-
-
 }
