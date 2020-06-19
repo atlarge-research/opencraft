@@ -388,18 +388,22 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
      */
     public enum Key {
 
-        // Opencraft
+        // Opencraft - Collector
         OPENCRAFT_COLLECTOR("opencraft.collector", false, Boolean.class::isInstance),
+
+        // Opencraft - Messaging System
         OPENCRAFT_POLICY("opencraft.policy", "chunk", String.class::isInstance),
-        OPENCRAFT_BROKER_TYPE("opencraft.broker.type", "readwrite", String.class::isInstance),
+        OPENCRAFT_BROKER_TYPE("opencraft.broker.type", "read-write", String.class::isInstance),
+        OPENCRAFT_BROKER_ASYNC("opencraft.broker.async", true, Boolean.class::isInstance),
+        OPENCRAFT_BROKER_THREADS("opencraft.broker.threads", Runtime.getRuntime().availableProcessors(),
+                Integer.class::isInstance),
+        OPENCRAFT_BROKER_CAPACITY("opencraft.broker.capacity", Integer.MAX_VALUE, Integer.class::isInstance),
+        OPENCRAFT_BROKER_CHANNEL("opencraft.broker.channel", "unsafe", String.class::isInstance),
         OPENCRAFT_BROKER_HOST("opencraft.broker.host", "localhost", String.class::isInstance),
         OPENCRAFT_BROKER_PORT("opencraft.broker.port", 0, Integer.class::isInstance),
-        OPENCRAFT_BROKER_VIRTUAL_HOST("opencraft.broker.virtualHost", "", String.class::isInstance),
         OPENCRAFT_BROKER_USERNAME("opencraft.broker.username", "", String.class::isInstance),
         OPENCRAFT_BROKER_PASSWORD("opencraft.broker.password", "", String.class::isInstance),
-        OPENCRAFT_BROKER_CHANNEL_TYPE("opencraft.broker.channel.type", "unsafe", String.class::isInstance),
-        OPENCRAFT_BROKER_CHANNEL_PARALLELISM_THRESHOLD("opencraft.broker.channel.parallelismThreshold", 4,
-                Integer.class::isInstance),
+        OPENCRAFT_BROKER_VIRTUAL_HOST("opencraft.broker.virtualHost", "", String.class::isInstance),
 
         // server
         SERVER_IP("server.ip", "", Migrate.PROPS, "server-ip", String.class::isInstance),

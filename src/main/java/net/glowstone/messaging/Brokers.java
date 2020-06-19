@@ -1,14 +1,14 @@
 package net.glowstone.messaging;
 
-import com.flowpowered.network.Message;
+import java.util.function.Supplier;
 import javax.jms.JMSException;
-import net.glowstone.messaging.codecs.CompositeCodec;
 import net.glowstone.util.config.BrokerConfig;
-import net.glowstone.util.config.ChannelConfig;
 import science.atlarge.opencraft.messaging.Broker;
 import science.atlarge.opencraft.messaging.brokers.ActivemqBroker;
+import science.atlarge.opencraft.messaging.brokers.AsyncBroker;
 import science.atlarge.opencraft.messaging.brokers.ChannelFactory;
 import science.atlarge.opencraft.messaging.brokers.ConcurrentBroker;
+import science.atlarge.opencraft.messaging.brokers.JmsCodec;
 import science.atlarge.opencraft.messaging.brokers.RabbitmqBroker;
 import science.atlarge.opencraft.messaging.brokers.ReadWriteBroker;
 import science.atlarge.opencraft.messaging.channels.ConcurrentChannel;
@@ -29,79 +29,101 @@ public final class Brokers {
      * @param <Subscriber> the type of subscribers that is allowed to subscribe to a channel.
      * @return the created broker.
      */
-    public static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newBroker(BrokerConfig config) {
-        String type = config.getType();
-        switch (type.toLowerCase()) {
+    public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newBroker(
+            BrokerConfig config,
+            Supplier<JmsCodec<Message>> codecFactory
+    ) {
+        Broker<Topic, Subscriber, Message> base = newBaseBroker(config, codecFactory);
+        if (config.getAsync()) {
+            return new AsyncBroker<>(base, config.getThreads(), config.getCapacity());
+        }
+        return base;
+    }
 
-            case "activemq":
-                return newActivemqBroker(config);
+    private static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newBaseBroker(
+            BrokerConfig config,
+            Supplier<JmsCodec<Message>> codecFactory
+    ) {
+        switch (config.getType()) {
 
-            case "concurrent":
-                return newConcurrentBroker(config.getChannel());
+            case ACTIVEMQ:
+                return newActivemqBroker(config, codecFactory);
 
-            case "rabbitmq":
-                return newRabbitmqBroker(config);
+            case CONCURRENT:
+                return newConcurrentBroker(config);
 
-            case "readwrite":
-                return newReadWriteBroker(config.getChannel());
+            case RABBITMQ:
+                return newRabbitmqBroker(config, codecFactory);
+
+            case READ_WRITE:
+                return newReadWriteBroker(config);
 
             default:
-                throw new RuntimeException("Unknown broker type: " + type);
+                throw new RuntimeException("Unsupported broker type: " + config.getType());
         }
     }
 
-    private static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newConcurrentBroker(ChannelConfig config) {
+    private static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newConcurrentBroker(
+            BrokerConfig config
+    ) {
         ChannelFactory<Subscriber, Message> factory = newChannelFactory(config);
         return new ConcurrentBroker<>(factory);
     }
 
-    private static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newReadWriteBroker(ChannelConfig config) {
+    private static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newReadWriteBroker(
+            BrokerConfig config
+    ) {
         ChannelFactory<Subscriber, Message> factory = newChannelFactory(config);
         return new ReadWriteBroker<>(factory);
     }
 
-    private static <Subscriber> ChannelFactory<Subscriber, Message> newChannelFactory(ChannelConfig config) {
-        String type = config.getType();
-        switch (type.toLowerCase()) {
+    private static <Subscriber, Message> ChannelFactory<Subscriber, Message> newChannelFactory(BrokerConfig config) {
+        switch (config.getChannel()) {
 
-            case "concurrent":
+            case CONCURRENT:
                 return ConcurrentChannel::new;
 
-            case "guava":
+            case GUAVA:
                 return GuavaChannel::new;
 
-            case "readwrite":
+            case READ_WRITE:
                 return ReadWriteChannel::new;
 
-            case "unsafe":
+            case UNSAFE:
                 return UnsafeChannel::new;
 
             default:
-                throw new RuntimeException("Unknown channel type: " + type);
+                throw new RuntimeException("Unsupported channel type: " + config.getChannel());
         }
     }
 
-    private static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newActivemqBroker(BrokerConfig config) {
+    private static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newActivemqBroker(
+            BrokerConfig config,
+            Supplier<JmsCodec<Message>> codecFactory
+    ) {
         try {
+            JmsCodec<Message> codec = codecFactory.get();
             String host = config.getHost();
             int port = config.getPort();
             String username = config.getUsername();
             String password = config.getPassword();
-            CompositeCodec codec = new CompositeCodec();
             return new ActivemqBroker<>(codec, host, port, username, password);
         } catch (JMSException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static <Topic, Subscriber> Broker<Topic, Subscriber, Message> newRabbitmqBroker(BrokerConfig config) {
+    private static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newRabbitmqBroker(
+            BrokerConfig config,
+            Supplier<JmsCodec<Message>> codecFactory
+    ) {
         try {
+            JmsCodec<Message> codec = codecFactory.get();
             String host = config.getHost();
             int port = config.getPort();
             String username = config.getUsername();
             String password = config.getPassword();
             String virtualHost = config.getVirtualHost();
-            CompositeCodec codec = new CompositeCodec();
             return new RabbitmqBroker<>(codec, host, port, username, password, virtualHost);
         } catch (JMSException e) {
             throw new RuntimeException(e);

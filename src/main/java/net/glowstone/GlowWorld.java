@@ -57,6 +57,7 @@ import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
 import net.glowstone.messaging.Brokers;
+import net.glowstone.messaging.codecs.CompositeCodec;
 import net.glowstone.messaging.filters.FeedbackFilter;
 import net.glowstone.messaging.policies.ChunkPolicy;
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
@@ -443,7 +444,7 @@ public class GlowWorld implements World {
 
         // Set up messaging system
         ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
-        Broker<Chunk, Player, Message> broker = Brokers.newBroker(server.getBrokerConfig());
+        Broker<Chunk, Player, Message> broker = Brokers.newBroker(server.getBrokerConfig(), CompositeCodec::new);
         Filter<Player, Message> filter = new FeedbackFilter();
         messagingSystem = new MessagingSystem<>(policy, broker, filter);
 
