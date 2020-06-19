@@ -49,7 +49,7 @@
         <dependency>
             <groupId>science.atlarge.opencraft</groupId>
             <artifactId>messaging-system</artifactId>
-            <version>1.0</version>
+            <version>1.2</version>
         </dependency>
         <!-- Guava -->
         <dependency>
