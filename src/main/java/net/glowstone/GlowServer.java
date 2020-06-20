@@ -153,7 +153,8 @@ import net.glowstone.util.TextMessage;
 import net.glowstone.util.bans.GlowBanList;
 import net.glowstone.util.bans.UuidListFile;
 import net.glowstone.util.config.BrokerConfig;
-import net.glowstone.util.config.ChannelConfig;
+import net.glowstone.util.config.BrokerType;
+import net.glowstone.util.config.ChannelType;
 import net.glowstone.util.config.ServerConfig;
 import net.glowstone.util.config.ServerConfig.Key;
 import net.glowstone.util.config.WorldConfig;
@@ -535,17 +536,24 @@ public class GlowServer implements Server {
      * @return the broker configuration.
      */
     public BrokerConfig getBrokerConfig() {
+
+        String brokerName = config.getString(Key.OPENCRAFT_BROKER_TYPE);
+        BrokerType brokerType = BrokerType.parse(brokerName);
+
+        String channelName = config.getString(Key.OPENCRAFT_BROKER_CHANNEL);
+        ChannelType channelType = ChannelType.parse(channelName);
+
         return new BrokerConfig(
-                config.getString(Key.OPENCRAFT_BROKER_TYPE),
+                brokerType,
+                config.getBoolean(Key.OPENCRAFT_BROKER_ASYNC),
+                config.getInt(Key.OPENCRAFT_BROKER_THREADS),
+                config.getInt(Key.OPENCRAFT_BROKER_CAPACITY),
+                channelType,
                 config.getString(Key.OPENCRAFT_BROKER_HOST),
                 config.getInt(Key.OPENCRAFT_BROKER_PORT),
-                config.getString(Key.OPENCRAFT_BROKER_VIRTUAL_HOST),
                 config.getString(Key.OPENCRAFT_BROKER_USERNAME),
                 config.getString(Key.OPENCRAFT_BROKER_PASSWORD),
-                new ChannelConfig(
-                        config.getString(Key.OPENCRAFT_BROKER_CHANNEL_TYPE),
-                        config.getInt(Key.OPENCRAFT_BROKER_CHANNEL_PARALLELISM_THRESHOLD)
-                )
+                config.getString(Key.OPENCRAFT_BROKER_VIRTUAL_HOST)
         );
     }
 

@@ -9,11 +9,22 @@ import lombok.Data;
 @Data
 public class BrokerConfig {
 
-    private final String type;
+    private final BrokerType type;
+
+    // Asynchronous options
+    private final Boolean async;
+    private final Integer threads;
+    private final Integer capacity;
+
+    // Channel options
+    private final ChannelType channel;
+
+    // JMS options
     private final String host;
     private final Integer port;
-    private final String virtualHost;
     private final String username;
     private final String password;
-    private final ChannelConfig channel;
+
+    // RabbitMQ options
+    private final String virtualHost;
 }
