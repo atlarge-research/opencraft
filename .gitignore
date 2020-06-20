@@ -9,8 +9,6 @@
 !docs/**/*
 !etc/
 !etc/*/**
-!scripts/
-!scripts/*/**
 
 # Include the project files
 !src/
