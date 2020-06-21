@@ -1,7 +1,5 @@
 package net.glowstone;
 
-import net.glowstone.util.config.BrokerConfig;
-
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.IOException;
@@ -11,8 +9,9 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
+import net.glowstone.util.config.BrokerConfig;
 
-public class Benchmarker implements Closeable{
+public class Benchmarker implements Closeable {
     public static class BenchMarkData {
         public long timeMilliseconds;
         public double relativeUtilization;
@@ -26,9 +25,12 @@ public class Benchmarker implements Closeable{
 
         @Override
         public String toString() {
-            return timeMilliseconds +
-                    "," + playerCount +
-                    "," + relativeUtilization +
+            return timeMilliseconds
+                    +
+                    "," + playerCount
+                    +
+                    "," + relativeUtilization
+                    +
                     '\n';
         }
     }
@@ -44,7 +46,8 @@ public class Benchmarker implements Closeable{
         String broker = brokerConfig.getType().toString();
         String channel = brokerConfig.getChannel().toString();
         String async = brokerConfig.getAsync() ? "_async" : "";
-        String logName =  "results" + "_" + broker + "_" + channel + async + LocalDateTime.now().toString().substring(0,17) + ".csv";
+        String logName =  "results" + "_" + broker + "_" + channel
+                + async + LocalDateTime.now().toString().substring(0,17) + ".csv";
         path = Paths.get(logName);
         thread = new Thread(() -> {
             try (BufferedWriter writer = Files.newBufferedWriter(path)) {
@@ -62,7 +65,7 @@ public class Benchmarker implements Closeable{
     }
 
     public void submitTickData(long tickStart, long tickEnd, long playerCount) {
-        double relativeUtilization = ((tickEnd-tickStart)/ 50.00) * 100.0;
+        double relativeUtilization = ((tickEnd - tickStart) / 50.00) * 100.0;
         BenchMarkData benchMarkData = new BenchMarkData(
                 tickEnd,
                 playerCount,
@@ -70,6 +73,11 @@ public class Benchmarker implements Closeable{
         );
         QUEUE.offer(benchMarkData);
     }
+
+    public void start() {
+        thread.start();
+    }
+
     /**
      * Close the collector, ensuring that the CSV file is properly written to disk.
      */
@@ -81,9 +89,5 @@ public class Benchmarker implements Closeable{
         } catch (InterruptedException exception) {
             throw new IllegalStateException("Failed to join collector thread", exception);
         }
-    }
-
-    public void start() {
-        thread.start();
     }
 }
