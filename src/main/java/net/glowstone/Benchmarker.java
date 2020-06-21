@@ -1,5 +1,7 @@
 package net.glowstone;
 
+import net.glowstone.util.config.BrokerConfig;
+
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.IOException;
@@ -33,18 +35,19 @@ public class Benchmarker implements Closeable{
 
     public static final LinkedBlockingDeque<BenchMarkData> QUEUE = new LinkedBlockingDeque<>(20);
 
-    private final String LOGNAME =  "benchmark_results_" + LocalDateTime.now().toString().substring(0,19) + ".csv";
-    private final Path PATH = Paths.get(LOGNAME);
+
     private final AtomicBoolean running = new AtomicBoolean(true);
     private final Thread thread;
+    private final Path path;
 
-    private static class Loader {
-        static final Benchmarker INSTANCE = new Benchmarker();
-    }
-
-    private Benchmarker() {
+    public Benchmarker(BrokerConfig brokerConfig) {
+        String broker = brokerConfig.getType().toString();
+        String channel = brokerConfig.getChannel().toString();
+        String async = brokerConfig.getAsync() ? "_async" : "";
+        String logName =  "results" + "_" + broker + "_" + channel + async + LocalDateTime.now().toString().substring(0,17) + ".csv";
+        path = Paths.get(logName);
         thread = new Thread(() -> {
-            try (BufferedWriter writer = Files.newBufferedWriter(PATH)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(path)) {
                 while (running.get()) {
                     BenchMarkData data;
                     while ((data = QUEUE.poll()) != null) {
@@ -56,11 +59,6 @@ public class Benchmarker implements Closeable{
                 e.printStackTrace();
             }
         });
-        thread.start();
-    }
-
-    public static Benchmarker getInstance() {
-        return Loader.INSTANCE;
     }
 
     public void submitTickData(long tickStart, long tickEnd, long playerCount) {
@@ -69,7 +67,7 @@ public class Benchmarker implements Closeable{
                 tickEnd,
                 playerCount,
                 relativeUtilization
-                );
+        );
         QUEUE.offer(benchMarkData);
     }
     /**
@@ -83,5 +81,9 @@ public class Benchmarker implements Closeable{
         } catch (InterruptedException exception) {
             throw new IllegalStateException("Failed to join collector thread", exception);
         }
+    }
+
+    public void start() {
+        thread.start();
     }
 }

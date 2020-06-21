@@ -101,6 +101,11 @@ public final class GlowScheduler implements BukkitScheduler {
     private final SessionRegistry sessionRegistry;
 
     /**
+     * The relative utilization benchmarker.
+     */
+    private final Benchmarker benchmarker;
+
+    /**
      * Creates a new task scheduler.
      *
      * @param server The server that will use this scheduler.
@@ -126,12 +131,14 @@ public final class GlowScheduler implements BukkitScheduler {
         inTickTaskCondition = worlds.getAdvanceCondition();
         tickEndRun = this.worlds::doTickEnd;
         primaryThread = Thread.currentThread();
+        this.benchmarker = new Benchmarker(((GlowServer) server).getBrokerConfig());
     }
 
     /**
      * Starts running ticks.
      */
     public void start() {
+        benchmarker.start();
         executor.scheduleAtFixedRate(() -> {
             try {
                 pulse();
@@ -149,7 +156,7 @@ public final class GlowScheduler implements BukkitScheduler {
         worlds.stop();
         executor.shutdownNow();
         asyncTaskExecutor.shutdown();
-        Benchmarker.getInstance().close();
+        benchmarker.close();
 
         synchronized (inTickTaskCondition) {
             inTickTasks.stream().filter(task -> task instanceof Future)
@@ -285,7 +292,7 @@ public final class GlowScheduler implements BukkitScheduler {
         // Benchmark
         long tickEnd = System.currentTimeMillis();
         long playerCount = this.server.getOnlinePlayers().size();
-        Benchmarker.getInstance().submitTickData(tickStart, tickEnd, playerCount);
+        benchmarker.submitTickData(tickStart, tickEnd, playerCount);
     }
 
     @Override
