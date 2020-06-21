@@ -53,6 +53,7 @@ public class Benchmarker implements Closeable {
     public void run() {
         Path path = Paths.get(LOG_DIRECTORY + "/" + name);
         try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+            writer.write("timestamp, playercount, relative utilization \n");
             while (running.get()) {
                 BenchMarkData data;
                 while ((data = QUEUE.poll()) != null) {
