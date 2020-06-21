@@ -34,7 +34,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scheduler.BukkitWorker;
-import science.atlarge.opencraft.messaging.Broker;
 
 /**
  * A scheduler for managing server ticks, Bukkit tasks, and other
@@ -141,7 +140,7 @@ public final class GlowScheduler implements BukkitScheduler {
      */
     public void start() {
         BrokerConfig brokerConfig = ((GlowServer) server).getBrokerConfig();
-        benchmarker.setBrokerConfig(brokerConfig);
+        benchmarker.setName(brokerConfig);
         benchmarker.start();
         executor.scheduleAtFixedRate(() -> {
             try {
@@ -296,7 +295,7 @@ public final class GlowScheduler implements BukkitScheduler {
         // Benchmark
         long tickEnd = System.nanoTime();
         long playerCount = server.getOnlinePlayers().size();
-        benchmarker.submitTickData(tickStart, tickEnd, playerCount);
+        benchmarker.submitTickData(playerCount, tickStart, tickEnd);
     }
 
     @Override

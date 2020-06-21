@@ -12,91 +12,97 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.glowstone.util.config.BrokerConfig;
+import net.glowstone.util.config.BrokerType;
+import net.glowstone.util.config.ChannelType;
 
 public class Benchmarker implements Closeable {
 
     public static class BenchMarkData {
-        public long timeMilliseconds;
-        public double relativeUtilization;
-        public long playerCount;
 
-        public BenchMarkData(long timeMilliseconds, long playerCount, double relativeUtilization) {
-            this.timeMilliseconds = timeMilliseconds;
-            this.playerCount = playerCount;
+        private final long timestamp;
+        private final long players;
+        private final double relativeUtilization;
+
+        public BenchMarkData(long timestamp, long players, double relativeUtilization) {
+            this.timestamp = timestamp;
+            this.players = players;
             this.relativeUtilization = relativeUtilization;
         }
 
         @Override
         public String toString() {
-            return timeMilliseconds
-                    +
-                    "," + playerCount
-                    +
-                    "," + relativeUtilization
-                    +
-                    '\n';
+            return timestamp + "," + players + "," + relativeUtilization + '\n';
         }
     }
 
-    public final LinkedBlockingDeque<BenchMarkData> QUEUE = new LinkedBlockingDeque<>();
+    private static final String LOG_DIRECTORY = "benchmarks";
+    private static final double NANOS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);
+    private static final double TICKS_PER_SECOND = 20.0;
 
-    private final String LOG_DIRECTORY = "benchmark_logs";
-    private final AtomicBoolean running = new AtomicBoolean(true);
-    private final double NANOS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);
-    private final double TICKS_PER_SECOND = 20.0;
-    private Thread thread;
+    private final LinkedBlockingDeque<BenchMarkData> queue = new LinkedBlockingDeque<>();
+    private final AtomicBoolean running;
+    private final Thread thread;
     private String name;
 
     public Benchmarker() {
-        name = "logs/generic_benchmark.csv";
+        name = "generic";
         thread = new Thread(this::run);
+        running = new AtomicBoolean(true);
     }
 
     public void run() {
-        Path path = Paths.get(LOG_DIRECTORY + "/" + name);
+
+        Path directory = Paths.get(LOG_DIRECTORY);
+        if (!Files.exists(directory)) {
+            try {
+                Files.createDirectory(directory);
+            } catch (IOException exception) {
+                exception.printStackTrace();
+            }
+        }
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+        String date = LocalDateTime.now().format(dateTimeFormatter);
+        Path path = Paths.get(LOG_DIRECTORY + "/" + name + "_" + date + ".csv");
+
         try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-            writer.write("timestamp, playercount, relative utilization \n");
+            writer.write("timestamp,players,relative_utilization\n");
             while (running.get()) {
                 BenchMarkData data;
-                while ((data = QUEUE.poll()) != null) {
+                while ((data = queue.poll()) != null) {
                     writer.write(data.toString());
                     writer.flush();
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException exception) {
+            exception.printStackTrace();
         }
     }
 
-    public void setBrokerConfig(BrokerConfig brokerConfig) {
-        String broker = brokerConfig.getType().toString();
-        String channel = brokerConfig.getChannel().toString();
-        String async = brokerConfig.getAsync() ? "_async_" : "";
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-        String date = LocalDateTime.now().format(dateTimeFormatter).substring(0, 19);
-        name = "results" + "_" + broker + "_" + channel + async + date + ".csv";
+    public void setName(BrokerConfig config) {
+        BrokerType type = config.getType();
+        name = type.toString();
+        if (type != BrokerType.ACTIVEMQ && type != BrokerType.RABBITMQ) {
+            ChannelType channelType = config.getChannel();
+            name += "_" + channelType.toString();
+        }
+        if (config.getAsync()) {
+            name += "_async";
+        }
     }
 
-    public void submitTickData(long tickStart, long tickEnd, long playerCount) {
+    public void submitTickData(long playerCount, long tickStart, long tickEnd) {
         double relativeUtilization = (tickEnd - tickStart) * TICKS_PER_SECOND / NANOS_PER_SECOND;
         BenchMarkData benchMarkData = new BenchMarkData(
                 tickEnd,
                 playerCount,
                 relativeUtilization
         );
-        QUEUE.offer(benchMarkData);
+        queue.offer(benchMarkData);
     }
 
     public void start() {
         thread.start();
-        Path logDir = Paths.get(LOG_DIRECTORY);
-        if (!Files.exists(logDir)) {
-            try {
-                Files.createDirectory(logDir);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     /**
