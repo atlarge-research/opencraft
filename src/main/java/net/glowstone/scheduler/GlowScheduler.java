@@ -295,7 +295,7 @@ public final class GlowScheduler implements BukkitScheduler {
 
         // Benchmark
         long tickEnd = System.nanoTime();
-        long playerCount = this.server.getOnlinePlayers().size();
+        long playerCount = server.getOnlinePlayers().size();
         benchmarker.submitTickData(tickStart, tickEnd, playerCount);
     }
 
