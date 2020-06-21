@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.glowstone.util.config.BrokerConfig;
 
@@ -37,35 +38,43 @@ public class Benchmarker implements Closeable {
 
     public static final LinkedBlockingDeque<BenchMarkData> QUEUE = new LinkedBlockingDeque<>(20);
 
-
+    private final String LOG_DIRECTORY = "benchmark_logs";
     private final AtomicBoolean running = new AtomicBoolean(true);
-    private final Thread thread;
-    private final Path path;
+    private final double NANOS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);
+    private final double TICKS_PER_SECOND = 20.0;
+    private Thread thread;
+    private String name;
 
-    public Benchmarker(BrokerConfig brokerConfig) {
+    public Benchmarker() {
+        name = "logs/generic_benchmark.csv";
+        thread = new Thread(this::run);
+    }
+
+    public void run() {
+        Path path = Paths.get(LOG_DIRECTORY + "/" + name);
+        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+            while (running.get()) {
+                BenchMarkData data;
+                while ((data = QUEUE.poll()) != null) {
+                    writer.write(data.toString());
+                    writer.flush();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void setBrokerConfig(BrokerConfig brokerConfig) {
         String broker = brokerConfig.getType().toString();
         String channel = brokerConfig.getChannel().toString();
-        String async = brokerConfig.getAsync() ? "_async" : "";
-        String logName =  "results" + "_" + broker + "_" + channel
-                + async + LocalDateTime.now().toString().substring(0,17) + ".csv";
-        path = Paths.get(logName);
-        thread = new Thread(() -> {
-            try (BufferedWriter writer = Files.newBufferedWriter(path)) {
-                while (running.get()) {
-                    BenchMarkData data;
-                    while ((data = QUEUE.poll()) != null) {
-                        writer.write(data.toString());
-                        writer.flush();
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        String async = brokerConfig.getAsync() ? "_async_" : "";
+        name = "results" + "_" + broker + "_" + channel
+                + async + LocalDateTime.now().toString().substring(0, 17) + ".csv";
     }
 
     public void submitTickData(long tickStart, long tickEnd, long playerCount) {
-        double relativeUtilization = ((tickEnd - tickStart) / 50.00) * 100.0;
+        double relativeUtilization = (tickEnd - tickStart) * TICKS_PER_SECOND / NANOS_PER_SECOND;
         BenchMarkData benchMarkData = new BenchMarkData(
                 tickEnd,
                 playerCount,
@@ -76,6 +85,14 @@ public class Benchmarker implements Closeable {
 
     public void start() {
         thread.start();
+        Path logDir = Paths.get(LOG_DIRECTORY);
+        if (!Files.exists(logDir)) {
+            try {
+                Files.createDirectory(logDir);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**

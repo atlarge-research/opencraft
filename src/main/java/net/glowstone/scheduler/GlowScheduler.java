@@ -26,6 +26,7 @@ import java.util.logging.Level;
 import net.glowstone.Benchmarker;
 import net.glowstone.GlowServer;
 import net.glowstone.net.SessionRegistry;
+import net.glowstone.util.config.BrokerConfig;
 import net.glowstone.util.config.ServerConfig;
 import org.bukkit.Server;
 import org.bukkit.plugin.Plugin;
@@ -33,6 +34,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scheduler.BukkitWorker;
+import science.atlarge.opencraft.messaging.Broker;
 
 /**
  * A scheduler for managing server ticks, Bukkit tasks, and other
@@ -131,13 +133,15 @@ public final class GlowScheduler implements BukkitScheduler {
         inTickTaskCondition = worlds.getAdvanceCondition();
         tickEndRun = this.worlds::doTickEnd;
         primaryThread = Thread.currentThread();
-        this.benchmarker = new Benchmarker(((GlowServer) server).getBrokerConfig());
+        benchmarker = new Benchmarker();
     }
 
     /**
      * Starts running ticks.
      */
     public void start() {
+        BrokerConfig brokerConfig = ((GlowServer) server).getBrokerConfig();
+        benchmarker.setBrokerConfig(brokerConfig);
         benchmarker.start();
         executor.scheduleAtFixedRate(() -> {
             try {
@@ -229,7 +233,7 @@ public final class GlowScheduler implements BukkitScheduler {
         
         startMeasurement("tick", "The duration of a tick.");
         primaryThread = Thread.currentThread();
-        long tickStart = System.currentTimeMillis();
+        long tickStart = System.nanoTime();
 
         // Process player packets
         startMeasurement("tick_network",
@@ -290,7 +294,7 @@ public final class GlowScheduler implements BukkitScheduler {
         stopMeasurement("tick");
 
         // Benchmark
-        long tickEnd = System.currentTimeMillis();
+        long tickEnd = System.nanoTime();
         long playerCount = this.server.getOnlinePlayers().size();
         benchmarker.submitTickData(tickStart, tickEnd, playerCount);
     }
