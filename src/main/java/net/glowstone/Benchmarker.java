@@ -7,71 +7,89 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class Benchmarker implements Closeable{
-    public static class BenchMarkData {
-        public long timeMilliseconds;
-        public double relativeUtilization;
-        public long playerCount;
+public class Benchmarker implements Closeable {
 
-        public BenchMarkData(long timeMilliseconds, long playerCount, double relativeUtilization) {
-            this.timeMilliseconds = timeMilliseconds;
-            this.playerCount = playerCount;
+    public static class BenchMarkData {
+
+        private final long timestamp;
+        private final long players;
+        private final double relativeUtilization;
+
+        public BenchMarkData(long timestamp, long players, double relativeUtilization) {
+            this.timestamp = timestamp;
+            this.players = players;
             this.relativeUtilization = relativeUtilization;
         }
 
         @Override
         public String toString() {
-            return timeMilliseconds +
-                    "," + playerCount +
-                    "," + relativeUtilization +
-                    '\n';
+            return timestamp + "," + players + "," + relativeUtilization + '\n';
         }
     }
 
-    public static final LinkedBlockingDeque<BenchMarkData> QUEUE = new LinkedBlockingDeque<>(20);
+    private static final String LOG_DIRECTORY = "/var/scratch/jmcvdijk";
+    private static final double NANOS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);
+    private static final double TICKS_PER_SECOND = 20.0;
 
-    private final String LOGNAME =  "benchmark_results_" + LocalDateTime.now().toString().substring(0,19) + ".csv";
-    private final Path PATH = Paths.get(LOGNAME);
-    private final AtomicBoolean running = new AtomicBoolean(true);
+    private final LinkedBlockingDeque<BenchMarkData> queue = new LinkedBlockingDeque<>();
+    private final AtomicBoolean running;
     private final Thread thread;
+    private String name;
 
-    private static class Loader {
-        static final Benchmarker INSTANCE = new Benchmarker();
+    public Benchmarker() {
+        name = "opencraft-dev";
+        thread = new Thread(this::run);
+        running = new AtomicBoolean(true);
     }
 
-    private Benchmarker() {
-        thread = new Thread(() -> {
-            try (BufferedWriter writer = Files.newBufferedWriter(PATH)) {
-                while (running.get()) {
-                    BenchMarkData data;
-                    while ((data = QUEUE.poll()) != null) {
-                        writer.write(data.toString());
-                        writer.flush();
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+    public void run() {
+
+        Path directory = Paths.get(LOG_DIRECTORY);
+        if (!Files.exists(directory)) {
+            try {
+                Files.createDirectory(directory);
+            } catch (IOException exception) {
+                exception.printStackTrace();
             }
-        });
-        thread.start();
+        }
+
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+        String date = LocalDateTime.now().format(dateTimeFormatter);
+        Path path = Paths.get(LOG_DIRECTORY + "/" + name + "_" + date + ".csv");
+
+        try (BufferedWriter writer = Files.newBufferedWriter(path)) {
+            writer.write("timestamp,players,relative_utilization\n");
+            while (running.get()) {
+                BenchMarkData data;
+                while ((data = queue.poll()) != null) {
+                    writer.write(data.toString());
+                    writer.flush();
+                }
+            }
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
     }
 
-    public static Benchmarker getInstance() {
-        return Loader.INSTANCE;
-    }
-
-    public void submitTickData(long tickStart, long tickEnd, long playerCount) {
-        double relativeUtilization = ((tickEnd-tickStart)/ 50.00) * 100.0;
+    public void submitTickData(long playerCount, long tickStart, long tickEnd) {
+        double relativeUtilization = (tickEnd - tickStart) * TICKS_PER_SECOND / NANOS_PER_SECOND;
         BenchMarkData benchMarkData = new BenchMarkData(
                 tickEnd,
                 playerCount,
                 relativeUtilization
-                );
-        QUEUE.offer(benchMarkData);
+        );
+        queue.offer(benchMarkData);
     }
+
+    public void start() {
+        thread.start();
+    }
+
     /**
      * Close the collector, ensuring that the CSV file is properly written to disk.
      */

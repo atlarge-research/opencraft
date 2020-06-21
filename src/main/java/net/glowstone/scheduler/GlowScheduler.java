@@ -88,6 +88,11 @@ public final class GlowScheduler implements BukkitScheduler {
     private final SessionRegistry sessionRegistry;
 
     /**
+     * The relative utilization benchmarker.
+     */
+    private final Benchmarker benchmarker;
+
+    /**
      * Creates a new task scheduler.
      *
      * @param server The server that will use this scheduler.
@@ -113,12 +118,14 @@ public final class GlowScheduler implements BukkitScheduler {
         inTickTaskCondition = worlds.getAdvanceCondition();
         tickEndRun = this.worlds::doTickEnd;
         primaryThread = Thread.currentThread();
+        benchmarker = new Benchmarker();
     }
 
     /**
      * Starts running ticks.
      */
     public void start() {
+        benchmarker.start();
         executor.scheduleAtFixedRate(() -> {
             try {
                 pulse();
@@ -136,7 +143,7 @@ public final class GlowScheduler implements BukkitScheduler {
         worlds.stop();
         executor.shutdownNow();
         asyncTaskExecutor.shutdown();
-        Benchmarker.getInstance().close();
+        benchmarker.close();
 
         synchronized (inTickTaskCondition) {
             inTickTasks.stream().filter(task -> task instanceof Future)
@@ -187,7 +194,7 @@ public final class GlowScheduler implements BukkitScheduler {
     private void pulse() {
         com.atlarge.yscollector.YSCollector.start("tick", "The duration of a tick."); // YSCollector
         primaryThread = Thread.currentThread();
-        long tickStart = System.currentTimeMillis();
+        long tickStart = System.nanoTime();
 
         // Process player packets
         com.atlarge.yscollector.YSCollector.start("tick_network", "The duration of a tick processing the network"); // YSCollector
@@ -246,9 +253,9 @@ public final class GlowScheduler implements BukkitScheduler {
         com.atlarge.yscollector.YSCollector.stop("tick"); // YSCollector
 
         // Benchmark
-        long tickEnd = System.currentTimeMillis();
-        long playerCount = this.server.getOnlinePlayers().size();
-        Benchmarker.getInstance().submitTickData(tickStart, tickEnd, playerCount);
+        long tickEnd = System.nanoTime();
+        long playerCount = server.getOnlinePlayers().size();
+        benchmarker.submitTickData(playerCount, tickStart, tickEnd);
     }
 
     @Override
