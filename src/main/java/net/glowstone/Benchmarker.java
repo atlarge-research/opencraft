@@ -7,12 +7,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import net.glowstone.util.config.BrokerConfig;
 
 public class Benchmarker implements Closeable {
+
     public static class BenchMarkData {
         public long timeMilliseconds;
         public double relativeUtilization;
@@ -36,7 +38,7 @@ public class Benchmarker implements Closeable {
         }
     }
 
-    public static final LinkedBlockingDeque<BenchMarkData> QUEUE = new LinkedBlockingDeque<>(20);
+    public final LinkedBlockingDeque<BenchMarkData> QUEUE = new LinkedBlockingDeque<>();
 
     private final String LOG_DIRECTORY = "benchmark_logs";
     private final AtomicBoolean running = new AtomicBoolean(true);
@@ -70,8 +72,9 @@ public class Benchmarker implements Closeable {
         String broker = brokerConfig.getType().toString();
         String channel = brokerConfig.getChannel().toString();
         String async = brokerConfig.getAsync() ? "_async_" : "";
-        name = "results" + "_" + broker + "_" + channel
-                + async + LocalDateTime.now().toString().substring(0, 17) + ".csv";
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        String date = LocalDateTime.now().format(dateTimeFormatter).substring(0, 19);
+        name = "results" + "_" + broker + "_" + channel + async + date + ".csv";
     }
 
     public void submitTickData(long tickStart, long tickEnd, long playerCount) {
