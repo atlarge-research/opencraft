@@ -546,7 +546,7 @@ public class GlowWorld implements World {
         Set<GlowPlayer> previousPlayers = previousAreas.keySet();
         Sets.SetView<GlowPlayer> allPlayers = Sets.union(currentPlayers, previousPlayers);
 
-        allPlayers.forEach(player -> {
+        allPlayers.parallelStream().forEach(player -> {
             Session session = player.getSession();
             messagingSystem.update(player, session::send);
         });
@@ -638,7 +638,7 @@ public class GlowWorld implements World {
      * @param toUnload The chunks to be unloaded.
      */
     private void unloadChunks(List<ChunkRunnable> toUnload) {
-        toUnload.forEach(runnable -> {
+        toUnload.parallelStream().forEach(runnable -> {
 
             GlowPlayer player = runnable.getPlayer();
             GlowChunk chunk = runnable.getChunk();
@@ -676,21 +676,21 @@ public class GlowWorld implements World {
      * @param chunks the chunks which contain the blocks to be updated.
      */
     private void updateBlocksInChunks(Set<GlowChunk> chunks) {
-        for (GlowChunk chunk : chunks) {
-            if (isChunkLoaded(chunk)) {
+        chunks.parallelStream()
+                .filter(this::isChunkLoaded)
+                .forEach(chunk -> {
 
-                int x = chunk.getX();
-                int z = chunk.getZ();
-                maybeStrikeLightningInChunk(x, z);
+                    int x = chunk.getX();
+                    int z = chunk.getZ();
+                    maybeStrikeLightningInChunk(x, z);
 
-                chunk.addTick();
+                    chunk.addTick();
 
-                ChunkSection[] sections = chunk.getSections();
-                for (int index = 0; index < sections.length; index++) {
-                    updateBlocksInSection(chunk, sections[index], index);
-                }
-            }
-        }
+                    ChunkSection[] sections = chunk.getSections();
+                    for (int index = 0; index < sections.length; index++) {
+                        updateBlocksInSection(chunk, sections[index], index);
+                    }
+                });
     }
 
     /**
@@ -786,7 +786,7 @@ public class GlowWorld implements World {
      * @param entities The entities for which update messages should be generated.
      */
     private void broadcastEntityUpdates(Collection<GlowEntity> entities) {
-        entities.forEach(entity -> {
+        entities.parallelStream().forEach(entity -> {
             List<Message> messages = entity.createUpdateMessage();
             messages.forEach(message -> messagingSystem.broadcast(entity, message));
         });
