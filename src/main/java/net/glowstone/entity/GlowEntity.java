@@ -1238,7 +1238,7 @@ public abstract class GlowEntity implements Entity {
      */
     protected void pulsePhysics() {
         computeVelocity();
-        Location finalLocation = resolveCollisions();
+        Location finalLocation = location.clone().add(this.velocity);//resolveCollisions();
         setRawLocation(finalLocation);
         updateBoundingBox();
     }

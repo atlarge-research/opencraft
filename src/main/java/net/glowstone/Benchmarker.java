@@ -35,7 +35,7 @@ public class Benchmarker implements Closeable {
         }
     }
 
-    private static final String LOG_DIRECTORY = "benchmarks";
+    private static final String LOG_DIRECTORY = "/var/scratch/jmcvdijk";
     private static final double NANOS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);
     private static final double TICKS_PER_SECOND = 20.0;
 
