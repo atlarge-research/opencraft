@@ -41,7 +41,6 @@ import net.glowstone.constants.GlowParticle;
 import net.glowstone.constants.GlowSound;
 import net.glowstone.constants.GlowTree;
 import net.glowstone.data.CommandFunction;
-import net.glowstone.entity.CustomEntityDescriptor;
 import net.glowstone.entity.EntityManager;
 import net.glowstone.entity.EntityRegistry;
 import net.glowstone.entity.GlowEntity;
@@ -546,10 +545,11 @@ public class GlowWorld implements World {
         Set<GlowPlayer> previousPlayers = previousAreas.keySet();
         Sets.SetView<GlowPlayer> allPlayers = Sets.union(currentPlayers, previousPlayers);
 
-        allPlayers.forEach(player -> {
-            Session session = player.getSession();
-            messagingSystem.update(player, session::send);
-        });
+        allPlayers.parallelStream()
+                .forEach(player -> {
+                    Session session = player.getSession();
+                    messagingSystem.update(player, session::send);
+                });
 
         List<ChunkRunnable> chunksToLoad = allPlayers.parallelStream()
                 .map(player -> {
@@ -676,21 +676,19 @@ public class GlowWorld implements World {
      * @param chunks the chunks which contain the blocks to be updated.
      */
     private void updateBlocksInChunks(Set<GlowChunk> chunks) {
-        for (GlowChunk chunk : chunks) {
-            if (isChunkLoaded(chunk)) {
+        chunks.parallelStream().filter(this::isChunkLoaded).forEach(chunk -> {
 
-                int x = chunk.getX();
-                int z = chunk.getZ();
-                maybeStrikeLightningInChunk(x, z);
+            int x = chunk.getX();
+            int z = chunk.getZ();
+            maybeStrikeLightningInChunk(x, z);
 
-                chunk.addTick();
+            chunk.addTick();
 
-                ChunkSection[] sections = chunk.getSections();
-                for (int index = 0; index < sections.length; index++) {
-                    updateBlocksInSection(chunk, sections[index], index);
-                }
+            ChunkSection[] sections = chunk.getSections();
+            for (int index = 0; index < sections.length; index++) {
+                updateBlocksInSection(chunk, sections[index], index);
             }
-        }
+        });
     }
 
     /**
@@ -786,7 +784,7 @@ public class GlowWorld implements World {
      * @param entities The entities for which update messages should be generated.
      */
     private void broadcastEntityUpdates(Collection<GlowEntity> entities) {
-        entities.forEach(entity -> {
+        entities.parallelStream().forEach(entity -> {
             List<Message> messages = entity.createUpdateMessage();
             messages.forEach(message -> messagingSystem.broadcast(entity, message));
         });
@@ -1580,8 +1578,7 @@ public class GlowWorld implements World {
     }
 
     @Override
-    public ChunkSnapshot getEmptyChunkSnapshot(int x, int z, boolean includeBiome,
-                                               boolean includeBiomeTempRain) {
+    public ChunkSnapshot getEmptyChunkSnapshot(int x, int z, boolean includeBiome, boolean includeBiomeTempRain) {
         return new EmptySnapshot(x, z, this, includeBiome, includeBiomeTempRain);
     }
 
@@ -1701,41 +1698,6 @@ public class GlowWorld implements World {
         }
 
         throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    /**
-     * Spawn a custom entity at the given {@link Location}.
-     *
-     * @param location the {@link Location} to spawn the entity at
-     * @param id       the id of the custom entity
-     * @param <T>      the class of the {@link Entity} to spawn
-     * @return an instance of the spawned {@link Entity}
-     */
-    public <T extends Entity> T spawnCustomEntity(Location location,
-                                                  String id) throws IllegalArgumentException {
-        return spawnCustomEntity(location, id, SpawnReason.CUSTOM);
-    }
-
-    /**
-     * Spawn a custom entity at the given {@link Location}, with the given {@link SpawnReason}.
-     *
-     * @param location the {@link Location} to spawn the entity at
-     * @param id       the id of the custom entity
-     * @param reason   the reason for the spawning of the entity
-     * @param <T>      the class of the {@link Entity} to spawn
-     * @return an instance of the spawned {@link Entity}
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends Entity> T spawnCustomEntity(Location location, String id,
-                                                  SpawnReason reason) throws IllegalArgumentException {
-        checkNotNull(location);
-        checkNotNull(id);
-        CustomEntityDescriptor descriptor = EntityRegistry.getCustomEntityDescriptor(id);
-        if (descriptor == null) {
-            throw new IllegalArgumentException(
-                "Could not find a custom entity descriptor for the given id '" + id + "'");
-        }
-        return (T) spawn(location, descriptor.getEntityClass(), reason);
     }
 
     /**
@@ -2403,36 +2365,42 @@ public class GlowWorld implements World {
 
     private void pulseTickMap() {
         ItemTable itemTable = ItemTable.instance();
-        for (Location location : tickMap) {
-            GlowChunk chunk = (GlowChunk) location.getChunk();
-            if (!chunk.isLoaded()) {
-                continue;
-            }
-            int typeId = chunk.getType(
-                location.getBlockX() & 0xF, location.getBlockZ() & 0xF, location.getBlockY());
-            BlockType type = itemTable.getBlock(typeId);
-            if (type == null) {
-                cancelPulse(location);
-                continue;
-            }
-            GlowBlock block = new GlowBlock(chunk, location.getBlockX(), location
-                .getBlockY(), location.getBlockZ());
-            int speed = type.getPulseTickSpeed(block);
-            boolean once = type.isPulseOnce(block);
-            if (speed == 0) {
-                continue;
-            }
-            if (fullTime % speed == 0) {
-                type.receivePulse(block);
-                if (once) {
-                    cancelPulse(location);
-                }
-            }
-        }
+        tickMap.parallelStream()
+                .forEach(location -> {
+
+                    GlowChunk chunk = (GlowChunk) location.getChunk();
+                    if (!chunk.isLoaded()) {
+                        return;
+                    }
+
+                    int x = location.getBlockX();
+                    int y = location.getBlockY();
+                    int z = location.getBlockZ();
+
+                    int typeId = chunk.getType(x & 0xF, z & 0xF, y);
+                    BlockType type = itemTable.getBlock(typeId);
+                    if (type == null) {
+                        cancelPulse(location);
+                        return;
+                    }
+
+                    GlowBlock block = new GlowBlock(chunk, x, y, z);
+                    int speed = type.getPulseTickSpeed(block);
+                    boolean once = type.isPulseOnce(block);
+                    if (speed == 0) {
+                        return;
+                    }
+
+                    if (fullTime % speed == 0) {
+                        type.receivePulse(block);
+                        if (once) {
+                            cancelPulse(location);
+                        }
+                    }
+                });
     }
 
     public ConcurrentSet<Location> getTickMap() {
-        // TODO: replace with a facade
         return tickMap;
     }
 
