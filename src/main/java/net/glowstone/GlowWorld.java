@@ -510,13 +510,11 @@ public class GlowWorld implements World {
 
         List<GlowEntity> entities = entityManager.getAll();
 
-        entities.forEach(GlowEntity::pulse);
-
         broadcastEntityUpdates(entities);
 
-        players.forEach(GlowPlayer::spawnEntities);
+        players.parallelStream().forEach(GlowPlayer::spawnEntities);
 
-        entities.forEach(GlowEntity::reset);
+        entities.parallelStream().forEach(GlowEntity::reset);
 
         worldBorder.pulse();
 
@@ -785,6 +783,9 @@ public class GlowWorld implements World {
      */
     private void broadcastEntityUpdates(Collection<GlowEntity> entities) {
         entities.parallelStream().forEach(entity -> {
+
+            entity.pulse();
+
             List<Message> messages = entity.createUpdateMessage();
             messages.forEach(message -> messagingSystem.broadcast(entity, message));
         });
