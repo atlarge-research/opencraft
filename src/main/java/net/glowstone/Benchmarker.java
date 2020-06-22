@@ -63,7 +63,7 @@ public class Benchmarker implements Closeable {
 
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
         String date = LocalDateTime.now().format(dateTimeFormatter);
-        Path path = Paths.get(LOG_DIRECTORY + "/" + name + "_" + date + ".csv");
+        Path path = Paths.get(LOG_DIRECTORY + "/" + name + "_SPECIAL_" + date + ".csv");
 
         try (BufferedWriter writer = Files.newBufferedWriter(path)) {
             writer.write("timestamp,players,relative_utilization\n");
