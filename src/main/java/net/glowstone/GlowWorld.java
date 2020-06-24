@@ -2366,39 +2366,38 @@ public class GlowWorld implements World {
 
     private void pulseTickMap() {
         ItemTable itemTable = ItemTable.instance();
-        tickMap.parallelStream()
-                .forEach(location -> {
+        tickMap.forEach(location -> {
 
-                    GlowChunk chunk = (GlowChunk) location.getChunk();
-                    if (!chunk.isLoaded()) {
-                        return;
-                    }
+            GlowChunk chunk = (GlowChunk) location.getChunk();
+            if (!chunk.isLoaded()) {
+                return;
+            }
 
-                    int x = location.getBlockX();
-                    int y = location.getBlockY();
-                    int z = location.getBlockZ();
+            int x = location.getBlockX();
+            int y = location.getBlockY();
+            int z = location.getBlockZ();
 
-                    int typeId = chunk.getType(x & 0xF, z & 0xF, y);
-                    BlockType type = itemTable.getBlock(typeId);
-                    if (type == null) {
-                        cancelPulse(location);
-                        return;
-                    }
+            int typeId = chunk.getType(x & 0xF, z & 0xF, y);
+            BlockType type = itemTable.getBlock(typeId);
+            if (type == null) {
+                cancelPulse(location);
+                return;
+            }
 
-                    GlowBlock block = new GlowBlock(chunk, x, y, z);
-                    int speed = type.getPulseTickSpeed(block);
-                    boolean once = type.isPulseOnce(block);
-                    if (speed == 0) {
-                        return;
-                    }
+            GlowBlock block = new GlowBlock(chunk, z, y, x);
+            int speed = type.getPulseTickSpeed(block);
+            boolean once = type.isPulseOnce(block);
+            if (speed == 0) {
+                return;
+            }
 
-                    if (fullTime % speed == 0) {
-                        type.receivePulse(block);
-                        if (once) {
-                            cancelPulse(location);
-                        }
-                    }
-                });
+            if (fullTime % speed == 0) {
+                type.receivePulse(block);
+                if (once) {
+                    cancelPulse(location);
+                }
+            }
+        });
     }
 
     public ConcurrentSet<Location> getTickMap() {
