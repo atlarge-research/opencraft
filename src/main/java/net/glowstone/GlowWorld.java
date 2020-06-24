@@ -2366,32 +2366,26 @@ public class GlowWorld implements World {
 
     private void pulseTickMap() {
         ItemTable itemTable = ItemTable.instance();
-        tickMap.parallelStream()
-                .forEach(location -> {
+        tickMap.forEach(location -> {
 
                     GlowChunk chunk = (GlowChunk) location.getChunk();
                     if (!chunk.isLoaded()) {
                         return;
                     }
-
-                    int x = location.getBlockX();
-                    int y = location.getBlockY();
-                    int z = location.getBlockZ();
-
-                    int typeId = chunk.getType(x & 0xF, z & 0xF, y);
+                    int typeId = chunk.getType(
+                            location.getBlockX() & 0xF, location.getBlockZ() & 0xF, location.getBlockY());
                     BlockType type = itemTable.getBlock(typeId);
                     if (type == null) {
                         cancelPulse(location);
                         return;
                     }
-
-                    GlowBlock block = new GlowBlock(chunk, x, y, z);
+                    GlowBlock block = new GlowBlock(chunk, location.getBlockX(), location
+                            .getBlockY(), location.getBlockZ());
                     int speed = type.getPulseTickSpeed(block);
                     boolean once = type.isPulseOnce(block);
                     if (speed == 0) {
                         return;
                     }
-
                     if (fullTime % speed == 0) {
                         type.receivePulse(block);
                         if (once) {
