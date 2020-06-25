@@ -32,7 +32,6 @@ public class Benchmarker implements Closeable {
         }
     }
 
-    private static final String LOG_DIRECTORY = "/var/scratch/jmcvdijk";
     private static final double NANOS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);
     private static final double TICKS_PER_SECOND = 20.0;
 
@@ -49,18 +48,9 @@ public class Benchmarker implements Closeable {
 
     public void run() {
 
-        Path directory = Paths.get(LOG_DIRECTORY);
-        if (!Files.exists(directory)) {
-            try {
-                Files.createDirectory(directory);
-            } catch (IOException exception) {
-                exception.printStackTrace();
-            }
-        }
-
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
         String date = LocalDateTime.now().format(dateTimeFormatter);
-        Path path = Paths.get(LOG_DIRECTORY + "/" + name + "_" + date + ".csv");
+        Path path = Paths.get(name + "_" + date + ".csv");
 
         try (BufferedWriter writer = Files.newBufferedWriter(path)) {
             writer.write("timestamp,players,relative_utilization\n");
