@@ -157,7 +157,7 @@ public final class GlowScheduler implements BukkitScheduler {
     public void stop() {
         cancelAllTasks();
         worlds.stop();
-        executor.shutdownNow();
+        executor.shutdown();
         asyncTaskExecutor.shutdown();
         benchmarker.close();
 
@@ -229,7 +229,7 @@ public final class GlowScheduler implements BukkitScheduler {
      */
     // TODO: Add watchdog system to make sure ticks advance
     private void pulse() {
-        
+
         startMeasurement("tick", "The duration of a tick.");
         primaryThread = Thread.currentThread();
         long tickStart = System.nanoTime();

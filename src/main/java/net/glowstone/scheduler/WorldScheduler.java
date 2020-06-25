@@ -9,6 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import lombok.Getter;
 import net.glowstone.GlowServer;
@@ -128,7 +129,14 @@ public class WorldScheduler {
     void stop() {
         tickBegin.forceTermination();
         tickEnd.forceTermination();
-        worldExecutor.shutdownNow();
+        worldExecutor.shutdown();
+        try {
+            if (!worldExecutor.awaitTermination(1L, TimeUnit.MINUTES)) {
+                worldExecutor.shutdownNow();
+            }
+        } catch (InterruptedException exception) {
+            exception.printStackTrace();
+        }
     }
 
     void doTickEnd() {

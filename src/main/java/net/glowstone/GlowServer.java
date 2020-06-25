@@ -989,7 +989,6 @@ public class GlowServer implements Server {
      */
     @Override
     public void shutdown() {
-        worlds.getWorlds().forEach(GlowWorld::shutdown);
         shutdown(getShutdownMessage());
     }
 
@@ -1026,15 +1025,15 @@ public class GlowServer implements Server {
             rconServer.shutdown();
         }
 
+        // Stop scheduler and console
+        scheduler.stop();
+        consoleManager.stop();
+
         // Save worlds
         for (World world : getWorlds()) {
             ConsoleMessages.Info.SAVE.log(world.getName());
             unloadWorld(world, true);
         }
-
-        // Stop scheduler and console
-        scheduler.stop();
-        consoleManager.stop();
 
         // Wait for a while and terminate any rogue threads
         new ShutdownMonitorThread().start();
@@ -2371,6 +2370,7 @@ public class GlowServer implements Server {
     @Override
     public boolean unloadWorld(World world, boolean save) {
         GlowWorld glowWorld = (GlowWorld) world;
+        glowWorld.shutdown();
         if (save) {
             glowWorld.setAutoSave(false);
             glowWorld.save(false);
