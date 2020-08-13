@@ -1,5 +1,6 @@
 package net.glowstone.chunk;
 
+import com.google.gson.annotations.Expose;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import net.glowstone.block.ItemTable;
 import net.glowstone.block.blocktype.BlockType;
 import net.glowstone.block.entity.BlockEntity;
 import net.glowstone.entity.GlowEntity;
+import net.glowstone.lambda.population.serialization.ExposeClass;
 import net.glowstone.net.message.play.game.ChunkDataMessage;
 import net.glowstone.util.Coordinates;
 import net.glowstone.util.TickUtil;
@@ -41,6 +43,7 @@ import org.bukkit.event.world.ChunkUnloadEvent;
  *
  * @author Graham Edgecombe
  */
+@ExposeClass
 public class GlowChunk implements Chunk {
 
     /**
@@ -78,17 +81,20 @@ public class GlowChunk implements Chunk {
      * The x-coordinate of this chunk.
      */
     @Getter
+    @Expose
     private final int x;
 
     /**
      * The z-coordinate of this chunk.
      */
     @Getter
+    @Expose
     private final int z;
 
     /**
      * The block entities that reside in this chunk.
      */
+    @Expose
     private final HashMap<Integer, BlockEntity> blockEntities = new HashMap<>();
 
     /**
@@ -102,17 +108,20 @@ public class GlowChunk implements Chunk {
      * @return The chunk sections array.
      */
     @Getter
+    @Expose
     private ChunkSection[] sections;
 
     /**
      * The array of biomes this chunk contains, or null if it is unloaded.
      */
+    @Expose
     private byte[] biomes;
 
     /**
      * The height map values values of each column, or null if it is unloaded. The height for a
      * column is one plus the y-index of the highest non-air block in the column.
      */
+    @Expose
     private byte[] heightMap;
 
     /**
@@ -123,6 +132,7 @@ public class GlowChunk implements Chunk {
      */
     @Getter
     @Setter
+    @Expose
     private boolean populated;
 
     @Setter

@@ -2,7 +2,12 @@ package net.glowstone.chunk;
 
 import com.google.common.collect.ConcurrentHashMultiset;
 import com.google.common.collect.Multiset;
+import com.google.gson.annotations.Expose;
+
+//import java.io.File;
+//import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -10,8 +15,13 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+<<<<<<< HEAD
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+=======
+import java.util.concurrent.locks.ReentrantLock;
+
+>>>>>>> 450746f03... Added serialization annotations to the generation code
 import lombok.Getter;
 import net.glowstone.EventFactory;
 import net.glowstone.GlowWorld;
@@ -22,6 +32,9 @@ import net.glowstone.generator.GlowChunkGenerator;
 import net.glowstone.generator.biomegrid.MapLayer;
 import net.glowstone.i18n.ConsoleMessages;
 import net.glowstone.io.ChunkIoService;
+import net.glowstone.lambda.population.serialization.ExposeClass;
+//import net.glowstone.lambda.population.serialization.JsonUtil;
+//import net.glowstone.lambda.population.serialization.PopulateInfo;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -36,7 +49,12 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Graham Edgecombe
  */
+<<<<<<< HEAD
 public class ChunkManager {
+=======
+@ExposeClass
+public final class ChunkManager {
+>>>>>>> 450746f03... Added serialization annotations to the generation code
 
     /**
      * The world this ChunkManager is managing.
@@ -54,17 +72,27 @@ public class ChunkManager {
      * @return the chunk generator
      */
     @Getter
+    @Expose
     private final ChunkGenerator generator;
 
     /**
      * The biome maps used to fill chunks biome grid and terrain generation.
      */
+    @Expose
     private final MapLayer[] biomeGrid;
 
     /**
      * A map of chunks currently loaded in memory.
      */
     private final ConcurrentMap<Key, GlowChunk> chunks = new ConcurrentHashMap<>();
+
+    /**
+     * A list filled with the 3x3 square of the chunk we are populating; used for serialization
+     */
+    @Expose
+    private ArrayList<GlowChunk> adjacentChunks = new ArrayList<>();
+
+    private ReentrantLock adjacentLock = new ReentrantLock();
 
     /**
      * A set of chunks which are being kept loaded by players or other factors.
@@ -214,6 +242,22 @@ public class ChunkManager {
     }
 
     /**
+     * Loads the adjacent chunks of the given coordinates into the adjacentChunks list
+     * @param x The X coordinate
+     * @param z The Z coordinate
+     */
+    public void loadAdjacent(int x, int z) {
+        adjacentChunks.clear();
+        adjacentLock.lock();
+        for (int i = x - 1; i <= x + 1; ++i) {
+            for (int j = z - 1; j <= z + 1; ++j) {
+                adjacentChunks.add(getChunk(i, j));
+            }
+        }
+        adjacentLock.unlock();
+    }
+
+    /**
      * Populate a single chunk if needed.
      */
     private void populateChunk(int x, int z, boolean force) {
@@ -237,7 +281,27 @@ public class ChunkManager {
                 }
             }
 
+<<<<<<< HEAD
             chunk.setPopulated(true);
+=======
+        //loadAdjacent(x, z);
+        //try {
+        //    String tmp = JsonUtil.getGson().toJson(this.world);
+        //    File f = new File("tmp.txt");
+        //    if (!f.exists() && f.createNewFile()) {
+        //        FileWriter fw = new FileWriter("tmp.txt");
+        //        fw.write(tmp);
+        //    }
+        //    GlowWorld reconstructed = JsonUtil.getGson().fromJson(tmp, GlowWorld.class);
+        //} catch (Exception e) {
+        //    System.err.println(e.getMessage());
+        //}
+        // it might have loaded since before, so check again that it's not already populated
+        if (chunk.isPopulated()) {
+            return;
+        }
+        chunk.setPopulated(true);
+>>>>>>> 450746f03... Added serialization annotations to the generation code
 
             Random random = new Random(world.getSeed());
             long xrand = (random.nextLong() / 2 << 1) + 1;

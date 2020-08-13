@@ -4,9 +4,15 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.flowpowered.network.Message;
+<<<<<<< HEAD
 import com.flowpowered.network.session.Session;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+=======
+
+import com.google.gson.annotations.Expose;
+
+>>>>>>> 450746f03... Added serialization annotations to the generation code
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,10 +61,14 @@ import net.glowstone.generator.structures.GlowStructure;
 import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
+<<<<<<< HEAD
 import net.glowstone.messaging.Brokers;
 import net.glowstone.messaging.codecs.CompositeCodec;
 import net.glowstone.messaging.filters.FeedbackFilter;
 import net.glowstone.messaging.policies.ChunkPolicy;
+=======
+import net.glowstone.lambda.population.serialization.ExposeClass;
+>>>>>>> 450746f03... Added serialization annotations to the generation code
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.net.message.play.game.UnloadChunkMessage;
@@ -130,6 +140,7 @@ import science.atlarge.opencraft.messaging.MessagingSystem;
  *
  * @author Graham Edgecombe
  */
+@ExposeClass
 @ToString(of = "name")
 public class GlowWorld implements World {
 
@@ -158,12 +169,14 @@ public class GlowWorld implements World {
      * The name of this world.
      */
     @Getter
+    @Expose
     private final String name;
 
     /**
      * The chunk manager.
      */
     @Getter
+    @Expose
     private final ChunkManager chunkManager;
 
     /**

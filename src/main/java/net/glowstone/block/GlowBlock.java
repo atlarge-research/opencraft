@@ -1,5 +1,7 @@
 package net.glowstone.block;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -7,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+
 import lombok.Getter;
 import net.glowstone.GlowServer;
 import net.glowstone.GlowWorld;
@@ -17,6 +20,7 @@ import net.glowstone.block.blocktype.BlockRedstoneTorch;
 import net.glowstone.block.blocktype.BlockType;
 import net.glowstone.block.entity.BlockEntity;
 import net.glowstone.chunk.GlowChunk;
+import net.glowstone.lambda.population.serialization.ExposeClass;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -36,6 +40,7 @@ import org.bukkit.plugin.Plugin;
 /**
  * Represents a single block in a world.
  */
+@ExposeClass
 public class GlowBlock implements Block {
 
     /**
@@ -59,10 +64,13 @@ public class GlowBlock implements Block {
     private static final Map<GlowBlock, List<Long>> counterMap = new HashMap<>();
 
     @Getter
+    @Expose
     private final int x;
     @Getter
+    @Expose
     private final int y;
     @Getter
+    @Expose
     private final int z;
     @Getter
     private GlowWorld world;
