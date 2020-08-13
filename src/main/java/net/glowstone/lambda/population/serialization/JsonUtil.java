@@ -1,6 +1,9 @@
 package net.glowstone.lambda.population.serialization;
 
-import com.google.gson.*;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import net.glowstone.block.entity.BannerEntity;
 import net.glowstone.block.entity.BeaconEntity;
@@ -94,6 +97,8 @@ import net.glowstone.generator.populators.overworld.SnowPopulator;
 import net.glowstone.generator.populators.overworld.SunflowerPlainsPopulator;
 import net.glowstone.generator.populators.overworld.SwamplandPopulator;
 import net.glowstone.generator.populators.overworld.TaigaPopulator;
+import net.glowstone.lambda.population.serialization.adapters.TreeDecorationDeserializer;
+import net.glowstone.lambda.population.serialization.adapters.TreeDecorationSerializer;
 import net.glowstone.util.noise.PerlinNoise;
 import net.glowstone.util.noise.PerlinOctaveGenerator;
 import net.glowstone.util.noise.SimplexNoise;
@@ -251,7 +256,10 @@ public class JsonUtil {
             .registerTypeAdapterFactory(octaveGeneratorAdapter)
             .registerTypeAdapterFactory(blockPopulatorAdapter)
             .registerTypeAdapterFactory(chunkGeneratorAdapter)
+            .registerTypeAdapter(TreeDecorator.TreeDecoration.class, new TreeDecorationSerializer())
+            .registerTypeAdapter(TreeDecorator.TreeDecoration.class, new TreeDecorationDeserializer())
             .enableComplexMapKeySerialization()  // enables Map<ComplexObject, Object>
+            //.setPrettyPrinting()
             .create();
     }
 }
