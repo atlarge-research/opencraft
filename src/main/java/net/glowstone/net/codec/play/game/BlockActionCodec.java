@@ -11,21 +11,27 @@ import org.bukkit.util.BlockVector;
 public final class BlockActionCodec implements Codec<BlockActionMessage> {
 
     @Override
-    public BlockActionMessage decode(ByteBuf buf) throws IOException {
-        BlockVector vector = GlowBufUtils.readBlockPosition(buf);
-        int data1 = buf.readByte();
-        int data2 = buf.readByte();
-        int blockType = ByteBufUtils.readVarInt(buf);
-        return new BlockActionMessage(vector.getBlockX(), vector.getBlockY(), vector.getBlockZ(),
-            data1, data2, blockType);
+    public BlockActionMessage decode(ByteBuf buffer) throws IOException {
+        BlockVector vector = GlowBufUtils.readBlockPosition(buffer);
+        int data1 = buffer.readByte();
+        int data2 = buffer.readByte();
+        int blockType = ByteBufUtils.readVarInt(buffer);
+        return new BlockActionMessage(
+                vector.getBlockX(),
+                vector.getBlockY(),
+                vector.getBlockZ(),
+                data1,
+                data2,
+                blockType
+        );
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, BlockActionMessage message) throws IOException {
-        GlowBufUtils.writeBlockPosition(buf, message.getX(), message.getY(), message.getZ());
-        buf.writeByte(message.getData1());
-        buf.writeByte(message.getData2());
-        ByteBufUtils.writeVarInt(buf, message.getBlockType());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, BlockActionMessage message) {
+        GlowBufUtils.writeBlockPosition(buffer, message.getX(), message.getY(), message.getZ());
+        buffer.writeByte(message.getData1());
+        buffer.writeByte(message.getData2());
+        ByteBufUtils.writeVarInt(buffer, message.getBlockType());
+        return buffer;
     }
 }

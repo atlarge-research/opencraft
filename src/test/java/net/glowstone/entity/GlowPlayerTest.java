@@ -150,6 +150,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
         fishingRodItem = new ItemStack(Material.FISHING_ROD);
         entity = entityCreator.apply(location);
         entity.setItemInHand(fishingRodItem);
+        entity.setOnGround(true);
         entity.setDigging(null);
         entity.setLevel(1);
         when(session.getPlayer()).thenReturn(entity);
@@ -180,6 +181,13 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
         } finally {
             Mockito.clearInvocations(block);
         }
+    }
+
+    @Test
+    public void testDigNotOnGround() {
+        entity.setOnGround(false);
+        when(block.getType()).thenReturn(Material.DIRT);
+        assertDiggingTimeEquals(75);
     }
 
     @Test

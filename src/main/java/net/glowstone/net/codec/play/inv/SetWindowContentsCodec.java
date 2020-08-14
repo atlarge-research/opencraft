@@ -2,8 +2,6 @@ package net.glowstone.net.codec.play.inv;
 
 import com.flowpowered.network.Codec;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.DecoderException;
-import java.io.IOException;
 import net.glowstone.net.GlowBufUtils;
 import net.glowstone.net.message.play.inv.SetWindowContentsMessage;
 import org.bukkit.inventory.ItemStack;
@@ -11,17 +9,23 @@ import org.bukkit.inventory.ItemStack;
 public final class SetWindowContentsCodec implements Codec<SetWindowContentsMessage> {
 
     @Override
-    public SetWindowContentsMessage decode(ByteBuf buf) throws IOException {
-        throw new DecoderException("Cannot decode SetWindowContentsMessage");
+    public SetWindowContentsMessage decode(ByteBuf buffer) {
+        byte id = buffer.readByte();
+        short length = buffer.readShort();
+        ItemStack[] items = new ItemStack[length];
+        for (int index = 0; index < length; index++) {
+            items[index] = GlowBufUtils.readSlot(buffer);
+        }
+        return new SetWindowContentsMessage(id, items);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, SetWindowContentsMessage message) throws IOException {
-        buf.writeByte(message.getId());
-        buf.writeShort(message.getItems().length);
+    public ByteBuf encode(ByteBuf buffer, SetWindowContentsMessage message) {
+        buffer.writeByte(message.getId());
+        buffer.writeShort(message.getItems().length);
         for (ItemStack item : message.getItems()) {
-            GlowBufUtils.writeSlot(buf, item);
+            GlowBufUtils.writeSlot(buffer, item);
         }
-        return buf;
+        return buffer;
     }
 }

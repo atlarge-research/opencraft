@@ -10,6 +10,7 @@ import org.bukkit.Server;
  * org.bukkit.Bukkit#setServer(Server)} has already been called.
  */
 public final class ServerProvider {
+
     /**
      * The current mock GlowServer instance, or null if not using a mock server.
      */

@@ -15,8 +15,8 @@ public class UseItemCodec implements Codec<UseItemMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, UseItemMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getHand());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, UseItemMessage message) throws IOException {
+        ByteBufUtils.writeVarInt(buffer, message.getHand());
+        return buffer;
     }
 }

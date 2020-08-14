@@ -21,6 +21,7 @@ import org.bukkit.util.Vector;
 public class ItemType {
 
     private int id = -1;
+
     /**
      * Get the Material assigned to this ItemType.
      *
@@ -177,14 +178,17 @@ public class ItemType {
      */
     @AllArgsConstructor
     public enum Context {
+
         /**
          * The item can only be used when clicking in the air.
          */
         AIR(true, false),
+
         /**
          * The item can only be used when clicking against a block.
          */
         BLOCK(false, true),
+
         /**
          * The item can be used on any click.
          */

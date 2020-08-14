@@ -9,19 +9,26 @@ import net.glowstone.net.message.play.scoreboard.ScoreboardScoreMessage;
 public final class ScoreboardScoreCodec implements Codec<ScoreboardScoreMessage> {
 
     @Override
-    public ScoreboardScoreMessage decode(ByteBuf buf) throws IOException {
-        throw new UnsupportedOperationException("Cannot decode ScoreboardScoreMessage");
+    public ScoreboardScoreMessage decode(ByteBuf buffer) throws IOException {
+        String target = ByteBufUtils.readUTF8(buffer);
+        boolean remove = buffer.readByte() != 0;
+        String objective = ByteBufUtils.readUTF8(buffer);
+        if (!remove) {
+            int value = ByteBufUtils.readVarInt(buffer);
+            return new ScoreboardScoreMessage(target, objective, value);
+        }
+        return ScoreboardScoreMessage.remove(target, objective);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, ScoreboardScoreMessage message) throws IOException {
+    public ByteBuf encode(ByteBuf buffer, ScoreboardScoreMessage message) throws IOException {
         boolean remove = message.isRemove();
-        ByteBufUtils.writeUTF8(buf, message.getTarget());
-        buf.writeByte(remove ? 1 : 0);
-        ByteBufUtils.writeUTF8(buf, message.getObjective());
+        ByteBufUtils.writeUTF8(buffer, message.getTarget());
+        buffer.writeByte(remove ? 1 : 0);
+        ByteBufUtils.writeUTF8(buffer, message.getObjective());
         if (!remove) {
-            ByteBufUtils.writeVarInt(buf, message.getValue());
+            ByteBufUtils.writeVarInt(buffer, message.getValue());
         }
-        return buf;
+        return buffer;
     }
 }

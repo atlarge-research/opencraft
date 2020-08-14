@@ -19,6 +19,10 @@ public class ProtocolProvider {
     public final LoginProtocol login;
     public final PlayProtocol play;
 
+    /**
+     * Constructor for the class.
+     * @param serverConfig the server config.
+     */
     public ProtocolProvider(ServerConfig serverConfig) {
         List<DnsEndpoint> dnsEndpoints = serverConfig.getMapList(ServerConfig.Key.DNS_OVERRIDES)
             .stream()

@@ -11,14 +11,14 @@ import org.json.simple.JSONValue;
 public final class StatusResponseCodec implements Codec<StatusResponseMessage> {
 
     @Override
-    public StatusResponseMessage decode(ByteBuf buf) throws IOException {
-        String json = ByteBufUtils.readUTF8(buf);
+    public StatusResponseMessage decode(ByteBuf buffer) throws IOException {
+        String json = ByteBufUtils.readUTF8(buffer);
         return new StatusResponseMessage((JSONObject) JSONValue.parse(json));
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, StatusResponseMessage message) throws IOException {
-        ByteBufUtils.writeUTF8(buf, message.getJson());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, StatusResponseMessage message) throws IOException {
+        ByteBufUtils.writeUTF8(buffer, message.getJson());
+        return buffer;
     }
 }

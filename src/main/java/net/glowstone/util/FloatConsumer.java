@@ -5,6 +5,7 @@ package net.glowstone.util;
  */
 @FunctionalInterface
 public interface FloatConsumer {
+
     /**
      * Applies this function.
      * @param arg the argument to accept

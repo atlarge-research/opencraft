@@ -1,0 +1,55 @@
+image: maven:latest
+
+cache:
+  paths:
+    - .m2/repository
+
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+  MAVEN_CLI_OPTS: "--batch-mode"
+  
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+
+stages:
+  - static_analysis
+  - build
+  - test
+  - deploy
+
+lint:
+  stage: static_analysis
+  script:
+    - mvn $MAVEN_CLI_OPTS checkstyle:check
+
+build:
+  stage: build
+  script:
+    - mvn $MAVEN_CLI_OPTS -Dmaven.clean.skip=true compile
+  artifacts:
+    paths:
+      - target/
+    expire_in: 1h
+
+test:
+  stage: test
+  dependencies:
+    - build
+  script:
+    - mvn $MAVEN_CLI_OPTS test
+    - cat target/site/jacoco/index.html | grep -oP 'Total.*?([0-9]{1,3})%.*?([0-9]{1,3})%' | grep -oE '[^ ]+$' | grep -oE '[0-9]{1,3}%' | xargs -I {} echo 'Total {}'
+  coverage: "/Total.*?([0-9]{1,3})%/"
+  artifacts:
+    reports:
+      junit:
+        - target/surefire-reports/TEST-*.xml
+        - target/failsafe-reports/TEST-*.xml
+
+deploy:
+  stage: deploy
+  dependencies:
+    - build
+  script:
+    - mvn $MAVEN_CLI_OPTS deploy
+  when: manual

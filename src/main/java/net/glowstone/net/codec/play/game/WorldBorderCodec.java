@@ -49,41 +49,41 @@ public final class WorldBorderCodec implements Codec<WorldBorderMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, WorldBorderMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getAction().ordinal());
+    public ByteBuf encode(ByteBuf buffer, WorldBorderMessage message) {
+        ByteBufUtils.writeVarInt(buffer, message.getAction().ordinal());
         switch (message.getAction()) {
             case SET_SIZE:
-                buf.writeDouble(message.getRadius());
+                buffer.writeDouble(message.getRadius());
                 break;
             case LERP_SIZE:
-                buf.writeDouble(message.getOldRadius());
-                buf.writeDouble(message.getNewRadius());
-                ByteBufUtils.writeVarLong(buf, message.getSpeed());
+                buffer.writeDouble(message.getOldRadius());
+                buffer.writeDouble(message.getNewRadius());
+                ByteBufUtils.writeVarLong(buffer, message.getSpeed());
                 break;
             case SET_CENTER:
-                buf.writeDouble(message.getX());
-                buf.writeDouble(message.getZ());
+                buffer.writeDouble(message.getX());
+                buffer.writeDouble(message.getZ());
                 break;
             case INITIALIZE:
-                buf.writeDouble(message.getX());
-                buf.writeDouble(message.getZ());
-                buf.writeDouble(message.getOldRadius());
-                buf.writeDouble(message.getNewRadius());
-                ByteBufUtils.writeVarLong(buf, message.getSpeed());
-                ByteBufUtils.writeVarInt(buf, message.getPortalTeleportBoundary());
-                ByteBufUtils.writeVarInt(buf, message.getWarningTime());
-                ByteBufUtils.writeVarInt(buf, message.getWarningBlocks());
+                buffer.writeDouble(message.getX());
+                buffer.writeDouble(message.getZ());
+                buffer.writeDouble(message.getOldRadius());
+                buffer.writeDouble(message.getNewRadius());
+                ByteBufUtils.writeVarLong(buffer, message.getSpeed());
+                ByteBufUtils.writeVarInt(buffer, message.getPortalTeleportBoundary());
+                ByteBufUtils.writeVarInt(buffer, message.getWarningTime());
+                ByteBufUtils.writeVarInt(buffer, message.getWarningBlocks());
                 break;
             case SET_WARNING_TIME:
-                ByteBufUtils.writeVarInt(buf, message.getWarningTime());
+                ByteBufUtils.writeVarInt(buffer, message.getWarningTime());
                 break;
             case SET_WARNING_BLOCKS:
-                ByteBufUtils.writeVarInt(buf, message.getWarningBlocks());
+                ByteBufUtils.writeVarInt(buffer, message.getWarningBlocks());
                 break;
             default:
                 // TODO: Should this raise a warning?
                 // do nothing
         }
-        return buf;
+        return buffer;
     }
 }

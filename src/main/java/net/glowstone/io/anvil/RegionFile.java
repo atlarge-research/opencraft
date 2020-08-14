@@ -102,6 +102,7 @@ public class RegionFile {
     private RandomAccessFile file;
     private BitSet sectorsUsed;
     private final AtomicInteger sizeDelta = new AtomicInteger();
+
     /**
      * Returns the modification timestamp of the region file when it was first opened by this
      * instance, or zero if this instance created the file. The timestamp is in milliseconds since

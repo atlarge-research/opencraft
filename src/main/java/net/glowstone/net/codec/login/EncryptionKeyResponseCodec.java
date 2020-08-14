@@ -10,6 +10,7 @@ public final class EncryptionKeyResponseCodec implements Codec<EncryptionKeyResp
 
     @Override
     public EncryptionKeyResponseMessage decode(ByteBuf buffer) throws IOException {
+
         byte[] sharedSecret = new byte[ByteBufUtils.readVarInt(buffer)];
         buffer.readBytes(sharedSecret);
 
@@ -20,12 +21,13 @@ public final class EncryptionKeyResponseCodec implements Codec<EncryptionKeyResp
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, EncryptionKeyResponseMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getSharedSecret().length);
-        buf.writeBytes(message.getSharedSecret());
+    public ByteBuf encode(ByteBuf buffer, EncryptionKeyResponseMessage message) {
 
-        ByteBufUtils.writeVarInt(buf, message.getVerifyToken().length);
-        buf.writeBytes(message.getVerifyToken());
-        return buf;
+        ByteBufUtils.writeVarInt(buffer, message.getSharedSecret().length);
+        buffer.writeBytes(message.getSharedSecret());
+
+        ByteBufUtils.writeVarInt(buffer, message.getVerifyToken().length);
+        buffer.writeBytes(message.getVerifyToken());
+        return buffer;
     }
 }

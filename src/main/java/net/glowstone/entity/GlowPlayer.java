@@ -20,20 +20,15 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -42,20 +37,16 @@ import lombok.Setter;
 import net.glowstone.EventFactory;
 import net.glowstone.GlowOfflinePlayer;
 import net.glowstone.GlowWorld;
-import net.glowstone.GlowWorldBorder;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.ItemTable;
 import net.glowstone.block.blocktype.BlockBed;
-import net.glowstone.block.entity.SignEntity;
 import net.glowstone.block.itemtype.ItemFood;
 import net.glowstone.block.itemtype.ItemType;
+import net.glowstone.chunk.AreaOfInterest;
 import net.glowstone.chunk.ChunkManager.ChunkLock;
-import net.glowstone.chunk.GlowChunk;
 import net.glowstone.chunk.GlowChunk.Key;
-import net.glowstone.command.LocalizedEnumNames;
 import net.glowstone.constants.GameRules;
 import net.glowstone.constants.GlowAchievement;
-import net.glowstone.constants.GlowBlockEntity;
 import net.glowstone.constants.GlowEffect;
 import net.glowstone.constants.GlowParticle;
 import net.glowstone.constants.GlowSound;
@@ -67,7 +58,6 @@ import net.glowstone.entity.meta.profile.GlowPlayerProfile;
 import net.glowstone.entity.monster.GlowBoss;
 import net.glowstone.entity.objects.GlowItem;
 import net.glowstone.entity.passive.GlowFishingHook;
-import net.glowstone.i18n.GlowstoneMessages;
 import net.glowstone.inventory.GlowInventory;
 import net.glowstone.inventory.GlowInventoryView;
 import net.glowstone.inventory.InventoryMonitor;
@@ -79,16 +69,13 @@ import net.glowstone.net.GlowSession;
 import net.glowstone.net.message.play.entity.AnimateEntityMessage;
 import net.glowstone.net.message.play.entity.DestroyEntitiesMessage;
 import net.glowstone.net.message.play.entity.EntityMetadataMessage;
-import net.glowstone.net.message.play.entity.EntityVelocityMessage;
 import net.glowstone.net.message.play.entity.SetPassengerMessage;
 import net.glowstone.net.message.play.game.BlockBreakAnimationMessage;
-import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.net.message.play.game.ChatMessage;
 import net.glowstone.net.message.play.game.ExperienceMessage;
 import net.glowstone.net.message.play.game.HealthMessage;
 import net.glowstone.net.message.play.game.JoinGameMessage;
 import net.glowstone.net.message.play.game.MapDataMessage;
-import net.glowstone.net.message.play.game.MultiBlockChangeMessage;
 import net.glowstone.net.message.play.game.NamedSoundEffectMessage;
 import net.glowstone.net.message.play.game.PlayEffectMessage;
 import net.glowstone.net.message.play.game.PlayParticleMessage;
@@ -103,13 +90,11 @@ import net.glowstone.net.message.play.game.StatisticMessage;
 import net.glowstone.net.message.play.game.TimeMessage;
 import net.glowstone.net.message.play.game.TitleMessage;
 import net.glowstone.net.message.play.game.TitleMessage.Action;
-import net.glowstone.net.message.play.game.UnloadChunkMessage;
-import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
-import net.glowstone.net.message.play.game.UpdateSignMessage;
 import net.glowstone.net.message.play.game.UserListHeaderFooterMessage;
 import net.glowstone.net.message.play.game.UserListItemMessage;
 import net.glowstone.net.message.play.game.UserListItemMessage.Entry;
 import net.glowstone.net.message.play.inv.CloseWindowMessage;
+import net.glowstone.net.message.play.inv.HeldItemMessage;
 import net.glowstone.net.message.play.inv.OpenWindowMessage;
 import net.glowstone.net.message.play.inv.SetWindowContentsMessage;
 import net.glowstone.net.message.play.inv.SetWindowSlotMessage;
@@ -119,13 +104,13 @@ import net.glowstone.net.message.play.player.UseBedMessage;
 import net.glowstone.scoreboard.GlowScoreboard;
 import net.glowstone.scoreboard.GlowTeam;
 import net.glowstone.util.Convert;
+import net.glowstone.util.DeprecatedMethodException;
 import net.glowstone.util.EntityUtils;
 import net.glowstone.util.InventoryUtil;
 import net.glowstone.util.Position;
 import net.glowstone.util.StatisticMap;
 import net.glowstone.util.TextMessage;
 import net.glowstone.util.TickUtil;
-import net.glowstone.util.nbt.CompoundTag;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
@@ -133,6 +118,7 @@ import org.bukkit.Achievement;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Difficulty;
 import org.bukkit.Effect;
 import org.bukkit.Effect.Type;
@@ -188,7 +174,6 @@ import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.event.player.PlayerUnregisterChannelEvent;
-import org.bukkit.event.player.PlayerVelocityEvent;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.InventoryView.Property;
 import org.bukkit.inventory.ItemStack;
@@ -200,9 +185,9 @@ import org.bukkit.map.MapView;
 import org.bukkit.material.MaterialData;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.messaging.StandardMessenger;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.util.BlockVector;
-import org.bukkit.util.Vector;
 import org.json.simple.JSONObject;
 
 
@@ -219,17 +204,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      */
     public static final int HOOK_MAX_DISTANCE = 32;
 
-    private static final Achievement[] ACHIEVEMENT_VALUES = Achievement.values();
-    private static final LocalizedEnumNames<Achievement> ACHIEVEMENT_NAMES
-            = new LocalizedEnumNames<Achievement>(
-                    (Function<String, Achievement>) Achievement::valueOf,
-            "glowstone.achievement.unknown",
-            null, "maps/achievement", true);
-
     /**
      * The network session attached to this player.
-     *
-     * @return The GlowSession of the player.
      */
     @Getter
     private final GlowSession session;
@@ -243,23 +219,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * The entities that are hidden from the client.
      */
     private final Set<UUID> hiddenEntities = new HashSet<>();
-
-    /**
-     * The chunks that the client knows about.
-     */
-    private final Set<Key> knownChunks = new HashSet<>();
-
-    /**
-     * A queue of BlockChangeMessages to be sent.
-     */
-    private final Queue<BlockChangeMessage> blockChanges = new ConcurrentLinkedDeque<>();
-
-    /**
-     * A queue of messages that should be sent after block changes are processed.
-     *
-     * <p>Used for sign updates and other situations where the block must be sent first.
-     */
-    private final List<Message> afterBlockChanges = new LinkedList<>();
 
     /**
      * The set of plugin channels this player is listening on.
@@ -292,122 +251,145 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     public Location teleportedTo = null;
     @Setter
     public boolean affectsSpawning = true;
+
     /**
      * The time the player joined, in milliseconds, to be saved as last played time.
-     *
-     * @return The player's join time.
      */
     @Getter
     private long joinTime;
+
     /**
      * The settings sent by the client.
      */
     private ClientSettings settings = ClientSettings.DEFAULT;
+
     /**
      * The lock used to prevent chunks from unloading near the player.
      */
+    @Getter
     private ChunkLock chunkLock;
+
     /**
      * The tracker for changes to the currently open inventory.
      */
     private InventoryMonitor invMonitor;
+
     /**
      * The display name of this player, for chat purposes.
      */
     private String displayName;
+
     /**
      * The name a player has in the player list.
      */
     private String playerListName;
+
     /**
      * Cumulative amount of experience points the player has collected.
      */
     @Getter
     private int totalExperience;
+
     /**
      * The current level (or skill point amount) of the player.
      */
     @Getter
     private int level;
+
     /**
      * The progress made to the next level, from 0 to 1.
      */
     @Getter
     private float exp;
+
     /**
      * The human entity's current food level.
      */
     @Getter
     private int foodLevel = 20;
+
     /**
      * The player's current exhaustion level.
      */
     @Getter
     @Setter
     private float exhaustion;
+
     /**
      * The player's current saturation level.
      */
     @Getter
     private float saturation;
+
     /**
      * Whether to perform special scaling of the player's health.
      */
     @Getter
     private boolean healthScaled;
+
     /**
      * The scale at which to display the player's health.
      */
     @Getter
     private double healthScale = 20;
+
     /**
      * If this player has seen the end credits.
      */
     @Getter
     @Setter
     private boolean seenCredits;
+
     /**
      * Recipes this player has unlocked.
      */
-    private Collection<Recipe> recipes = new HashSet<>();
+    private final Collection<Recipe> recipes = new HashSet<>();
+
     /**
      * This player's current time offset.
      */
     private long timeOffset;
+
     /**
      * Whether the time offset is relative.
      */
     @Getter
     private boolean playerTimeRelative = true;
+
     /**
      * The player-specific weather, or null for normal weather.
      */
     private WeatherType playerWeather;
+
     /**
      * The player's compass target.
      */
     @Getter
     private Location compassTarget;
+
     /**
      * Whether this player's sleeping state is ignored when changing time.
      */
     private boolean sleepingIgnored;
+
     /**
      * The bed in which the player currently lies.
      */
     private GlowBlock bed;
+
     /**
      * The bed spawn location of a player.
      */
     private Location bedSpawn;
+
     /**
      * Whether to use the bed spawn even if there is no bed block.
-     *
-     * @return Whether the player is forced to spawn at their bed.
      */
     @Getter
     private boolean bedSpawnForced;
+
     private final Player.Spigot spigot = new Player.Spigot() {
+
         @Override
         public void playEffect(Location location, Effect effect, int id, int data, float offsetX,
                 float offsetY, float offsetZ, float speed, int particleCount, int radius) {
@@ -442,7 +424,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         @Override
         public Set<Player> getHiddenPlayers() {
-            return hiddenEntities.stream().map(Bukkit::getPlayer).filter(Objects::nonNull)
+            return hiddenEntities.stream()
+                    .map(Bukkit::getPlayer)
+                    .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
         }
 
@@ -471,50 +455,61 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             return GlowPlayer.this.getLocale();
         }
     };
+
     /**
      * The location of the sign the player is currently editing, or null.
      */
     private Location signLocation;
+
     /**
      * Whether the player is permitted to fly.
      */
     private boolean canFly;
+
     /**
      * Whether the player is currently flying.
      */
     @Getter
     private boolean flying;
+
     /**
      * The player's base flight speed.
      */
     @Getter
     private float flySpeed = 0.1f;
+
     /**
      * The player's base walking speed.
      */
     @Getter
     private float walkSpeed = 0.2f;
+
     /**
      * The scoreboard the player is currently subscribed to.
      */
     private GlowScoreboard scoreboard;
+
     /**
      * The player's current title, if any.
      */
     private Title.Builder currentTitle = new Title.Builder();
+
     /**
      * The one block the player is currently digging.
      */
     @Getter
     private GlowBlock digging;
+
     /**
      * The number of ticks elapsed since the player started digging.
      */
     private long diggingTicks = 0;
+
     /**
      * The total number of ticks needed to dig the current block.
      */
     private long totalDiggingTicks = Long.MAX_VALUE;
+
     /**
      * The one itemstack the player is currently usage and associated time.
      */
@@ -531,26 +526,27 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     private PlayerResourcePackStatusEvent.Status resourcePackStatus;
     private List<Conversation> conversations = new ArrayList<>();
     private Set<BossBar> bossBars = ConcurrentHashMap.newKeySet();
+
     /**
      * The player's previous chunk x coordinate.
      */
     private int prevCentralX;
+
     /**
      * The player's previous chunk x coordinate.
      */
     private int prevCentralZ;
-    /**
-     * If this is the player's first time getting blocks streamed.
-     */
-    private boolean firstStream = true;
+
     /**
      * If we should force block streaming regardless of chunk difference.
      */
-    private boolean forceStream = false;
+    public boolean viewDistanceChanged = false;
+
     /**
      * Current casted fishing hook.
      */
     private final AtomicReference<GlowFishingHook> currentFishingHook = new AtomicReference<>(null);
+
     /**
      * The player's ender pearl cooldown game tick counter.
      * 1 second, or 20 game ticks by default.
@@ -606,6 +602,15 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     // Internals
 
     /**
+     * Get the current area of interest of this player.
+     *
+     * @return The current area of interest.
+     */
+    public AreaOfInterest getAreaOfInterest() {
+        return new AreaOfInterest(getLocation(), getViewDistance());
+    }
+
+    /**
      * Read the location from a PlayerReader for entity initialization.
      *
      * <p>Will fall back to a reasonable default rather than returning null.
@@ -621,7 +626,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 return loc;
             }
         }
-
         return findSafeSpawnLocation(session.getServer().getWorlds().get(0).getSpawnLocation());
     }
 
@@ -634,6 +638,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * @return The location to spawn the player at.
      */
     private static Location findSafeSpawnLocation(Location spawn) {
+
         World world = spawn.getWorld();
         int blockX = spawn.getBlockX();
         int blockY = spawn.getBlockY();
@@ -646,7 +651,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         for (; y <= highestY; y++) {
             Material type = world.getBlockAt(blockX, y, blockZ).getType();
             boolean safe = Material.AIR.equals(type);
-
             if (wasPreviousSafe && safe) {
                 y--;
                 break;
@@ -676,9 +680,16 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         setGameModeDefaults();
 
-        session.send(new JoinGameMessage(getEntityId(), gameMode, world.getEnvironment().getId(), world
-                .getDifficulty().getValue(), session.getServer().getMaxPlayers(), type, world
-                .getGameRuleMap().getBoolean(GameRules.REDUCED_DEBUG_INFO)));
+        Message joinMessage = new JoinGameMessage(
+                getEntityId(),
+                gameMode,
+                world.getEnvironment().getId(),
+                world.getDifficulty().getValue(),
+                session.getServer().getMaxPlayers(),
+                type,
+                world.getGameRuleMap().getBoolean(GameRules.REDUCED_DEBUG_INFO)
+        );
+        session.send(joinMessage);
 
         // send server brand and supported plugin channels
         Message pluginMessage = PluginMessage.fromString("MC|Brand", server.getName());
@@ -694,7 +705,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         // save data back out
         saveData();
 
-        streamBlocks(); // stream the initial set of blocks
         sendWeather();
         sendRainDensity();
         sendSkyDarkness();
@@ -703,7 +713,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         // send initial location
         session.send(new PositionRotationMessage(location));
 
-        session.send(((GlowWorldBorder) world.getWorldBorder()).createMessage());
+        session.send(world.getWorldBorder().createMessage());
         sendTime();
         setCompassTarget(world.getSpawnLocation()); // set our compass target
 
@@ -712,6 +722,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         invMonitor = new InventoryMonitor(getOpenInventory());
         updateInventory(); // send inventory contents
+        session.send(new HeldItemMessage(getInventory().getHeldItemSlot()));
         session.send(recipeMonitor.createInitMessage());
 
         if (!server.getResourcePackUrl().isEmpty()) {
@@ -750,6 +761,8 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             }
         }
         super.damage(amount, source, cause);
+
+        // TODO: status effects
     }
 
     @Override
@@ -766,8 +779,10 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
     @Override
     public boolean canTakeDamage(DamageCause damageCause) {
-        return damageCause == DamageCause.FALL ? !getAllowFlight() && super
-                .canTakeDamage(damageCause) : super.canTakeDamage(damageCause);
+        if (damageCause == DamageCause.FALL) {
+            return !getAllowFlight() && super.canTakeDamage(damageCause);
+        }
+        return super.canTakeDamage(damageCause);
     }
 
     /**
@@ -775,7 +790,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      */
     @Override
     public void remove() {
-        knownChunks.clear();
         chunkLock.clear();
         saveData();
         getInventory().removeViewer(this);
@@ -798,7 +812,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * @param async if true, the player's data is saved asynchronously
      */
     public void remove(boolean async) {
-        knownChunks.clear();
         chunkLock.clear();
         saveData(async);
         getInventory().removeViewer(this);
@@ -904,10 +917,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             enderPearlCooldown--;
         }
 
-        // stream world
-        streamBlocks();
-        processBlockChanges();
-
         // add to playtime
         incrementStatistic(Statistic.PLAY_ONE_TICK);
         if (isSneaking()) {
@@ -925,60 +934,16 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             session.send(new EntityMetadataMessage(getEntityId(), changes));
         }
 
-        // Entity IDs are only unique per world, so we can't spawn or teleport between worlds while
-        // updating them.
-        worldLock.writeLock().lock();
-        try {
-            // update or remove entities
-            List<GlowEntity> destroyEntities = new LinkedList<>();
-            for (Iterator<GlowEntity> it = knownEntities.iterator(); it.hasNext(); ) {
-                GlowEntity entity = it.next();
-                if (!isWithinDistance(entity) || entity.isRemoved()) {
-                    destroyEntities.add(entity);
-                } else {
-                    entity.createUpdateMessage(session).forEach(session::send);
-                }
-            }
-            if (!destroyEntities.isEmpty()) {
-                List<Integer> destroyIds = new ArrayList<>(destroyEntities.size());
-                for (GlowEntity entity : destroyEntities) {
-                    knownEntities.remove(entity);
-                    destroyIds.add(entity.getEntityId());
-                }
-                session.send(new DestroyEntitiesMessage(destroyIds));
-            }
-            // add entities
-            knownChunks.forEach(key ->
-                    world.getChunkAt(key.getX(), key.getZ()).getRawEntities().stream()
-                            .filter(entity -> this != entity
-                                    && isWithinDistance(entity)
-                                    && !entity.isDead()
-                                    && !knownEntities.contains(entity)
-                                    && !hiddenEntities.contains(entity.getUniqueId()))
-                            .forEach((entity) -> Bukkit.getScheduler()
-                                    .runTaskAsynchronously(null, () -> {
-                                        worldLock.readLock().lock();
-                                        try {
-                                            knownEntities.add(entity);
-                                        } finally {
-                                            worldLock.readLock().unlock();
-                                        }
-                                        entity.createSpawnMessage().forEach(session::send);
-                                        entity.createAfterSpawnMessage(session)
-                                                .forEach(session::send);
-                                    })));
-        } finally {
-            worldLock.writeLock().unlock();
-        }
-
         if (passengerChanged) {
-            session.send(new SetPassengerMessage(getEntityId(), getPassengers().stream()
-                    .mapToInt(Entity::getEntityId).toArray()));
+            int[] ids = getPassengers().stream().mapToInt(Entity::getEntityId).toArray();
+            Message message = new SetPassengerMessage(getEntityId(), ids);
+            session.send(message);
         }
         getAttributeManager().sendMessages(session);
 
         GlowFishingHook hook = currentFishingHook.get();
         if (hook != null) {
+
             // The line will disappear if the player wanders more than 32 blocks away from the
             // bobber, or if the player stops holding a fishing rod.
             if (getInventory().getItemInMainHand().getType() != Material.FISHING_ROD
@@ -989,6 +954,61 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             if (hook.location.distanceSquared(location) > HOOK_MAX_DISTANCE * HOOK_MAX_DISTANCE) {
                 setCurrentFishingHook(null);
             }
+        }
+    }
+
+    /**
+     * Spawn and destroy entities that come within or out of the player's view distance.
+     */
+    public void spawnEntities() {
+        worldLock.writeLock().lock();
+        try {
+
+            // Remove entities that are no longer visible
+            List<GlowEntity> removeEntities = new LinkedList<>();
+            List<GlowEntity> destroyEntities = new LinkedList<>();
+            for (GlowEntity entity : knownEntities) {
+
+                if (!isWithinDistance(entity) || entity.isRemoved()) {
+                    removeEntities.add(entity);
+                }
+
+                if (!isWithinDistance(entity)) {
+                    destroyEntities.add(entity);
+                }
+            }
+
+            knownEntities.removeAll(removeEntities);
+
+            if (!destroyEntities.isEmpty()) {
+                List<Integer> destroyIds = removeEntities.stream()
+                        .map(GlowEntity::getEntityId)
+                        .collect(Collectors.toList());
+                session.send(new DestroyEntitiesMessage(destroyIds));
+            }
+
+            // Add entities that have become visible
+            AreaOfInterest area = getAreaOfInterest();
+            area.forEach(chunk -> {
+                chunk.getRawEntities().stream()
+                        .filter(entity -> this != entity
+                                && isWithinDistance(entity)
+                                && !entity.isDead()
+                                && !knownEntities.contains(entity)
+                                && !hiddenEntities.contains(entity.getUniqueId()))
+                        .forEach((entity) -> {
+                            worldLock.readLock().lock();
+                            try {
+                                knownEntities.add(entity);
+                            } finally {
+                                worldLock.readLock().unlock();
+                            }
+                            entity.createSpawnMessage().forEach(session::send);
+                        });
+            });
+
+        } finally {
+            worldLock.writeLock().unlock();
         }
     }
 
@@ -1005,132 +1025,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     }
 
     /**
-     * Process and send pending BlockChangeMessages.
-     */
-    private void processBlockChanges() {
-        // separate messages by chunk
-        // inner map is used to only send one entry for same coordinates
-        Map<Key, Map<BlockVector, BlockChangeMessage>> chunks = new HashMap<>();
-        while (true) {
-            BlockChangeMessage message = blockChanges.poll();
-            if (message == null) {
-                break;
-            }
-            Key key = GlowChunk.Key.of(message.getX() >> 4, message.getZ() >> 4);
-            if (canSeeChunk(key)) {
-                Map<BlockVector, BlockChangeMessage> map = chunks
-                        .computeIfAbsent(key, k -> new HashMap<>());
-                map.put(new BlockVector(message.getX(), message.getY(), message
-                        .getZ()), message);
-            }
-        }
-        // send away
-        for (Map.Entry<Key, Map<BlockVector, BlockChangeMessage>> entry : chunks.entrySet()) {
-            Key key = entry.getKey();
-            List<BlockChangeMessage> value = new ArrayList<>(entry.getValue().values());
-
-            if (value.size() == 1) {
-                session.send(value.get(0));
-            } else if (value.size() > 1) {
-                session.send(new MultiBlockChangeMessage(key.getX(), key.getZ(), value));
-            }
-        }
-        // now send post-block-change messages
-        List<Message> postMessages = new ArrayList<>(afterBlockChanges);
-        afterBlockChanges.clear();
-        postMessages.forEach(session::send);
-    }
-
-    /**
-     * Streams chunks to the player's client.
-     */
-    private void streamBlocks() {
-        Set<Key> previousChunks = null;
-        ArrayList<Key> newChunks = new ArrayList<>();
-
-        int centralX = location.getBlockX() >> 4;
-        int centralZ = location.getBlockZ() >> 4;
-        int radius = Math.min(server.getViewDistance(), 1 + settings.getViewDistance());
-
-        if (firstStream) {
-            firstStream = false;
-            for (int x = centralX - radius; x <= centralX + radius; x++) {
-                for (int z = centralZ - radius; z <= centralZ + radius; z++) {
-                    newChunks.add(GlowChunk.Key.of(x, z));
-                }
-            }
-        } else if (Math.abs(centralX - prevCentralX) > radius
-                || Math.abs(centralZ - prevCentralZ) > radius) {
-            knownChunks.clear();
-            for (int x = centralX - radius; x <= centralX + radius; x++) {
-                for (int z = centralZ - radius; z <= centralZ + radius; z++) {
-                    newChunks.add(GlowChunk.Key.of(x, z));
-                }
-            }
-        } else if (forceStream || prevCentralX != centralX || prevCentralZ != centralZ) {
-            previousChunks = new HashSet<>(knownChunks);
-            for (int x = centralX - radius; x <= centralX + radius; x++) {
-                for (int z = centralZ - radius; z <= centralZ + radius; z++) {
-                    Key key = GlowChunk.Key.of(x, z);
-                    if (knownChunks.contains(key)) {
-                        previousChunks.remove(key);
-                    } else {
-                        newChunks.add(key);
-                    }
-                }
-            }
-        } else {
-            return; // early end if there's no changes
-        }
-
-        prevCentralX = centralX;
-        prevCentralZ = centralZ;
-
-        // sort chunks by distance from player - closer chunks sent first
-        newChunks.sort((a, b) -> {
-            double dx = 16 * a.getX() + 8 - location.getX();
-            double dz = 16 * a.getZ() + 8 - location.getZ();
-            double da = dx * dx + dz * dz;
-            dx = 16 * b.getX() + 8 - location.getX();
-            dz = 16 * b.getZ() + 8 - location.getZ();
-            double db = dx * dx + dz * dz;
-            return Double.compare(da, db);
-        });
-
-        // populate then send chunks to the player
-        // done in two steps so that all the new chunks are finalized before any of them are sent
-        // this prevents sending a chunk then immediately sending block changes in it because
-        // one of its neighbors has populated
-
-        // first step: force population then acquire lock on each chunk
-        newChunks.forEach(newChunk -> {
-            world.getChunkManager().forcePopulation(newChunk.getX(), newChunk.getZ());
-            knownChunks.add(newChunk);
-            chunkLock.acquire(newChunk);
-        });
-
-        boolean skylight = world.getEnvironment() == Environment.NORMAL;
-
-        newChunks.stream().map(key -> world.getChunkAt(key.getX(), key.getZ()).toMessage(skylight))
-                .forEach(session::send);
-
-        // send visible block entity data
-        newChunks.stream().flatMap(key -> world.getChunkAt(key.getX(),
-                key.getZ()).getRawBlockEntities().stream())
-                .forEach(entity -> entity.update(this));
-
-        // and remove old chunks
-        if (previousChunks != null) {
-            previousChunks.forEach(key -> {
-                session.send(new UnloadChunkMessage(key.getX(), key.getZ()));
-                knownChunks.remove(key);
-                chunkLock.release(key);
-            });
-            previousChunks.clear();
-        }
-    }
-
-    /**
      * Spawn the player at the given location after they have already joined.
      *
      * <p>Used for changing worlds and respawning after death.
@@ -1138,7 +1032,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * @param location The location to place the player.
      */
     private void spawnAt(Location location) {
+
         GlowWorld oldWorld;
+
         // switch worlds
         worldLock.writeLock().lock();
         try {
@@ -1152,8 +1048,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         }
 
         // switch chunk set
-        // no need to send chunk unload messages - respawn unloads all chunks
-        knownChunks.clear();
         chunkLock.clear();
         chunkLock = world.newChunkLock(getName());
 
@@ -1167,8 +1061,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         teleportedTo = location.clone();
         setCompassTarget(world.getSpawnLocation()); // set our compass target
 
-        streamBlocks(); // stream blocks
-
         sendWeather();
         sendRainDensity();
         sendSkyDarkness();
@@ -1177,7 +1069,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         // fire world change if needed
         if (oldWorld != world) {
-            session.send(((GlowWorldBorder) world.getWorldBorder()).createMessage());
+            session.send((world.getWorldBorder()).createMessage());
             EventFactory.getInstance().callEvent(new PlayerChangedWorldEvent(this, oldWorld));
         }
     }
@@ -1207,6 +1099,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * Respawn the player after they have died.
      */
     public void respawn() {
+
         if (!isDead()) {
             return;
         }
@@ -1263,11 +1156,13 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     /**
      * Checks whether the player can see the given chunk.
      *
-     * @param chunk The chunk to check.
+     * @param key The chunk to check.
      * @return If the chunk is known to the player's client.
      */
-    public boolean canSeeChunk(Key chunk) {
-        return knownChunks.contains(chunk);
+    public boolean canSeeChunk(Key key) {
+        Chunk chunk = world.getChunkAt(key.getX(), key.getZ());
+        AreaOfInterest area = getAreaOfInterest();
+        return area.contains(chunk);
     }
 
     /**
@@ -1348,17 +1243,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 .forEach(player -> player.getSession().send(updateMessage));
     }
 
-    @Override
-    public void setVelocity(Vector velocity) {
-        PlayerVelocityEvent event = EventFactory.getInstance()
-                .callEvent(new PlayerVelocityEvent(this, velocity));
-        if (!event.isCancelled()) {
-            velocity = event.getVelocity();
-            super.setVelocity(velocity);
-            session.send(new EntityVelocityMessage(getEntityId(), velocity));
-        }
-    }
-
     /**
      * Set this player's client settings.
      *
@@ -1369,7 +1253,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         if (!newLocale.equalsIgnoreCase(this.settings.getLocale())) {
             EventFactory.getInstance().callEvent(new PlayerLocaleChangeEvent(this, newLocale));
         }
-        forceStream = settings.getViewDistance() != this.settings.getViewDistance()
+        viewDistanceChanged = settings.getViewDistance() != this.settings.getViewDistance()
                 && settings.getViewDistance() + 1 <= server.getViewDistance();
         this.settings = settings;
         metadata.set(MetadataIndex.PLAYER_SKIN_PARTS, settings.getSkinFlags());
@@ -2574,31 +2458,12 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
     @Override
     public void sendBlockChange(Location loc, Material material, byte data) {
-        sendBlockChange(loc, material.getId(), data);
+        throw new DeprecatedMethodException("This method should no longer be used");
     }
 
     @Override
     public void sendBlockChange(Location loc, int material, byte data) {
-        sendBlockChange(new BlockChangeMessage(loc.getBlockX(), loc.getBlockY(), loc
-                .getBlockZ(), material, data));
-    }
-
-    /**
-     * Sends the given {@link BlockChangeMessage} if it's in a chunk this player can see.
-     *
-     * @param message the message to send
-     */
-    public void sendBlockChange(BlockChangeMessage message) {
-        // only send message if the chunk is within visible range
-        Key key = GlowChunk.Key.of(message.getX() >> 4, message.getZ() >> 4);
-        if (canSeeChunk(key)) {
-            blockChanges.add(message);
-        }
-    }
-
-    @Deprecated
-    public void sendBlockChangeForce(BlockChangeMessage message) {
-        blockChanges.add(message);
+        throw new DeprecatedMethodException("This method should no longer be used");
     }
 
     @Override
@@ -2608,51 +2473,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
     @Override
     public void sendSignChange(Location location, String[] lines) throws IllegalArgumentException {
-        checkNotNull(location, "location cannot be null");
-        checkNotNull(lines, "lines cannot be null");
-        checkArgument(lines.length == 4, "lines.length must equal 4");
-
-        afterBlockChanges.add(UpdateSignMessage
-                .fromPlainText(location.getBlockX(), location.getBlockY(), location
-                        .getBlockZ(), lines));
-    }
-
-    /**
-     * Send a sign change, similar to {@link #sendSignChange(Location, String[])}, but using
-     * complete TextMessages instead of strings.
-     *
-     * @param sign the sign
-     * @param location the location of the sign
-     * @param lines the new text on the sign or null to clear it
-     * @throws IllegalArgumentException if location is null
-     * @throws IllegalArgumentException if lines is non-null and has a length less than 4
-     */
-    public void sendSignChange(SignEntity sign, Location location,
-            TextMessage[] lines) throws IllegalArgumentException {
-        checkNotNull(location, "location cannot be null");
-        checkNotNull(lines, "lines cannot be null");
-        checkArgument(lines.length == 4, "lines.length must equal 4");
-
-        CompoundTag tag = new CompoundTag();
-        sign.saveNbt(tag);
-        afterBlockChanges.add(new UpdateBlockEntityMessage(location.getBlockX(), location
-                .getBlockY(), location.getBlockZ(), GlowBlockEntity.SIGN.getValue(), tag));
-    }
-
-    /**
-     * Send a block entity change to the given location.
-     *
-     * @param location The location of the block entity.
-     * @param type The type of block entity being sent.
-     * @param nbt The NBT structure to send to the client.
-     */
-    public void sendBlockEntityChange(Location location, GlowBlockEntity type, CompoundTag nbt) {
-        checkNotNull(location, "Location cannot be null");
-        checkNotNull(type, "Type cannot be null");
-        checkNotNull(nbt, "NBT cannot be null");
-
-        afterBlockChanges.add(new UpdateBlockEntityMessage(location.getBlockX(), location
-                .getBlockY(), location.getBlockZ(), type.getValue(), nbt));
+        throw new DeprecatedMethodException("This method should no longer be used");
     }
 
     @Override
@@ -2895,12 +2716,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         stats.setAchievement(achievement, true);
         sendAchievement(achievement, true);
-
-        if (server.getAnnounceAchievements()) {
-            // todo: make message fancier (hover)
-            server.broadcastMessage(GlowstoneMessages.Achievement.EARNED.get(
-                    getName(), ACHIEVEMENT_NAMES.valueToName(Locale.getDefault(), achievement)));
-        }
         return true;
     }
 
@@ -3469,51 +3284,95 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * @param block the block to start breaking
      */
     public void setDigging(GlowBlock block) {
+
         if (Objects.equals(block, digging)) {
             return;
         }
+
         if (block == null) {
             totalDiggingTicks = Long.MAX_VALUE;
             // remove the animation
             broadcastBlockBreakAnimation(digging, 10);
+
         } else {
+
             double hardness = block.getMaterialValues().getHardness();
+
             if (hardness >= Float.MAX_VALUE) {
                 // This block can't be broken by digging.
                 setDigging(null);
                 return;
             }
+
             double breakingTimeMultiplier = 5; // default of 5 when using bare hands
             ItemStack tool = getItemInHand();
+
             if (tool != null) {
+
                 Material toolType = tool.getType();
+
                 if (block.getType() == Material.WEB && ToolType.SWORD.matches(toolType)) {
                     breakingTimeMultiplier = 0.1;
+
                 } else if (block.getType() == Material.WOOL && toolType == Material.SHEARS) {
                     breakingTimeMultiplier = 0.3;
+
                 } else {
+
                     ToolType effectiveTool = block.getMaterialValues().getTool();
+
                     if (effectiveTool != null && effectiveTool.matches(toolType)) {
+
                         double miningMultiplier = ToolType.getMiningMultiplier(toolType);
                         int efficiencyLevel = tool.getEnchantmentLevel(Enchantment.DIG_SPEED);
+
                         if (efficiencyLevel > 0) {
                             miningMultiplier += efficiencyLevel * efficiencyLevel + 1;
                         }
+
                         breakingTimeMultiplier = 1.5 / miningMultiplier;
-                    } else if (effectiveTool == null
-                            || !effectiveTool.matches(Material.DIAMOND_PICKAXE)) {
+
+                    } else if (effectiveTool == null || !effectiveTool.matches(Material.DIAMOND_PICKAXE)) {
                         // If the current tool isn't optimal but can still mine the block, the
                         // multiplier is 1.5. Here, we assume for simplicity that this is true of
                         // all non-pickaxe blocks.
-                        // FIXME: Does this always match vanilla?
                         breakingTimeMultiplier = 1.5;
                     }
                 }
             }
-            // TODO: status effects (e.g. Mining Fatigue, Slowness); effect of underwater digging
-            totalDiggingTicks = (long)
-                (breakingTimeMultiplier * hardness * 20.0 + 0.5); // seconds to ticks, round half-up
-            // show other clients the block is beginning to crack
+
+            Location position = getLocation();
+            position.setY(position.getY() + getEyeHeight());
+            Block headBlock = position.getBlock();
+            double penalty = 1.0; // default of 1 if there is no penalty
+            final double underwaterModifier = 5.0;
+            final double miningFatigueModifier = 3.0;
+            final double hasteModifier = 0.2;
+
+            if (headBlock.isLiquid()) {
+                ItemStack helmet = getEquipment().getHelmet();
+                Map<Enchantment, Integer> enchantments = helmet.getEnchantments();
+                if (!enchantments.containsKey(Enchantment.WATER_WORKER)) {
+                    penalty *= underwaterModifier;
+                }
+            }
+
+            for (PotionEffect potion : getActivePotionEffects()) {
+
+                if (potion.getType() == PotionEffectType.SLOW_DIGGING) {
+                    penalty *= Math.pow(miningFatigueModifier, potion.getAmplifier());
+
+                } else if (potion.getType() == PotionEffectType.FAST_DIGGING) {
+                    penalty /= (1.0 + hasteModifier * potion.getAmplifier());
+                }
+            }
+
+            if (!isOnGround()) {
+                penalty *= underwaterModifier;
+            }
+
+            totalDiggingTicks = Math.round(penalty * breakingTimeMultiplier * hardness * 20.0); // seconds to ticks
+
             broadcastBlockBreakAnimation(block, 0);
         }
 
@@ -3521,18 +3380,16 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         digging = block;
     }
 
-    private void sendBlockBreakAnimation(Location loc, int destroyStage) {
-        afterBlockChanges
-                .add(new BlockBreakAnimationMessage(this.getEntityId(), loc.getBlockX(), loc
-                        .getBlockY(), loc.getBlockZ(), destroyStage));
-    }
-
     private void broadcastBlockBreakAnimation(GlowBlock block, int destroyStage) {
-        GlowChunk.Key key = GlowChunk.Key.of(block.getX() >> 4, block.getZ() >> 4);
-        block.getWorld().getRawPlayers().stream()
-                .filter(player -> player != this && player.canSeeChunk(key))
-                .forEach(player -> player
-                        .sendBlockBreakAnimation(block.getLocation(), destroyStage));
+        GlowWorld world = block.getWorld();
+        Message message = new BlockBreakAnimationMessage(
+                getEntityId(),
+                location.getBlockX(),
+                location.getBlockY(),
+                location.getBlockZ(),
+                destroyStage
+        );
+        world.broadcastAfterBlockChange(block.getLocation(), message);
     }
 
     private void pulseDigging() {
@@ -3615,10 +3472,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         digging.breakNaturally(tool);
         // Send block status to clients
         Location dugLocation = digging.getLocation();
-        // OK to use sequential stream here, because sendBlockChange is async
-        world.getRawPlayers().stream()
-                .filter(player -> player.canSeeChunk(GlowChunk.Key.to(dugLocation.getChunk())))
-                .forEach(player -> player.sendBlockChange(dugLocation, Material.AIR, (byte) 0));
+        world.sendBlockChange(dugLocation, Material.AIR, (byte) 0);
         setDigging(null);
     }
 

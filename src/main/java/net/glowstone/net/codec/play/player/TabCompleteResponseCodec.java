@@ -3,23 +3,30 @@ package net.glowstone.net.codec.play.player;
 import com.flowpowered.network.Codec;
 import com.flowpowered.network.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.DecoderException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import net.glowstone.net.message.play.player.TabCompleteResponseMessage;
 
 public final class TabCompleteResponseCodec implements Codec<TabCompleteResponseMessage> {
 
     @Override
-    public TabCompleteResponseMessage decode(ByteBuf buf) throws IOException {
-        throw new DecoderException("Cannot decode TabCompleteResponseMessage");
+    public TabCompleteResponseMessage decode(ByteBuf buffer) throws IOException {
+        int count = ByteBufUtils.readVarInt(buffer);
+        List<String> completions = new ArrayList<>(count);
+        for (int index = 0; index < count; index++) {
+            String completion = ByteBufUtils.readUTF8(buffer);
+            completions.add(completion);
+        }
+        return new TabCompleteResponseMessage(completions);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, TabCompleteResponseMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getCompletions().size());
+    public ByteBuf encode(ByteBuf buffer, TabCompleteResponseMessage message) throws IOException {
+        ByteBufUtils.writeVarInt(buffer, message.getCompletions().size());
         for (String completion : message.getCompletions()) {
-            ByteBufUtils.writeUTF8(buf, completion);
+            ByteBufUtils.writeUTF8(buffer, completion);
         }
-        return buf;
+        return buffer;
     }
 }

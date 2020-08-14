@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -386,5 +387,37 @@ public class GlowPlayerProfile implements PlayerProfile {
             }
         }
         return isComplete();
+    }
+
+    @Override
+    public boolean equals(Object object) {
+
+        if (!(object instanceof GlowPlayerProfile)) {
+            return false;
+        }
+
+        GlowPlayerProfile other = (GlowPlayerProfile) object;
+
+        return Objects.equals(name, other.name)
+                && Objects.equals(getUuid(), other.getUuid())
+                && Objects.equals(properties, other.properties);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, getUuid(), properties);
+    }
+
+    @Override
+    public String toString() {
+        return "GlowPlayerProfile(name=" + name + ", uniqueId=" + getUuid() + ", properties=" + properties + ")";
+    }
+
+    private UUID getUuid() {
+        CompletableFuture<UUID> uniqueId = this.uniqueId;
+        if (uniqueId == null) {
+            return null;
+        }
+        return uniqueId.getNow(null);
     }
 }

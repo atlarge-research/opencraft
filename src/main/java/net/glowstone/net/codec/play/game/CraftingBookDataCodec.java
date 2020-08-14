@@ -9,28 +9,28 @@ import net.glowstone.net.message.play.game.CraftingBookDataMessage;
 public final class CraftingBookDataCodec implements Codec<CraftingBookDataMessage> {
 
     @Override
-    public CraftingBookDataMessage decode(ByteBuf buf) throws IOException {
-        int type = ByteBufUtils.readVarInt(buf);
+    public CraftingBookDataMessage decode(ByteBuf buffer) throws IOException {
+        int type = ByteBufUtils.readVarInt(buffer);
         if (type == CraftingBookDataMessage.TYPE_DISPLAYED_RECIPE) {
-            int recipeId = buf.readInt();
+            int recipeId = buffer.readInt();
             return new CraftingBookDataMessage(type, recipeId);
         } else if (type == CraftingBookDataMessage.TYPE_STATUS) {
-            boolean bookOpen = buf.readBoolean();
-            boolean filter = buf.readBoolean();
+            boolean bookOpen = buffer.readBoolean();
+            boolean filter = buffer.readBoolean();
             return new CraftingBookDataMessage(type, bookOpen, filter);
         }
         return null;
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, CraftingBookDataMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getType());
+    public ByteBuf encode(ByteBuf buffer, CraftingBookDataMessage message) {
+        ByteBufUtils.writeVarInt(buffer, message.getType());
         if (message.getType() == CraftingBookDataMessage.TYPE_DISPLAYED_RECIPE) {
-            buf.writeInt(message.getRecipeId());
+            buffer.writeInt(message.getRecipeId());
         } else if (message.getType() == CraftingBookDataMessage.TYPE_STATUS) {
-            buf.writeBoolean(message.isBookOpen());
-            buf.writeBoolean(message.isFilter());
+            buffer.writeBoolean(message.isBookOpen());
+            buffer.writeBoolean(message.isFilter());
         }
-        return buf;
+        return buffer;
     }
 }

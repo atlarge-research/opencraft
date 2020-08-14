@@ -15,8 +15,10 @@ public class SoundInfo {
 
     /** The Bukkit sound enum constant. */
     private final Sound sound;
+
     /** The volume. */
     private final float volume;
+
     /** The pitch multiplier. */
     private final float pitch;
 

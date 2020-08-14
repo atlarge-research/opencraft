@@ -40,7 +40,7 @@ public class GlowBoat extends GlowVehicle implements Boat {
     public GlowBoat(Location location) {
         super(location);
         setSize(1.375f, 0.5625f);
-        setAirDrag(0.95);
+        setAirDragMultiplier(0.95);
         setGravityAccel(new Vector(0, VERTICAL_GRAVITY_ACCEL, 0));
         setWoodType(TreeSpecies.GENERIC);
     }

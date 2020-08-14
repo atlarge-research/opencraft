@@ -44,24 +44,29 @@ public class GlowTask extends FutureTask<Void> implements BukkitTask, BukkitWork
      * The number of ticks between each call to the Runnable.
      */
     private final long period;
+
     /**
      * A flag indicating whether this task is to be run asynchronously.
      */
     @Getter
     private final boolean sync;
+
     /**
      * A description of the runnable assigned to this task.
      */
     private final String description;
+
     /**
      * The current number of ticks since last initialization.
      */
     private long counter;
+
     /**
      * The thread this task has been last executed on, if this task is async.
      */
     @Getter
     private Thread thread;
+
     /**
      * The last execution state returned by {@link #shouldExecute()} (most likely the state the task
      * is currently in).

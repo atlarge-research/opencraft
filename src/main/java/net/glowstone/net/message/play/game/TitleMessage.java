@@ -92,6 +92,7 @@ public final class TitleMessage implements Message {
     public enum Action {
         TITLE,
         SUBTITLE,
+
         /**
          * Set text above the action bar.
          */

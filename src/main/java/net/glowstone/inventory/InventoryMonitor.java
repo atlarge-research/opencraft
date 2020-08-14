@@ -18,6 +18,7 @@ public final class InventoryMonitor {
 
     private final InventoryView view;
     private final ItemStack[] slots;
+
     /**
      * Get the number of slots in this inventory view.
      *
@@ -25,6 +26,7 @@ public final class InventoryMonitor {
      */
     @Getter
     private final int size;
+
     /**
      * The network ID of this inventory view.
      *

@@ -16,9 +16,9 @@ public class SetCooldownCodec implements Codec<SetCooldownMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, SetCooldownMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getItemId());
-        ByteBufUtils.writeVarInt(buf, message.getCooldownTicks());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, SetCooldownMessage message) throws IOException {
+        ByteBufUtils.writeVarInt(buffer, message.getItemId());
+        ByteBufUtils.writeVarInt(buffer, message.getCooldownTicks());
+        return buffer;
     }
 }

@@ -7,6 +7,21 @@ import org.bukkit.util.Vector;
  */
 public class BoundingBox implements Cloneable {
 
+    public static class Dimensions {
+        
+        public final double width;
+        public final double height;
+
+        public Dimensions(double width, double height) {
+            this.width = width;
+            this.height = height;
+        }
+
+        public static Dimensions create(double width, double height) {
+            return new Dimensions(width, height);
+        }
+    }
+
     public final Vector minCorner = new Vector();
     public final Vector maxCorner = new Vector();
 
@@ -21,18 +36,41 @@ public class BoundingBox implements Cloneable {
 
     /**
      * Tests whether two bounding boxes intersect.
+     *
+     * @param a a bounding box
+     * @param b a bounding box
+     * @param tolerance a double that functions as allowed tolerance between blocks before they are deemed to intersect
+     * @return true if {@code a} and {@code b} intersect; false otherwise
+     */
+    public static boolean intersects(BoundingBox a, BoundingBox b, double tolerance) {
+        Vector minA = a.minCorner;
+        Vector maxA = a.maxCorner;
+        Vector minB = b.minCorner;
+        Vector maxB = b.maxCorner;
+
+        if (maxA.getX() + tolerance < minB.getX() || minA.getX() - tolerance > maxB.getX()) {
+            return false;
+        }
+
+        if (maxA.getY() + tolerance < minB.getY() || minA.getY() - tolerance > maxB.getY()) {
+            return false;
+        }
+
+        if (maxA.getZ() + tolerance < minB.getZ() || minA.getZ() - tolerance > maxB.getZ()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * An overloaded variant of the intersects function that includes a predefined tolerance.
      * @param a a bounding box
      * @param b a bounding box
      * @return true if {@code a} and {@code b} intersect; false otherwise
      */
     public static boolean intersects(BoundingBox a, BoundingBox b) {
-        Vector minA = a.minCorner;
-        Vector maxA = a.maxCorner;
-        Vector minB = b.minCorner;
-        Vector maxB = b.maxCorner;
-        return maxA.getX() >= minB.getX() && minA.getX() <= maxB.getX()
-            && maxA.getY() >= minB.getY() && minA.getY() <= maxB.getY()
-            && maxA.getZ() >= minB.getZ() && minA.getZ() <= maxB.getZ();
+        return intersects(a, b, Double.MIN_VALUE);
     }
 
     /**
@@ -62,6 +100,31 @@ public class BoundingBox implements Cloneable {
         BoundingBox box = new BoundingBox();
         box.minCorner.copy(pos);
         box.maxCorner.copy(pos.clone().add(size));
+        return box;
+    }
+
+    /**
+     * Creates a bounding box that is centered just as far from the minimum corner as from the maximum corner.
+     * @param pos The position to start from
+     * @param dimension The dimensions of the box
+     * @return The bounding box
+     */
+    public static BoundingBox fromDimension(Vector pos, Dimensions dimension) {
+        return fromCenterAndSize(pos, dimension.width, dimension.height);
+    }
+
+
+    /**
+     * Creates a bounding box that is centered just as far from the minimum corner as from the maximum corner.
+     * @param pos The position to start from
+     * @param xzSize The x and z axis size
+     * @param ySize The height of the bounding box
+     * @return The bounding box
+     */
+    public static BoundingBox fromCenterAndSize(Vector pos, double xzSize, double ySize) {
+        BoundingBox box = new BoundingBox();
+        box.minCorner.copy(pos.clone().add(new Vector(0.5 - xzSize / 2.0, 0.0, 0.5 - xzSize / 2.0)));
+        box.maxCorner.copy(pos.clone().add(new Vector(0.5 + xzSize / 2.0, ySize, 0.5 + xzSize / 2.0)));
         return box;
     }
 

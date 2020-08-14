@@ -9,44 +9,51 @@ import net.glowstone.net.message.play.game.UnlockRecipesMessage;
 public final class UnlockRecipesCodec implements Codec<UnlockRecipesMessage> {
 
     @Override
-    public UnlockRecipesMessage decode(ByteBuf buf) throws IOException {
-        int action = ByteBufUtils.readVarInt(buf);
-        boolean bookOpen = buf.readBoolean();
-        boolean filterOpen = buf.readBoolean();
+    public UnlockRecipesMessage decode(ByteBuf buffer) throws IOException {
 
-        int sizeOfRecipes = ByteBufUtils.readVarInt(buf);
+        int action = ByteBufUtils.readVarInt(buffer);
+        boolean bookOpen = buffer.readBoolean();
+        boolean filterOpen = buffer.readBoolean();
+
+        int sizeOfRecipes = ByteBufUtils.readVarInt(buffer);
         int[] recipes = new int[sizeOfRecipes];
         for (int i = 0; i < sizeOfRecipes; i++) {
-            recipes[i] = ByteBufUtils.readVarInt(buf);
+            recipes[i] = ByteBufUtils.readVarInt(buffer);
         }
+
         if (action != UnlockRecipesMessage.ACTION_INIT) {
             return new UnlockRecipesMessage(action, bookOpen, filterOpen, recipes);
         }
-        // action = INIT (0)
-        sizeOfRecipes = ByteBufUtils.readVarInt(buf);
+
+        sizeOfRecipes = ByteBufUtils.readVarInt(buffer);
         int[] allRecipes = new int[sizeOfRecipes];
         for (int i = 0; i < sizeOfRecipes; i++) {
-            allRecipes[i] = ByteBufUtils.readVarInt(buf);
+            allRecipes[i] = ByteBufUtils.readVarInt(buffer);
         }
+
         return new UnlockRecipesMessage(action, bookOpen, filterOpen, recipes, allRecipes);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, UnlockRecipesMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getAction());
-        buf.writeBoolean(message.isBookOpen());
-        buf.writeBoolean(message.isFilterOpen());
-        ByteBufUtils.writeVarInt(buf, message.getRecipes().length);
+    public ByteBuf encode(ByteBuf buffer, UnlockRecipesMessage message) {
+
+        ByteBufUtils.writeVarInt(buffer, message.getAction());
+        buffer.writeBoolean(message.isBookOpen());
+        buffer.writeBoolean(message.isFilterOpen());
+
+        ByteBufUtils.writeVarInt(buffer, message.getRecipes().length);
         for (int recipe : message.getRecipes()) {
-            ByteBufUtils.writeVarInt(buf, recipe);
+            ByteBufUtils.writeVarInt(buffer, recipe);
         }
+
         if (message.getAction() == UnlockRecipesMessage.ACTION_INIT
             && message.getAllRecipes() != null) {
-            ByteBufUtils.writeVarInt(buf, message.getAllRecipes().length);
+            ByteBufUtils.writeVarInt(buffer, message.getAllRecipes().length);
             for (int recipe : message.getAllRecipes()) {
-                ByteBufUtils.writeVarInt(buf, recipe);
+                ByteBufUtils.writeVarInt(buffer, recipe);
             }
         }
-        return buf;
+
+        return buffer;
     }
 }

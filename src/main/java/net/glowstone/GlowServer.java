@@ -152,6 +152,9 @@ import net.glowstone.util.ShutdownMonitorThread;
 import net.glowstone.util.TextMessage;
 import net.glowstone.util.bans.GlowBanList;
 import net.glowstone.util.bans.UuidListFile;
+import net.glowstone.util.config.BrokerConfig;
+import net.glowstone.util.config.BrokerType;
+import net.glowstone.util.config.ChannelType;
 import net.glowstone.util.config.ServerConfig;
 import net.glowstone.util.config.ServerConfig.Key;
 import net.glowstone.util.config.WorldConfig;
@@ -231,175 +234,218 @@ public class GlowServer implements Server {
      * The logger for this class.
      */
     public static final Logger logger = Logger.getLogger("Minecraft"); // NON-NLS
+
     /**
      * The game version supported by the server.
      */
     public static final String GAME_VERSION = NoInline.of("1.12.2");
+
     /**
      * The protocol version supported by the server.
      */
     public static final int PROTOCOL_VERSION = NoInline.of(340);
+
     /**
      * A list of all the active {@link net.glowstone.net.GlowSession}s.
      */
     private final SessionRegistry sessions = new SessionRegistry();
+
     /**
      * The console manager of this server.
      */
     private final ConsoleManager consoleManager = new ConsoleManager(this);
+
     /**
      * The services manager of this server.
      */
     private final SimpleServicesManager servicesManager = new SimpleServicesManager();
+
     /**
      * The command map of this server.
      */
     private final SimpleCommandMap commandMap = new SimpleCommandMap(this);
+
     /**
      * The plugin manager of this server.
      */
     private final SimplePluginManager pluginManager = new SimplePluginManager(this, commandMap);
+
     /**
      * The plugin channel messenger for the server.
      */
     private final Messenger messenger = new StandardMessenger();
+
     /**
      * The help map for the server.
      */
     private final GlowHelpMap helpMap = new GlowHelpMap(this);
+
     /**
      * The scoreboard manager for the server.
      */
     private final GlowScoreboardManager scoreboardManager = new GlowScoreboardManager(this);
+
     /**
      * The crafting manager for this server.
      */
     private final CraftingManager craftingManager = new CraftingManager();
+
     /**
      * The configuration for the server.
      */
     private final ServerConfig config;
+
     /**
      * The world config for extended world customization.
      */
     private static WorldConfig worldConfig;
+
     /**
      * The list of OPs on the server.
      */
     private final UuidListFile opsList;
+
     /**
      * The list of players whitelisted on the server.
      */
     private final UuidListFile whitelist;
+
     /**
      * The BanList for player names.
      */
     private final GlowBanList nameBans;
+
     /**
      * The BanList for IP addresses.
      */
     private final GlowBanList ipBans;
+
     /**
      * The EntityIdManager for this server.
      */
     private final EntityIdManager entityIdManager = new EntityIdManager();
+
     /**
      * The world this server is managing.
      */
     private final WorldScheduler worlds = new WorldScheduler();
+
     /**
      * The task scheduler used by this server.
      */
     private final GlowScheduler scheduler = new GlowScheduler(this, worlds);
+
     /**
      * The Bukkit UnsafeValues implementation.
      */
     private final UnsafeValues unsafeAccess = new GlowUnsafeValues();
+
     /**
      * A RSA key pair used for encryption and authentication.
      */
     private final KeyPair keyPair = SecurityUtils.generateKeyPair();
+
     /**
      * A set of all online players.
      */
     private final Set<GlowPlayer> onlinePlayers = new HashSet<>();
+
     /**
      * A view of all online players.
      */
     private final Set<GlowPlayer> onlineView = Collections.unmodifiableSet(onlinePlayers);
+
     /**
      * The {@link GlowAdvancement}s of this server.
      */
     private final Map<NamespacedKey, Advancement> advancements;
+
     /**
      * Default root permissions.
      */
     public Permission permissionRoot;
+
     /**
      * Default root command permissions.
      */
     public Permission permissionRootCommand;
+
     /**
      * The network server used for network communication.
      */
     @Getter
     private GameServer networkServer;
+
     /**
      * The plugin type detector of this server.
      */
     private GlowPluginTypeDetector pluginTypeDetector;
+
     /**
      * The server's default game mode.
      */
     private GameMode defaultGameMode = GameMode.SURVIVAL;
+
     /**
      * The setting for verbose deprecation warnings.
      */
     private WarningState warnState = WarningState.DEFAULT;
+
     /**
      * Whether the server is shutting down.
      */
     private boolean isShuttingDown;
+
     /**
      * Whether the whitelist is in effect.
      */
     private boolean whitelistEnabled;
+
     /**
      * The size of the area to keep protected around the spawn point.
      */
     private int spawnRadius;
+
     /**
      * The ticks until a player who has not played the game has been kicked, or 0.
      */
     private int idleTimeout;
+
     /**
      * The query server for this server, or null if disabled.
      */
     private QueryServer queryServer;
+
     /**
      * The Rcon server for this server, or null if disabled.
      */
     private RconServer rconServer;
+
     /**
      * The default icon, usually blank, used for the server list.
      */
     private GlowServerIcon defaultIcon;
+
     /**
      * The server port.
      */
     private int port;
+
     /**
      * The server ip.
      */
     private String ip;
+
     /**
      * The {@link MaterialValueManager} of this server.
      */
     private MaterialValueManager materialValueManager;
+
     /**
      * Whether OpenCL is to be used by the server on this run.
      */
     private boolean isGraphicsComputeAvailable = true;
+
     /**
      * Additional Spigot APIs for the server.
      */
@@ -408,25 +454,30 @@ public class GlowServer implements Server {
             return config.getConfig();
         }
     };
+
     /**
      * The storage provider for the world.
      */
     private WorldStorageProviderFactory storageProviderFactory = null;
+
     /**
      * Whether the server should just generate and load configuration files, then exit.
      *
      * <p>This can be enabled by using the --generate-config launch argument.
      */
     private static boolean generateConfigOnly;
+
     /**
      * The file name for the server icon.
      */
     private static final String SERVER_ICON_FILE = "server-icon.png";
+
     /**
      * The FishingRewards of this server.
      */
     @Getter
     private final FishingRewardManager fishingRewardManager;
+
     /**
      * Libraries that are known to cause problems when loaded up via the server config or plugin
      * dependencies.
@@ -434,6 +485,17 @@ public class GlowServer implements Server {
     private static final Set<LibraryKey> blacklistedRuntimeLibs = ImmutableSet.of(
             new LibraryKey("it.unimi.dsi", "fastutil")
     );
+
+    /**
+     * Whether the server should just generate and load configuration files, then exit.
+     * This can be enabled by using the --generate-config launch argument.
+     *
+     * <p>Getter for this value.</p>
+     * @return boolean getGenerateConfigOnly.
+     */
+    public static boolean getGenerateConfigOnly() {
+        return generateConfigOnly;
+    }
 
     /**
      * Creates a new server.
@@ -469,31 +531,30 @@ public class GlowServer implements Server {
     }
 
     /**
-     * Creates a new server on TCP port 25565 and starts listening for connections.
+     * Extract and parse the broker configuration from the server configuration.
      *
-     * @param args The command-line arguments.
+     * @return the broker configuration.
      */
-    public static void main(String... args) {
-        try {
-            GlowServer server = createFromArguments(args);
+    public BrokerConfig getBrokerConfig() {
 
-            // we don't want to run a server when called with --version, --help or --generate-config
-            if (server == null) {
-                return;
-            }
-            if (generateConfigOnly) {
-                ConsoleMessages.Info.CONFIG_ONLY_DONE.log();
-                return;
-            }
+        String brokerName = config.getString(Key.OPENCRAFT_BROKER_TYPE);
+        BrokerType brokerType = BrokerType.parse(brokerName);
 
-            server.run();
-        } catch (SecurityException e) {
-            ConsoleMessages.Error.CLASSPATH.log(e);
-        } catch (Throwable t) {
-            // general server startup crash
-            ConsoleMessages.Error.STARTUP.log(t);
-            System.exit(1);
-        }
+        String channelName = config.getString(Key.OPENCRAFT_BROKER_CHANNEL);
+        ChannelType channelType = ChannelType.parse(channelName);
+
+        return new BrokerConfig(
+                brokerType,
+                config.getBoolean(Key.OPENCRAFT_BROKER_ASYNC),
+                config.getInt(Key.OPENCRAFT_BROKER_THREADS),
+                config.getInt(Key.OPENCRAFT_BROKER_CAPACITY),
+                channelType,
+                config.getString(Key.OPENCRAFT_BROKER_HOST),
+                config.getInt(Key.OPENCRAFT_BROKER_PORT),
+                config.getString(Key.OPENCRAFT_BROKER_USERNAME),
+                config.getString(Key.OPENCRAFT_BROKER_PASSWORD),
+                config.getString(Key.OPENCRAFT_BROKER_VIRTUAL_HOST)
+        );
     }
 
     /**
@@ -519,9 +580,10 @@ public class GlowServer implements Server {
     }
 
     private static ServerConfig parseArguments(String... args) {
+        
         Map<Key, Object> parameters = new EnumMap<>(Key.class);
         @NonNls String configDirName = "config";
-        @NonNls String configFileName = "glowstone.yml";
+        @NonNls String configFileName = "opencraft.yml";
 
         // Calculate acceptable parameters
         for (int i = 0; i < args.length; i++) {
@@ -963,15 +1025,15 @@ public class GlowServer implements Server {
             rconServer.shutdown();
         }
 
+        // Stop scheduler and console
+        scheduler.stop();
+        consoleManager.stop();
+
         // Save worlds
         for (World world : getWorlds()) {
             ConsoleMessages.Info.SAVE.log(world.getName());
             unloadWorld(world, true);
         }
-
-        // Stop scheduler and console
-        scheduler.stop();
-        consoleManager.stop();
 
         // Wait for a while and terminate any rogue threads
         new ShutdownMonitorThread().start();
@@ -2308,6 +2370,7 @@ public class GlowServer implements Server {
     @Override
     public boolean unloadWorld(World world, boolean save) {
         GlowWorld glowWorld = (GlowWorld) world;
+        glowWorld.shutdown();
         if (save) {
             glowWorld.setAutoSave(false);
             glowWorld.save(false);

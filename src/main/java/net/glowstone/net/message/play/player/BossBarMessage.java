@@ -20,7 +20,6 @@ public class BossBarMessage implements Message {
     private final Division division;
     private final byte flags;
 
-
     //For action 1, remove
     public BossBarMessage(UUID uuid, Action action) {
         this(uuid, action, null, 0f, null, null, (byte) 0);

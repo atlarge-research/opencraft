@@ -1,12 +1,20 @@
 package net.glowstone.block.entity;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.flowpowered.network.Message;
 import java.util.Arrays;
+import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.GlowBlockState;
 import net.glowstone.block.entity.state.GlowSign;
+import net.glowstone.constants.GlowBlockEntity;
 import net.glowstone.entity.GlowPlayer;
+import net.glowstone.net.message.play.game.UpdateBlockEntityMessage;
 import net.glowstone.util.TextMessage;
 import net.glowstone.util.nbt.CompoundTag;
+import org.bukkit.Location;
 import org.bukkit.Material;
 
 public class SignEntity extends BlockEntity {
@@ -32,7 +40,35 @@ public class SignEntity extends BlockEntity {
 
     @Override
     public void update(GlowPlayer player) {
-        player.sendSignChange(this, getBlock().getLocation(), lines);
+        sendSignChange(getBlock().getLocation(), lines);
+    }
+
+    /**
+     * Send a sign change using complete TextMessages instead of strings.
+     *
+     * @param location the location of the sign
+     * @param lines the new text on the sign or null to clear it
+     * @throws IllegalArgumentException if location is null
+     * @throws IllegalArgumentException if lines is non-null and has a length less than 4
+     */
+    public void sendSignChange(Location location, TextMessage[] lines)
+            throws IllegalArgumentException {
+
+        checkNotNull(location, "location cannot be null");
+        checkNotNull(lines, "lines cannot be null");
+        checkArgument(lines.length == 4, "lines.length must equal 4");
+
+        CompoundTag tag = new CompoundTag();
+        GlowWorld world = getBlock().getWorld();
+        saveNbt(tag);
+
+        Message message = new UpdateBlockEntityMessage(location.getBlockX(),
+                location.getBlockY(),
+                location.getBlockZ(),
+                GlowBlockEntity.SIGN.getValue(),
+                tag
+        );
+        world.broadcastAfterBlockChange(location, message);
     }
 
     @Override

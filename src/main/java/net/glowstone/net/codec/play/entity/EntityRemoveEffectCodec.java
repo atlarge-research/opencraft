@@ -9,16 +9,16 @@ import net.glowstone.net.message.play.entity.EntityRemoveEffectMessage;
 public final class EntityRemoveEffectCodec implements Codec<EntityRemoveEffectMessage> {
 
     @Override
-    public EntityRemoveEffectMessage decode(ByteBuf buf) throws IOException {
-        int id = ByteBufUtils.readVarInt(buf);
-        byte effect = buf.readByte();
+    public EntityRemoveEffectMessage decode(ByteBuf buffer) throws IOException {
+        int id = ByteBufUtils.readVarInt(buffer);
+        byte effect = buffer.readByte();
         return new EntityRemoveEffectMessage(id, effect);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, EntityRemoveEffectMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getId());
-        buf.writeByte(message.getEffect());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, EntityRemoveEffectMessage message) {
+        ByteBufUtils.writeVarInt(buffer, message.getId());
+        buffer.writeByte(message.getEffect());
+        return buffer;
     }
 }

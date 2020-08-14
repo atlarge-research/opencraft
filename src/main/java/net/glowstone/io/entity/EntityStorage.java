@@ -55,6 +55,7 @@ public final class EntityStorage {
      * entities to actual entities.
      */
     private static final Map<String, EntityStore<?>> idTable = new HashMap<>();
+
     /**
      * A table which maps entities to stores. This is generally used to map entities being stored.
      */

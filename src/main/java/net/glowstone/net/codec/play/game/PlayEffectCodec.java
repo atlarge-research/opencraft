@@ -2,24 +2,30 @@ package net.glowstone.net.codec.play.game;
 
 import com.flowpowered.network.Codec;
 import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.DecoderException;
-import java.io.IOException;
 import net.glowstone.net.GlowBufUtils;
 import net.glowstone.net.message.play.game.PlayEffectMessage;
+import org.bukkit.util.BlockVector;
 
 public final class PlayEffectCodec implements Codec<PlayEffectMessage> {
 
     @Override
-    public PlayEffectMessage decode(ByteBuf buf) throws IOException {
-        throw new DecoderException("Cannot decode PlayEffectMessage");
+    public PlayEffectMessage decode(ByteBuf buffer) {
+        int id = buffer.readInt();
+        BlockVector position = GlowBufUtils.readBlockPosition(buffer);
+        int x = position.getBlockX();
+        int y = position.getBlockY();
+        int z = position.getBlockZ();
+        int data = buffer.readInt();
+        boolean ignoreDistance = buffer.readBoolean();
+        return new PlayEffectMessage(id, x, y, z, data, ignoreDistance);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, PlayEffectMessage message) throws IOException {
-        buf.writeInt(message.getId());
-        GlowBufUtils.writeBlockPosition(buf, message.getX(), message.getY(), message.getZ());
-        buf.writeInt(message.getData());
-        buf.writeBoolean(message.isIgnoreDistance());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, PlayEffectMessage message) {
+        buffer.writeInt(message.getId());
+        GlowBufUtils.writeBlockPosition(buffer, message.getX(), message.getY(), message.getZ());
+        buffer.writeInt(message.getData());
+        buffer.writeBoolean(message.isIgnoreDistance());
+        return buffer;
     }
 }
