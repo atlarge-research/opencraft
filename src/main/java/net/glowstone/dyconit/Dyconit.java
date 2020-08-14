@@ -47,7 +47,7 @@ class Dyconit {
     }
 
     void addMessage(Player player, UpdateMessage message) {
-        System.out.println(message.toString());
+
         if (subscriptions.containsKey(player)) {
                 subscriptions.get(player).messageQueue.add(message);
         }

@@ -45,6 +45,7 @@ public class DyconitManager {
         for (Player pSub : dyconit.subscriptions.keySet()) {
             if (dyconit.subscriptions.containsKey(pSub)) {
                 Dyconit.Subscription sub = dyconit.subscriptions.get(pSub);
+                if (sub == null) { continue; }
                 if (sub.messageQueue.size() > 0) {
                     sendUpdatesToClient(sub);
                 } else {
