@@ -7,7 +7,6 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntListIterator;
 import javax.annotation.Nullable;
 import lombok.Getter;
-import net.glowstone.lambda.population.serialization.ExcludeField;
 import net.glowstone.util.NibbleArray;
 import net.glowstone.util.VariableValueArray;
 import net.glowstone.util.nbt.CompoundTag;
@@ -52,7 +51,6 @@ public final class ChunkSection {
      * The palette.
      */
     @Nullable
-    @ExcludeField
     private IntList palette;
     private VariableValueArray data;
 
