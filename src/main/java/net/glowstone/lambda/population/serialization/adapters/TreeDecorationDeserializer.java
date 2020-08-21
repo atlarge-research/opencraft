@@ -36,15 +36,14 @@ public class TreeDecorationDeserializer implements JsonDeserializer<TreeDecorati
 
     @Override
     public TreeDecoration deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-        JsonObject jobject = json.getAsJsonObject();
+        JsonObject obj = json.getAsJsonObject();
 
         BiFunction<Random, BlockStateDelegate, ? extends GenericTree> constructor =
-                getConstructor(jobject.get("constructor").getAsString());
+                getConstructor(obj.get("constructor").getAsString());
         if (constructor == null) {
             return null;
         }
 
-        return new TreeDecoration(constructor,
-                jobject.get("weight").getAsInt());
+        return new TreeDecoration(constructor, obj.get("weight").getAsInt());
     }
 }

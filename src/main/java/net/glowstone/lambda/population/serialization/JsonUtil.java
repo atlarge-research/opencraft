@@ -5,6 +5,7 @@ import com.google.gson.FieldAttributes;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.glowstone.block.entity.BannerEntity;
 import net.glowstone.block.entity.BeaconEntity;
 import net.glowstone.block.entity.BedEntity;
@@ -97,6 +98,8 @@ import net.glowstone.generator.populators.overworld.SnowPopulator;
 import net.glowstone.generator.populators.overworld.SunflowerPlainsPopulator;
 import net.glowstone.generator.populators.overworld.SwamplandPopulator;
 import net.glowstone.generator.populators.overworld.TaigaPopulator;
+import net.glowstone.lambda.population.serialization.adapters.IntListDeserializer;
+import net.glowstone.lambda.population.serialization.adapters.IntListSerializer;
 import net.glowstone.lambda.population.serialization.adapters.TreeDecorationDeserializer;
 import net.glowstone.lambda.population.serialization.adapters.TreeDecorationSerializer;
 import net.glowstone.util.noise.PerlinNoise;
@@ -258,8 +261,10 @@ public class JsonUtil {
             .registerTypeAdapterFactory(chunkGeneratorAdapter)
             .registerTypeAdapter(TreeDecorator.TreeDecoration.class, new TreeDecorationSerializer())
             .registerTypeAdapter(TreeDecorator.TreeDecoration.class, new TreeDecorationDeserializer())
+            .registerTypeAdapter(IntList.class, new IntListSerializer())
+            .registerTypeAdapter(IntList.class, new IntListDeserializer())
             .enableComplexMapKeySerialization()  // enables Map<ComplexObject, Object>
-            //.setPrettyPrinting()
+            .setPrettyPrinting()
             .create();
     }
 }
