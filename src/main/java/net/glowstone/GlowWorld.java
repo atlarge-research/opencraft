@@ -4,15 +4,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.flowpowered.network.Message;
-<<<<<<< HEAD
 import com.flowpowered.network.session.Session;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-=======
 
 import com.google.gson.annotations.Expose;
 
->>>>>>> 450746f03... Added serialization annotations to the generation code
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,14 +58,11 @@ import net.glowstone.generator.structures.GlowStructure;
 import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
-<<<<<<< HEAD
 import net.glowstone.messaging.Brokers;
 import net.glowstone.messaging.codecs.CompositeCodec;
 import net.glowstone.messaging.filters.FeedbackFilter;
 import net.glowstone.messaging.policies.ChunkPolicy;
-=======
 import net.glowstone.lambda.population.serialization.ExposeClass;
->>>>>>> 450746f03... Added serialization annotations to the generation code
 import net.glowstone.net.message.play.entity.EntityStatusMessage;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.net.message.play.game.UnloadChunkMessage;
@@ -173,6 +167,12 @@ public class GlowWorld implements World {
     private final String name;
 
     /**
+     * Whether this world is meant to be used for serverless generation.
+     */
+    @Setter
+    @Getter
+    private boolean serverless = false;
+    /**
      * The chunk manager.
      */
     @Getter
@@ -188,6 +188,7 @@ public class GlowWorld implements World {
     /**
      * The world's UUID.
      */
+    @Expose
     private final UUID uid;
 
     /**
@@ -210,8 +211,8 @@ public class GlowWorld implements World {
      * The game rules used in this world.
      */
     @Getter
-    private final GameRuleManager gameRuleMap;
-
+    @Expose
+    private final GameRuleManager gameRuleMap = new GameRuleManager();
     /**
      * The environment.
      */
@@ -413,6 +414,9 @@ public class GlowWorld implements World {
     private final PriorityExecutor<ChunkRunnable> executor;
 
     private ImmutableMap<GlowPlayer, AreaOfInterest> previousAreas;
+
+    @Getter
+    private List<BlockChangeMessage> populatedBlockMessages;
 
     /**
      * Creates a new world from the options in the given WorldCreator.
@@ -902,6 +906,21 @@ public class GlowWorld implements World {
         return true;
     }
 
+<<<<<<< HEAD
+=======
+    public void broadcastBlockChangeInRange(GlowChunk.Key chunkKey, BlockChangeMessage message) {
+        if (isServerless()) {
+            if (populatedBlockMessages == null) {
+                populatedBlockMessages = new ArrayList<>();
+            }
+            populatedBlockMessages.add(message);
+        } else {
+            getRawPlayers().stream().filter(player -> player.canSeeChunk(chunkKey))
+                    .forEach(player -> player.sendBlockChangeForce(message));
+        }
+    }
+
+>>>>>>> e690da6ed... Exposed more fields and added logic for streaming modified blocks to players.
     private void maybeStrikeLightningInChunk(int cx, int cz) {
         if (environment == Environment.NORMAL && currentlyRaining && thundering) {
             if (ThreadLocalRandom.current().nextInt(100000) == 0) {
