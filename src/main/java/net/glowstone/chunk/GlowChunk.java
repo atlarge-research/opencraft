@@ -75,8 +75,8 @@ public class GlowChunk implements Chunk {
      * The world of this chunk.
      */
     @Getter
-    private final GlowWorld world;
-
+    @Setter
+    private GlowWorld world;
     /**
      * The x-coordinate of this chunk.
      */
@@ -765,6 +765,53 @@ public class GlowChunk implements Chunk {
         for (int i = 0; i < heightMap.length; ++i) {
             heightMap[i] = (byte) newHeightMap[i];
         }
+    }
+
+    /**
+     * Set this chunk's sections from a given array of chunk sections.
+     *
+     * @param newSections The given chunk sections.
+     */
+    public void setSections(ChunkSection... newSections) {
+        if (sections == null) {
+            throw new IllegalStateException("Must initialize chunk first");
+        }
+        if (newSections.length != sections.length) {
+            throw new IllegalArgumentException("Sections not of length " + sections.length);
+        }
+        // TODO: maybe change later to manual copy if performance is bad
+        sections = newSections;
+    }
+
+    /**
+     * Set chunk's data from a given chunk.
+     *
+     * @param chunk The given chunk.
+     */
+    public void setFromChunk(GlowChunk chunk) {
+        // set the biomes
+        if (chunk.biomes != null) {
+            setBiomes(chunk.biomes);
+        }
+
+        // set the height map
+        if (chunk.heightMap != null) {
+            int[] newHeightMap = new int[chunk.heightMap.length];
+            for (int i = 0; i < newHeightMap.length; ++i) {
+                newHeightMap[i] = chunk.heightMap[i];
+            }
+            setHeightMap(newHeightMap);
+        }
+
+        // set the populated variable
+        setPopulated(chunk.populated);
+
+        // set the sections
+        if (chunk.sections != null) {
+            setSections(chunk.sections);
+        }
+
+        // TODO: set the blockentities (might have changed)
     }
 
     // ======== Helper functions ========
