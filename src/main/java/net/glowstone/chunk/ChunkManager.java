@@ -4,8 +4,6 @@ import com.google.common.collect.ConcurrentHashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.gson.annotations.Expose;
 
-//import java.io.File;
-//import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -15,14 +13,10 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-<<<<<<< HEAD
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-=======
-import java.util.concurrent.locks.ReentrantLock;
-
->>>>>>> 450746f03... Added serialization annotations to the generation code
 import lombok.Getter;
+import lombok.Setter;
 import net.glowstone.EventFactory;
 import net.glowstone.GlowWorld;
 import net.glowstone.chunk.GlowChunk.Key;
@@ -33,8 +27,6 @@ import net.glowstone.generator.biomegrid.MapLayer;
 import net.glowstone.i18n.ConsoleMessages;
 import net.glowstone.io.ChunkIoService;
 import net.glowstone.lambda.population.serialization.ExposeClass;
-//import net.glowstone.lambda.population.serialization.JsonUtil;
-//import net.glowstone.lambda.population.serialization.PopulateInfo;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -49,17 +41,14 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Graham Edgecombe
  */
-<<<<<<< HEAD
-public class ChunkManager {
-=======
 @ExposeClass
-public final class ChunkManager {
->>>>>>> 450746f03... Added serialization annotations to the generation code
+public class ChunkManager {
 
     /**
      * The world this ChunkManager is managing.
      */
-    private final GlowWorld world;
+    @Setter
+    private GlowWorld world;
 
     /**
      * The chunk I/O service used to read chunks from the disk and write them to the disk.
@@ -87,12 +76,12 @@ public final class ChunkManager {
     private final ConcurrentMap<Key, GlowChunk> chunks = new ConcurrentHashMap<>();
 
     /**
-     * A list filled with the 3x3 square of the chunk we are populating; used for serialization
+     * A list filled with the 3x3 square of the chunk that is being populated; used for serialization
      */
+    @Getter
     @Expose
-    private ArrayList<GlowChunk> adjacentChunks = new ArrayList<>();
-
-    private ReentrantLock adjacentLock = new ReentrantLock();
+    private final ArrayList<GlowChunk> adjacentChunks = new ArrayList<>();
+    private final ReentrantLock adjacentLock = new ReentrantLock();
 
     /**
      * A set of chunks which are being kept loaded by players or other factors.
@@ -124,6 +113,19 @@ public final class ChunkManager {
      * @return The chunk.
      */
     public GlowChunk getChunk(int x, int z) {
+        if (world.isServerless()) {
+            for (GlowChunk chunk : adjacentChunks) {
+                if (chunk.getX() == x && chunk.getZ() == z) {
+                    return chunk;
+                }
+            }
+
+            // create new GlowChunk which we also want to generate first
+            GlowChunk chunk = new GlowChunk(world, x, z);
+            generateChunk(chunk, x, z);
+            return chunk;
+        }
+
         Key key = GlowChunk.Key.of(x, z);
         return chunks.computeIfAbsent(key, k -> new GlowChunk(world, x, z));
     }
@@ -179,23 +181,25 @@ public final class ChunkManager {
                 return true;
             }
 
-            // Read from file
-            try {
-                if (service.read(chunk)) {
-                    EventFactory.getInstance().callEvent(new ChunkLoadEvent(chunk, false));
-                    return true;
+            if (!world.isServerless()) {
+                // Read from file
+                try {
+                    if (service.read(chunk)) {
+                        EventFactory.getInstance().callEvent(new ChunkLoadEvent(chunk, false));
+                        return true;
+                    }
+                } catch (IOException e) {
+                    ConsoleMessages.Error.Chunk.LOAD_FAILED.log(e, chunk.getX(), chunk.getZ());
+                    // an error in chunk reading may have left the chunk in an invalid state
+                    // (i.e. double initialization errors), so it's forcibly unloaded here
+                    chunk.unload(false, false);
+
                 }
-            } catch (IOException e) {
-                ConsoleMessages.Error.Chunk.LOAD_FAILED.log(e, chunk.getX(), chunk.getZ());
-                // an error in chunk reading may have left the chunk in an invalid state
-                // (i.e. double initialization errors), so it's forcibly unloaded here
-                chunk.unload(false, false);
 
-            }
-
-            // stop here if we can't generate
-            if (!generate || world.getServer().isGenerationDisabled()) {
-                return false;
+                // stop here if we can't generate
+                if (!generate || world.getServer().isGenerationDisabled()) {
+                    return false;
+                }
             }
 
             // get generating
@@ -247,13 +251,22 @@ public final class ChunkManager {
      * @param z The Z coordinate
      */
     public void loadAdjacent(int x, int z) {
-        adjacentChunks.clear();
         adjacentLock.lock();
         for (int i = x - 1; i <= x + 1; ++i) {
             for (int j = z - 1; j <= z + 1; ++j) {
-                adjacentChunks.add(getChunk(i, j));
+                GlowChunk current = getChunk(i, j);
+                if (current != null) {
+                    adjacentChunks.add(current);
+                }
             }
         }
+    }
+
+    /**
+     * Unloads the adjacent chunks of the given coordinates from the adjacentChunks list
+     */
+    public void unloadAdjacent() {
+        adjacentChunks.clear();
         adjacentLock.unlock();
     }
 
@@ -281,9 +294,6 @@ public final class ChunkManager {
                 }
             }
 
-<<<<<<< HEAD
-            chunk.setPopulated(true);
-=======
         //loadAdjacent(x, z);
         //try {
         //    String tmp = JsonUtil.getGson().toJson(this.world);
@@ -301,8 +311,7 @@ public final class ChunkManager {
             return;
         }
         chunk.setPopulated(true);
->>>>>>> 450746f03... Added serialization annotations to the generation code
-
+        
             Random random = new Random(world.getSeed());
             long xrand = (random.nextLong() / 2 << 1) + 1;
             long zrand = (random.nextLong() / 2 << 1) + 1;
