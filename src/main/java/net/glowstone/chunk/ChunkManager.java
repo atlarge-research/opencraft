@@ -123,6 +123,8 @@ public class ChunkManager {
             // create new GlowChunk which we also want to generate first
             GlowChunk chunk = new GlowChunk(world, x, z);
             generateChunk(chunk, x, z);
+            // add it to adjacentChunks list for when the results get back to the server
+            adjacentChunks.add(chunk);
             return chunk;
         }
 
