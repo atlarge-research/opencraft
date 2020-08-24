@@ -1,6 +1,8 @@
 package net.glowstone.lambda.population.serialization;
 
 import com.google.gson.Gson;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import net.glowstone.GlowWorld;
@@ -14,18 +16,21 @@ public class PopulateInfo {
     public static class PopulateInput {
         public GlowWorld world;
         public Random random;
+        public ArrayList<GlowChunk> adjacentChunks;
         public int x;
         public int z;
 
-        public PopulateInput(GlowWorld world, Random random, int x, int z) {
+        public PopulateInput(GlowWorld world, Random random, ArrayList<GlowChunk> adjacentChunks, int x, int z) {
             this.world = world;
             this.random = random;
+            this.adjacentChunks = adjacentChunks;
             this.x = x;
             this.z = z;
         }
 
         public String toJson() {
-            return gson.toJson(this);
+            // do it twice to bypass AWS Lambda auto deserialization
+            return gson.toJson(gson.toJson(this));
         }
 
         public static PopulateInput fromJson(String jsn) {
@@ -34,8 +39,8 @@ public class PopulateInfo {
     }
 
     public static class PopulateOutput {
-        List<BlockChangeMessage> changedBlocks;
-        List<GlowChunk> populatedChunks;
+        public List<BlockChangeMessage> changedBlocks;
+        public List<GlowChunk> populatedChunks;
 
         public PopulateOutput(List<BlockChangeMessage> changedBlocks, List<GlowChunk> populatedChunks) {
             this.changedBlocks = changedBlocks;
@@ -47,7 +52,8 @@ public class PopulateInfo {
         }
 
         public static PopulateOutput fromJson(String jsn) {
-            return gson.fromJson(jsn, PopulateOutput.class);
+            // do it twice to bypass AWS Lambda auto serialization
+            return gson.fromJson(gson.fromJson(jsn, String.class), PopulateOutput.class);
         }
     }
 }

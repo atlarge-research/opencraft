@@ -13,8 +13,12 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+<<<<<<< HEAD
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+=======
+
+>>>>>>> a9493dbd7... Changed the way adjacent chunks get serialized for performance reasons; Added serverless population method
 import lombok.Getter;
 import lombok.Setter;
 import net.glowstone.EventFactory;
@@ -26,7 +30,10 @@ import net.glowstone.generator.GlowChunkGenerator;
 import net.glowstone.generator.biomegrid.MapLayer;
 import net.glowstone.i18n.ConsoleMessages;
 import net.glowstone.io.ChunkIoService;
+import net.glowstone.lambda.population.PopulationInvoker;
 import net.glowstone.lambda.population.serialization.ExposeClass;
+import net.glowstone.lambda.population.serialization.PopulateInfo;
+import net.glowstone.net.message.play.game.BlockChangeMessage;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.event.world.ChunkLoadEvent;
@@ -79,9 +86,9 @@ public class ChunkManager {
      * A list filled with the 3x3 square of the chunk that is being populated; used for serialization
      */
     @Getter
+    @Setter
     @Expose
-    private final ArrayList<GlowChunk> adjacentChunks = new ArrayList<>();
-    private final ReentrantLock adjacentLock = new ReentrantLock();
+    private ArrayList<GlowChunk> chunksForLambda = new ArrayList<>();
 
     /**
      * A set of chunks which are being kept loaded by players or other factors.
@@ -114,18 +121,25 @@ public class ChunkManager {
      */
     public GlowChunk getChunk(int x, int z) {
         if (world.isServerless()) {
-            for (GlowChunk chunk : adjacentChunks) {
+            GlowChunk res = null;
+            for (GlowChunk chunk : chunksForLambda) {
                 if (chunk.getX() == x && chunk.getZ() == z) {
-                    return chunk;
+                    res = chunk;
                 }
             }
 
-            // create new GlowChunk which we also want to generate first
-            GlowChunk chunk = new GlowChunk(world, x, z);
-            generateChunk(chunk, x, z);
-            // add it to adjacentChunks list for when the results get back to the server
-            adjacentChunks.add(chunk);
-            return chunk;
+            // create new GlowChunk and add it to the list
+            if (res == null) {
+                res = new GlowChunk(world, x, z);
+                chunksForLambda.add(res);
+            }
+
+            // generate in case it isn't already
+            if (!res.isLoaded()) {
+                generateChunk(res, x, z);
+            }
+
+            return res;
         }
 
         Key key = GlowChunk.Key.of(x, z);
@@ -252,8 +266,8 @@ public class ChunkManager {
      * @param x The X coordinate
      * @param z The Z coordinate
      */
-    public void loadAdjacent(int x, int z) {
-        adjacentLock.lock();
+    public ArrayList<GlowChunk> getAdjacentChunks(int x, int z) {
+        ArrayList<GlowChunk> adjacentChunks = new ArrayList<>();
         for (int i = x - 1; i <= x + 1; ++i) {
             for (int j = z - 1; j <= z + 1; ++j) {
                 GlowChunk current = getChunk(i, j);
@@ -262,14 +276,8 @@ public class ChunkManager {
                 }
             }
         }
-    }
 
-    /**
-     * Unloads the adjacent chunks of the given coordinates from the adjacentChunks list
-     */
-    public void unloadAdjacent() {
-        adjacentChunks.clear();
-        adjacentLock.unlock();
+        return adjacentChunks;
     }
 
     /**
@@ -331,6 +339,43 @@ public class ChunkManager {
     }
 
     /**
+     * Populate a single chunk serverlessly.
+     */
+    private void populateChunkServerless(int x, int z) {
+        GlowChunk chunk = getChunk(x, z);
+        // cancel out if it's already populated
+        if (chunk.isPopulated()) {
+            return;
+        }
+
+        chunk.setPopulated(true);
+
+        Random random = new Random(world.getSeed());
+        long xrand = (random.nextLong() / 2 << 1) + 1;
+        long zrand = (random.nextLong() / 2 << 1) + 1;
+        random.setSeed(x * xrand + z * zrand ^ world.getSeed());
+
+        // invoke the lambda function
+        PopulateInfo.PopulateOutput output = new PopulationInvoker().invoke(
+                //new PopulateInfo.PopulateInput(world, random, getAdjacentChunks(x, z), x, z)
+                new PopulateInfo.PopulateInput(world, random, new ArrayList<>(), x, z)
+        );
+
+        // set the populated chunks back to this world
+        // TODO: pick which chunks are sent back (only send modified chunks)
+        for (GlowChunk ch : output.populatedChunks) {
+            getChunk(ch.getX(), ch.getZ()).setFromChunk(ch);
+        }
+
+        // send block change messages to users
+        for (BlockChangeMessage message : output.changedBlocks) {
+            world.broadcastBlockChangeInRange(Key.of(message.getX() >> 4, message.getZ() >> 4), message);
+        }
+
+        EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
+    }
+
+    /**
      * Force a chunk to be populated by loading the chunks in an area around it. Used when streaming
      * chunks to players so that they do not have to watch chunks being populated.
      *
@@ -339,7 +384,8 @@ public class ChunkManager {
      */
     public void forcePopulation(int x, int z) {
         try {
-            populateChunk(x, z, true);
+            //populateChunk(x, z, true);
+            populateChunkServerless(x, z);
         } catch (Throwable ex) {
             ConsoleMessages.Error.Chunk.POP_FAILED.log(ex, x, z);
         }
