@@ -2,9 +2,8 @@ package net.glowstone.generator;
 
 import java.util.Map;
 import java.util.Random;
-import net.glowstone.GlowServer;
+//import net.glowstone.GlowServer;
 import net.glowstone.generator.populators.TheEndPopulator;
-import net.glowstone.util.config.WorldConfig;
 import net.glowstone.util.noise.PerlinOctaveGenerator;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -28,13 +27,11 @@ public class TheEndGenerator extends GlowChunkGenerator {
     public TheEndGenerator() {
         super(new TheEndPopulator());
 
-        WorldConfig config = GlowServer.getWorldConfig();
-
-        coordinateScale = config.getDouble(WorldConfig.Key.END_COORDINATE_SCALE);
-        heightScale = config.getDouble(WorldConfig.Key.END_HEIGHT_SCALE);
-        detailNoiseScaleX = config.getDouble(WorldConfig.Key.END_DETAIL_NOISE_SCALE_X);
-        detailNoiseScaleY = config.getDouble(WorldConfig.Key.END_DETAIL_NOISE_SCALE_Y);
-        detailNoiseScaleZ = config.getDouble(WorldConfig.Key.END_DETAIL_NOISE_SCALE_Z);
+        coordinateScale = 684.412;
+        heightScale = 1368.824;
+        detailNoiseScaleX = 80D;
+        detailNoiseScaleY = 160D;
+        detailNoiseScaleZ = 80D;
     }
 
     @Override
@@ -75,7 +72,7 @@ public class TheEndGenerator extends GlowChunkGenerator {
     private ChunkData generateRawTerrain(World world, int chunkX, int chunkZ) {
         generateTerrainDensity(world, chunkX << 1, chunkZ << 1);
 
-        ChunkData chunkData = createChunkData(world);
+        ChunkData chunkData = new GlowChunkData(world);
 
         for (int i = 0; i < 3 - 1; i++) {
             for (int j = 0; j < 3 - 1; j++) {

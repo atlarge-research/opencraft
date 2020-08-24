@@ -1,67 +1,5 @@
 package net.glowstone.generator;
 
-import static net.glowstone.GlowServer.getWorldConfig;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_BIG_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_BIG_HILLS2;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_DEEP_OCEAN;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_DEFAULT;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_DEFAULT_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_EXTREME_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_FLATLANDS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_FLATLANDS_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_FLAT_SHORE;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_HIGH_PLATEAU;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_HIGH_SPIKES;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_LOW_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_LOW_SPIKES;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_MID_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_MID_HILLS2;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_MID_PLAINS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_OCEAN;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_RIVER;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_ROCKY_SHORE;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_SWAMPLAND;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_HEIGHT_SWAMPLAND_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_BIG_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_BIG_HILLS2;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_DEEP_OCEAN;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_DEFAULT;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_DEFAULT_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_EXTREME_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_FLATLANDS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_FLATLANDS_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_FLAT_SHORE;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_HIGH_PLATEAU;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_HIGH_SPIKES;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_LOW_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_LOW_SPIKES;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_MID_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_MID_HILLS2;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_MID_PLAINS;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_OCEAN;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_RIVER;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_ROCKY_SHORE;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_SWAMPLAND;
-import static net.glowstone.util.config.WorldConfig.Key.BIOME_SCALE_SWAMPLAND_HILLS;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_BASE_SIZE;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_BIOME_HEIGHT_OFFSET;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_BIOME_HEIGHT_WEIGHT;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_BIOME_SCALE_OFFSET;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_BIOME_SCALE_WEIGHT;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_COORDINATE_SCALE;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_DENSITY_FILL_MODE;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_DENSITY_FILL_OFFSET;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_DENSITY_FILL_SEA_MODE;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_DETAIL_NOISE_SCALE_X;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_DETAIL_NOISE_SCALE_Y;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_DETAIL_NOISE_SCALE_Z;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_HEIGHT_NOISE_SCALE_X;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_HEIGHT_NOISE_SCALE_Z;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_HEIGHT_SCALE;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_STRETCH_Y;
-import static net.glowstone.util.config.WorldConfig.Key.OVERWORLD_SURFACE_SCALE;
 import static org.bukkit.block.Biome.BEACHES;
 import static org.bukkit.block.Biome.BIRCH_FOREST_HILLS;
 import static org.bukkit.block.Biome.COLD_BEACH;
@@ -244,20 +182,20 @@ public class OverworldGenerator extends GlowChunkGenerator {
                 new StructurePopulator(),
                 new SnowPopulator());
 
-        coordinateScale = getWorldConfig().getDouble(OVERWORLD_COORDINATE_SCALE);
-        heightScale = getWorldConfig().getDouble(OVERWORLD_HEIGHT_SCALE);
-        heightNoiseScaleX = getWorldConfig().getDouble(OVERWORLD_HEIGHT_NOISE_SCALE_X);
-        heightNoiseScaleZ = getWorldConfig().getDouble(OVERWORLD_HEIGHT_NOISE_SCALE_Z);
-        detailNoiseScaleX = getWorldConfig().getDouble(OVERWORLD_DETAIL_NOISE_SCALE_X);
-        detailNoiseScaleY = getWorldConfig().getDouble(OVERWORLD_DETAIL_NOISE_SCALE_Y);
-        detailNoiseScaleZ = getWorldConfig().getDouble(OVERWORLD_DETAIL_NOISE_SCALE_Z);
-        surfaceScale = getWorldConfig().getDouble(OVERWORLD_SURFACE_SCALE);
-        baseSize = getWorldConfig().getDouble(OVERWORLD_BASE_SIZE);
-        stretchY = getWorldConfig().getDouble(OVERWORLD_STRETCH_Y);
-        biomeHeightOffset = getWorldConfig().getDouble(OVERWORLD_BIOME_HEIGHT_OFFSET);
-        biomeHeightWeight = getWorldConfig().getDouble(OVERWORLD_BIOME_HEIGHT_WEIGHT);
-        biomeScaleOffset = getWorldConfig().getDouble(OVERWORLD_BIOME_SCALE_OFFSET);
-        biomeScaleWeight = getWorldConfig().getDouble(OVERWORLD_BIOME_SCALE_WEIGHT);
+        coordinateScale = 648.412;
+        heightScale = 648.412;
+        heightNoiseScaleX = 200D;
+        heightNoiseScaleZ = 200D;
+        detailNoiseScaleX = 80D;
+        detailNoiseScaleY = 160D;
+        detailNoiseScaleZ = 80D;
+        surfaceScale = 0.0625;
+        baseSize = 8.5;
+        stretchY = 12D;
+        biomeHeightOffset = 0D;
+        biomeHeightWeight = 1D;
+        biomeScaleOffset = 0D;
+        biomeScaleWeight = 1D;
     }
 
     private static void setBiomeSpecificGround(GroundGenerator gen, Biome... biomes) {
@@ -386,16 +324,16 @@ public class OverworldGenerator extends GlowChunkGenerator {
 
         int seaLevel = world.getSeaLevel();
 
-        ChunkData chunkData = createChunkData(world);
+        ChunkData chunkData = new GlowChunkData(world);
 
         // Terrain densities are sampled at different resolutions (1/4x on x,z and 1/8x on y by
         // default)
         // so it's needed to re-scale it. Linear interpolation is used to fill in the gaps.
 
-        int fill = getWorldConfig().getInt(OVERWORLD_DENSITY_FILL_MODE);
+        int fill = 0;
         int afill = Math.abs(fill);
-        int seaFill = getWorldConfig().getInt(OVERWORLD_DENSITY_FILL_SEA_MODE);
-        double densityOffset = getWorldConfig().getDouble(OVERWORLD_DENSITY_FILL_OFFSET);
+        int seaFill = 0;
+        double densityOffset = 0D;
 
         for (int i = 0; i < 5 - 1; i++) {
             for (int j = 0; j < 5 - 1; j++) {
@@ -603,74 +541,29 @@ public class OverworldGenerator extends GlowChunkGenerator {
 
     @RequiredArgsConstructor
     private static class BiomeHeight {
-
-        public static final BiomeHeight DEFAULT = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_DEFAULT),
-                getWorldConfig().getDouble(BIOME_SCALE_DEFAULT));
-        public static final BiomeHeight FLAT_SHORE = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_FLAT_SHORE),
-                getWorldConfig().getDouble(BIOME_SCALE_FLAT_SHORE));
-        public static final BiomeHeight HIGH_PLATEAU = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_HIGH_PLATEAU),
-                getWorldConfig().getDouble(BIOME_SCALE_HIGH_PLATEAU));
-        public static final BiomeHeight FLATLANDS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_FLATLANDS),
-                getWorldConfig().getDouble(BIOME_SCALE_FLATLANDS));
-        public static final BiomeHeight SWAMPLAND = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_SWAMPLAND),
-                getWorldConfig().getDouble(BIOME_SCALE_SWAMPLAND));
-        public static final BiomeHeight MID_PLAINS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_MID_PLAINS),
-                getWorldConfig().getDouble(BIOME_SCALE_MID_PLAINS));
-        public static final BiomeHeight FLATLANDS_HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_FLATLANDS_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_FLATLANDS_HILLS));
-        public static final BiomeHeight SWAMPLAND_HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_SWAMPLAND_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_SWAMPLAND_HILLS));
-        public static final BiomeHeight LOW_HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_LOW_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_LOW_HILLS));
-        public static final BiomeHeight HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_HILLS));
-        public static final BiomeHeight MID_HILLS2 = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_MID_HILLS2),
-                getWorldConfig().getDouble(BIOME_SCALE_MID_HILLS2));
-        public static final BiomeHeight DEFAULT_HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_DEFAULT_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_DEFAULT_HILLS));
-        public static final BiomeHeight MID_HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_MID_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_MID_HILLS));
-        public static final BiomeHeight BIG_HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_BIG_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_BIG_HILLS));
-        public static final BiomeHeight BIG_HILLS2 = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_BIG_HILLS2),
-                getWorldConfig().getDouble(BIOME_SCALE_BIG_HILLS2));
-        public static final BiomeHeight EXTREME_HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_EXTREME_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_EXTREME_HILLS));
-        public static final BiomeHeight ROCKY_SHORE = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_ROCKY_SHORE),
-                getWorldConfig().getDouble(BIOME_SCALE_ROCKY_SHORE));
-        public static final BiomeHeight LOW_SPIKES = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_LOW_SPIKES),
-                getWorldConfig().getDouble(BIOME_SCALE_LOW_SPIKES));
-        public static final BiomeHeight HIGH_SPIKES = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_HIGH_SPIKES),
-                getWorldConfig().getDouble(BIOME_SCALE_HIGH_SPIKES));
-        public static final BiomeHeight RIVER = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_RIVER),
-                getWorldConfig().getDouble(BIOME_SCALE_RIVER));
-        public static final BiomeHeight OCEAN = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_OCEAN),
-                getWorldConfig().getDouble(BIOME_SCALE_OCEAN));
-        public static final BiomeHeight DEEP_OCEAN = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_DEEP_OCEAN),
-                getWorldConfig().getDouble(BIOME_SCALE_DEEP_OCEAN));
-
+        public static final BiomeHeight DEFAULT = new BiomeHeight(0.1,0.2);
+        public static final BiomeHeight FLAT_SHORE = new BiomeHeight(0D,0.025);
+        public static final BiomeHeight HIGH_PLATEAU = new BiomeHeight(1.5, 0.025);
+        public static final BiomeHeight FLATLANDS = new BiomeHeight(0.125, 0.05);
+        public static final BiomeHeight SWAMPLAND = new BiomeHeight(-0.2, 0.1);
+        public static final BiomeHeight MID_PLAINS = new BiomeHeight(0.2, 0.2);
+        public static final BiomeHeight FLATLANDS_HILLS = new BiomeHeight(0.275, 0.25);
+        public static final BiomeHeight SWAMPLAND_HILLS = new BiomeHeight(-0.1, 0.3);
+        public static final BiomeHeight LOW_HILLS = new BiomeHeight(0.2, 0.3);
+        public static final BiomeHeight HILLS = new BiomeHeight(0.45, 0.3);
+        public static final BiomeHeight MID_HILLS2 = new BiomeHeight(0.1, 0.4);
+        public static final BiomeHeight DEFAULT_HILLS = new BiomeHeight(0.2, 0.4);
+        public static final BiomeHeight MID_HILLS = new BiomeHeight(0.3, 0.4);
+        public static final BiomeHeight BIG_HILLS = new BiomeHeight(0.525, 0.55);
+        public static final BiomeHeight BIG_HILLS2 = new BiomeHeight(0.55, 0.5);
+        public static final BiomeHeight EXTREME_HILLS = new BiomeHeight(1D, 0.5);
+        public static final BiomeHeight ROCKY_SHORE = new BiomeHeight(0.1, 0.8);
+        public static final BiomeHeight LOW_SPIKES = new BiomeHeight(0.4125, 1.325);
+        public static final BiomeHeight HIGH_SPIKES = new BiomeHeight(1.1, 1.3125);
+        public static final BiomeHeight RIVER = new BiomeHeight(-0.5, 0D);
+        public static final BiomeHeight OCEAN = new BiomeHeight(-1D, 0.1);
+        public static final BiomeHeight DEEP_OCEAN = new BiomeHeight(-1.8, 0.1);
+        
         @Getter
         private final double height;
         @Getter

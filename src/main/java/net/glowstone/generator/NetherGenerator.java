@@ -2,9 +2,8 @@ package net.glowstone.generator;
 
 import java.util.Map;
 import java.util.Random;
-import net.glowstone.GlowServer;
+//import net.glowstone.GlowServer;
 import net.glowstone.generator.populators.NetherPopulator;
-import net.glowstone.util.config.WorldConfig;
 import net.glowstone.util.noise.PerlinOctaveGenerator;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,16 +31,14 @@ public class NetherGenerator extends GlowChunkGenerator {
     public NetherGenerator() {
         super(new NetherPopulator());
 
-        WorldConfig config = GlowServer.getWorldConfig();
-
-        coordinateScale = config.getDouble(WorldConfig.Key.NETHER_COORDINATE_SCALE);
-        heightScale = config.getDouble(WorldConfig.Key.NETHER_HEIGHT_SCALE);
-        heightNoiseScaleX = config.getDouble(WorldConfig.Key.NETHER_HEIGHT_NOISE_SCALE_X);
-        heightNoiseScaleZ = config.getDouble(WorldConfig.Key.NETHER_HEIGHT_NOISE_SCALE_Z);
-        detailNoiseScaleX = config.getDouble(WorldConfig.Key.NETHER_DETAIL_NOISE_SCALE_X);
-        detailNoiseScaleY = config.getDouble(WorldConfig.Key.NETHER_DETAIL_NOISE_SCALE_Y);
-        detailNoiseScaleZ = config.getDouble(WorldConfig.Key.NETHER_DETAIL_NOISE_SCALE_Z);
-        surfaceScale = config.getDouble(WorldConfig.Key.NETHER_SURFACE_SCALE);
+        coordinateScale = 684.412;
+        heightScale = 2053.236;
+        heightNoiseScaleX = 100D;
+        heightNoiseScaleZ = 100D;
+        detailNoiseScaleX = 80D;
+        detailNoiseScaleY = 60D;
+        detailNoiseScaleZ = 80D;
+        surfaceScale = 0.0625;
     }
 
     @Override
@@ -136,7 +133,7 @@ public class NetherGenerator extends GlowChunkGenerator {
     private ChunkData generateRawTerrain(World world, int chunkX, int chunkZ) {
         generateTerrainDensity(world, chunkX << 2, chunkZ << 2);
 
-        ChunkData chunkData = createChunkData(world);
+        ChunkData chunkData = new GlowChunkData(world);
 
         for (int i = 0; i < 5 - 1; i++) {
             for (int j = 0; j < 5 - 1; j++) {
