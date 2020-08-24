@@ -789,6 +789,12 @@ public class GlowChunk implements Chunk {
      * @param chunk The given chunk.
      */
     public void setFromChunk(GlowChunk chunk) {
+        if (biomes == null || sections == null || heightMap == null) {
+            initializeSections(chunk.getSections());
+        } else {
+            setSections(chunk.getSections());
+        }
+
         // set the biomes
         if (chunk.biomes != null) {
             setBiomes(chunk.biomes);
@@ -805,11 +811,6 @@ public class GlowChunk implements Chunk {
 
         // set the populated variable
         setPopulated(chunk.populated);
-
-        // set the sections
-        if (chunk.sections != null) {
-            setSections(chunk.sections);
-        }
 
         // TODO: set the blockentities (might have changed)
     }
