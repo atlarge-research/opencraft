@@ -264,7 +264,7 @@ public class JsonUtil {
             .registerTypeAdapter(IntList.class, new IntListSerializer())
             .registerTypeAdapter(IntList.class, new IntListDeserializer())
             .enableComplexMapKeySerialization()  // enables Map<ComplexObject, Object>
-            .setPrettyPrinting()
+            //.setPrettyPrinting()
             .create();
     }
 }
