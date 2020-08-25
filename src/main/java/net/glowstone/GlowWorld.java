@@ -905,9 +905,7 @@ public class GlowWorld implements World {
         }
         return true;
     }
-
-<<<<<<< HEAD
-=======
+    
     public void broadcastBlockChangeInRange(GlowChunk.Key chunkKey, BlockChangeMessage message) {
         if (isServerless()) {
             if (populatedBlockMessages == null) {
@@ -920,7 +918,6 @@ public class GlowWorld implements World {
         }
     }
 
->>>>>>> e690da6ed... Exposed more fields and added logic for streaming modified blocks to players.
     private void maybeStrikeLightningInChunk(int cx, int cz) {
         if (environment == Environment.NORMAL && currentlyRaining && thundering) {
             if (ThreadLocalRandom.current().nextInt(100000) == 0) {

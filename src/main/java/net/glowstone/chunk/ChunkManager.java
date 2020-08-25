@@ -13,12 +13,9 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-<<<<<<< HEAD
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-=======
 
->>>>>>> a9493dbd7... Changed the way adjacent chunks get serialized for performance reasons; Added serverless population method
 import lombok.Getter;
 import lombok.Setter;
 import net.glowstone.EventFactory;
