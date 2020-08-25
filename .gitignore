@@ -4,6 +4,7 @@
 *.iws
 .gradle
 .idea
+.m2
 build
 out
 nbproject
