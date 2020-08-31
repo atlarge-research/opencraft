@@ -1,8 +1,11 @@
 package net.glowstone.generator.decorators.overworld;
 
 import java.util.Random;
+
+import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.generator.decorators.BlockDecorator;
+import net.glowstone.lambda.population.serialization.PopulateInfo;
 import net.glowstone.scheduler.PulseTask;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -57,7 +60,14 @@ public class FlowingLiquidDecorator extends BlockDecorator {
                     BlockState state = block.getState();
                     state.setType(type);
                     state.update(true);
-                    new PulseTask((GlowBlock) state.getBlock(), true, 1, true).startPulseTask();
+                    GlowWorld thisWorld = ((GlowBlock) state.getBlock()).getWorld();
+                    if (thisWorld.isServerless()) {
+                        thisWorld.addPulseTaskInfo(new PopulateInfo.PopulateOutput.PulseTaskInfo(
+                                (GlowBlock) state.getBlock(), true, 1, true)
+                        );
+                    } else {
+                        new PulseTask((GlowBlock) state.getBlock(), true, 1, true).startPulseTask();
+                    }
                 }
             }
         }
