@@ -17,12 +17,12 @@ public final class BlockActionCodec implements Codec<BlockActionMessage> {
         int data2 = buffer.readByte();
         int blockType = ByteBufUtils.readVarInt(buffer);
         return new BlockActionMessage(
-                vector.getBlockX(),
-                vector.getBlockY(),
-                vector.getBlockZ(),
-                data1,
-                data2,
-                blockType
+            vector.getBlockX(),
+            vector.getBlockY(),
+            vector.getBlockZ(),
+            data1,
+            data2,
+            blockType
         );
     }
 

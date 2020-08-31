@@ -65,12 +65,12 @@ public class JsonPlayerStatisticIoService implements PlayerStatisticIoService {
                         }
                     } else {
                         ConsoleMessages.Warn.Io.JSON_STAT_UNKNOWN.log(
-                                entry.getKey(), entry.getValue(),
-                                entry.getValue().getClass().getSimpleName());
+                            entry.getKey(), entry.getValue(),
+                            entry.getValue().getClass().getSimpleName());
                     }
                     if (longValue != null) {
                         player.getStatisticMap().getValues()
-                                .put(entry.getKey(), longValue.intValue());
+                            .put(entry.getKey(), longValue.intValue());
                     }
                 }
             } catch (ParseException | IOException e) {

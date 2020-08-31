@@ -25,7 +25,7 @@ public final class ChunkRunnable extends PriorityRunnable {
      * Construct a ChunkRunnable for a chunk that the given player needs to receive the data for.
      *
      * @param player The player to which the chunk data will be sent to.
-     * @param chunk The chunk for which the data needs to be sent to the player.
+     * @param chunk  The chunk for which the data needs to be sent to the player.
      */
     public ChunkRunnable(GlowPlayer player, GlowChunk chunk) {
         this.player = player;

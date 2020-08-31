@@ -135,7 +135,7 @@ public abstract class GlowHumanEntity extends GlowLivingEntity implements HumanE
      * Creates a human within the specified world and with the specified name.
      *
      * @param location The location.
-     * @param profile The human's profile with name and UUID information.
+     * @param profile  The human's profile with name and UUID information.
      */
     public GlowHumanEntity(Location location, GlowPlayerProfile profile) {
         super(location);
@@ -163,7 +163,7 @@ public abstract class GlowHumanEntity extends GlowLivingEntity implements HumanE
         int yaw = Position.getIntYaw(location);
         int pitch = Position.getIntPitch(location);
         result.add(new SpawnPlayerMessage(entityId, profile.getId(), x, y, z, yaw, pitch,
-                metadata.getEntryList()));
+            metadata.getEntryList()));
 
         // head facing
         result.add(new EntityHeadRotationMessage(entityId, yaw));
@@ -171,12 +171,12 @@ public abstract class GlowHumanEntity extends GlowLivingEntity implements HumanE
         // equipment
         EntityEquipment equipment = getEquipment();
         result.add(new EntityEquipmentMessage(entityId, EntityEquipmentMessage.HELD_ITEM, equipment
-                .getItemInMainHand()));
+            .getItemInMainHand()));
         result.add(new EntityEquipmentMessage(entityId, EntityEquipmentMessage.OFF_HAND, equipment
-                .getItemInOffHand()));
+            .getItemInOffHand()));
         for (int i = 0; i < 4; i++) {
             result.add(new EntityEquipmentMessage(entityId,
-                    EntityEquipmentMessage.BOOTS_SLOT + i, equipment.getArmorContents()[i]));
+                EntityEquipmentMessage.BOOTS_SLOT + i, equipment.getArmorContents()[i]));
         }
         return result;
     }
@@ -213,9 +213,9 @@ public abstract class GlowHumanEntity extends GlowLivingEntity implements HumanE
         }
         if (armorUpdate) {
             getAttributeManager().setProperty(AttributeManager.Key.KEY_ARMOR,
-                    ArmorConstants.getDefense(getEquipment().getArmorContents()));
+                ArmorConstants.getDefense(getEquipment().getArmorContents()));
             getAttributeManager().setProperty(AttributeManager.Key.KEY_ARMOR_TOUGHNESS,
-                    ArmorConstants.getToughness(getEquipment().getArmorContents()));
+                ArmorConstants.getToughness(getEquipment().getArmorContents()));
         }
         needsArmorUpdate = true;
     }
@@ -238,7 +238,7 @@ public abstract class GlowHumanEntity extends GlowLivingEntity implements HumanE
         // silently allow setting the same UUID again
         if (!profile.getId().equals(uuid)) {
             throw new IllegalStateException(
-                    "UUID of " + this + " is already " + UuidUtils.toString(profile.getId()));
+                "UUID of " + this + " is already " + UuidUtils.toString(profile.getId()));
         }
     }
 
@@ -304,7 +304,7 @@ public abstract class GlowHumanEntity extends GlowLivingEntity implements HumanE
 
     @Override
     public PermissionAttachment addAttachment(Plugin plugin, String name, boolean value,
-            int ticks) {
+                                              int ticks) {
         return permissions.addAttachment(plugin, name, value, ticks);
     }
 
@@ -335,8 +335,8 @@ public abstract class GlowHumanEntity extends GlowLivingEntity implements HumanE
     @Override
     public boolean canTakeDamage(DamageCause damageCause) {
         return (damageCause == DamageCause.VOID || damageCause == DamageCause.SUICIDE
-                || gameMode == GameMode.SURVIVAL || gameMode == GameMode.ADVENTURE) && super
-                .canTakeDamage(damageCause);
+            || gameMode == GameMode.SURVIVAL || gameMode == GameMode.ADVENTURE) && super
+            .canTakeDamage(damageCause);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -525,7 +525,7 @@ public abstract class GlowHumanEntity extends GlowLivingEntity implements HumanE
             tlr.nextDouble(randOffset) - randOffset / 2,
             tlr.nextDouble(0.12),
             tlr.nextDouble(randOffset) - randOffset / 2));
-            
+
         dropItem.setVelocity(vel);
         return dropItem;
     }

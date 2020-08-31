@@ -24,7 +24,7 @@ public final class AreaOfInterest implements Iterable<GlowChunk> {
     /**
      * Create an AreaOfInterest object.
      *
-     * @param location The location to be stored.
+     * @param location     The location to be stored.
      * @param viewDistance The viewdistance to be stored.
      */
     public AreaOfInterest(Location location, int viewDistance) {
@@ -84,8 +84,8 @@ public final class AreaOfInterest implements Iterable<GlowChunk> {
      */
     public boolean contains(Chunk chunk) {
         return chunk.getWorld() == world
-                && Math.abs(chunk.getX() - centerX) <= radius
-                && Math.abs(chunk.getZ() - centerZ) <= radius;
+            && Math.abs(chunk.getX() - centerX) <= radius
+            && Math.abs(chunk.getZ() - centerZ) <= radius;
     }
 
     @Override
@@ -123,9 +123,9 @@ public final class AreaOfInterest implements Iterable<GlowChunk> {
         AreaOfInterest that = (AreaOfInterest) other;
 
         return Objects.equals(world, that.world)
-                && centerX == that.centerX
-                && centerZ == that.centerZ
-                && radius == that.radius;
+            && centerX == that.centerX
+            && centerZ == that.centerZ
+            && radius == that.radius;
     }
 
     @Override

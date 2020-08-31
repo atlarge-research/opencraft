@@ -57,9 +57,9 @@ public class OreVein implements TerrainObject {
                     for (int z = (int) (originZ - radiusH); z <= (int) (originZ + radiusH);
                          z++) {
                         double squaredNormalizedZ
-                                = normalizedSquaredCoordinate(originZ, radiusH, z);
+                            = normalizedSquaredCoordinate(originZ, radiusH, z);
                         if (squaredNormalizedX + squaredNormalizedY + squaredNormalizedZ < 1
-                                && world.getBlockAt(x, y, z).getType() == targetType) {
+                            && world.getBlockAt(x, y, z).getType() == targetType) {
                             BlockState state = world.getBlockAt(x, y, z).getState();
                             state.setType(type);
                             state.setData(data);
@@ -80,7 +80,7 @@ public class OreVein implements TerrainObject {
      *
      * @param origin the center of the spheroid
      * @param radius the spheroid's radius on this axis
-     * @param x the raw coordinate
+     * @param x      the raw coordinate
      * @return the square of the normalized coordinate
      */
     protected static double normalizedSquaredCoordinate(double origin, double radius, int x) {

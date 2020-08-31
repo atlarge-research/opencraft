@@ -25,9 +25,9 @@ public final class ScoreboardTeamMessage implements Message {
     private final List<String> entries;
 
     private ScoreboardTeamMessage(String teamName, Action action, String displayName, String prefix,
-        String suffix, boolean friendlyFire, boolean seeInvisible,
-        Team.OptionStatus nametagVisibility, Team.OptionStatus collisionRule, ChatColor color,
-        List<String> entries) {
+                                  String suffix, boolean friendlyFire, boolean seeInvisible,
+                                  Team.OptionStatus nametagVisibility, Team.OptionStatus collisionRule, ChatColor color,
+                                  List<String> entries) {
         this.teamName = teamName;
         this.action = action;
         this.displayName = displayName;
@@ -41,9 +41,9 @@ public final class ScoreboardTeamMessage implements Message {
     }
 
     public static ScoreboardTeamMessage create(String teamName, String displayName, String prefix,
-        String suffix, boolean friendlyFire, boolean seeInvisible,
-        Team.OptionStatus nametagVisibility, Team.OptionStatus collisionRule, ChatColor color,
-        List<String> players) {
+                                               String suffix, boolean friendlyFire, boolean seeInvisible,
+                                               Team.OptionStatus nametagVisibility, Team.OptionStatus collisionRule, ChatColor color,
+                                               List<String> players) {
         return new ScoreboardTeamMessage(teamName, Action.CREATE, displayName, prefix, suffix,
             friendlyFire, seeInvisible, nametagVisibility, collisionRule, color, players);
     }
@@ -54,8 +54,8 @@ public final class ScoreboardTeamMessage implements Message {
     }
 
     public static ScoreboardTeamMessage update(String teamName, String displayName, String prefix,
-        String suffix, boolean friendlyFire, boolean seeInvisible,
-        Team.OptionStatus nametagVisibility, Team.OptionStatus collisionRule, ChatColor color) {
+                                               String suffix, boolean friendlyFire, boolean seeInvisible,
+                                               Team.OptionStatus nametagVisibility, Team.OptionStatus collisionRule, ChatColor color) {
         return new ScoreboardTeamMessage(teamName, Action.UPDATE, displayName, prefix, suffix,
             friendlyFire, seeInvisible, nametagVisibility, collisionRule, color, null);
     }

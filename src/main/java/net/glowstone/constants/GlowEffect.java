@@ -19,8 +19,8 @@ public final class GlowEffect {
      * Get the raw data value for an Effect and its data object.
      *
      * @param effect the Effect whose data to calculate
-     * @param data the original data
-     * @param <T> the type of data
+     * @param data   the original data
+     * @param <T>    the type of data
      * @return the raw data value
      */
     public static <T> int getDataValue(Effect effect, T data) {

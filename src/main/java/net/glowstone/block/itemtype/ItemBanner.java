@@ -13,7 +13,7 @@ public class ItemBanner extends ItemType {
 
     @Override
     public void rightClickBlock(GlowPlayer player, GlowBlock target, BlockFace face,
-        ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
+                                ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
 
         ItemTable instance = ItemTable.instance();
         if (face == BlockFace.UP) {

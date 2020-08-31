@@ -24,8 +24,8 @@ public class RandomItemsContent {
     /**
      * Populates a container with random items.
      *
-     * @param random the PRNG to use
-     * @param state the block state for a container block
+     * @param random    the PRNG to use
+     * @param state     the block state for a container block
      * @param maxStacks the maximum number of slots to fill
      * @return true if successful (currently always true)
      */

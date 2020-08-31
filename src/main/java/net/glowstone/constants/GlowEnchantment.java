@@ -276,49 +276,50 @@ public final class GlowEnchantment extends Enchantment implements Choice {
         private final EnchantmentTarget target;
         private final MaterialMatcher matcher;
         private final int group;
-        @Getter private final String vanillaId;
+        @Getter
+        private final String vanillaId;
 
         Impl(int id, String name, int max, Rarity rarity, int minValue, int minInc, int maxInc,
-            EnchantmentTarget target, String vanillaId) {
+             EnchantmentTarget target, String vanillaId) {
             this(id, name, max, rarity, false, minValue, minInc, maxInc, true, target,
                 new MatcherAdapter(target), GROUP_NONE, vanillaId);
         }
 
         Impl(int id, String name, int max, Rarity rarity, int minValue, int minInc, int maxInc,
-            boolean simpleRange, EnchantmentTarget target, String vanillaId) {
+             boolean simpleRange, EnchantmentTarget target, String vanillaId) {
             this(id, name, max, rarity, false, minValue, minInc, maxInc, simpleRange, target,
                 new MatcherAdapter(target), GROUP_NONE, vanillaId);
         }
 
         Impl(int id, String name, int max, Rarity rarity, int minValue, int minInc, int maxInc,
-            EnchantmentTarget target, int group, String vanillaId) {
+             EnchantmentTarget target, int group, String vanillaId) {
             this(id, name, max, rarity, false, minValue, minInc, maxInc, true, target,
                 new MatcherAdapter(target), group, vanillaId);
         }
 
         Impl(int id, String name, int max, Rarity rarity, int minValue, int minInc, int maxInc,
-            boolean simpleRange, EnchantmentTarget target, MaterialMatcher matcher,
-            String vanillaId) {
+             boolean simpleRange, EnchantmentTarget target, MaterialMatcher matcher,
+             String vanillaId) {
             this(id, name, max, rarity, false, minValue, minInc, maxInc, simpleRange, target,
                 matcher, GROUP_NONE, vanillaId);
         }
 
         Impl(int id, String name, int max, Rarity rarity, int minValue, int minInc, int maxInc,
-            boolean simpleRange, EnchantmentTarget target, MatcherAdapter matcher,
-            String vanillaId) {
+             boolean simpleRange, EnchantmentTarget target, MatcherAdapter matcher,
+             String vanillaId) {
             this(id, name, max, rarity, false, minValue, minInc, maxInc, simpleRange, target,
                 matcher, GROUP_NONE, vanillaId);
         }
 
         Impl(int id, String name, int max, Rarity rarity, int minValue, int minInc, int maxInc,
-            EnchantmentTarget target, MaterialMatcher matcher, int group, String vanillaId) {
+             EnchantmentTarget target, MaterialMatcher matcher, int group, String vanillaId) {
             this(id, name, max, rarity, false, minValue, minInc, maxInc, true, target, matcher,
                 group, vanillaId);
         }
 
         Impl(int id, String name, int max, Rarity rarity, boolean treasure, int minValue,
-            int minInc, int maxInc, boolean simpleRange, EnchantmentTarget target,
-            MaterialMatcher matcher, int group, String vanillaId) {
+             int minInc, int maxInc, boolean simpleRange, EnchantmentTarget target,
+             MaterialMatcher matcher, int group, String vanillaId) {
             this(id, name, max, rarity, treasure, false, minValue, minInc, maxInc, true, target,
                 matcher, group, vanillaId);
         }

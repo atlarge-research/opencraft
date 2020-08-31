@@ -13,7 +13,7 @@ public class SuperflatGenerator extends GlowChunkGenerator {
 
     @Override
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ,
-        BiomeGrid biomes) {
+                                       BiomeGrid biomes) {
         ChunkData chunkData = createChunkData(world);
 
         int cx = chunkX << 4;
@@ -32,13 +32,13 @@ public class SuperflatGenerator extends GlowChunkGenerator {
      * Generates a terrain column.
      *
      * @param chunkData the chunk in which to generate
-     * @param world the world (ignored)
-     * @param random the PRNG (ignored)
-     * @param x the column x coordinate
-     * @param z the column z coordinate
+     * @param world     the world (ignored)
+     * @param random    the PRNG (ignored)
+     * @param x         the column x coordinate
+     * @param z         the column z coordinate
      */
     public void generateTerrainColumn(ChunkData chunkData, World world, Random random, int x,
-        int z) {
+                                      int z) {
         // TODO: Handle superflat configurations.
         x = x & 0xF;
         z = z & 0xF;

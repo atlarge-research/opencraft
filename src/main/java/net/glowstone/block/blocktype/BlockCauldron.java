@@ -31,7 +31,7 @@ public class BlockCauldron extends BlockNeedsTool {
 
     @Override
     public boolean blockInteract(GlowPlayer player, GlowBlock block, BlockFace face,
-        Vector clickedLoc) {
+                                 Vector clickedLoc) {
         if (player.getItemInHand() == null) {
             return super.blockInteract(player, block, face, clickedLoc);
         }
@@ -65,7 +65,7 @@ public class BlockCauldron extends BlockNeedsTool {
         // fired when a player fills the cauldron using a water bucket
         if (block.getData() < LEVEL_FULL) {
             if (!setCauldronLevel(block, LEVEL_FULL, player,
-                    CauldronLevelChangeEvent.ChangeReason.BUCKET_EMPTY)) {
+                CauldronLevelChangeEvent.ChangeReason.BUCKET_EMPTY)) {
                 return;
             }
             if (player.getGameMode() != GameMode.CREATIVE) {
@@ -78,7 +78,7 @@ public class BlockCauldron extends BlockNeedsTool {
         // fired when a player fills an empty bottle from the cauldron
         if (block.getData() > LEVEL_EMPTY) {
             if (!setCauldronLevel(block, block.getData() - 1, player,
-                    CauldronLevelChangeEvent.ChangeReason.BOTTLE_FILL)) {
+                CauldronLevelChangeEvent.ChangeReason.BOTTLE_FILL)) {
                 return;
             }
             if (player.getGameMode() != GameMode.CREATIVE) {
@@ -108,7 +108,7 @@ public class BlockCauldron extends BlockNeedsTool {
                 return false;
             }
             if (!setCauldronLevel(block, block.getData() - 1, player,
-                    CauldronLevelChangeEvent.ChangeReason.BANNER_WASH)) {
+                CauldronLevelChangeEvent.ChangeReason.BANNER_WASH)) {
                 return false;
             }
             meta.setPatterns(layers);
@@ -123,7 +123,7 @@ public class BlockCauldron extends BlockNeedsTool {
         // fired when a player bleaches a leather armor piece using the cauldron
         if (block.getData() > LEVEL_EMPTY) {
             if (!setCauldronLevel(block, block.getData() - 1, player,
-                    CauldronLevelChangeEvent.ChangeReason.ARMOR_WASH)) {
+                CauldronLevelChangeEvent.ChangeReason.ARMOR_WASH)) {
                 return false;
             }
             ItemStack inHand = player.getItemInHand();
@@ -140,7 +140,7 @@ public class BlockCauldron extends BlockNeedsTool {
                                      CauldronLevelChangeEvent.ChangeReason reason) {
         int oldLevel = (int) block.getData();
         CauldronLevelChangeEvent event = EventFactory.getInstance().callEvent(
-                new CauldronLevelChangeEvent(block, entity, reason, oldLevel, newLevel));
+            new CauldronLevelChangeEvent(block, entity, reason, oldLevel, newLevel));
         if (!event.isCancelled()) {
             block.setData((byte) event.getNewLevel());
         }

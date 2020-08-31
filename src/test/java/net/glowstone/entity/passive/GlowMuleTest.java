@@ -50,7 +50,7 @@ public class GlowMuleTest extends GlowChestedHorseTest<GlowMule> {
     public void testFoodSetsLoveMode() {
         entity.setTamed(true);
         InteractEntityMessage interact = new InteractEntityMessage(1,
-                InteractEntityMessage.Action.INTERACT.ordinal(), /* main hand */ 0);
+            InteractEntityMessage.Action.INTERACT.ordinal(), /* main hand */ 0);
         for (Material foodType : entity.getBreedingFoods()) {
             ItemStack food = new ItemStack(foodType, 1);
             inventory.setItemInMainHand(food);

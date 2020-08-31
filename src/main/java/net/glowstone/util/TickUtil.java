@@ -40,6 +40,7 @@ public final class TickUtil {
 
     /**
      * Converts seconds (int) into ticks.
+     *
      * @param seconds The seconds to convert.
      * @return The corresponding number of ticks.
      */
@@ -49,6 +50,7 @@ public final class TickUtil {
 
     /**
      * Converts seconds (long) into ticks.
+     *
      * @param seconds The seconds to convert.
      * @return The corresponding number of ticks.
      */
@@ -58,6 +60,7 @@ public final class TickUtil {
 
     /**
      * Converts minutes (int) into ticks.
+     *
      * @param minutes The minutes to convert.
      * @return The corresponding number of ticks.
      */
@@ -67,6 +70,7 @@ public final class TickUtil {
 
     /**
      * Converts minutes (double) into ticks.
+     *
      * @param minutes The minutes to convert.
      * @return The corresponding number of ticks.
      */

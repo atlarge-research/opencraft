@@ -19,7 +19,7 @@ public class ParticleTest {
 
     public static Stream<Effect> getCases() {
         return Stream.of(Effect.values())
-                .filter(effect -> effect.getType() == Effect.Type.PARTICLE);
+            .filter(effect -> effect.getType() == Effect.Type.PARTICLE);
     }
 
     @MethodSource("getCases")
@@ -30,18 +30,18 @@ public class ParticleTest {
                 assertThat("Wrong data for " + particle, particle.getData() != null, is(true));
                 assertThat("Wrong extra data for " + particle,
                     GlowParticle.getExtData(particle, STONE),
-                    is(new int[]{Material.STONE.getId(), 1}));
+                    is(new int[] {Material.STONE.getId(), 1}));
                 break;
             case TILE_BREAK:
                 assertThat("Wrong data for " + particle, particle.getData() != null, is(true));
                 assertThat("Wrong extra data for " + particle,
-                    GlowParticle.getExtData(particle, STONE), is(new int[]{4097}));
+                    GlowParticle.getExtData(particle, STONE), is(new int[] {4097}));
                 break;
             case TILE_DUST:
                 assertThat("Wrong data for " + particle, particle.getData() != null, is(true));
                 assertThat("Wrong extra data for " + particle,
                     GlowParticle.getExtData(particle, STONE),
-                    is(new int[]{Material.STONE.getId()}));
+                    is(new int[] {Material.STONE.getId()}));
                 break;
             default:
                 assertThat("Wrong data for " + particle, particle.getData() != null, is(false));

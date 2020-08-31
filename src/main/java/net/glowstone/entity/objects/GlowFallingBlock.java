@@ -52,13 +52,13 @@ public class GlowFallingBlock extends GlowEntity implements FallingBlock {
     /**
      * Creates an instance for the given entity.
      *
-     * @param location the falling block's location
-     * @param material the falling block's material
-     * @param blockData the falling block's data value
+     * @param location    the falling block's location
+     * @param material    the falling block's material
+     * @param blockData   the falling block's data value
      * @param blockEntity the entity
      */
     public GlowFallingBlock(Location location, Material material, byte blockData,
-        BlockEntity blockEntity) {
+                            BlockEntity blockEntity) {
         super(location);
         blockEntityCompoundTag = null;
         if (blockEntity != null) {
@@ -168,7 +168,7 @@ public class GlowFallingBlock extends GlowEntity implements FallingBlock {
         if (material == Material.ANVIL) {
             ThreadLocalRandom random = ThreadLocalRandom.current();
             world.playSound(location, Sound.BLOCK_ANVIL_FALL, 4, (1.0F
-                    + (random.nextFloat() - random.nextFloat()) * 0.2F) * 0.7F);
+                + (random.nextFloat() - random.nextFloat()) * 0.2F) * 0.7F);
         }
     }
 

@@ -93,7 +93,7 @@ public final class GlowItemFactory implements ItemFactory {
      *
      * @param meta an {@link ItemMeta}
      * @return a compound tag that can become the "tag" subtag of an item NBT tag, or null if
-     *          {@code meta} matches an item with no "tag" subtag
+     * {@code meta} matches an item with no "tag" subtag
      */
     public CompoundTag writeNbt(ItemMeta meta) {
         CompoundTag result = new CompoundTag();
@@ -105,7 +105,7 @@ public final class GlowItemFactory implements ItemFactory {
      * Reads an {@link ItemMeta} from an NBT tag.
      *
      * @param material the material
-     * @param tag the "tag" subtag of an item NBT tag
+     * @param tag      the "tag" subtag of an item NBT tag
      * @return the tag's contents as an {@link ItemMeta}
      */
     public ItemMeta readNbt(Material material, CompoundTag tag) {

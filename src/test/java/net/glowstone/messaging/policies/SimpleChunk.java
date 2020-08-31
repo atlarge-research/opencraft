@@ -21,8 +21,8 @@ final class SimpleChunk implements Chunk {
      * Create a simple chunk.
      *
      * @param world the chunk's world.
-     * @param x the chunk's x-coordinate.
-     * @param z the chunk's z - coordinate.
+     * @param x     the chunk's x-coordinate.
+     * @param z     the chunk's z - coordinate.
      */
     SimpleChunk(World world, int x, int z) {
         this.world = world;

@@ -24,10 +24,10 @@ public class ProjectileDispenseBehavior extends DefaultDispenseBehavior {
      * Creates an instance.
      *
      * @param projectileCreator a function that creates the projectile entity based on only the
-     *         location
+     *                          location
      */
     public ProjectileDispenseBehavior(Function<? super Location, ? extends Projectile>
-            projectileCreator) {
+                                          projectileCreator) {
         this((location, ignoredItem) -> projectileCreator.apply(location));
     }
 
@@ -35,7 +35,7 @@ public class ProjectileDispenseBehavior extends DefaultDispenseBehavior {
      * A function that creates the projectile entity.
      */
     private final BiFunction<? super Location, ? super ItemStack, ? extends Projectile>
-            projectileCreator;
+        projectileCreator;
 
     @Override
     protected ItemStack dispenseStack(GlowBlock block, ItemStack stack) {
@@ -43,7 +43,7 @@ public class ProjectileDispenseBehavior extends DefaultDispenseBehavior {
         Vector position = BlockDispenser.getDispensePosition(block);
         BlockFace face = BlockDispenser.getFacing(block);
         Projectile entity = projectileCreator.apply(
-                new Location(world, position.getX(), position.getY(), position.getZ()), stack);
+            new Location(world, position.getX(), position.getY(), position.getZ()), stack);
         entity.setShooter(new GlowDispenser(block));
         entity.setVelocity(
             new Vector(face.getModX(), face.getModY() + 0.1f, face.getModZ()).multiply(6));

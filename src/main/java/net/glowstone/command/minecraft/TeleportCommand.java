@@ -27,7 +27,7 @@ public class TeleportCommand extends GlowVanillaCommand {
 
     @Override
     public boolean execute(CommandSender sender, String commandLabel, String[] args,
-            CommandMessages commandMessages) {
+                           CommandMessages commandMessages) {
         if (!testPermission(sender, commandMessages.getPermissionMessage())) {
             return true;
         }
@@ -38,7 +38,7 @@ public class TeleportCommand extends GlowVanillaCommand {
 
         if (!CommandUtils.isPhysical(sender)) {
             commandMessages.getGeneric(GenericMessage.NOT_PHYSICAL)
-                    .sendInColor(ChatColor.RED, sender);
+                .sendInColor(ChatColor.RED, sender);
             return false;
         }
 
@@ -51,12 +51,12 @@ public class TeleportCommand extends GlowVanillaCommand {
             if (targetPlayer != null) {
                 location = targetPlayer.getLocation();
             }
-            targets = targetPlayer == null ? NO_ENTITY : new Entity[]{targetPlayer};
+            targets = targetPlayer == null ? NO_ENTITY : new Entity[] {targetPlayer};
         }
 
         if (targets.length == 0) {
             commandMessages.getGeneric(GenericMessage.NO_MATCHES)
-                    .sendInColor(ChatColor.RED, sender, args[0]);
+                .sendInColor(ChatColor.RED, sender, args[0]);
         } else {
             for (Entity target : targets) {
                 String x = args[1];
@@ -73,8 +73,8 @@ public class TeleportCommand extends GlowVanillaCommand {
                 }
                 target.teleport(targetLocation);
                 new LocalizedStringImpl("teleport.done", commandMessages.getResourceBundle())
-                        .send(sender, target.getName(), targetLocation.getX(),
-                                targetLocation.getY(), targetLocation.getZ());
+                    .send(sender, target.getName(), targetLocation.getX(),
+                        targetLocation.getY(), targetLocation.getZ());
             }
         }
 

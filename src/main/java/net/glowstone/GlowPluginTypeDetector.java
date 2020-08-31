@@ -94,7 +94,7 @@ public class GlowPluginTypeDetector {
                     ClassReader classReader = new ClassReader(zip.getInputStream(entryIn));
                     GlowVisitor visitor = new GlowVisitor();
                     classReader.accept(visitor, ClassReader.SKIP_CODE
-                            | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
+                        | ClassReader.SKIP_DEBUG | ClassReader.SKIP_FRAMES);
 
                     if (visitor.isSponge) {
                         isSponge = true;

@@ -44,7 +44,7 @@ public class TestForBlocksCommand extends GlowVanillaCommand {
          * @return the mask mode.
          */
         public static MatchMode fromCommandName(
-                String commandName) {
+            String commandName) {
             for (MatchMode matchMode : values()) {
                 if (matchMode.getCommandName().equals(commandName)) {
                     return matchMode;
@@ -87,8 +87,8 @@ public class TestForBlocksCommand extends GlowVanillaCommand {
             byte fromData = fromBlock.getData();
             byte toData = toBlock.getData();
             return Objects.equals(fromType, toType)
-                    && Objects.equals(fromData, toData)
-                    && Objects.equals(fromEntityTag, toEntityTag);
+                && Objects.equals(fromData, toData)
+                && Objects.equals(fromEntityTag, toEntityTag);
         }
     }
 
@@ -102,7 +102,7 @@ public class TestForBlocksCommand extends GlowVanillaCommand {
 
     @Override
     public boolean execute(CommandSender sender, String commandLabel, String[] args,
-            CommandMessages commandMessages) {
+                           CommandMessages commandMessages) {
         if (!testPermission(sender, commandMessages.getPermissionMessage())) {
             return true;
         }
@@ -124,9 +124,9 @@ public class TestForBlocksCommand extends GlowVanillaCommand {
         Location to = CommandUtils.getLocation(sender, args[6], args[7], args[8]);
 
         MatchMode matchMode = args.length >= 10
-                ? MatchMode
-                .fromCommandName(args[9]) :
-                MatchMode.ALL;
+            ? MatchMode
+            .fromCommandName(args[9]) :
+            MatchMode.ALL;
 
         if (matchMode == null) {
             sendUsageMessage(sender, commandMessages);
@@ -137,9 +137,9 @@ public class TestForBlocksCommand extends GlowVanillaCommand {
         RectangularRegion toRegion = fromRegion.moveTo(to);
 
         Iterator<Location> fromIterator = fromRegion
-                .blockLocations(FORWARDS, FORWARDS, FORWARDS).iterator();
+            .blockLocations(FORWARDS, FORWARDS, FORWARDS).iterator();
         Iterator<Location> toIterator = toRegion
-                .blockLocations(FORWARDS, FORWARDS, FORWARDS).iterator();
+            .blockLocations(FORWARDS, FORWARDS, FORWARDS).iterator();
 
         int blocksMatched = 0;
 
@@ -157,13 +157,13 @@ public class TestForBlocksCommand extends GlowVanillaCommand {
                 }
             } else {
                 new LocalizedStringImpl("testforblocks.no-match", bundle)
-                        .sendInColor(ChatColor.RED, sender);
+                    .sendInColor(ChatColor.RED, sender);
                 return false;
             }
         }
 
         new LocalizedStringImpl("testforblocks.done", bundle)
-                .send(sender, blocksMatched);
+            .send(sender, blocksMatched);
 
         return true;
     }

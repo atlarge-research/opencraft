@@ -36,7 +36,7 @@ public class StopCommandTest extends CommandTest<StopCommand> {
     @Test
     public void testWithArgs() {
         assertThat(command.execute(opSender, "label",
-                new String[]{"This", "is", "a", "custom", "shutdown", "message"}), is(true));
+            new String[] {"This", "is", "a", "custom", "shutdown", "message"}), is(true));
         Mockito.verify(server).shutdown("This is a custom shutdown message");
     }
 }

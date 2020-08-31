@@ -29,6 +29,7 @@ public class GlowAnvilInventory extends GlowInventory implements AnvilInventory 
 
     /**
      * Creates an instance for the given player.
+     *
      * @param holder the player
      */
     public GlowAnvilInventory(InventoryHolder holder) {
@@ -58,7 +59,7 @@ public class GlowAnvilInventory extends GlowInventory implements AnvilInventory 
 
     @Override
     public void handleShiftClick(GlowPlayer player, InventoryView view, int clickedSlot,
-        ItemStack clickedItem) {
+                                 ItemStack clickedItem) {
         if (getSlotType(view.convertSlot(clickedSlot)) == SlotType.RESULT) {
             // If the player clicked on the result give it to them
             ItemStack forged = getForged();

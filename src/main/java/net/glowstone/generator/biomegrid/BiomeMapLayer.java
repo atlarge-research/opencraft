@@ -20,25 +20,25 @@ import net.glowstone.constants.GlowBiome;
 
 public class BiomeMapLayer extends MapLayer {
 
-    private static final int[] WARM = new int[]{GlowBiome.getId(DESERT), GlowBiome.getId(DESERT),
+    private static final int[] WARM = new int[] {GlowBiome.getId(DESERT), GlowBiome.getId(DESERT),
         GlowBiome.getId(DESERT),
         GlowBiome.getId(SAVANNA), GlowBiome.getId(SAVANNA), GlowBiome.getId(PLAINS)};
-    private static final int[] WET = new int[]{GlowBiome.getId(PLAINS), GlowBiome.getId(PLAINS),
+    private static final int[] WET = new int[] {GlowBiome.getId(PLAINS), GlowBiome.getId(PLAINS),
         GlowBiome.getId(FOREST),
         GlowBiome.getId(BIRCH_FOREST), GlowBiome.getId(ROOFED_FOREST),
         GlowBiome.getId(EXTREME_HILLS),
         GlowBiome.getId(SWAMPLAND)};
-    private static final int[] DRY = new int[]{GlowBiome.getId(PLAINS), GlowBiome.getId(FOREST),
+    private static final int[] DRY = new int[] {GlowBiome.getId(PLAINS), GlowBiome.getId(FOREST),
         GlowBiome.getId(TAIGA),
         GlowBiome.getId(EXTREME_HILLS)};
-    private static final int[] COLD = new int[]{GlowBiome.getId(ICE_FLATS),
+    private static final int[] COLD = new int[] {GlowBiome.getId(ICE_FLATS),
         GlowBiome.getId(ICE_FLATS),
         GlowBiome.getId(TAIGA_COLD)};
-    private static final int[] WARM_LARGE = new int[]{GlowBiome.getId(MESA_ROCK),
+    private static final int[] WARM_LARGE = new int[] {GlowBiome.getId(MESA_ROCK),
         GlowBiome.getId(MESA_ROCK),
         GlowBiome.getId(MESA_CLEAR_ROCK)};
-    private static final int[] DRY_LARGE = new int[]{GlowBiome.getId(REDWOOD_TAIGA)};
-    private static final int[] WET_LARGE = new int[]{GlowBiome.getId(JUNGLE)};
+    private static final int[] DRY_LARGE = new int[] {GlowBiome.getId(REDWOOD_TAIGA)};
+    private static final int[] WET_LARGE = new int[] {GlowBiome.getId(JUNGLE)};
 
     private final MapLayer belowLayer;
 

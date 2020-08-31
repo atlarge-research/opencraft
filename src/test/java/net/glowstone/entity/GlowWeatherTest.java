@@ -5,7 +5,7 @@ import org.bukkit.Location;
 
 public abstract class GlowWeatherTest<T extends GlowWeather> extends GlowEntityTest<T> {
     protected GlowWeatherTest(
-            Function<Location, ? extends T> entityCreator) {
+        Function<Location, ? extends T> entityCreator) {
         super(entityCreator);
     }
 }

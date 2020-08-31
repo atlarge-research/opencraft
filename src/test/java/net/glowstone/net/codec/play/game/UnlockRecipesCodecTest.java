@@ -13,6 +13,6 @@ public class UnlockRecipesCodecTest extends CodecTest<UnlockRecipesMessage> {
 
     @Override
     protected UnlockRecipesMessage createMessage() {
-        return new UnlockRecipesMessage(1, true, false, new int[]{ 4, 5 });
+        return new UnlockRecipesMessage(1, true, false, new int[] {4, 5});
     }
 }

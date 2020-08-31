@@ -42,7 +42,7 @@ public class RiverMapLayer extends MapLayer {
     /**
      * Creates a map layer that generates rivers.
      *
-     * @param seed the layer's PRNG seed
+     * @param seed       the layer's PRNG seed
      * @param belowLayer the layer to apply before this one
      * @param mergeLayer TODO: document this parameter
      */

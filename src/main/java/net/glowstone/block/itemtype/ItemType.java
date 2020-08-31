@@ -129,7 +129,7 @@ public class ItemType {
      * Called when a player right-clicks in midair while holding this item. Also called by default
      * if rightClickBlock is not overridden.
      *
-     * @param player The player
+     * @param player  The player
      * @param holding The ItemStack the player was holding
      */
     public void rightClickAir(GlowPlayer player, ItemStack holding) {
@@ -148,15 +148,15 @@ public class ItemType {
     /**
      * Called when a player right-clicks on a block while holding this item.
      *
-     * @param player The player
-     * @param target The block the player right-clicked
-     * @param face The face on which the click occurred
-     * @param holding The ItemStack the player was holding
+     * @param player     The player
+     * @param target     The block the player right-clicked
+     * @param face       The face on which the click occurred
+     * @param holding    The ItemStack the player was holding
      * @param clickedLoc The coordinates at which the click occurred
-     * @param hand The hand slot of this item
+     * @param hand       The hand slot of this item
      */
     public void rightClickBlock(GlowPlayer player, GlowBlock target, BlockFace face,
-        ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
+                                ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
         if (placeAs != null) {
             if (placeAs.getContext().isBlockApplicable()) {
                 placeAs.rightClickBlock(player, target, face, holding, clickedLoc, hand);
@@ -170,7 +170,7 @@ public class ItemType {
     @Override
     public final String toString() {
         return getClass().getSimpleName()
-                + "{" + (getMaterial() == null ? getId() : getMaterial())  + "}";
+            + "{" + (getMaterial() == null ? getId() : getMaterial()) + "}";
     }
 
     /**

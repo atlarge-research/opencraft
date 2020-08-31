@@ -8,9 +8,9 @@ public class MegaSpruceTree extends MegaPineTree {
     /**
      * Initializes this tree, preparing it to attempt to generate.
      *
-     * @param random the PRNG
+     * @param random   the PRNG
      * @param delegate the BlockStateDelegate used to check for space and to fill wood and leaf
-     *     blocks
+     *                 blocks
      */
     public MegaSpruceTree(Random random, BlockStateDelegate delegate) {
         super(random, delegate);

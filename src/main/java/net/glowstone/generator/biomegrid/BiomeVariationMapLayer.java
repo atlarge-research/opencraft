@@ -34,32 +34,32 @@ import net.glowstone.constants.GlowBiome;
 
 public class BiomeVariationMapLayer extends MapLayer {
 
-    private static final int[] ISLANDS = new int[]{GlowBiome.getId(PLAINS),
+    private static final int[] ISLANDS = new int[] {GlowBiome.getId(PLAINS),
         GlowBiome.getId(FOREST)};
     private static final Map<Integer, int[]> VARIATIONS = new HashMap<>();
 
     static {
-        VARIATIONS.put(GlowBiome.getId(DESERT), new int[]{GlowBiome.getId(DESERT_HILLS)});
-        VARIATIONS.put(GlowBiome.getId(FOREST), new int[]{GlowBiome.getId(FOREST_HILLS)});
+        VARIATIONS.put(GlowBiome.getId(DESERT), new int[] {GlowBiome.getId(DESERT_HILLS)});
+        VARIATIONS.put(GlowBiome.getId(FOREST), new int[] {GlowBiome.getId(FOREST_HILLS)});
         VARIATIONS
-            .put(GlowBiome.getId(BIRCH_FOREST), new int[]{GlowBiome.getId(BIRCH_FOREST_HILLS)});
-        VARIATIONS.put(GlowBiome.getId(ROOFED_FOREST), new int[]{GlowBiome.getId(PLAINS)});
-        VARIATIONS.put(GlowBiome.getId(TAIGA), new int[]{GlowBiome.getId(TAIGA_HILLS)});
+            .put(GlowBiome.getId(BIRCH_FOREST), new int[] {GlowBiome.getId(BIRCH_FOREST_HILLS)});
+        VARIATIONS.put(GlowBiome.getId(ROOFED_FOREST), new int[] {GlowBiome.getId(PLAINS)});
+        VARIATIONS.put(GlowBiome.getId(TAIGA), new int[] {GlowBiome.getId(TAIGA_HILLS)});
         VARIATIONS
-            .put(GlowBiome.getId(REDWOOD_TAIGA), new int[]{GlowBiome.getId(REDWOOD_TAIGA_HILLS)});
-        VARIATIONS.put(GlowBiome.getId(TAIGA_COLD), new int[]{GlowBiome.getId(TAIGA_COLD_HILLS)});
+            .put(GlowBiome.getId(REDWOOD_TAIGA), new int[] {GlowBiome.getId(REDWOOD_TAIGA_HILLS)});
+        VARIATIONS.put(GlowBiome.getId(TAIGA_COLD), new int[] {GlowBiome.getId(TAIGA_COLD_HILLS)});
         VARIATIONS.put(GlowBiome.getId(PLAINS),
-            new int[]{GlowBiome.getId(FOREST), GlowBiome.getId(FOREST),
+            new int[] {GlowBiome.getId(FOREST), GlowBiome.getId(FOREST),
                 GlowBiome.getId(FOREST_HILLS)});
-        VARIATIONS.put(GlowBiome.getId(ICE_FLATS), new int[]{GlowBiome.getId(ICE_MOUNTAINS)});
-        VARIATIONS.put(GlowBiome.getId(JUNGLE), new int[]{GlowBiome.getId(JUNGLE_HILLS)});
-        VARIATIONS.put(GlowBiome.getId(OCEAN), new int[]{GlowBiome.getId(DEEP_OCEAN)});
+        VARIATIONS.put(GlowBiome.getId(ICE_FLATS), new int[] {GlowBiome.getId(ICE_MOUNTAINS)});
+        VARIATIONS.put(GlowBiome.getId(JUNGLE), new int[] {GlowBiome.getId(JUNGLE_HILLS)});
+        VARIATIONS.put(GlowBiome.getId(OCEAN), new int[] {GlowBiome.getId(DEEP_OCEAN)});
         VARIATIONS.put(GlowBiome.getId(EXTREME_HILLS),
-            new int[]{GlowBiome.getId(EXTREME_HILLS_WITH_TREES)});
-        VARIATIONS.put(GlowBiome.getId(SAVANNA), new int[]{GlowBiome.getId(SAVANNA_ROCK)});
-        VARIATIONS.put(GlowBiome.getId(MESA_ROCK), new int[]{GlowBiome.getId(MESA)});
-        VARIATIONS.put(GlowBiome.getId(MESA_CLEAR_ROCK), new int[]{GlowBiome.getId(MESA)});
-        VARIATIONS.put(GlowBiome.getId(MESA), new int[]{GlowBiome.getId(MESA)});
+            new int[] {GlowBiome.getId(EXTREME_HILLS_WITH_TREES)});
+        VARIATIONS.put(GlowBiome.getId(SAVANNA), new int[] {GlowBiome.getId(SAVANNA_ROCK)});
+        VARIATIONS.put(GlowBiome.getId(MESA_ROCK), new int[] {GlowBiome.getId(MESA)});
+        VARIATIONS.put(GlowBiome.getId(MESA_CLEAR_ROCK), new int[] {GlowBiome.getId(MESA)});
+        VARIATIONS.put(GlowBiome.getId(MESA), new int[] {GlowBiome.getId(MESA)});
     }
 
     private final MapLayer belowLayer;
@@ -67,7 +67,8 @@ public class BiomeVariationMapLayer extends MapLayer {
 
     /**
      * Creates an instance with no variation layer.
-     * @param seed the PRNG seed
+     *
+     * @param seed       the PRNG seed
      * @param belowLayer the layer below this one
      */
     public BiomeVariationMapLayer(long seed, MapLayer belowLayer) {
@@ -76,8 +77,9 @@ public class BiomeVariationMapLayer extends MapLayer {
 
     /**
      * Creates an instance with the given variation layer.
-     * @param seed the PRNG seed
-     * @param belowLayer the layer below this one
+     *
+     * @param seed           the PRNG seed
+     * @param belowLayer     the layer below this one
      * @param variationLayer the variation layer, or null to use no variation layer
      */
     public BiomeVariationMapLayer(long seed, MapLayer belowLayer, MapLayer variationLayer) {
@@ -98,8 +100,8 @@ public class BiomeVariationMapLayer extends MapLayer {
      * Generates a rectangle, replacing all the positive values in the previous layer with random
      * values from 2 to 31 while leaving zero and negative values unchanged.
      *
-     * @param x the lowest x coordinate
-     * @param z the lowest z coordinate
+     * @param x     the lowest x coordinate
+     * @param z     the lowest z coordinate
      * @param sizeX the x coordinate range
      * @param sizeZ the z coordinate range
      * @return a flattened array of generated values
@@ -124,8 +126,8 @@ public class BiomeVariationMapLayer extends MapLayer {
     /**
      * Generates a rectangle using the previous layer and the variation layer.
      *
-     * @param x the lowest x coordinate
-     * @param z the lowest z coordinate
+     * @param x     the lowest x coordinate
+     * @param z     the lowest z coordinate
      * @param sizeX the x coordinate range
      * @param sizeZ the z coordinate range
      * @return a flattened array of generated values

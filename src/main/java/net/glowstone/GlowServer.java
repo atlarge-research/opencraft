@@ -483,7 +483,7 @@ public class GlowServer implements Server {
      * dependencies.
      */
     private static final Set<LibraryKey> blacklistedRuntimeLibs = ImmutableSet.of(
-            new LibraryKey("it.unimi.dsi", "fastutil")
+        new LibraryKey("it.unimi.dsi", "fastutil")
     );
 
     /**
@@ -491,6 +491,7 @@ public class GlowServer implements Server {
      * This can be enabled by using the --generate-config launch argument.
      *
      * <p>Getter for this value.</p>
+     *
      * @return boolean getGenerateConfigOnly.
      */
     public static boolean getGenerateConfigOnly() {
@@ -510,14 +511,14 @@ public class GlowServer implements Server {
         advancements = new HashMap<>();
         // test advancement
         GlowAdvancement advancement
-                = new GlowAdvancement(NamespacedKey.minecraft("test"), null); // NON-NLS
+            = new GlowAdvancement(NamespacedKey.minecraft("test"), null); // NON-NLS
         advancement.addCriterion("minecraft:test/criterion"); // NON-NLS
         advancement.setDisplay(new GlowAdvancementDisplay(
-                new TextMessage(GlowstoneMessages.Advancement.TITLE.get()),
-                new TextMessage("=)"),
-                new ItemStack(Material.GLOWSTONE),
-                GlowAdvancementDisplay.FrameType.GOAL,
-                -10F, 0));
+            new TextMessage(GlowstoneMessages.Advancement.TITLE.get()),
+            new TextMessage("=)"),
+            new ItemStack(Material.GLOWSTONE),
+            GlowAdvancementDisplay.FrameType.GOAL,
+            -10F, 0));
         addAdvancement(advancement);
 
         this.config = config;
@@ -544,16 +545,16 @@ public class GlowServer implements Server {
         ChannelType channelType = ChannelType.parse(channelName);
 
         return new BrokerConfig(
-                brokerType,
-                config.getBoolean(Key.OPENCRAFT_BROKER_ASYNC),
-                config.getInt(Key.OPENCRAFT_BROKER_THREADS),
-                config.getInt(Key.OPENCRAFT_BROKER_CAPACITY),
-                channelType,
-                config.getString(Key.OPENCRAFT_BROKER_HOST),
-                config.getInt(Key.OPENCRAFT_BROKER_PORT),
-                config.getString(Key.OPENCRAFT_BROKER_USERNAME),
-                config.getString(Key.OPENCRAFT_BROKER_PASSWORD),
-                config.getString(Key.OPENCRAFT_BROKER_VIRTUAL_HOST)
+            brokerType,
+            config.getBoolean(Key.OPENCRAFT_BROKER_ASYNC),
+            config.getInt(Key.OPENCRAFT_BROKER_THREADS),
+            config.getInt(Key.OPENCRAFT_BROKER_CAPACITY),
+            channelType,
+            config.getString(Key.OPENCRAFT_BROKER_HOST),
+            config.getInt(Key.OPENCRAFT_BROKER_PORT),
+            config.getString(Key.OPENCRAFT_BROKER_USERNAME),
+            config.getString(Key.OPENCRAFT_BROKER_PASSWORD),
+            config.getString(Key.OPENCRAFT_BROKER_VIRTUAL_HOST)
         );
     }
 
@@ -580,7 +581,7 @@ public class GlowServer implements Server {
     }
 
     private static ServerConfig parseArguments(String... args) {
-        
+
         Map<Key, Object> parameters = new EnumMap<>(Key.class);
         @NonNls String configDirName = "config";
         @NonNls String configFileName = "opencraft.yml";
@@ -720,7 +721,7 @@ public class GlowServer implements Server {
             // gets the max flops device across platforms on the computer
             for (CLPlatform platform : CLPlatform.listCLPlatforms()) {
                 if (platform.isAtLeast(openClMajor, openClMinor) && platform
-                        .isExtensionAvailable("cl_khr_fp64")) { // NON-NLS
+                    .isExtensionAvailable("cl_khr_fp64")) { // NON-NLS
                     for (CLDevice device : platform.listCLDevices()) {
                         if (device.getType() == CLDevice.Type.GPU) {
                             int flops = device.getMaxComputeUnits() * device.getMaxClockFrequency();
@@ -734,7 +735,7 @@ public class GlowServer implements Server {
                                     bestIntelPlatform = platform;
                                 } else if (flops == maxIntelFlops) {
                                     if (bestIntelPlatform != null && bestIntelPlatform.getVersion()
-                                            .compareTo(platform.getVersion()) < 0) {
+                                        .compareTo(platform.getVersion()) < 0) {
                                         maxIntelFlops = flops;
                                         ConsoleMessages.Info.Opencl
                                             .BEST_VERSION_TIEBREAKER.log(platform);
@@ -748,7 +749,7 @@ public class GlowServer implements Server {
                                     bestPlatform = platform;
                                 } else if (flops == maxGpuFlops) {
                                     if (bestPlatform != null && bestPlatform.getVersion()
-                                            .compareTo(platform.getVersion()) < 0) {
+                                        .compareTo(platform.getVersion()) < 0) {
                                         maxGpuFlops = flops;
                                         ConsoleMessages.Info.Opencl
                                             .BEST_VERSION_TIEBREAKER.log(platform);
@@ -765,7 +766,7 @@ public class GlowServer implements Server {
                                 bestCpuPlatform = platform;
                             } else if (flops == maxCpuFlops) {
                                 if (bestCpuPlatform != null && bestCpuPlatform.getVersion()
-                                        .compareTo(platform.getVersion()) < 0) {
+                                    .compareTo(platform.getVersion()) < 0) {
                                     maxCpuFlops = flops;
                                     ConsoleMessages.Info.Opencl.BEST_VERSION_TIEBREAKER
                                         .log(platform);
@@ -827,8 +828,8 @@ public class GlowServer implements Server {
         String libraryFolder = config.getString(Key.LIBRARIES_FOLDER);
         Set<Library> libraries = aggregateLibraries(repository, libraryFolder);
         new LibraryManager(repository, libraryFolder,
-                config.getBoolean(Key.LIBRARY_CHECKSUM_VALIDATION),
-                config.getInt(Key.LIBRARY_DOWNLOAD_ATTEMPTS), libraries).run();
+            config.getBoolean(Key.LIBRARY_CHECKSUM_VALIDATION),
+            config.getInt(Key.LIBRARY_DOWNLOAD_ATTEMPTS), libraries).run();
         loadPlugins();
         enablePlugins(PluginLoadOrder.STARTUP);
 
@@ -853,28 +854,28 @@ public class GlowServer implements Server {
 
         if (storageProviderFactory == null) {
             storageProviderFactory
-                    = (worldName) -> new AnvilWorldStorageProvider(new File(getWorldContainer(),
-                    worldName));
+                = (worldName) -> new AnvilWorldStorageProvider(new File(getWorldContainer(),
+                worldName));
         }
         String name = config.getString(Key.LEVEL_NAME);
         boolean structs = getGenerateStructures();
         createWorld(WorldCreator.name(name).environment(Environment.NORMAL).seed(seed).type(type)
-                .generateStructures(structs));
+            .generateStructures(structs));
         if (getAllowNether()) {
             checkTransfer(name, "_nether", Environment.NETHER);
             createWorld(WorldCreator.name(name + "_nether") // NON-NLS
-                    .environment(Environment.NETHER)
-                    .seed(seed)
-                    .type(type)
-                    .generateStructures(structs));
+                .environment(Environment.NETHER)
+                .seed(seed)
+                .type(type)
+                .generateStructures(structs));
         }
         if (getAllowEnd()) {
             checkTransfer(name, "_the_end", Environment.THE_END);
             createWorld(WorldCreator.name(name + "_the_end") // NON-NLS
-                    .environment(Environment.THE_END)
-                    .seed(seed)
-                    .type(type)
-                    .generateStructures(structs));
+                .environment(Environment.THE_END)
+                .seed(seed)
+                .type(type)
+                .generateStructures(structs));
         }
 
         // Finish loading plugins
@@ -886,7 +887,7 @@ public class GlowServer implements Server {
     private void checkTransfer(String name, @NonNls String suffix, Environment environment) {
         // todo: import things like per-dimension villages.dat when those are implemented
         Path srcPath = new File(new File(getWorldContainer(), name), "DIM" + environment.getId())
-                .toPath();
+            .toPath();
         Path destPath = new File(getWorldContainer(), name + suffix).toPath();
         if (Files.exists(srcPath) && !Files.exists(destPath)) {
             ConsoleMessages.Info.IMPORT.log(destPath, srcPath);
@@ -894,7 +895,7 @@ public class GlowServer implements Server {
                 Files.walkFileTree(srcPath, new FileVisitor<Path>() {
                     @Override
                     public FileVisitResult preVisitDirectory(Path dir,
-                            BasicFileAttributes attrs) throws IOException {
+                                                             BasicFileAttributes attrs) throws IOException {
                         Path target = destPath.resolve(srcPath.relativize(dir));
                         if (!Files.exists(target)) {
                             Files.createDirectory(target);
@@ -904,15 +905,15 @@ public class GlowServer implements Server {
 
                     @Override
                     public FileVisitResult visitFile(Path file,
-                            BasicFileAttributes attrs) throws IOException {
+                                                     BasicFileAttributes attrs) throws IOException {
                         Files.copy(file, destPath.resolve(srcPath
-                                .relativize(file)), StandardCopyOption.COPY_ATTRIBUTES);
+                            .relativize(file)), StandardCopyOption.COPY_ATTRIBUTES);
                         return FileVisitResult.CONTINUE;
                     }
 
                     @Override
                     public FileVisitResult visitFileFailed(Path file,
-                            IOException exc) throws IOException {
+                                                           IOException exc) throws IOException {
                         ConsoleMessages.Error.Import.WITH_MESSAGE.log(
                             exc, srcPath.relativize(file)
                         );
@@ -921,12 +922,12 @@ public class GlowServer implements Server {
 
                     @Override
                     public FileVisitResult postVisitDirectory(Path dir,
-                            IOException exc) throws IOException {
+                                                              IOException exc) throws IOException {
                         return FileVisitResult.CONTINUE;
                     }
                 });
                 Files.copy(
-                        srcPath.resolve("../level.dat"), destPath.resolve("level.dat")); // NON-NLS
+                    srcPath.resolve("../level.dat"), destPath.resolve("level.dat")); // NON-NLS
             } catch (IOException e) {
                 ConsoleMessages.Error.Import.NO_MESSAGE.log(e, srcPath);
             }
@@ -1086,11 +1087,11 @@ public class GlowServer implements Server {
 
     private boolean serverContainsLibrary(Library library) {
         return this.getClass().getResource(
-                String.format(
-                        "/META-INF/maven/%s/%s/pom.xml", // NON-NLS
-                        library.getGroupId(),
-                        library.getArtifactId()
-                )
+            String.format(
+                "/META-INF/maven/%s/%s/pom.xml", // NON-NLS
+                library.getGroupId(),
+                library.getArtifactId()
+            )
         ) != null;
     }
 
@@ -1101,11 +1102,11 @@ public class GlowServer implements Server {
         try {
             // Must overwrite the collection here in order to remove Maven Central from it.
             naether.setRemoteRepositories(Sets.newHashSet(
-                    RepoBuilder.remoteRepositoryFromUrl(repository)
+                RepoBuilder.remoteRepositoryFromUrl(repository)
             ));
         } catch (MalformedURLException e) {
             logger.log(Level.WARNING, "Unable to resolve library dependencies. Falling back to "
-                    + "explicitly defined dependencies only.", e);
+                + "explicitly defined dependencies only.", e);
             return null;
         }
 
@@ -1194,33 +1195,33 @@ public class GlowServer implements Server {
         }
 
         Map<LibraryKey, Library> dependencyLibs = clients.entrySet().stream()
-                .filter(Objects::nonNull)
-                .flatMap(entry -> {
-                    try {
-                        entry.getValue().resolveDependencies(false);
-                        return entry.getValue().getDependenciesNotation().stream()
-                            .map(dependency -> {
-                                // same format as above, {groupId}:{artifactId}:jar:{version}
-                                String[] expanded = dependency.split(":");
-                                // TODO: populate the checksum fields if possible
-                                return new Library(expanded[0], expanded[1], expanded[3],
-                                    entry.getKey());
-                            });
-                    } catch (NaetherException e) {
-                        logger.log(Level.WARNING, "Unable to resolve library dependencies. Falling"
-                                + " back to explicitly defined dependencies only.", e);
-                        return Stream.empty();
-                    }
-                })
-                .filter(library -> !configLibs.containsKey(library.getLibraryKey())
-                        && !serverContainsLibrary(library)
-                        && !blacklistedRuntimeLibs.contains(library.getLibraryKey()))
-                .collect(Collectors.toMap(
-                    Library::getLibraryKey,
-                    Function.identity(),
-                    (library1, library2) -> library1.compareTo(library2) > 0
-                        ? library1 : library2
-                ));
+            .filter(Objects::nonNull)
+            .flatMap(entry -> {
+                try {
+                    entry.getValue().resolveDependencies(false);
+                    return entry.getValue().getDependenciesNotation().stream()
+                        .map(dependency -> {
+                            // same format as above, {groupId}:{artifactId}:jar:{version}
+                            String[] expanded = dependency.split(":");
+                            // TODO: populate the checksum fields if possible
+                            return new Library(expanded[0], expanded[1], expanded[3],
+                                entry.getKey());
+                        });
+                } catch (NaetherException e) {
+                    logger.log(Level.WARNING, "Unable to resolve library dependencies. Falling"
+                        + " back to explicitly defined dependencies only.", e);
+                    return Stream.empty();
+                }
+            })
+            .filter(library -> !configLibs.containsKey(library.getLibraryKey())
+                && !serverContainsLibrary(library)
+                && !blacklistedRuntimeLibs.contains(library.getLibraryKey()))
+            .collect(Collectors.toMap(
+                Library::getLibraryKey,
+                Function.identity(),
+                (library1, library2) -> library1.compareTo(library2) > 0
+                    ? library1 : library2
+            ));
 
         Set<Library> libraries = new HashSet<>(
             bundleLibs.size() + configLibs.size() + dependencyLibs.size()
@@ -1304,8 +1305,8 @@ public class GlowServer implements Server {
         pluginManager.clearPlugins();
         pluginManager.registerInterface(JavaPluginLoader.class);
         Plugin[] plugins = pluginManager
-                .loadPlugins(folder.getPath(), pluginTypeDetector.bukkitPlugins
-                        .toArray(new File[pluginTypeDetector.bukkitPlugins.size()]));
+            .loadPlugins(folder.getPath(), pluginTypeDetector.bukkitPlugins
+                .toArray(new File[pluginTypeDetector.bukkitPlugins.size()]));
 
         // call onLoad methods
         for (Plugin plugin : plugins) {
@@ -1323,7 +1324,7 @@ public class GlowServer implements Server {
             for (Plugin plugin : plugins) {
                 if (plugin.getName().equals("Bukkit2Sponge")) {
                     hasSponge
-                            = true; // TODO: better detection method, plugin description file
+                        = true; // TODO: better detection method, plugin description file
                     // annotation APIs?
                     break;
                 }
@@ -1346,8 +1347,8 @@ public class GlowServer implements Server {
         }
 
         if (!pluginTypeDetector.canaryPlugins.isEmpty() || !pluginTypeDetector.forgefPlugins
-                .isEmpty() || !pluginTypeDetector.forgenPlugins.isEmpty()
-                || !pluginTypeDetector.unrecognizedPlugins.isEmpty()) {
+            .isEmpty() || !pluginTypeDetector.forgenPlugins.isEmpty()
+            || !pluginTypeDetector.unrecognizedPlugins.isEmpty()) {
             ConsoleMessages.Warn.Plugin.UNSUPPORTED.log();
 
             for (File file : pluginTypeDetector.canaryPlugins) {
@@ -1420,14 +1421,14 @@ public class GlowServer implements Server {
             DefaultPermissions.registerCorePermissions();
             // Default permissions
             this.permissionRoot = DefaultPermissions
-                    .registerPermission("minecraft", "Gives the user the ability to use all "
-                            + "Minecraft utilities and commands");
+                .registerPermission("minecraft", "Gives the user the ability to use all "
+                    + "Minecraft utilities and commands");
             this.permissionRootCommand = DefaultPermissions
-                    .registerPermission("minecraft.command", "Gives the user the ability to use "
-                            + "all Minecraft commands", permissionRoot);
+                .registerPermission("minecraft.command", "Gives the user the ability to use "
+                    + "all Minecraft commands", permissionRoot);
             DefaultPermissions
-                    .registerPermission("minecraft.command.tell", "Allows the user to send a "
-                            + "private message", PermissionDefault.TRUE, permissionRootCommand);
+                .registerPermission("minecraft.command.tell", "Allows the user to send a "
+                    + "private message", PermissionDefault.TRUE, permissionRootCommand);
             permissionRootCommand.recalculatePermissibles();
             permissionRoot.recalculatePermissibles();
             helpMap.initializeCommands();
@@ -1439,12 +1440,12 @@ public class GlowServer implements Server {
             Map<String, Map<String, Object>> data = new HashMap<>();
 
             permConfig.getValues(false).forEach((key, value) -> data
-                    .put(key, ((MemorySection) value).getValues(false)));
+                .put(key, ((MemorySection) value).getValues(false)));
 
             List<Permission> perms = Permission
-                    .loadPermissions(data,
-                            ConsoleMessages.Error.Permission.INVALID.get(),
-                            PermissionDefault.OP);
+                .loadPermissions(data,
+                    ConsoleMessages.Error.Permission.INVALID.get(),
+                    PermissionDefault.OP);
 
             for (Permission perm : perms) {
                 try {
@@ -1491,7 +1492,7 @@ public class GlowServer implements Server {
     @Override
     public String toString() {
         return "GlowServer{name=" + getName() + ",version=" + getVersion() + ",minecraftVersion="
-                + GAME_VERSION + "}";
+            + GAME_VERSION + "}";
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -1538,7 +1539,7 @@ public class GlowServer implements Server {
      * @return a resulting {@link AdvancementsMessage} packet
      */
     public AdvancementsMessage createAdvancementsMessage(boolean clear, List<NamespacedKey> remove,
-            Player player) {
+                                                         Player player) {
         return createAdvancementsMessage(advancements, clear, remove, player);
     }
 
@@ -1556,8 +1557,8 @@ public class GlowServer implements Server {
      * @return a resulting {@link AdvancementsMessage} packet
      */
     public AdvancementsMessage createAdvancementsMessage(
-            Map<NamespacedKey, Advancement> advancements, boolean clear, List<NamespacedKey> remove,
-            Player player) {
+        Map<NamespacedKey, Advancement> advancements, boolean clear, List<NamespacedKey> remove,
+        Player player) {
         return new AdvancementsMessage(clear, advancements, remove);
     }
 
@@ -1791,7 +1792,7 @@ public class GlowServer implements Server {
     @Override
     public String getVersion() {
         return GlowServer.class.getPackage().getImplementationVersion()
-                + " (MC: " + GAME_VERSION + ")"; // NON-NLS
+            + " (MC: " + GAME_VERSION + ")"; // NON-NLS
     }
 
     @Override
@@ -1905,8 +1906,8 @@ public class GlowServer implements Server {
     /**
      * Creates a player profile.
      *
-     * @param name The player's name.
-     * @param uuid The player's UUID; may be null.
+     * @param name        The player's name.
+     * @param uuid        The player's UUID; may be null.
      * @param asyncLookup If true and {@code uuid} is null, the UUID is looked up asynchronously.
      * @return The player's profile.
      */
@@ -1948,7 +1949,7 @@ public class GlowServer implements Server {
     public Map<String, String[]> getCommandAliases() {
         Map<String, String[]> aliases = new HashMap<>();
         ConfigurationSection section = config.getConfigFile(Key.COMMANDS_FILE)
-                .getConfigurationSection("aliases");
+            .getConfigurationSection("aliases");
         if (section == null) {
             return aliases;
         }
@@ -1961,7 +1962,7 @@ public class GlowServer implements Server {
 
     @Override
     public boolean dispatchCommand(CommandSender sender,
-            String commandLine) throws CommandException {
+                                   String commandLine) throws CommandException {
         if (commandMap.dispatch(sender, commandLine)) {
             return true;
         }
@@ -1972,14 +1973,14 @@ public class GlowServer implements Server {
         }
 
         GlowstoneMessages.Command.Error.UNKNOWN_COMMAND.send(
-                sender, ChatColor.GRAY, firstword);
+            sender, ChatColor.GRAY, firstword);
         return false;
     }
 
     @Override
     public Set<OfflinePlayer> getOperators() {
         return opsList.getProfiles().stream().map(this::getOfflinePlayer)
-                .collect(Collectors.toSet());
+            .collect(Collectors.toSet());
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -2022,12 +2023,12 @@ public class GlowServer implements Server {
         }
 
         return getPlayerDataService().getOfflinePlayers()
-                .thenAcceptAsync(offlinePlayers -> offlinePlayers.stream()
-                        .filter(offline -> !uuids.contains(offline.getUniqueId()))
-                        .forEach(offline -> {
-                            result.add(offline);
-                            uuids.add(offline.getUniqueId());
-                        })).thenApply((v) -> result.toArray(new OfflinePlayer[result.size()]));
+            .thenAcceptAsync(offlinePlayers -> offlinePlayers.stream()
+                .filter(offline -> !uuids.contains(offline.getUniqueId()))
+                .forEach(offline -> {
+                    result.add(offline);
+                    uuids.add(offline.getUniqueId());
+                })).thenApply((v) -> result.toArray(new OfflinePlayer[result.size()]));
     }
 
     @Override
@@ -2170,12 +2171,12 @@ public class GlowServer implements Server {
         }
 
         return GlowOfflinePlayer.getOfflinePlayer(this, uuid)
-                .thenApply((player) -> (OfflinePlayer) player);
+            .thenApply((player) -> (OfflinePlayer) player);
     }
 
     private OfflinePlayer getOfflinePlayerFallback(String name) {
         return getOfflinePlayer(new GlowPlayerProfile(name, UUID
-                .nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes()), false));
+            .nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes()), false));
     }
 
     @Override
@@ -2233,7 +2234,7 @@ public class GlowServer implements Server {
     @Override
     public Set<OfflinePlayer> getWhitelistedPlayers() {
         return whitelist.getProfiles().stream().map(this::getOfflinePlayer)
-                .collect(Collectors.toSet());
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -2259,7 +2260,7 @@ public class GlowServer implements Server {
     @Override
     public Set<OfflinePlayer> getBannedPlayers() {
         return nameBans.getBanEntries().stream().map(entry -> getOfflinePlayer(entry.getTarget()))
-                .collect(Collectors.toSet());
+            .collect(Collectors.toSet());
     }
 
     /**
@@ -2271,10 +2272,10 @@ public class GlowServer implements Server {
     public void sendPlayerAbilities(GlowPlayer player) {
         boolean creative = player.getGameMode() == GameMode.CREATIVE;
         int flags = (creative ? 8 : 0) | (player.getAllowFlight() ? 4 : 0)
-                | (player.isFlying() ? 2 : 0) | (creative ? 1 : 0);
+            | (player.isFlying() ? 2 : 0) | (creative ? 1 : 0);
         // division is conversion from Bukkit to MC units
         player.getSession().send(new PlayerAbilitiesMessage(flags,
-                player.getFlySpeed() / 2F, player.getWalkSpeed() / 2F));
+            player.getFlySpeed() / 2F, player.getWalkSpeed() / 2F));
     }
 
     @Override
@@ -2313,7 +2314,7 @@ public class GlowServer implements Server {
         if (worlds != null) {
             String genName = worlds.getString(name + ".generator", null); // NON-NLS
             ChunkGenerator generator = WorldCreator
-                    .getGeneratorForName(name, genName, getConsoleSender());
+                .getGeneratorForName(name, genName, getConsoleSender());
             if (generator != null) {
                 return generator;
             }
@@ -2349,7 +2350,7 @@ public class GlowServer implements Server {
 
         // GlowWorld's constructor calls addWorld below.
         return new GlowWorld(this, creator, storageProviderFactory
-                .createWorldStorageProvider(creator.name()));
+            .createWorldStorageProvider(creator.name()));
     }
 
     /**
@@ -2543,7 +2544,7 @@ public class GlowServer implements Server {
 
     @Override
     public double[] getTPS() {
-        return new double[]{20, 20, 20}; // TODO: show TPS
+        return new double[] {20, 20, 20}; // TODO: show TPS
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -2835,7 +2836,7 @@ public class GlowServer implements Server {
      * Gets whether the server is OpenCL-capable and allowed to use graphics compute functionality.
      *
      * @return true if the server is capable and allowed to use graphics compute functionality,
-     *     false otherwise.
+     * false otherwise.
      */
     public boolean doesUseGraphicsCompute() {
         return isGraphicsComputeAvailable && config.getBoolean(Key.GRAPHICS_COMPUTE);
@@ -2872,7 +2873,7 @@ public class GlowServer implements Server {
     public void setStorageProvider(WorldStorageProviderFactory storageProviderFactory) {
         if (this.storageProviderFactory != null) {
             throw new IllegalStateException("Duplicate storage provider attempting to be set. "
-                    + "Only one custom storage provider may be provided.");
+                + "Only one custom storage provider may be provided.");
         }
         this.storageProviderFactory = storageProviderFactory;
     }

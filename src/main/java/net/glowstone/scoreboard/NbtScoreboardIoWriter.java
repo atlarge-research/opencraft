@@ -18,7 +18,7 @@ public class NbtScoreboardIoWriter {
     /**
      * Saves a scoreboard to a compressed NBT file.
      *
-     * @param path the file path to write to
+     * @param path       the file path to write to
      * @param scoreboard the scoreboard to save
      * @throws IOException if the file cannot be written
      */

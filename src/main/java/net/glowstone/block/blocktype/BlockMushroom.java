@@ -101,7 +101,7 @@ public class BlockMushroom extends BlockNeedsAttached implements IBlockGrowable 
                 for (z = block.getZ() - 4; z <= block.getZ() + 4; z++) {
                     for (y = block.getY() - 1; y <= block.getY() + 1; y++) {
                         if (world.getBlockAt(x, y, z).getType() == mushroomType
-                                && ++nearbyShrooms > 4) {
+                            && ++nearbyShrooms > 4) {
                             return;
                         }
                     }
@@ -113,7 +113,7 @@ public class BlockMushroom extends BlockNeedsAttached implements IBlockGrowable 
             int nz;
             nx = block.getX() + ThreadLocalRandom.current().nextInt(3) - 1;
             ny = block.getY() + ThreadLocalRandom.current().nextInt(2)
-                    - ThreadLocalRandom.current().nextInt(2);
+                - ThreadLocalRandom.current().nextInt(2);
             nz = block.getZ() + ThreadLocalRandom.current().nextInt(3) - 1;
 
             x = block.getX();

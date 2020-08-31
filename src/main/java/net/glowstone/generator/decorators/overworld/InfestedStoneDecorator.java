@@ -28,8 +28,8 @@ public class InfestedStoneDecorator extends BlockDecorator {
             int minY = oreType.getMinY();
             int maxY = oreType.getMaxY();
             int sourceY = minY == maxY
-                    ? random.nextInt(minY) + random.nextInt(minY)
-                    : random.nextInt(maxY - minY) + minY;
+                ? random.nextInt(minY) + random.nextInt(minY)
+                : random.nextInt(maxY - minY) + minY;
 
             new OreVein(oreType).generate(world, random, sourceX, sourceY, sourceZ);
         }

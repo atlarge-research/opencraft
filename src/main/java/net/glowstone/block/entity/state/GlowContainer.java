@@ -95,8 +95,8 @@ public abstract class GlowContainer extends GlowBlockState implements LootableBl
     @Override
     public boolean setHasPlayerLooted(UUID uuid, boolean b) {
         return b
-                ? playersWhoHaveLooted.put(uuid, getWorld().getFullTime()) != null
-                : playersWhoHaveLooted.remove(uuid) != null;
+            ? playersWhoHaveLooted.put(uuid, getWorld().getFullTime()) != null
+            : playersWhoHaveLooted.remove(uuid) != null;
     }
 
     @Override

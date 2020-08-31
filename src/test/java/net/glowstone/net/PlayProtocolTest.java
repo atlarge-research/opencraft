@@ -89,7 +89,7 @@ import org.bukkit.util.Vector;
  */
 public class PlayProtocolTest extends BaseProtocolTest {
 
-    private static final Message[] TEST_MESSAGES = new Message[]{
+    private static final Message[] TEST_MESSAGES = new Message[] {
         new PingMessage(1L),
         new IncomingChatMessage("test"),
         new InteractEntityMessage(1, 1),
@@ -110,7 +110,7 @@ public class PlayProtocolTest extends BaseProtocolTest {
         new CreativeItemMessage(1, new ItemStack(Material.APPLE, 1)),
         new EnchantItemMessage(1, 2),
         new UpdateSignMessage(1, 2, 3,
-            new TextMessage[]{new TextMessage("hello"), new TextMessage("hi"),
+            new TextMessage[] {new TextMessage("hello"), new TextMessage("hi"),
                 new TextMessage("third"), new TextMessage("fourth")}),
         UpdateSignMessage.fromPlainText(1, 2, 3, "hello", "hi", "third", "fourth"),
         new PlayerAbilitiesMessage(1, 2f, 3f),
@@ -118,7 +118,7 @@ public class PlayProtocolTest extends BaseProtocolTest {
         new TabCompleteMessage("text", false, new BlockVector(1, 2, 3)),
         new ClientSettingsMessage("en-en", 16, 1, true, 2, 0),
         new ClientStatusMessage(1),
-        new PluginMessage("glowstone", new byte[]{0x00, 0x11}),
+        new PluginMessage("glowstone", new byte[] {0x00, 0x11}),
         new SpectateMessage(UUID.randomUUID()),
         new ResourcePackStatusMessage(1),
         //new JoinGameMessage(1, 2, 3, 4, 5, "normal", true), //asymmetric
@@ -206,9 +206,9 @@ public class PlayProtocolTest extends BaseProtocolTest {
         new CraftRecipeResponseMessage(0, 1),
         new CraftingBookDataMessage(CraftingBookDataMessage.TYPE_DISPLAYED_RECIPE, 0),
         new CraftingBookDataMessage(CraftingBookDataMessage.TYPE_STATUS, true, false),
-        new UnlockRecipesMessage(UnlockRecipesMessage.ACTION_ADD, true, false, new int[]{1, 2, 3}),
-        new UnlockRecipesMessage(UnlockRecipesMessage.ACTION_INIT, true, false, new int[]{1, 2},
-            new int[]{1, 2, 3})
+        new UnlockRecipesMessage(UnlockRecipesMessage.ACTION_ADD, true, false, new int[] {1, 2, 3}),
+        new UnlockRecipesMessage(UnlockRecipesMessage.ACTION_INIT, true, false, new int[] {1, 2},
+            new int[] {1, 2, 3})
     };
 
     public PlayProtocolTest() {

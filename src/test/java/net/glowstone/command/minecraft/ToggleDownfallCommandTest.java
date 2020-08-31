@@ -19,7 +19,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({CommandUtils.class})
+@PrepareForTest( {CommandUtils.class})
 public class ToggleDownfallCommandTest extends CommandTest<ToggleDownfallCommand> {
 
     private World world;
@@ -59,11 +59,11 @@ public class ToggleDownfallCommandTest extends CommandTest<ToggleDownfallCommand
     public void testTabComplete() {
         assertThat(command.tabComplete(opSender, "alias", new String[0]),
             is(Collections.emptyList()));
-        assertThat(command.tabComplete(opSender, "alias", new String[]{""}),
+        assertThat(command.tabComplete(opSender, "alias", new String[] {""}),
             is(Collections.emptyList()));
-        assertThat(command.tabComplete(opSender, "alias", new String[]{"test"}),
+        assertThat(command.tabComplete(opSender, "alias", new String[] {"test"}),
             is(Collections.emptyList()));
-        assertThat(command.tabComplete(opSender, "alias", new String[]{"test", "test"}),
+        assertThat(command.tabComplete(opSender, "alias", new String[] {"test", "test"}),
             is(Collections.emptyList()));
     }
 }

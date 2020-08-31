@@ -24,7 +24,7 @@ public class GlowEnchantingInventory extends GlowInventory implements Enchanting
      * Creates an instance for an enchanting table.
      *
      * @param location the enchanting table's location
-     * @param player the enchanting player
+     * @param player   the enchanting player
      */
     public GlowEnchantingInventory(Location location, GlowPlayer player) {
         super(player, InventoryType.ENCHANTING);

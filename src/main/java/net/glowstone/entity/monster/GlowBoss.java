@@ -36,17 +36,18 @@ public class GlowBoss extends GlowMonster {
 
     /**
      * Creates a new boss.
-     * @param loc The location of the non-passive mob.
-     * @param type The type of mob.
+     *
+     * @param loc       The location of the non-passive mob.
+     * @param type      The type of mob.
      * @param maxHealth The max health for this mob.
-     * @param title The boss bar title. TODO: i18n
-     * @param color The boss bar color.
-     * @param style The boss bar style.
-     * @param barFlags Flags controlling the boss bar.
+     * @param title     The boss bar title. TODO: i18n
+     * @param color     The boss bar color.
+     * @param style     The boss bar style.
+     * @param barFlags  Flags controlling the boss bar.
      */
     public GlowBoss(Location loc, EntityType type, double maxHealth, String title,
-            BarColor color, BarStyle style,
-            BarFlag... barFlags) {
+                    BarColor color, BarStyle style,
+                    BarFlag... barFlags) {
         super(loc, type, maxHealth);
         bar = getServer().createBossBar(title, color, style, barFlags);
         bar.setProgress(1);
@@ -58,15 +59,16 @@ public class GlowBoss extends GlowMonster {
 
     /**
      * Creates a new boss, whose boss-bar title is equal to its type name.
-     * @param loc The location of the non-passive mob.
-     * @param type The type of mob.
+     *
+     * @param loc       The location of the non-passive mob.
+     * @param type      The type of mob.
      * @param maxHealth The max health for this mob.
-     * @param color The boss bar color.
-     * @param style The boss bar style.
-     * @param barFlags Flags controlling the boss bar.
+     * @param color     The boss bar color.
+     * @param style     The boss bar style.
+     * @param barFlags  Flags controlling the boss bar.
      */
     public GlowBoss(Location loc, EntityType type, double maxHealth, BarColor color, BarStyle style,
-            BarFlag... barFlags) {
+                    BarFlag... barFlags) {
         this(loc, type, maxHealth, type.getName(), color, style, barFlags);
     }
 

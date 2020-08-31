@@ -13,7 +13,7 @@ import org.junit.Test;
 
 public abstract class GlowAnimalTest<T extends GlowAnimal> extends GlowAgeableTest<T> {
     protected GlowAnimalTest(
-            Function<Location, ? extends T> entityCreator) {
+        Function<Location, ? extends T> entityCreator) {
         super(entityCreator);
     }
 
@@ -25,7 +25,7 @@ public abstract class GlowAnimalTest<T extends GlowAnimal> extends GlowAgeableTe
     @Test
     public void testFoodSetsLoveMode() {
         InteractEntityMessage interact = new InteractEntityMessage(1,
-                InteractEntityMessage.Action.INTERACT.ordinal(), /* main hand */ 0);
+            InteractEntityMessage.Action.INTERACT.ordinal(), /* main hand */ 0);
         for (Material foodType : entity.getBreedingFoods()) {
             try {
                 entity.setBreed(true);
@@ -51,7 +51,7 @@ public abstract class GlowAnimalTest<T extends GlowAnimal> extends GlowAgeableTe
     @Test
     public void testFoodDoesNotSetLoveModeAfterBreeding() {
         InteractEntityMessage interact = new InteractEntityMessage(1,
-                InteractEntityMessage.Action.INTERACT.ordinal(), /* main hand */ 0);
+            InteractEntityMessage.Action.INTERACT.ordinal(), /* main hand */ 0);
         entity.setAge(1);
         for (Material foodType : entity.getBreedingFoods()) {
             ItemStack food = new ItemStack(foodType, 1);

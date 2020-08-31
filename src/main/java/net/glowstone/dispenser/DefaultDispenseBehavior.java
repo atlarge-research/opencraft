@@ -16,7 +16,8 @@ public class DefaultDispenseBehavior implements DispenseBehavior {
 
     public static final DefaultDispenseBehavior INSTANCE = new DefaultDispenseBehavior();
 
-    protected DefaultDispenseBehavior() {}
+    protected DefaultDispenseBehavior() {
+    }
 
     @Override
     public ItemStack dispense(GlowBlock block, ItemStack stack) {
@@ -39,7 +40,7 @@ public class DefaultDispenseBehavior implements DispenseBehavior {
     }
 
     private void doDispense(GlowBlock block, ItemStack items, int power, BlockFace facing,
-        Vector target) {
+                            Vector target) {
 
         double x = target.getX();
         double y = target.getY();

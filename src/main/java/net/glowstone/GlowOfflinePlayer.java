@@ -40,7 +40,7 @@ public final class GlowOfflinePlayer implements OfflinePlayer {
      * Create a new offline player for the given name. If possible, the player's data will be
      * loaded.
      *
-     * @param server The server of the offline player. Must not be null.
+     * @param server  The server of the offline player. Must not be null.
      * @param profile The profile associated with the player. Must not be null.
      */
     public GlowOfflinePlayer(GlowServer server, GlowPlayerProfile profile) {
@@ -56,15 +56,15 @@ public final class GlowOfflinePlayer implements OfflinePlayer {
      * name) will be loaded based on the UUID.
      *
      * @param server The server of the offline player. Must not be null.
-     * @param uuid The UUID of the player. Must not be null.
+     * @param uuid   The UUID of the player. Must not be null.
      * @return A {@link GlowOfflinePlayer} future.
      */
     public static CompletableFuture<GlowOfflinePlayer> getOfflinePlayer(GlowServer server,
-            UUID uuid) {
+                                                                        UUID uuid) {
         checkNotNull(server, "server must not be null"); // NON-NLS
         checkNotNull(uuid, "UUID must not be null"); // NON-NLS
         return ProfileCache.getProfile(uuid)
-                .thenApplyAsync((profile) -> new GlowOfflinePlayer(server, profile));
+            .thenApplyAsync((profile) -> new GlowOfflinePlayer(server, profile));
     }
 
     /**
@@ -83,7 +83,7 @@ public final class GlowOfflinePlayer implements OfflinePlayer {
         } else {
             // use UUID
             return server.getOfflinePlayer(
-                    UuidUtils.fromString(val.get("UUID").toString())); // NON-NLS
+                UuidUtils.fromString(val.get("UUID").toString())); // NON-NLS
         }
     }
 
@@ -212,6 +212,6 @@ public final class GlowOfflinePlayer implements OfflinePlayer {
     @Override
     public String toString() {
         return "GlowOfflinePlayer{" + "name='" + getName() + '\'' + ", uuid="
-                + UuidUtils.toString(getUniqueId()) + '}';
+            + UuidUtils.toString(getUniqueId()) + '}';
     }
 }

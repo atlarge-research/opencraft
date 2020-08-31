@@ -18,18 +18,19 @@ public abstract class MapLayer {
 
     /**
      * Creates the instances for the given map.
-     * @param seed the world seed
+     *
+     * @param seed        the world seed
      * @param environment the type of dimension
-     * @param worldType the world generator
+     * @param worldType   the world generator
      * @return an array of all map layers this dimension needs
      */
     public static MapLayer[] initialize(long seed, Environment environment, WorldType worldType) {
         if (environment == Environment.NORMAL && worldType == WorldType.FLAT) {
-            return new MapLayer[]{new ConstantBiomeMapLayer(seed, Biome.PLAINS), null};
+            return new MapLayer[] {new ConstantBiomeMapLayer(seed, Biome.PLAINS), null};
         } else if (environment == Environment.NETHER) {
-            return new MapLayer[]{new ConstantBiomeMapLayer(seed, Biome.HELL), null};
+            return new MapLayer[] {new ConstantBiomeMapLayer(seed, Biome.HELL), null};
         } else if (environment == Environment.THE_END) {
-            return new MapLayer[]{new ConstantBiomeMapLayer(seed, Biome.SKY), null};
+            return new MapLayer[] {new ConstantBiomeMapLayer(seed, Biome.SKY), null};
         }
 
         int zoom = 2;
@@ -86,7 +87,7 @@ public abstract class MapLayer {
 
         layer = new SmoothMapLayer(seed + 1001, layer);
 
-        return new MapLayer[]{layer, layerLowerRes};
+        return new MapLayer[] {layer, layerLowerRes};
     }
 
     public void setCoordsSeed(int x, int z) {

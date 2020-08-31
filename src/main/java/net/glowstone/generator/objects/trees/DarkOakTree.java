@@ -12,7 +12,8 @@ public class DarkOakTree extends GenericTree {
 
     /**
      * Initializes this tree with a random height, preparing it to attempt to generate.
-     *  @param random the PRNG
+     *
+     * @param random   the PRNG
      * @param delegate the BlockStateDelegate used to check for space and to fill wood and leaf
      */
     public DarkOakTree(Random random, BlockStateDelegate delegate) {
@@ -119,7 +120,7 @@ public class DarkOakTree extends GenericTree {
                 }
                 for (int y = 0; y < random.nextInt(3) + 2; y++) {
                     Material material = blockTypeAt(
-                            blockX + x, trunkTopY - y - 1, blockZ + z, world);
+                        blockX + x, trunkTopY - y - 1, blockZ + z, world);
                     if (material == Material.AIR || material == Material.LEAVES) {
                         delegate.setTypeAndRawData(world, blockX + x,
                             trunkTopY - y - 1, blockZ + z, Material.LOG_2, 1);

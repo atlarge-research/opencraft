@@ -41,7 +41,7 @@ public final class GlowMapRenderer extends MapRenderer {
                 int worldX = cornerX + (pixelX << scaleShift);
                 int worldZ = cornerZ + (pixelY << scaleShift);
                 if (((worldX - playerX) * (worldX - playerX)
-                        + (worldZ - playerZ) * (worldZ - playerZ)) < MAP_SIGHT_DISTANCE_SQUARED) {
+                    + (worldZ - playerZ) * (worldZ - playerZ)) < MAP_SIGHT_DISTANCE_SQUARED) {
                     // TODO: Should the highest block be skipped over if it's e.g. a flower or a
                     // technical block?
                     byte blockColor =
@@ -59,7 +59,7 @@ public final class GlowMapRenderer extends MapRenderer {
      */
     private static byte pseudoRandomShade(int worldX, int worldZ) {
         return (byte) ((
-                ((worldX * worldX * 0x4c1906) + (worldX * 0x5ac0db) + ((worldZ * worldZ) * 0x4307a7)
+            ((worldX * worldX * 0x4c1906) + (worldX * 0x5ac0db) + ((worldZ * worldZ) * 0x4307a7)
                 + (worldZ * 0x5f24f))) % 4);
     }
 
@@ -68,7 +68,7 @@ public final class GlowMapRenderer extends MapRenderer {
         ValueCollection materialValues;
         materialValues = block instanceof GlowBlock ? ((GlowBlock) block).getMaterialValues()
             : ((GlowServer) ServerProvider.getServer()).getMaterialValueManager()
-                .getValues(block.getType());
+            .getValues(block.getType());
         byte baseColor = materialValues.getBaseMapColor();
         return (byte) (baseColor | pseudoRandomShade(worldX, worldZ));
     }

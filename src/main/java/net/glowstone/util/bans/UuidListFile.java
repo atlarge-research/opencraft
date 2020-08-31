@@ -40,16 +40,16 @@ public final class UuidListFile extends JsonListFile {
      */
     public List<GlowPlayerProfile> getProfiles() {
         return entries
-                .stream()
-                .parallel()
-                .map(entry -> {
-                    try {
-                        return ProfileCache.getProfile(((Entry) entry).uuid).get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        throw new RuntimeException(e);
-                    }
-                })
-                .collect(Collectors.toList());
+            .stream()
+            .parallel()
+            .map(entry -> {
+                try {
+                    return ProfileCache.getProfile(((Entry) entry).uuid).get();
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
+            })
+            .collect(Collectors.toList());
     }
 
     /**

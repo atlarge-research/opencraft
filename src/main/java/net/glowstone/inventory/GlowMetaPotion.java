@@ -34,6 +34,7 @@ public class GlowMetaPotion extends GlowMetaItem implements PotionMeta {
      * Creates an instance by copying from the given {@link ItemMeta}. If that item is another
      * {@link PotionMeta}, its color, {@link PotionData} and {@link PotionEffect}s are copied;
      * otherwise, the new potion has no effects.
+     *
      * @param meta the {@link ItemMeta} to copy
      */
     public GlowMetaPotion(ItemMeta meta) {

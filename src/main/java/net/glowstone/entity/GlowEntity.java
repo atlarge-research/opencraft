@@ -121,8 +121,8 @@ public abstract class GlowEntity implements Entity {
      * A list containing all the block faces adjacent to the player.
      */
     private static final List<BlockFace> FACES = Arrays.asList(BlockFace.EAST, BlockFace.WEST, BlockFace.SOUTH,
-            BlockFace.NORTH, BlockFace.DOWN, BlockFace.SELF, BlockFace.NORTH_EAST,
-            BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST);
+        BlockFace.NORTH, BlockFace.DOWN, BlockFace.SELF, BlockFace.NORTH_EAST,
+        BlockFace.NORTH_WEST, BlockFace.SOUTH_EAST, BlockFace.SOUTH_WEST);
 
     /**
      * The server this entity belongs to.
@@ -146,7 +146,7 @@ public abstract class GlowEntity implements Entity {
     protected final Location previousLocation;
 
     /**
-         * The entity's velocity, applied each tick.
+     * The entity's velocity, applied each tick.
      */
     protected final Vector velocity = new Vector();
 
@@ -675,6 +675,7 @@ public abstract class GlowEntity implements Entity {
     /**
      * Fire when a entity interacts with a portal. Checks if the entity is allowed to teleport to another world and
      * handles transporting of entity.
+     *
      * @param portal The block the entity interacts with.
      */
     private void interactWithPortal(Block portal) {
@@ -704,11 +705,11 @@ public abstract class GlowEntity implements Entity {
 
         if (success) {
             EntityPortalExitEvent portalExitEvent = new EntityPortalExitEvent(
-                    this,
-                    previousLocation,
-                    location.clone(),
-                    velocity.clone(),
-                    new Vector()
+                this,
+                previousLocation,
+                location.clone(),
+                velocity.clone(),
+                new Vector()
             );
             portalExitEvent = EventFactory.getInstance().callEvent(portalExitEvent);
             if (!portalExitEvent.getAfter().equals(velocity)) {
@@ -876,11 +877,11 @@ public abstract class GlowEntity implements Entity {
         dz *= 128;
 
         boolean teleport = dx > Short.MAX_VALUE
-                || dy > Short.MAX_VALUE
-                || dz > Short.MAX_VALUE
-                || dx < Short.MIN_VALUE
-                || dy < Short.MIN_VALUE
-                || dz < Short.MIN_VALUE;
+            || dy > Short.MAX_VALUE
+            || dz > Short.MAX_VALUE
+            || dx < Short.MIN_VALUE
+            || dy < Short.MIN_VALUE
+            || dz < Short.MIN_VALUE;
 
         List<Message> result = new LinkedList<>();
 
@@ -894,12 +895,12 @@ public abstract class GlowEntity implements Entity {
             int pitch = Position.getIntPitch(location);
             if (moved) {
                 result.add(new RelativeEntityPositionRotationMessage(
-                        entityId,
-                        (short) dx,
-                        (short) dy,
-                        (short) dz,
-                        yaw,
-                        pitch
+                    entityId,
+                    (short) dx,
+                    (short) dy,
+                    (short) dz,
+                    yaw,
+                    pitch
                 ));
             } else {
                 result.add(new EntityRotationMessage(entityId, yaw, pitch));
@@ -926,8 +927,8 @@ public abstract class GlowEntity implements Entity {
             // We need to send the self_id
 
             int[] passengerIds = getPassengers().stream()
-                    .mapToInt(Entity::getEntityId)
-                    .toArray();
+                .mapToInt(Entity::getEntityId)
+                .toArray();
             result.add(new SetPassengerMessage(getEntityId(), passengerIds));
             passengerChanged = false;
         }
@@ -1119,10 +1120,10 @@ public abstract class GlowEntity implements Entity {
         List<GlowBlock> glowBlocks = world.getOverlappingBlocks(min, max);
 
         List<BoundingBox> intersectingBoxes = glowBlocks.stream()
-                .map(BlockBoundingBoxes::getBoundingBoxes)
-                .flatMap(List::stream)
-                .filter(box -> box.intersects(broadPhaseBox))
-                .collect(Collectors.toList());
+            .map(BlockBoundingBoxes::getBoundingBoxes)
+            .flatMap(List::stream)
+            .filter(box -> box.intersects(broadPhaseBox))
+            .collect(Collectors.toList());
 
         return intersectingBoxes;
     }
@@ -1188,9 +1189,9 @@ public abstract class GlowEntity implements Entity {
 
             // Find the closest one.
             Pair<Double, Vector> closest = intersectingBoxes.stream()
-                    .map(box -> pendingBox.sweptAxisAlignedBoundingBox(remainingDisplacement, box))
-                    .min(Comparator.comparingDouble(Pair::getLeft))
-                    .get();
+                .map(box -> pendingBox.sweptAxisAlignedBoundingBox(remainingDisplacement, box))
+                .min(Comparator.comparingDouble(Pair::getLeft))
+                .get();
 
             // Move up to the collided with box.
             double collisionTime = closest.getLeft();
@@ -1297,7 +1298,7 @@ public abstract class GlowEntity implements Entity {
         this.setPassenger(null);
         leaveVehicle();
         ImmutableList.copyOf(this.leashedEntities)
-                .forEach(e -> unleash(e, UnleashReason.HOLDER_GONE));
+            .forEach(e -> unleash(e, UnleashReason.HOLDER_GONE));
 
         if (isLeashed()) {
             unleash(this, UnleashReason.HOLDER_GONE);
@@ -1337,7 +1338,7 @@ public abstract class GlowEntity implements Entity {
         if (type.getApplicable().isInstance(this)) {
             EntityStatusMessage message = new EntityStatusMessage(entityId, type);
             world.getRawPlayers().stream().filter(player -> player.canSeeEntity(this))
-                    .forEach(player -> player.getSession().send(message));
+                .forEach(player -> player.getSession().send(message));
         }
     }
 
@@ -1348,7 +1349,7 @@ public abstract class GlowEntity implements Entity {
                 ((GlowPlayer) this).getSession().send(message);
             }
             world.getRawPlayers().stream().filter(player -> player.canSeeEntity(this))
-                    .forEach(player -> player.getSession().send(message));
+                .forEach(player -> player.getSession().send(message));
         }
     }
 
@@ -1437,7 +1438,7 @@ public abstract class GlowEntity implements Entity {
         }
 
         if (EventFactory.getInstance()
-                .callEvent(new EntityDismountEvent(passenger, this)).isCancelled()) {
+            .callEvent(new EntityDismountEvent(passenger, this)).isCancelled()) {
             return false;
         }
 
@@ -1449,7 +1450,7 @@ public abstract class GlowEntity implements Entity {
 
         if (this instanceof Vehicle && glowPassenger instanceof LivingEntity) {
             VehicleExitEvent event = EventFactory.getInstance()
-                    .callEvent(new VehicleExitEvent((Vehicle) this, (LivingEntity) glowPassenger));
+                .callEvent(new VehicleExitEvent((Vehicle) this, (LivingEntity) glowPassenger));
             if (event.isCancelled()) {
                 return false;
             }
@@ -1483,13 +1484,13 @@ public abstract class GlowEntity implements Entity {
 
         if (this instanceof Vehicle) {
             VehicleEnterEvent event = EventFactory.getInstance().callEvent(
-                    new VehicleEnterEvent((Vehicle) this, passenger));
+                new VehicleEnterEvent((Vehicle) this, passenger));
             if (event.isCancelled()) {
                 return false;
             }
         }
         EntityMountEvent event = EventFactory.getInstance().callEvent(
-                new EntityMountEvent(passenger, this));
+            new EntityMountEvent(passenger, this));
         if (event.isCancelled()) {
             return false;
         }

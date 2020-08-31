@@ -15,7 +15,7 @@ public class BlockPortal extends BlockType {
      * east and west, while data value 2 corresponds to north and south. There should always be a block above and
      * below a portal block.
      *
-     * @param data The data value of the portal block.
+     * @param data      The data value of the portal block.
      * @param direction the direction to check for adjacent block.
      * @return Whether the direction corresponds to the data.
      */
@@ -36,13 +36,13 @@ public class BlockPortal extends BlockType {
 
     @Override
     public void onNearBlockChanged(
-            GlowBlock block,
-            BlockFace face,
-            GlowBlock changedBlock,
-            Material oldType,
-            byte oldData,
-            Material newType,
-            byte newData
+        GlowBlock block,
+        BlockFace face,
+        GlowBlock changedBlock,
+        Material oldType,
+        byte oldData,
+        Material newType,
+        byte newData
     ) {
         int count = 0;
         byte blockData = block.getData();

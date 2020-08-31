@@ -72,9 +72,9 @@ public class GlowWorldBorder implements WorldBorder {
      */
     public WorldBorderMessage createMessage() {
         return new WorldBorderMessage(
-                WorldBorderMessage.Action.INITIALIZE, center.getX(), center.getZ(),
-                size, sizeLerpTarget, sizeLerpTime * 1000, 29999984,
-                warningTime, warningDistance);
+            WorldBorderMessage.Action.INITIALIZE, center.getX(), center.getZ(),
+            size, sizeLerpTarget, sizeLerpTime * 1000, 29999984,
+            warningTime, warningDistance);
     }
 
     /**
@@ -130,14 +130,14 @@ public class GlowWorldBorder implements WorldBorder {
         sizeLerpTarget = size;
         sizeLerpTime = seconds;
         broadcast(new WorldBorderMessage(WorldBorderMessage.Action.LERP_SIZE,
-                this.size, sizeLerpTarget, sizeLerpTime * 1000));
+            this.size, sizeLerpTarget, sizeLerpTime * 1000));
     }
 
     @Override
     public void setCenter(Location location) {
         center = location.clone();
         broadcast(new WorldBorderMessage(
-                WorldBorderMessage.Action.SET_CENTER, center.getX(), center.getZ()));
+            WorldBorderMessage.Action.SET_CENTER, center.getX(), center.getZ()));
     }
 
     @Override
@@ -162,7 +162,7 @@ public class GlowWorldBorder implements WorldBorder {
         Location max = center.clone().add(size / 2, 0, size / 2);
         Location min = center.clone().subtract(size / 2, 0, size / 2);
         return location.getX() <= max.getX() && location.getZ() <= max.getZ()
-                && location.getX() >= min.getX() && location.getZ() >= min.getZ();
+            && location.getX() >= min.getX() && location.getZ() >= min.getZ();
     }
 
     private void broadcast(WorldBorderMessage message) {

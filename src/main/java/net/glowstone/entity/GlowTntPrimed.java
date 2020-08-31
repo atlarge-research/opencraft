@@ -50,7 +50,7 @@ public class GlowTntPrimed extends GlowExplosive implements TNTPrimed {
      * Creates a primed TNT block.
      *
      * @param location the location
-     * @param source the entity that ignited this; may be null
+     * @param source   the entity that ignited this; may be null
      */
     public GlowTntPrimed(Location location, Entity source) {
         super(location, Explosion.POWER_TNT);
@@ -98,19 +98,19 @@ public class GlowTntPrimed extends GlowExplosive implements TNTPrimed {
         } else if (fuseTicks % 5 == 0) {
             double delta = rand.nextDouble(0, 0.15);
             Location startLocation = location.clone().toCenterLocation().add(delta, 0.5, -delta);
-            world.spawnParticle(Particle.SMOKE_NORMAL, startLocation,0, 0, 0.15d, 0);
+            world.spawnParticle(Particle.SMOKE_NORMAL, startLocation, 0, 0, 0.15d, 0);
         }
     }
 
     private void explode() {
         ExplosionPrimeEvent event = EventFactory.getInstance()
-                .callEvent(new ExplosionPrimeEvent(this));
+            .callEvent(new ExplosionPrimeEvent(this));
 
         if (!event.isCancelled()) {
             Location location = getLocation();
             world.createExplosion(this,
-                    location.getX(), location.getY() + 0.06125, location.getZ(),
-                    event.getRadius(), event.getFire(), true);
+                location.getX(), location.getY() + 0.06125, location.getZ(),
+                event.getRadius(), event.getFire(), true);
         }
 
         remove();
@@ -119,7 +119,7 @@ public class GlowTntPrimed extends GlowExplosive implements TNTPrimed {
     @Override
     public List<Message> createSpawnMessage() {
         return Collections.singletonList(new SpawnObjectMessage(
-                entityId, getUniqueId(), 50, location));
+            entityId, getUniqueId(), 50, location));
     }
 
     @Override

@@ -19,7 +19,7 @@ public class GlowTemple extends GlowStructure {
     /**
      * Creates a structure with no pieces.
      *
-     * @param world the world to generate in
+     * @param world  the world to generate in
      * @param chunkX the chunk X coordinate
      * @param chunkZ the chunk Z coordinate
      */
@@ -35,7 +35,7 @@ public class GlowTemple extends GlowStructure {
     /**
      * Creates a random temple or witch hut.
      *
-     * @param world the world to generate in
+     * @param world  the world to generate in
      * @param random the PRNG that will choose this temple's orientation
      * @param chunkX the chunk X coordinate
      * @param chunkZ the chunk Z coordinate

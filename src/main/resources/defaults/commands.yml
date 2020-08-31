@@ -9,5 +9,5 @@
 
 aliases:
   icanhasbukkit:
-  - version $1-
-  - plugins
+    - version $1-
+    - plugins

@@ -40,11 +40,12 @@ public final class MapDataMessage implements Message {
 
         /**
          * Creates an instance.
-         * @param width the section width
+         *
+         * @param width  the section width
          * @param height the section height
-         * @param x the x offset
-         * @param y the y offset
-         * @param data the data
+         * @param x      the x offset
+         * @param y      the y offset
+         * @param data   the data
          */
         public Section(int width, int height, int x, int y, byte... data) {
             checkArgument(width * height == data.length, "width * height == data.length");

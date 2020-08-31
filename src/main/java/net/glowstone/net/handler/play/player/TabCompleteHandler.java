@@ -53,7 +53,7 @@ public final class TabCompleteHandler implements MessageHandler<GlowSession, Tab
 
         // call event and send response
         EventFactory.getInstance()
-                .callEvent(new PlayerChatTabCompleteEvent(sender, buffer, completions));
+            .callEvent(new PlayerChatTabCompleteEvent(sender, buffer, completions));
         session.send(new TabCompleteResponseMessage(completions));
     }
 }

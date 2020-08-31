@@ -41,6 +41,7 @@ public class BlockSkull extends BlockType {
 
     /**
      * Returns the SkullType with the given ID.
+     *
      * @param id the ID to look up
      * @return the skull type
      */
@@ -66,7 +67,7 @@ public class BlockSkull extends BlockType {
 
     @Override
     public void placeBlock(GlowPlayer player, GlowBlockState state, BlockFace face,
-        ItemStack holding, Vector clickedLoc) {
+                           ItemStack holding, Vector clickedLoc) {
         super.placeBlock(player, state, face, holding, clickedLoc);
         MaterialData data = state.getData();
         if (!(data instanceof Skull)) {
@@ -84,7 +85,7 @@ public class BlockSkull extends BlockType {
 
     @Override
     public void afterPlace(GlowPlayer player, GlowBlock block, ItemStack holding,
-        GlowBlockState oldState) {
+                           GlowBlockState oldState) {
         GlowSkull skull = (GlowSkull) block.getState();
         skull.setSkullType(getType(holding.getDurability()));
         if (skull.getSkullType() == SkullType.PLAYER) {

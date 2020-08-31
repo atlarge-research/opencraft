@@ -24,7 +24,7 @@ public final class PriorityExecutor<GenericPriorityRunnable extends PriorityRunn
      * @param poolSize The number of threads in the pool
      * @throws IllegalArgumentException if poolSize < 0
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings( {"unchecked", "rawtypes"})
     public PriorityExecutor(int poolSize) throws IllegalArgumentException {
         queue = new SortableBlockingQueue<>(GenericPriorityRunnable::compareTo);
         BlockingQueue<Runnable> castedQueue = (BlockingQueue<Runnable>) ((BlockingQueue) queue);
@@ -48,8 +48,8 @@ public final class PriorityExecutor<GenericPriorityRunnable extends PriorityRunn
      * @return the removed runnables.
      */
     public Set<GenericPriorityRunnable> executeAndCancel(
-            List<GenericPriorityRunnable> toExecute,
-            Predicate<GenericPriorityRunnable> predicate
+        List<GenericPriorityRunnable> toExecute,
+        Predicate<GenericPriorityRunnable> predicate
     ) {
         Set<GenericPriorityRunnable> cancelled = new HashSet<>();
 

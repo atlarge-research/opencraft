@@ -27,7 +27,8 @@ public class LocalizedStringImpl implements LocalizedString {
 
     /**
      * Constructor for a localizedStringImplementation.
-     * @param key the key.
+     *
+     * @param key            the key.
      * @param resourceBundle the resourcebundle.
      */
     public LocalizedStringImpl(@NonNls String key, ResourceBundle resourceBundle) {
@@ -42,7 +43,7 @@ public class LocalizedStringImpl implements LocalizedString {
      * Wraps {@link MessageFormat#setFormatByArgumentIndex}.
      *
      * @param argumentIndex the argument index
-     * @param format the new format
+     * @param format        the new format
      * @return this
      */
     LocalizedStringImpl setFormatByArgumentIndex(int argumentIndex, Format format) {

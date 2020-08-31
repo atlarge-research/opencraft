@@ -22,7 +22,7 @@ public final class ChunkPolicy implements Policy<Chunk, Object, Player> {
     /**
      * Create a chunk policy for the given world and view distance.
      *
-     * @param world the world from which chunks may be interesting.
+     * @param world        the world from which chunks may be interesting.
      * @param viewDistance the maximum view distance of any player.
      */
     public ChunkPolicy(World world, int viewDistance) {

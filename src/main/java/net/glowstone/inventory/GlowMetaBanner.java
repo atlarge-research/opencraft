@@ -26,6 +26,7 @@ public class GlowMetaBanner extends GlowMetaItem implements BannerMeta {
     /**
      * Creates an instance by copying from the given {@link ItemMeta}. If that item is another
      * {@link BannerMeta}, its patterns are copied; otherwise, the new banner is blank.
+     *
      * @param meta the {@link ItemMeta} to copy
      */
     public GlowMetaBanner(ItemMeta meta) {
@@ -92,9 +93,9 @@ public class GlowMetaBanner extends GlowMetaItem implements BannerMeta {
         super.readNbt(tag);
         tag.readCompound("BlockEntityTag", blockEntityTag -> {
             blockEntityTag.readCompoundList(
-                    "Patterns", patterns -> this.patterns = BlockBanner.fromNbt(patterns));
+                "Patterns", patterns -> this.patterns = BlockBanner.fromNbt(patterns));
             blockEntityTag.readInt(
-                    "Base", colorInt -> this.baseColor = DyeColor.getByWoolData((byte) colorInt));
+                "Base", colorInt -> this.baseColor = DyeColor.getByWoolData((byte) colorInt));
         });
     }
 

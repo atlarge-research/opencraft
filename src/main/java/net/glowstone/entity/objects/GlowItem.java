@@ -52,7 +52,7 @@ public class GlowItem extends GlowEntity implements Item {
      * Creates a new item entity.
      *
      * @param location The location of the entity.
-     * @param item The item stack the entity is carrying.
+     * @param item     The item stack the entity is carrying.
      */
     public GlowItem(Location location, ItemStack item) {
         super(location);
@@ -68,17 +68,17 @@ public class GlowItem extends GlowEntity implements Item {
 
         HashMap<Integer, ItemStack> map = player.getInventory().addItem(getItemStack());
         player
-                .updateInventory(); // workaround for player editing slot & it immediately being
+            .updateInventory(); // workaround for player editing slot & it immediately being
         // filled again
         if (!map.isEmpty()) {
             setItemStack(map.values().iterator().next());
             return false;
         } else {
             CollectItemMessage message = new CollectItemMessage(getEntityId(), player.getEntityId(),
-                    getItemStack().getAmount());
+                getItemStack().getAmount());
             world.playSound(location, Sound.ENTITY_ITEM_PICKUP, 0.3f, (float) (1 + Math.random()));
             world.getRawPlayers().stream().filter(other -> other.canSeeEntity(this))
-                    .forEach(other -> other.getSession().send(message));
+                .forEach(other -> other.getSession().send(message));
             remove();
             return true;
         }
@@ -127,16 +127,16 @@ public class GlowItem extends GlowEntity implements Item {
                 }
                 if (entity instanceof GlowItem) {
                     if (entity != this && ((GlowItem) entity).getItemStack()
-                            .isSimilar(getItemStack())) {
+                        .isSimilar(getItemStack())) {
                         ItemStack clone = getItemStack().clone();
 
                         ItemMergeEvent event = EventFactory.getInstance()
-                                .callEvent(new ItemMergeEvent((GlowItem) entity, this));
+                            .callEvent(new ItemMergeEvent((GlowItem) entity, this));
 
                         if (!event.isCancelled()) {
                             clone.setAmount(
-                                    ((GlowItem) entity).getItemStack().getAmount()
-                                            + clone.getAmount());
+                                ((GlowItem) entity).getItemStack().getAmount()
+                                    + clone.getAmount());
                             entity.remove();
                             setItemStack(clone);
                         }
@@ -148,7 +148,7 @@ public class GlowItem extends GlowEntity implements Item {
         // disappear if we've lived too long
         if (getTicksLived() >= LIFETIME) {
             ItemDespawnEvent event = EventFactory.getInstance()
-                    .callEvent(new ItemDespawnEvent(this, getLocation()));
+                .callEvent(new ItemDespawnEvent(this, getLocation()));
             if (event.isCancelled()) {
                 // Allow it to live for 5 more minutes, according to docs
                 ticksLived -= LIFETIME;
@@ -170,11 +170,11 @@ public class GlowItem extends GlowEntity implements Item {
     @Override
     public List<Message> createSpawnMessage() {
         return Arrays.asList(
-                new SpawnObjectMessage(entityId, getUniqueId(), SpawnObjectMessage.ITEM, location),
-                new EntityMetadataMessage(entityId, metadata.getEntryList()),
-                // these keep the client from assigning a random velocity
-                new EntityTeleportMessage(entityId, location),
-                new EntityVelocityMessage(entityId, getVelocity())
+            new SpawnObjectMessage(entityId, getUniqueId(), SpawnObjectMessage.ITEM, location),
+            new EntityMetadataMessage(entityId, metadata.getEntryList()),
+            // these keep the client from assigning a random velocity
+            new EntityTeleportMessage(entityId, location),
+            new EntityVelocityMessage(entityId, getVelocity())
         );
     }
 
@@ -211,6 +211,6 @@ public class GlowItem extends GlowEntity implements Item {
     public void setItemStack(ItemStack stack) {
         // stone is the "default state" for the item stack according to the client
         metadata.set(MetadataIndex.ITEM_ITEM,
-                stack == null ? new ItemStack(Material.STONE) : stack.clone());
+            stack == null ? new ItemStack(Material.STONE) : stack.clone());
     }
 }

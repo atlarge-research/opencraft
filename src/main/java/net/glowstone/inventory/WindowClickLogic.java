@@ -18,9 +18,9 @@ public final class WindowClickLogic {
      * Determine the ClickType of a window click message based on the raw mode, button, and slot
      * values if possible.
      *
-     * @param mode The raw mode number.
+     * @param mode   The raw mode number.
      * @param button The raw button number.
-     * @param slot The raw slot number.
+     * @param slot   The raw slot number.
      * @return The ClickType of the window click, or UNKNOWN.
      */
     public static ClickType getClickType(int mode, int button, int slot) {
@@ -92,13 +92,13 @@ public final class WindowClickLogic {
      * slot type, and items involved.
      *
      * @param clickType The click type.
-     * @param slot The slot clicked.
-     * @param cursor The item on the cursor.
-     * @param slotItem The item in the slot.
+     * @param slot      The slot clicked.
+     * @param cursor    The item on the cursor.
+     * @param slotItem  The item in the slot.
      * @return The InventoryAction to perform, or UNKNOWN.
      */
     public static InventoryAction getAction(ClickType clickType, SlotType slot, ItemStack cursor,
-            ItemStack slotItem) {
+                                            ItemStack slotItem) {
         boolean outside = slot == SlotType.OUTSIDE;
         switch (clickType) {
             case LEFT:
@@ -125,7 +125,7 @@ public final class WindowClickLogic {
 
                 if (slotItem.isSimilar(cursor)) {
                     int transfer = Math.min(cursor.getAmount(),
-                            slotItem.getType().getMaxStackSize() - slotItem.getAmount());
+                        slotItem.getType().getMaxStackSize() - slotItem.getAmount());
                     if (transfer == 0) {
                         return InventoryAction.NOTHING;
                     } else if (transfer == 1) {

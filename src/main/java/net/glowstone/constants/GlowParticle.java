@@ -15,8 +15,8 @@ import org.bukkit.material.MaterialData;
 public final class GlowParticle {
 
     private static final int[] EMPTY = new int[0];
-    private static final int[] ONE_EMPTY = new int[]{0};
-    private static final int[] TWO_EMPTY = new int[]{0, 0};
+    private static final int[] ONE_EMPTY = new int[] {0};
+    private static final int[] TWO_EMPTY = new int[] {0, 0};
 
     private static final Map<Object, Integer> ids = new HashMap<>();
 
@@ -105,19 +105,19 @@ public final class GlowParticle {
                 // data 'Length depends on particle. "iconcrack" [Effect.ITEM_BREAK] has length of
                 // 2, "blockcrack" and "blockdust" have lengths of 1, the rest have 0'
                 // iconcrack_(id)_(data) 36
-                return new int[]{material.getItemTypeId(), material.getData()};
+                return new int[] {material.getItemTypeId(), material.getData()};
             case TILE_BREAK:
                 if (material == null) {
                     return ONE_EMPTY;
                 }
 
-                return new int[]{material.getItemTypeId() + (material.getData() << 12)};
+                return new int[] {material.getItemTypeId() + (material.getData() << 12)};
             case TILE_DUST:
                 if (material == null) {
                     return ONE_EMPTY;
                 }
 
-                return new int[]{material.getItemTypeId()};
+                return new int[] {material.getItemTypeId()};
             default:
                 return EMPTY;
         }
@@ -127,7 +127,7 @@ public final class GlowParticle {
      * Convert an object to an extData array if possible for a particle.
      *
      * @param particle the Particle to validate.
-     * @param object the Object to convert.
+     * @param object   the Object to convert.
      * @return The extData array for the particle effect.
      */
     public static int[] getExtData(Particle particle, Object object) {
@@ -142,7 +142,7 @@ public final class GlowParticle {
 
             MaterialData material = (MaterialData) object;
 
-            return new int[]{material.getItemTypeId() + (material.getData() << 12)};
+            return new int[] {material.getItemTypeId() + (material.getData() << 12)};
         }
 
         if (particle.getDataType() == ItemStack.class) {
@@ -156,7 +156,7 @@ public final class GlowParticle {
             // data 'Length depends on particle. "iconcrack" [Effect.ITEM_BREAK] has length of 2,
             // "blockcrack" and "blockdust" have lengths of 1, the rest have 0'
             // iconcrack_(id)_(data) 36
-            return new int[]{item.getTypeId(), item.getDurability()};
+            return new int[] {item.getTypeId(), item.getDurability()};
         }
 
         // doesn't make sense, there are only 3 particle data types

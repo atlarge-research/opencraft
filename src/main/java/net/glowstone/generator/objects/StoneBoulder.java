@@ -12,7 +12,7 @@ import org.bukkit.material.MaterialData;
 public class StoneBoulder implements TerrainObject {
 
     private static final SortedSet<Material> GROUND_TYPES = ImmutableSortedSet
-            .of(Material.GRASS, Material.DIRT, Material.STONE);
+        .of(Material.GRASS, Material.DIRT, Material.STONE);
 
     @Override
     public boolean generate(World world, Random random, int sourceX, int sourceY, int sourceZ) {
@@ -47,7 +47,7 @@ public class StoneBoulder implements TerrainObject {
                             continue;
                         }
                         BlockState state = world
-                                .getBlockAt(sourceX + x, sourceY + y, sourceZ + z).getState();
+                            .getBlockAt(sourceX + x, sourceY + y, sourceZ + z).getState();
                         if (!TerrainObject.killPlantAbove(state.getBlock())) {
                             // FIXME: Is it a bug to suppress the cobblestone beneath where a plant
                             // previously stood?!

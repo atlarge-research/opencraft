@@ -25,7 +25,8 @@ public final class ItemIds {
     private static final Map<String, Integer> items = new HashMap<>();
     private static final Map<String, Integer> blocks = new HashMap<>();
     private static final Set<String> ids = new HashSet<>();
-    @NonNls private static final String VANILLA_PREFIX = "minecraft:";
+    @NonNls
+    private static final String VANILLA_PREFIX = "minecraft:";
 
     static {
         // blocks

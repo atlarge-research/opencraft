@@ -22,7 +22,7 @@ class LoggableLocalizedStringImpl extends LocalizedStringImpl
     @Override
     LoggableLocalizedStringImpl setFormatByArgumentIndex(int argumentIndex, Format format) {
         return (LoggableLocalizedStringImpl)
-                (super.setFormatByArgumentIndex(argumentIndex, format));
+            (super.setFormatByArgumentIndex(argumentIndex, format));
     }
 
     LoggableLocalizedStringImpl(String key, Level logLevel,

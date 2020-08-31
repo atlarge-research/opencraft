@@ -404,8 +404,8 @@ public class GlowWorld implements World {
     /**
      * Creates a new world from the options in the given WorldCreator.
      *
-     * @param server The server for the world.
-     * @param creator The WorldCreator to use.
+     * @param server               The server for the world.
+     * @param creator              The WorldCreator to use.
      * @param worldStorageProvider The storage provider to use.
      */
     public GlowWorld(GlowServer server, WorldCreator creator, WorldStorageProvider worldStorageProvider) {
@@ -544,31 +544,31 @@ public class GlowWorld implements World {
         Sets.SetView<GlowPlayer> allPlayers = Sets.union(currentPlayers, previousPlayers);
 
         allPlayers.parallelStream()
-                .forEach(player -> {
-                    Session session = player.getSession();
-                    messagingSystem.update(player, session::send);
-                });
+            .forEach(player -> {
+                Session session = player.getSession();
+                messagingSystem.update(player, session::send);
+            });
 
         List<ChunkRunnable> chunksToLoad = allPlayers.parallelStream()
-                .map(player -> {
-                    AreaOfInterest current = currentAreas.get(player);
-                    AreaOfInterest previous = previousAreas.get(player);
-                    return getChunksToLoad(player, current, previous);
-                })
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
+            .map(player -> {
+                AreaOfInterest current = currentAreas.get(player);
+                AreaOfInterest previous = previousAreas.get(player);
+                return getChunksToLoad(player, current, previous);
+            })
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
 
         Set<ChunkRunnable> cancelled = executor.executeAndCancel(chunksToLoad, ChunkRunnable::shouldBeCancelled);
 
         List<ChunkRunnable> chunksToUnload = allPlayers.parallelStream()
-                .map(player -> {
-                    AreaOfInterest current = currentAreas.get(player);
-                    AreaOfInterest previous = previousAreas.get(player);
-                    return getChunksToUnload(player, current, previous);
-                })
-                .flatMap(List::stream)
-                .filter(runnable -> !cancelled.contains(runnable))
-                .collect(Collectors.toList());
+            .map(player -> {
+                AreaOfInterest current = currentAreas.get(player);
+                AreaOfInterest previous = previousAreas.get(player);
+                return getChunksToUnload(player, current, previous);
+            })
+            .flatMap(List::stream)
+            .filter(runnable -> !cancelled.contains(runnable))
+            .collect(Collectors.toList());
 
         unloadChunks(chunksToUnload);
 
@@ -578,7 +578,7 @@ public class GlowWorld implements World {
     /**
      * List chunks that are in the current area of interest, but not in the previous.
      *
-     * @param current the current area of interest.
+     * @param current  the current area of interest.
      * @param previous the previous area of interest.
      * @return the list of chunks.
      */
@@ -589,7 +589,7 @@ public class GlowWorld implements World {
     /**
      * Find chunks that are in the previous area of interest, but not in the current.
      *
-     * @param current the current area of interest.
+     * @param current  the current area of interest.
      * @param previous the previous area of interest.
      * @return the list of chunks.
      */
@@ -600,7 +600,7 @@ public class GlowWorld implements World {
     /**
      * Find the chunks that are in the first area of interest, but not in the second.
      *
-     * @param first the first area of interest.
+     * @param first  the first area of interest.
      * @param second the second area of interest.
      * @return the list of chunks.
      */
@@ -692,9 +692,9 @@ public class GlowWorld implements World {
     /**
      * Randomly update 3 blocks in the provided section.
      *
-     * @param chunk the chunk in which to update the blocks.
+     * @param chunk   the chunk in which to update the blocks.
      * @param section the section in which to update the blocks.
-     * @param index the index of the section within the chunk.
+     * @param index   the index of the section within the chunk.
      */
     private void updateBlocksInSection(GlowChunk chunk, ChunkSection section, int index) {
         if (section != null) {
@@ -719,16 +719,16 @@ public class GlowWorld implements World {
      *
      * @param location The location of the material that has to be changed.
      * @param material The affected material.
-     * @param data Necessary data for the change.
+     * @param data     Necessary data for the change.
      */
     public void sendBlockChange(Location location, Material material, byte data) {
         int materialId = material.getId();
         BlockChangeMessage message = new BlockChangeMessage(
-                location.getBlockX(),
-                location.getBlockY(),
-                location.getBlockZ(),
-                materialId,
-                data
+            location.getBlockX(),
+            location.getBlockY(),
+            location.getBlockZ(),
+            materialId,
+            data
         );
         broadcastBlockChange(message);
     }
@@ -737,8 +737,8 @@ public class GlowWorld implements World {
      * Send a block entity change to the given location.
      *
      * @param location The location of the block entity.
-     * @param type The type of block entity being sent.
-     * @param nbt The NBT structure to send to the client.
+     * @param type     The type of block entity being sent.
+     * @param nbt      The NBT structure to send to the client.
      */
     public void sendBlockEntityChange(Location location, GlowBlockEntity type, CompoundTag nbt) {
 
@@ -747,11 +747,11 @@ public class GlowWorld implements World {
         checkNotNull(nbt, "NBT cannot be null");
 
         Message message = new UpdateBlockEntityMessage(
-                location.getBlockX(),
-                location.getBlockY(),
-                location.getBlockZ(),
-                type.getValue(),
-                nbt
+            location.getBlockX(),
+            location.getBlockY(),
+            location.getBlockZ(),
+            type.getValue(),
+            nbt
         );
         broadcastAfterBlockChange(location, message);
     }
@@ -770,7 +770,7 @@ public class GlowWorld implements World {
      * Add a message to the list of after block change messages.
      *
      * @param location The location of the block change.
-     * @param message The message to be stored.
+     * @param message  The message to be stored.
      */
     public void broadcastAfterBlockChange(Location location, Message message) {
         messagingSystem.broadcast(location, message);
@@ -965,6 +965,7 @@ public class GlowWorld implements World {
 
     /**
      * Gets the value of the moon phase.
+     *
      * @return moon phase value.
      */
     public double getMoonPhase() {
@@ -1625,9 +1626,9 @@ public class GlowWorld implements World {
 
     @Override
     public <T extends Entity> T spawn(
-            Location location,
-            Class<T> type,
-            Consumer<T> function
+        Location location,
+        Class<T> type,
+        Consumer<T> function
     ) throws IllegalArgumentException {
         // TODO: work on type mismatches
         return null;
@@ -1637,15 +1638,15 @@ public class GlowWorld implements World {
      * Spawns an entity.
      *
      * @param location The {@link Location} to spawn the entity at.
-     * @param type The class of the {@link Entity} to spawn.
-     * @param reason The reason for the spawning of the entity.
+     * @param type     The class of the {@link Entity} to spawn.
+     * @param reason   The reason for the spawning of the entity.
      * @return an instance of the spawned {@link Entity}.
      * @throws IllegalArgumentException whenever the location or type is null.
      */
     public GlowEntity spawn(
-            Location location,
-            Class<? extends GlowEntity> type,
-            SpawnReason reason
+        Location location,
+        Class<? extends GlowEntity> type,
+        SpawnReason reason
     ) throws IllegalArgumentException {
 
         checkNotNull(location);
@@ -1668,7 +1669,7 @@ public class GlowWorld implements World {
             EntitySpawnEvent spawnEvent = null;
             if (entity instanceof LivingEntity) {
                 spawnEvent = EventFactory.getInstance()
-                        .callEvent(new CreatureSpawnEvent((LivingEntity) entity, reason));
+                    .callEvent(new CreatureSpawnEvent((LivingEntity) entity, reason));
             } else if (!(entity instanceof Item)) { // ItemSpawnEvent is called elsewhere
                 spawnEvent = EventFactory.getInstance().callEvent(new EntitySpawnEvent(entity));
             }
@@ -1680,11 +1681,11 @@ public class GlowWorld implements World {
                 List<Message> spawnMessage = entity.createSpawnMessage();
                 final GlowEntity finalEntity = entity;
                 getRawPlayers().stream()
-                        .filter(player -> player.canSeeEntity(finalEntity))
-                        .forEach(player -> {
-                            Session session = player.getSession();
-                            session.sendAll(spawnMessage.toArray(new Message[0]));
-                        });
+                    .filter(player -> player.canSeeEntity(finalEntity))
+                    .forEach(player -> {
+                        Session session = player.getSession();
+                        session.sendAll(spawnMessage.toArray(new Message[0]));
+                    });
             }
 
         } catch (NoSuchMethodError | IllegalAccessError exception) {
@@ -2196,9 +2197,9 @@ public class GlowWorld implements World {
             // inform clients about the debug info change
             for (GlowPlayer player : getRawPlayers()) {
                 EntityStatusMessage message = new EntityStatusMessage(player.getEntityId(),
-                        gameRuleMap.getBoolean(GameRules.REDUCED_DEBUG_INFO)
-                                ? EntityStatusMessage.ENABLE_REDUCED_DEBUG_INFO
-                                : EntityStatusMessage.DISABLE_REDUCED_DEBUG_INFO);
+                    gameRuleMap.getBoolean(GameRules.REDUCED_DEBUG_INFO)
+                        ? EntityStatusMessage.ENABLE_REDUCED_DEBUG_INFO
+                        : EntityStatusMessage.DISABLE_REDUCED_DEBUG_INFO);
                 player.getSession().send(message);
             }
         }

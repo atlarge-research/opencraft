@@ -27,7 +27,7 @@ public class GlowEnderDragonPartTest extends GlowEntityTest<GlowEnderDragonPart>
     public void setUp() throws Exception {
         super.setUp();
         when(server.createBossBar(anyString(), any(BarColor.class), any(BarStyle.class),
-                any(BarFlag[].class))).thenCallRealMethod();
+            any(BarFlag[].class))).thenCallRealMethod();
         entity = entityCreator.apply(location);
     }
 

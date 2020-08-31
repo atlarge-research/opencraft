@@ -26,7 +26,7 @@ public class GlowShulker extends GlowMonster implements Shulker {
     /**
      * Creates a shulker facing the given direction.
      *
-     * @param loc the location
+     * @param loc       the location
      * @param direction the direction to initially face
      */
     public GlowShulker(Location loc, Facing direction) {

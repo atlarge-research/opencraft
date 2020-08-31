@@ -47,12 +47,12 @@ public class SignEntity extends BlockEntity {
      * Send a sign change using complete TextMessages instead of strings.
      *
      * @param location the location of the sign
-     * @param lines the new text on the sign or null to clear it
+     * @param lines    the new text on the sign or null to clear it
      * @throws IllegalArgumentException if location is null
      * @throws IllegalArgumentException if lines is non-null and has a length less than 4
      */
     public void sendSignChange(Location location, TextMessage[] lines)
-            throws IllegalArgumentException {
+        throws IllegalArgumentException {
 
         checkNotNull(location, "location cannot be null");
         checkNotNull(lines, "lines cannot be null");
@@ -63,10 +63,10 @@ public class SignEntity extends BlockEntity {
         saveNbt(tag);
 
         Message message = new UpdateBlockEntityMessage(location.getBlockX(),
-                location.getBlockY(),
-                location.getBlockZ(),
-                GlowBlockEntity.SIGN.getValue(),
-                tag
+            location.getBlockY(),
+            location.getBlockZ(),
+            GlowBlockEntity.SIGN.getValue(),
+            tag
         );
         world.broadcastAfterBlockChange(location, message);
     }

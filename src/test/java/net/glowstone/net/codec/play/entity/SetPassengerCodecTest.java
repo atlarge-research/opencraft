@@ -14,7 +14,7 @@ public class SetPassengerCodecTest extends CodecTest<SetPassengerMessage> {
     @Override
     protected SetPassengerMessage createMessage() {
         int id = 1;
-        int[] passengers = new int[] { 2, 3 };
+        int[] passengers = new int[] {2, 3};
         return new SetPassengerMessage(id, passengers);
     }
 }

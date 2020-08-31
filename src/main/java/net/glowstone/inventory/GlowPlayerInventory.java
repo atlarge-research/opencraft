@@ -96,7 +96,7 @@ public class GlowPlayerInventory extends GlowInventory implements PlayerInventor
 
     public static boolean canEquipInHelmetSlot(Material material) {
         return EnchantmentTarget.ARMOR_HEAD.includes(material) || material == Material.PUMPKIN
-                || material == Material.SKULL_ITEM;
+            || material == Material.SKULL_ITEM;
     }
 
     /**
@@ -286,7 +286,7 @@ public class GlowPlayerInventory extends GlowInventory implements PlayerInventor
 
     @Override
     public ItemStack[] getExtraContents() {
-        return new ItemStack[]{getItemInOffHand()};
+        return new ItemStack[] {getItemInOffHand()};
     }
 
     @Override
@@ -398,7 +398,7 @@ public class GlowPlayerInventory extends GlowInventory implements PlayerInventor
         for (int i = 0; i < getSize(); ++i) {
             ItemStack stack = getItem(i);
             if (stack != null && (type == null || stack.getType() == type) && (data == null || stack
-                    .getData().equals(data))) {
+                .getData().equals(data))) {
                 setItem(i, InventoryUtil.createEmptyStack());
                 if (!InventoryUtil.isEmpty(stack)) {
                     // never report AIR as removed - else will report all empty slots cleared
@@ -416,7 +416,7 @@ public class GlowPlayerInventory extends GlowInventory implements PlayerInventor
         for (int i = 0; i < getSize(); ++i) {
             ItemStack stack = getItem(i);
             if (stack != null && (id == -1 || stack.getTypeId() == id) && (data == -1
-                    || stack.getData().getData() == data)) {
+                || stack.getData().getData() == data)) {
                 setItem(i, InventoryUtil.createEmptyStack());
                 if (!InventoryUtil.isEmpty(stack)) {
                     // never report AIR as removed - else will report all empty slots cleared
@@ -530,14 +530,14 @@ public class GlowPlayerInventory extends GlowInventory implements PlayerInventor
     /**
      * Consumes an item in a hand slot.
      *
-     * @param slot The {@link EquipmentSlot hand slot} to consume, which must be either
-     *             {@link EquipmentSlot#HAND} or {@link EquipmentSlot#OFF_HAND}.
+     * @param slot       The {@link EquipmentSlot hand slot} to consume, which must be either
+     *                   {@link EquipmentSlot#HAND} or {@link EquipmentSlot#OFF_HAND}.
      * @param wholeStack True if we should remove the complete stack.
      * @return The number of item really consumed.
      */
     public int consumeItemInHand(EquipmentSlot slot, boolean wholeStack) {
         checkArgument(slot == EquipmentSlot.HAND
-                        || slot == EquipmentSlot.OFF_HAND, "Not a valid hand slot.");
+            || slot == EquipmentSlot.OFF_HAND, "Not a valid hand slot.");
         if (slot == EquipmentSlot.HAND) {
             return consumeItemInMainHand(wholeStack);
         }

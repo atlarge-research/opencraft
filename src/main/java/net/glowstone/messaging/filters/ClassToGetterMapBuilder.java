@@ -8,7 +8,7 @@ import java.util.function.Function;
  * A builder for an immutable class-to-getter map. The mapping is performed between explicit types and getters, meaning
  * that it does not consider super- or subtypes.
  *
- * @param <Base> the base type of classes added to the map.
+ * @param <Base>  the base type of classes added to the map.
  * @param <Value> the return type of getters added to the map.
  */
 final class ClassToGetterMapBuilder<Base, Value> {
@@ -25,7 +25,7 @@ final class ClassToGetterMapBuilder<Base, Value> {
     /**
      * Add a getter to the map.
      *
-     * @param type the class with which the getter should be associated.
+     * @param type   the class with which the getter should be associated.
      * @param getter the getter that should be stored.
      * @param <Type> the type of value the getter is called on.
      */

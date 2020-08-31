@@ -16,7 +16,7 @@ import org.mockito.Mockito;
  * Superclass of tests of {@link ItemProjectile} subclasses.
  *
  * @param <T> the projectile class that we expect will be passed to
- *         {@link Player#launchProjectile(Class)}
+ *            {@link Player#launchProjectile(Class)}
  */
 @RequiredArgsConstructor
 public abstract class ItemProjectileTest<T extends Projectile> extends ItemTypeTest {

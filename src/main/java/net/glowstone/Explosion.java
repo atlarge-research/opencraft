@@ -57,8 +57,8 @@ public final class Explosion {
             for (int y = 0; y < value; y++) {
                 for (int z = 0; z < value; z++) {
                     if (x != 0 && x != value - 1
-                            && y != 0 && y != value - 1
-                            && z != 0 && z != value - 1) {
+                        && y != 0 && y != value - 1
+                        && z != 0 && z != value - 1) {
                         continue;
                     }
                     double vx = x / 7.5 - 1;
@@ -86,27 +86,27 @@ public final class Explosion {
     /**
      * Creates a new explosion.
      *
-     * @param source The entity causing this explosion
-     * @param world The world this explosion is in
-     * @param x The X location of the explosion
-     * @param y The Y location of the explosion
-     * @param z The Z location of the explosion
-     * @param power The power of the explosion
-     * @param incendiary Whether or not blocks should be set on fire
+     * @param source      The entity causing this explosion
+     * @param world       The world this explosion is in
+     * @param x           The X location of the explosion
+     * @param y           The Y location of the explosion
+     * @param z           The Z location of the explosion
+     * @param power       The power of the explosion
+     * @param incendiary  Whether or not blocks should be set on fire
      * @param breakBlocks Whether blocks should break through this explosion
      */
     public Explosion(Entity source, GlowWorld world, double x, double y, double z, float power,
-            boolean incendiary, boolean breakBlocks) {
+                     boolean incendiary, boolean breakBlocks) {
         this(source, new Location(world, x, y, z), power, incendiary, breakBlocks);
     }
 
     /**
      * Creates a new explosion.
      *
-     * @param source The entity causing this explosion
-     * @param location The location this explosion is occuring at. Must be in a GlowWorld.
-     * @param power The power of the explosion
-     * @param incendiary Whether or not blocks should be set on fire
+     * @param source      The entity causing this explosion
+     * @param location    The location this explosion is occuring at. Must be in a GlowWorld.
+     * @param power       The power of the explosion
+     * @param incendiary  Whether or not blocks should be set on fire
      * @param breakBlocks Whether blocks should break through this explosion
      */
     public Explosion(@Nullable Entity source, Location location, float power,
@@ -125,6 +125,7 @@ public final class Explosion {
 
     /**
      * Explodes, firing a {@link EntityExplodeEvent}, as long as its power is non-negligible.
+     *
      * @return false if the explosion was canceled by a plugin; true otherwise
      */
     public boolean explodeWithEvent() {
@@ -139,7 +140,7 @@ public final class Explosion {
 
         if (source != null) {
             EntityExplodeEvent event = EventFactory.getInstance().callEvent(
-                    new EntityExplodeEvent(source, location, blocks, yield));
+                new EntityExplodeEvent(source, location, blocks, yield));
             if (event.isCancelled()) {
                 return false;
             }
@@ -147,7 +148,7 @@ public final class Explosion {
             yield = event.getYield();
         } else {
             BlockExplodeEvent event = EventFactory.getInstance().callEvent(
-                    new BlockExplodeEvent(location.getBlock(), blocks, yield));
+                new BlockExplodeEvent(location.getBlock(), blocks, yield));
             if (event.isCancelled()) {
                 return false;
             }
@@ -172,7 +173,7 @@ public final class Explosion {
 
         damageEntities();
         Collection<GlowPlayer> affectedPlayers
-                = collectPlayersInRadius(EXPLOSION_VISIBILITY_RADIUS);
+            = collectPlayersInRadius(EXPLOSION_VISIBILITY_RADIUS);
         for (GlowPlayer player : affectedPlayers) {
             playOutExplosion(player, blocks);
         }
@@ -221,8 +222,8 @@ public final class Explosion {
 
     private void handleBlockExplosion(GlowBlock block) {
         if (block.getType() == Material.AIR
-                || block.getType() == Material.BARRIER
-                || block.getType() == Material.BEDROCK) {
+            || block.getType() == Material.BARRIER
+            || block.getType() == Material.BEDROCK) {
             return;
         } else if (block.getType() == Material.TNT) {
             BlockTnt.igniteBlock(block, true);
@@ -246,9 +247,9 @@ public final class Explosion {
     private List<Block> toBlockList(Collection<BlockVector> locations) {
         List<Block> blocks = new ArrayList<>(locations.size());
         blocks.addAll(locations.stream()
-                .map(location -> world.getBlockAt(
-                        location.getBlockX(), location.getBlockY(), location.getBlockZ()))
-                .collect(Collectors.toList()));
+            .map(location -> world.getBlockAt(
+                location.getBlockX(), location.getBlockY(), location.getBlockZ()))
+            .collect(Collectors.toList()));
         return blocks;
     }
 
@@ -262,7 +263,7 @@ public final class Explosion {
             return;
         }
         BlockIgniteEvent event = EventFactory.getInstance().callEvent(
-                new BlockIgniteEvent(block, IgniteCause.EXPLOSION, source));
+            new BlockIgniteEvent(block, IgniteCause.EXPLOSION, source));
         if (event.isCancelled()) {
             return;
         }
@@ -317,7 +318,7 @@ public final class Explosion {
                 GlowEntity glowEntity = (GlowEntity) entity;
                 Vector rayLength;
 
-                if (entity instanceof  GlowLivingEntity) {
+                if (entity instanceof GlowLivingEntity) {
                     rayLength = distanceToHead((GlowLivingEntity) glowEntity);
                 } else {
                     rayLength = vectorTo(glowEntity);
@@ -377,7 +378,7 @@ public final class Explosion {
     }
 
     private Vector vectorTo(Entity entity) {
-        return RayUtil.getRayBetween(entity.getLocation(),location);
+        return RayUtil.getRayBetween(entity.getLocation(), location);
     }
 
     private double distanceToSquared(Entity entity) {
@@ -393,7 +394,7 @@ public final class Explosion {
     private void playOutSoundAndParticles() {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         world.playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 4,
-                (1.0F + (random.nextFloat() - random.nextFloat()) * 0.2F) * 0.7F);
+            (1.0F + (random.nextFloat() - random.nextFloat()) * 0.2F) * 0.7F);
 
         Location center = location.clone().toCenterLocation();
         if (power >= 2.0F && breakBlocks) {
@@ -418,8 +419,8 @@ public final class Explosion {
 
         Vector velocity = player.getVelocity();
         ExplosionMessage message = new ExplosionMessage(
-                (float) location.getX(), (float) location.getY(), (float) location.getZ(), power,
-                (float) velocity.getX(), (float) velocity.getY(), (float) velocity.getZ(), records);
+            (float) location.getX(), (float) location.getY(), (float) location.getZ(), power,
+            (float) velocity.getX(), (float) velocity.getY(), (float) velocity.getZ(), records);
 
         player.getSession().send(message);
     }
@@ -427,7 +428,7 @@ public final class Explosion {
     private Collection<GlowPlayer> collectPlayersInRadius(int radius) {
         int radiusSquared = radius * radius;
         return world.getRawPlayers().stream()
-                .filter(player -> player.getLocation().distanceSquared(location) <= radiusSquared)
-                .collect(Collectors.toList());
+            .filter(player -> player.getLocation().distanceSquared(location) <= radiusSquared)
+            .collect(Collectors.toList());
     }
 }

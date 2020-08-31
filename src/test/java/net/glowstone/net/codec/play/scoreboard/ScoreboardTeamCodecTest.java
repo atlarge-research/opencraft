@@ -20,16 +20,16 @@ public class ScoreboardTeamCodecTest extends CodecTest<ScoreboardTeamMessage> {
         List<String> players = new ArrayList<>();
         players.add("player");
         return ScoreboardTeamMessage.create(
-                "teamName",
-                "displayName",
-                "prefix",
-                "suffix",
-                false,
-                true,
-                Team.OptionStatus.ALWAYS,
-                Team.OptionStatus.FOR_OTHER_TEAMS,
-                ChatColor.RED,
-                players
+            "teamName",
+            "displayName",
+            "prefix",
+            "suffix",
+            false,
+            true,
+            Team.OptionStatus.ALWAYS,
+            Team.OptionStatus.FOR_OTHER_TEAMS,
+            ChatColor.RED,
+            players
         );
     }
 }

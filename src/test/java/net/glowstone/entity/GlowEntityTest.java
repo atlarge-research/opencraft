@@ -136,7 +136,7 @@ public abstract class GlowEntityTest<T extends GlowEntity> {
         scoreboard = new GlowScoreboard();
         when(scoreboardManager.getMainScoreboard()).thenReturn(scoreboard);
         when(itemFactory.ensureServerConversions(any(ItemStack.class)))
-                .thenAnswer(returnsFirstArg());
+            .thenAnswer(returnsFirstArg());
         oldEventFactory = EventFactory.getInstance();
         EventFactory.setInstance(eventFactory);
         when(eventFactory.callEvent(any(Event.class))).thenAnswer(returnsFirstArg());
@@ -144,7 +144,7 @@ public abstract class GlowEntityTest<T extends GlowEntity> {
             entity = entityCreator.apply(location);
         }
         when(eventFactory.onEntityDamage(any(EntityDamageEvent.class))).thenAnswer(
-                returnsFirstArg());
+            returnsFirstArg());
         inventory = new GlowPlayerInventory(player);
         when(player.getInventory()).thenReturn(inventory);
         when(player.getGameMode()).thenReturn(GameMode.SURVIVAL);

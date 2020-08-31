@@ -12,7 +12,7 @@ import org.junit.Test;
 
 public abstract class GlowUndeadHorseTest<T extends GlowUndeadHorse> extends GlowAbstractHorseTest<T> {
     protected GlowUndeadHorseTest(
-            Function<Location, ? extends T> entityCreator) {
+        Function<Location, ? extends T> entityCreator) {
         super(entityCreator);
     }
 

@@ -158,9 +158,9 @@ public class BlockSapling extends BlockNeedsAttached implements IBlockGrowable {
             for (int z = -1; z <= 0; z++) {
                 GlowBlock b = world.getBlockAt(sourceX + x, sourceY, sourceZ + z);
                 if (isMatchingSapling(b, data)
-                        && isMatchingSapling(b.getRelative(BlockFace.SOUTH), data)
-                        && isMatchingSapling(b.getRelative(BlockFace.EAST), data)
-                        && isMatchingSapling(b.getRelative(BlockFace.SOUTH_EAST), data)) {
+                    && isMatchingSapling(b.getRelative(BlockFace.SOUTH), data)
+                    && isMatchingSapling(b.getRelative(BlockFace.EAST), data)
+                    && isMatchingSapling(b.getRelative(BlockFace.SOUTH_EAST), data)) {
                     return b;
                 }
             }

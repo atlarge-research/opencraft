@@ -14,7 +14,8 @@ public class MegaJungleTree extends GenericTree {
 
     /**
      * Initializes this tree with a random height, preparing it to attempt to generate.
-     *  @param random the PRNG
+     *
+     * @param random   the PRNG
      * @param delegate the BlockStateDelegate used to check for space and to fill wood and
      */
     public MegaJungleTree(Random random, BlockStateDelegate delegate) {
@@ -65,8 +66,8 @@ public class MegaJungleTree extends GenericTree {
         // generates the canopy leaves
         for (int y = -2; y <= 0; y++) {
             generateLeaves(
-                    blockX + 0, blockY + height + y, blockZ, 3 - y,
-                    false, world);
+                blockX + 0, blockY + height + y, blockZ, 3 - y,
+                false, world);
         }
 
         // generates the branches
@@ -81,15 +82,15 @@ public class MegaJungleTree extends GenericTree {
                 x = (int) (Math.cos(d) * i + 1.5F);
                 z = (int) (Math.sin(d) * i + 1.5F);
                 delegate.setTypeAndRawData(world, blockX + x,
-                        blockY + branchHeight - 3 + i / 2,
-                        blockZ + z, Material.LOG,
-                        logType);
+                    blockY + branchHeight - 3 + i / 2,
+                    blockZ + z, Material.LOG,
+                    logType);
             }
             // generates leaves for this branch
             for (int y = branchHeight - (random.nextInt(2) + 1); y <= branchHeight; y++) {
                 generateLeaves(
-                        blockX + x, blockY + y, blockZ + z,
-                        1 - (y - branchHeight), true, world);
+                    blockX + x, blockY + y, blockZ + z,
+                    1 - (y - branchHeight), true, world);
             }
             branchHeight -= random.nextInt(4) + 2;
         }
@@ -107,7 +108,7 @@ public class MegaJungleTree extends GenericTree {
     }
 
     protected void generateLeaves(int sourceX, int sourceY, int sourceZ, int radius, boolean odd,
-            World world) {
+                                  World world) {
         int n = 1;
         if (odd) {
             n = 0;
@@ -124,7 +125,7 @@ public class MegaJungleTree extends GenericTree {
                 int sqZb = (radiusZ - n) * (radiusZ - n);
 
                 if (sqX + sqZ <= sqR || sqXb + sqZb <= sqR || sqX + sqZb <= sqR
-                        || sqXb + sqZ <= sqR) {
+                    || sqXb + sqZ <= sqR) {
                     replaceIfAirOrLeaves(x, sourceY, z, Material.LEAVES, leavesType, world);
                 }
             }
@@ -135,32 +136,32 @@ public class MegaJungleTree extends GenericTree {
         // SELF, SOUTH, EAST, SOUTH EAST
         for (int y = 0; y < height + -1; y++) {
             Material type = world
-                    .getBlockAt(blockX + 0, blockY + y, blockZ + 0)
-                    .getType();
+                .getBlockAt(blockX + 0, blockY + y, blockZ + 0)
+                .getType();
             if (type == Material.AIR || type == Material.LEAVES) {
                 delegate.setTypeAndRawData(world, blockX + 0, blockY + y,
-                        blockZ, Material.LOG, logType);
+                    blockZ, Material.LOG, logType);
             }
             type = world
-                    .getBlockAt(blockX + 0, blockY + y, blockZ + 1)
-                    .getType();
+                .getBlockAt(blockX + 0, blockY + y, blockZ + 1)
+                .getType();
             if (type == Material.AIR || type == Material.LEAVES) {
                 delegate.setTypeAndRawData(world, blockX + 0, blockY + y,
-                        blockZ + 1, Material.LOG, logType);
+                    blockZ + 1, Material.LOG, logType);
             }
             type = world
-                    .getBlockAt(blockX + 1, blockY + y, blockZ + 0)
-                    .getType();
+                .getBlockAt(blockX + 1, blockY + y, blockZ + 0)
+                .getType();
             if (type == Material.AIR || type == Material.LEAVES) {
                 delegate.setTypeAndRawData(world, blockX + 1, blockY + y,
-                        blockZ, Material.LOG, logType);
+                    blockZ, Material.LOG, logType);
             }
             type = world
-                    .getBlockAt(blockX + 1, blockY + y, blockZ + 1)
-                    .getType();
+                .getBlockAt(blockX + 1, blockY + y, blockZ + 1)
+                .getType();
             if (type == Material.AIR || type == Material.LEAVES) {
                 delegate.setTypeAndRawData(world, blockX + 1, blockY + y,
-                        blockZ + 1, Material.LOG, logType);
+                    blockZ + 1, Material.LOG, logType);
             }
         }
     }
@@ -169,53 +170,53 @@ public class MegaJungleTree extends GenericTree {
         // SELF, SOUTH, EAST, SOUTH EAST
         Dirt dirt = new Dirt(DirtType.NORMAL);
         delegate
-                .setTypeAndData(world, blockX + 0,
-                        blockY + -1, blockZ,
-                        Material.DIRT, dirt);
+            .setTypeAndData(world, blockX + 0,
+                blockY + -1, blockZ,
+                Material.DIRT, dirt);
         delegate.setTypeAndData(world, blockX + 0, blockY + -1,
-                blockZ + 1, Material.DIRT, dirt);
+            blockZ + 1, Material.DIRT, dirt);
         delegate.setTypeAndData(world, blockX + 1, blockY + -1,
-                blockZ, Material.DIRT, dirt);
+            blockZ, Material.DIRT, dirt);
         delegate.setTypeAndData(world, blockX + 1, blockY + -1,
-                blockZ + 1, Material.DIRT, dirt);
+            blockZ + 1, Material.DIRT, dirt);
     }
 
     private void addVinesOnTrunk(World world, int blockX, int blockY, int blockZ, Random random) {
         for (int y = 1; y < height; y++) {
             maybePlaceVine(world,
-                    blockX + -1, blockY + y, blockZ + 0, BlockFace.EAST, random
+                blockX + -1, blockY + y, blockZ + 0, BlockFace.EAST, random
             );
             maybePlaceVine(world,
-                    blockX + 0, blockY + y, blockZ + -1, BlockFace.SOUTH, random
+                blockX + 0, blockY + y, blockZ + -1, BlockFace.SOUTH, random
             );
             maybePlaceVine(world,
-                    blockX + 2, blockY + y, blockZ + 0, BlockFace.WEST, random
+                blockX + 2, blockY + y, blockZ + 0, BlockFace.WEST, random
             );
             maybePlaceVine(world,
-                    blockX + 1, blockY + y, blockZ + -1, BlockFace.SOUTH, random
+                blockX + 1, blockY + y, blockZ + -1, BlockFace.SOUTH, random
             );
             maybePlaceVine(world,
-                    blockX + 2, blockY + y, blockZ + 1, BlockFace.WEST, random
+                blockX + 2, blockY + y, blockZ + 1, BlockFace.WEST, random
             );
             maybePlaceVine(world,
-                    blockX + 1, blockY + y, blockZ + 2, BlockFace.NORTH, random
+                blockX + 1, blockY + y, blockZ + 2, BlockFace.NORTH, random
             );
             maybePlaceVine(world,
-                    blockX + -1, blockY + y, blockZ + 1, BlockFace.EAST, random
+                blockX + -1, blockY + y, blockZ + 1, BlockFace.EAST, random
             );
             maybePlaceVine(world,
-                    blockX + 0, blockY + y, blockZ + 2, BlockFace.NORTH, random
+                blockX + 0, blockY + y, blockZ + 2, BlockFace.NORTH, random
             );
         }
     }
 
     private void maybePlaceVine(World world, int absoluteX, int absoluteY,
-            int absoluteZ, BlockFace facingDirection, Random random) {
+                                int absoluteZ, BlockFace facingDirection, Random random) {
         if (random.nextInt(3) != 0
-                && blockTypeAt(absoluteX, absoluteY, absoluteZ, world)
-                == Material.AIR) {
+            && blockTypeAt(absoluteX, absoluteY, absoluteZ, world)
+            == Material.AIR) {
             delegate.setTypeAndData(world, absoluteX, absoluteY,
-                    absoluteZ, Material.VINE, new Vine(facingDirection));
+                absoluteZ, Material.VINE, new Vine(facingDirection));
         }
     }
 

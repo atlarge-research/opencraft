@@ -9,9 +9,9 @@ import org.bukkit.entity.Spider;
  * behavior.
  */
 public abstract class GlowAbstractSpiderTest<T extends GlowMonster & Spider>
-        extends GlowMonsterTest<T> {
+    extends GlowMonsterTest<T> {
     protected GlowAbstractSpiderTest(
-            Function<Location, ? extends T> entityCreator) {
+        Function<Location, ? extends T> entityCreator) {
         super(entityCreator);
     }
 }

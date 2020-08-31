@@ -21,6 +21,7 @@ public class ProtocolProvider {
 
     /**
      * Constructor for the class.
+     *
      * @param serverConfig the server config.
      */
     public ProtocolProvider(ServerConfig serverConfig) {

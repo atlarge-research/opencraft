@@ -156,9 +156,9 @@ final class ChunkPolicyTest {
     /**
      * Create a player mock residing at the given world and chunk coordinate.
      *
-     * @param world the player's world.
-     * @param x the player's chunk's x-coordinate.
-     * @param z the player's chunk's z-coordinate.
+     * @param world        the player's world.
+     * @param x            the player's chunk's x-coordinate.
+     * @param z            the player's chunk's z-coordinate.
      * @param viewDistance the player's view distance.
      * @return the player mock.
      */
@@ -173,8 +173,8 @@ final class ChunkPolicyTest {
     /**
      * Generate a set of simple chunks around the given center point.
      *
-     * @param centerX the x-coordinate around which to generate chunks.
-     * @param centerZ the z-coordinate around which to generate chunks.
+     * @param centerX      the x-coordinate around which to generate chunks.
+     * @param centerZ      the z-coordinate around which to generate chunks.
      * @param viewDistance the view distance used to determine the radius of generation.
      * @return a set of generated chunks.
      */

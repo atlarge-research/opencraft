@@ -65,8 +65,8 @@ public class AreaOfInterestTest {
      * Create a mocked chunk returning the given values from its associated getters.
      *
      * @param world the world the chunk should return.
-     * @param x the x-coordinate the chunk should return.
-     * @param z the z-coordinate the chunk should return.
+     * @param x     the x-coordinate the chunk should return.
+     * @param z     the z-coordinate the chunk should return.
      * @return the mocked chunk.
      */
     private static GlowChunk createChunk(GlowWorld world, int x, int z) {

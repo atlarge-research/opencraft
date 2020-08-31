@@ -85,7 +85,7 @@ public class CloneCommand extends GlowVanillaCommand {
 
     @Override
     public boolean execute(CommandSender sender, String label, String[] args,
-            CommandMessages messages) {
+                           CommandMessages messages) {
         if (!testPermission(sender, messages.getPermissionMessage())) {
             return true;
         }
@@ -107,9 +107,9 @@ public class CloneCommand extends GlowVanillaCommand {
         Location to = CommandUtils.getLocation(sender, args[6], args[7], args[8]);
 
         MaskMode maskMode = args.length >= 10
-                ? MaskMode.fromCommandName(args[9]) : MaskMode.REPLACE;
+            ? MaskMode.fromCommandName(args[9]) : MaskMode.REPLACE;
         CloneMode cloneMode = args.length >= 11
-                ? CloneMode.fromCommandName(args[10]) : CloneMode.NORMAL;
+            ? CloneMode.fromCommandName(args[10]) : CloneMode.NORMAL;
 
         // TODO: Investigate what happens when maskMode or cloneMode are invalid (thus, null).
         if (maskMode == null || cloneMode == null) {
@@ -140,7 +140,7 @@ public class CloneCommand extends GlowVanillaCommand {
                         }
                         if (data == null || 0 > data || data > 15) {
                             new LocalizedStringImpl("clone.bad-blockdata", bundle)
-                                    .sendInColor(ChatColor.RED, sender);
+                                .sendInColor(ChatColor.RED, sender);
                             return false;
                         } else {
                             blockFilter = new FilteredWithDataBlockFilter(blockType, data);
@@ -150,7 +150,7 @@ public class CloneCommand extends GlowVanillaCommand {
                     }
                 } else {
                     new LocalizedStringImpl("clone.usage.filtered", bundle)
-                            .sendInColor(ChatColor.RED, sender);
+                        .sendInColor(ChatColor.RED, sender);
                     return false;
                 }
                 break;
@@ -162,13 +162,13 @@ public class CloneCommand extends GlowVanillaCommand {
 
         RectangularRegion fromRegion = new RectangularRegion(parsedFrom1, parsedFrom2);
         RectangularRegion toRegion = fromRegion.moveTo(to);
-        
+
         Location lowCorner = fromRegion.getLowCorner();
         Location highCorner = fromRegion.getHighCorner();
 
         boolean overlaps = between(lowCorner.getBlockX(), highCorner.getBlockX(), to.getBlockX())
-                || between(lowCorner.getBlockY(), highCorner.getBlockY(), to.getBlockY())
-                || between(lowCorner.getBlockZ(), highCorner.getBlockZ(), to.getBlockZ());
+            || between(lowCorner.getBlockY(), highCorner.getBlockY(), to.getBlockY())
+            || between(lowCorner.getBlockZ(), highCorner.getBlockZ(), to.getBlockZ());
 
         if (overlaps && !cloneMode.isAllowedToOverlap()) {
             sendUsageMessage(sender, messages);
@@ -178,16 +178,16 @@ public class CloneCommand extends GlowVanillaCommand {
         int blocksCloned = 0;
 
         IterationDirection directionX = to.getBlockX() < lowCorner.getBlockX()
-                ? IterationDirection.FORWARDS : IterationDirection.BACKWARDS;
+            ? IterationDirection.FORWARDS : IterationDirection.BACKWARDS;
         IterationDirection directionY = to.getBlockY() < lowCorner.getBlockY()
-                ? IterationDirection.FORWARDS : IterationDirection.BACKWARDS;
+            ? IterationDirection.FORWARDS : IterationDirection.BACKWARDS;
         IterationDirection directionZ = to.getBlockZ() < lowCorner.getBlockZ()
-                ? IterationDirection.FORWARDS : IterationDirection.BACKWARDS;
+            ? IterationDirection.FORWARDS : IterationDirection.BACKWARDS;
 
         Iterator<Location> fromIterator = fromRegion
-                .blockLocations(directionX, directionY, directionZ).iterator();
+            .blockLocations(directionX, directionY, directionZ).iterator();
         Iterator<Location> toIterator = toRegion
-                .blockLocations(directionX, directionY, directionZ).iterator();
+            .blockLocations(directionX, directionY, directionZ).iterator();
 
         while (fromIterator.hasNext() && toIterator.hasNext()) {
             Location fromLocation = fromIterator.next();
@@ -202,8 +202,8 @@ public class CloneCommand extends GlowVanillaCommand {
                 BlockEntity fromEntity = fromBlock.getBlockEntity();
                 if (fromEntity != null) {
                     BlockEntity toEntity = toBlock.getChunk()
-                            .createEntity(toBlock.getX(), toBlock.getY(), toBlock
-                                    .getZ(), toBlock.getTypeId());
+                        .createEntity(toBlock.getX(), toBlock.getY(), toBlock
+                            .getZ(), toBlock.getTypeId());
                     if (toEntity != null) {
                         CompoundTag entityTag = new CompoundTag();
                         fromEntity.saveNbt(entityTag);
@@ -221,7 +221,7 @@ public class CloneCommand extends GlowVanillaCommand {
         switch (blocksCloned) {
             case 0:
                 new LocalizedStringImpl("clone.done.zero", bundle)
-                        .sendInColor(ChatColor.RED, sender);
+                    .sendInColor(ChatColor.RED, sender);
                 break;
             case 1:
                 new LocalizedStringImpl("clone.done.singular", bundle).send(sender);

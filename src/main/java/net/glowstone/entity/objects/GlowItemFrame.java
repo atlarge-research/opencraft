@@ -36,10 +36,10 @@ public class GlowItemFrame extends GlowHangingEntity implements ItemFrame {
     /**
      * Creates an item frame entity, and consumes the item frame item if a player is hanging it.
      *
-     * @param player the player who is hanging this item frame if it was an item before, or null if
-     *         it wasn't (e.g. it's from the saved world or a /summon command)
+     * @param player   the player who is hanging this item frame if it was an item before, or null if
+     *                 it wasn't (e.g. it's from the saved world or a /summon command)
      * @param location the item frame's location
-     * @param facing the direction this item frame is facing
+     * @param facing   the direction this item frame is facing
      */
     public GlowItemFrame(GlowPlayer player, Location location, BlockFace facing) {
 
@@ -88,7 +88,7 @@ public class GlowItemFrame extends GlowHangingEntity implements ItemFrame {
         if (message.getAction() == Action.ATTACK.ordinal()) {
             if (isEmpty()) {
                 if (EventFactory.getInstance()
-                        .callEvent(new HangingBreakByEntityEvent(this, player)).isCancelled()) {
+                    .callEvent(new HangingBreakByEntityEvent(this, player)).isCancelled()) {
                     return false;
                 }
                 if (player.getGameMode() != GameMode.CREATIVE) {
@@ -97,7 +97,7 @@ public class GlowItemFrame extends GlowHangingEntity implements ItemFrame {
                 remove();
             } else {
                 if (EventFactory.getInstance().callEvent(new EntityDamageByEntityEvent(
-                        player, this, DamageCause.ENTITY_ATTACK, 0)).isCancelled()) {
+                    player, this, DamageCause.ENTITY_ATTACK, 0)).isCancelled()) {
                     return false;
                 }
                 if (player.getGameMode() != GameMode.CREATIVE) {
@@ -117,8 +117,8 @@ public class GlowItemFrame extends GlowHangingEntity implements ItemFrame {
 
             if (location.getBlock().getRelative(getAttachedFace()).getType() == Material.AIR) {
                 if (EventFactory.getInstance()
-                        .callEvent(new HangingBreakEvent(this, RemoveCause.PHYSICS))
-                        .isCancelled()) {
+                    .callEvent(new HangingBreakEvent(this, RemoveCause.PHYSICS))
+                    .isCancelled()) {
                     return;
                 }
                 world.dropItemNaturally(location, new ItemStack(Material.ITEM_FRAME));

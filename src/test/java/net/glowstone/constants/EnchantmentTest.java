@@ -32,7 +32,7 @@ public class EnchantmentTest {
         List<Field> result = new ArrayList<>(fields.length);
         for (Field field : Enchantment.class.getFields()) {
             if (field.getType() == Enchantment.class
-                    && (field.getModifiers() & STATIC_FINAL) == STATIC_FINAL) {
+                && (field.getModifiers() & STATIC_FINAL) == STATIC_FINAL) {
                 result.add(field);
             }
         }

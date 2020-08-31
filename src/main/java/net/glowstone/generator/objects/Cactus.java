@@ -24,7 +24,7 @@ public class Cactus implements TerrainObject {
                 Block block = world.getBlockAt(x, n, z);
                 Material typeBelow = block.getRelative(BlockFace.DOWN).getType();
                 if ((typeBelow == Material.SAND || typeBelow == Material.CACTUS)
-                        && block.getRelative(BlockFace.UP).isEmpty()) {
+                    && block.getRelative(BlockFace.UP).isEmpty()) {
                     for (BlockFace face : FACES) {
                         if (block.getRelative(face).getType().isSolid()) {
                             return n > y;

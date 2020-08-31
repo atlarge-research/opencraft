@@ -48,13 +48,13 @@ public class GlowAreaEffectCloud extends GlowEntity implements AreaEffectCloud {
             long currentTick = world.getFullTime();
             for (Entity entity : world.getNearbyEntities(location, radius, radius, radius)) {
                 if (entity instanceof LivingEntity
-                        && temporaryImmunities.getOrDefault(entity, Long.MIN_VALUE) <= currentTick
-                        && location.distanceSquared(entity.getLocation()) < radius * radius) {
+                    && temporaryImmunities.getOrDefault(entity, Long.MIN_VALUE) <= currentTick
+                    && location.distanceSquared(entity.getLocation()) < radius * radius) {
                     customEffects.values().forEach(
                         effect -> EntityUtils.applyPotionEffectWithIntensity(
-                                effect, (LivingEntity) entity, 0.5, 0.25));
+                            effect, (LivingEntity) entity, 0.5, 0.25));
                     temporaryImmunities.put((LivingEntity) entity,
-                            currentTick + reapplicationDelay);
+                        currentTick + reapplicationDelay);
                 }
             }
         }
@@ -113,8 +113,8 @@ public class GlowAreaEffectCloud extends GlowEntity implements AreaEffectCloud {
             metadataMap.set(MetadataIndex.AREAEFFECTCLOUD_PARTICLEID, particle.ordinal());
         }
         return Arrays.asList(
-                new SpawnObjectMessage(entityId, getUniqueId(), NETWORK_TYPE_ID, location),
-                new EntityMetadataMessage(entityId, metadataMap.getEntryList()));
+            new SpawnObjectMessage(entityId, getUniqueId(), NETWORK_TYPE_ID, location),
+            new EntityMetadataMessage(entityId, metadataMap.getEntryList()));
     }
 
     @Override

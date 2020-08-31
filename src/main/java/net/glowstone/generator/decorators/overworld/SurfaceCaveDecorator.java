@@ -74,7 +74,7 @@ public class SurfaceCaveDecorator extends BlockDecorator {
                 for (int z = blockZ - radius; z <= blockZ + radius; z++) {
                     double distanceSquared =
                         (blockX - x) * (blockX - x) + (blockY - y) * (blockY - y)
-                                + (blockZ - z) * (blockZ - z);
+                            + (blockZ - z) * (blockZ - z);
                     if (distanceSquared < radius * radius) {
                         GlowBlock pocket = block.getWorld().getBlockAt(x, y, z);
                         pocket.setType(Material.AIR);

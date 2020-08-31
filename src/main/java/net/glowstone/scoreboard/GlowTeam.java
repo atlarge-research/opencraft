@@ -42,7 +42,7 @@ public final class GlowTeam implements Team {
      * Creates a team.
      *
      * @param scoreboard the scoreboard for this team's scores
-     * @param name the team name
+     * @param name       the team name
      */
     public GlowTeam(GlowScoreboard scoreboard, String name) {
         this.scoreboard = scoreboard;
@@ -178,7 +178,7 @@ public final class GlowTeam implements Team {
      * Sets to whom death messages are visible.
      *
      * @param deathMessageVisibility the new death message visibility
-     * @throws IllegalStateException if this team is not registered with a scoreboard
+     * @throws IllegalStateException    if this team is not registered with a scoreboard
      * @throws IllegalArgumentException if {@code deathMessageVisibility} is null
      */
     @Deprecated

@@ -15,7 +15,7 @@ public final class ParameterUtils {
     public static Collection<Object[]> enumCases(Object[] values) {
         List<Object[]> result = new ArrayList<>(values.length);
         for (Object value : values) {
-            result.add(new Object[]{value});
+            result.add(new Object[] {value});
         }
         return result;
     }

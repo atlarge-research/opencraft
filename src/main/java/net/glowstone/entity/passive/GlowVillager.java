@@ -38,7 +38,7 @@ public class GlowVillager extends GlowAgeable implements Villager {
 
     private static final Profession[] PROFESSIONS = Profession.values();
     private static final MerchantRecipe DEFAULT_RECIPE
-            = new MerchantRecipe(new ItemStack(Material.DIRT), 10);
+        = new MerchantRecipe(new ItemStack(Material.DIRT), 10);
     @Getter
     private Career career;
     @Getter
@@ -183,7 +183,7 @@ public class GlowVillager extends GlowAgeable implements Villager {
         if (message.getAction() == InteractEntityMessage.Action.INTERACT.ordinal()) {
             if (this.recipes.isEmpty()) {
                 GlowServer.logger.info(
-                        player.getName() + " tried trading with a villager with no recipes.");
+                    player.getName() + " tried trading with a villager with no recipes.");
                 return false;
             }
             // open merchant view

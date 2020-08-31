@@ -27,7 +27,8 @@ public enum MetadataType {
     DIRECTION(Integer.class, false),
     OPTUUID(UUID.class, true),
     BLOCKID(Integer.class, false),
-    NBTTAG(CompoundTag.class, false),;
+    NBTTAG(CompoundTag.class, false),
+    ;
 
     @Getter
     private final Class<?> dataType;

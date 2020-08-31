@@ -18,6 +18,6 @@ public final class CraftingBookDataHandler implements
             return;
         }
         ConsoleMessages.Warn.Net.CRAFTING_BOOK_UNSUPPORTED.log(session.getPlayer().getName(),
-                message);
+            message);
     }
 }

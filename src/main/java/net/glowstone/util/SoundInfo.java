@@ -13,13 +13,19 @@ import org.bukkit.entity.Player;
 @RequiredArgsConstructor
 public class SoundInfo {
 
-    /** The Bukkit sound enum constant. */
+    /**
+     * The Bukkit sound enum constant.
+     */
     private final Sound sound;
 
-    /** The volume. */
+    /**
+     * The volume.
+     */
     private final float volume;
 
-    /** The pitch multiplier. */
+    /**
+     * The pitch multiplier.
+     */
     private final float pitch;
 
     /**
@@ -43,7 +49,7 @@ public class SoundInfo {
     /**
      * Plays the sound to the given player at the given location.
      *
-     * @param player Player to which to play the sound
+     * @param player   Player to which to play the sound
      * @param location Location at which to play the sound
      */
     public void playTo(Player player, Location location) {

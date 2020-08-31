@@ -59,7 +59,7 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-@PrepareForTest({Bukkit.class, ChunkManager.class})
+@PrepareForTest( {Bukkit.class, ChunkManager.class})
 @RunWith(PowerMockRunner.class)
 public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
 
@@ -406,7 +406,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
     @Test
     public void testIncrementStatisticCancelled() {
         when(eventFactory.callEvent(any(Event.class)))
-                .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
+            .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
 
         entity.incrementStatistic(Statistic.ANIMALS_BRED);
         verify(eventFactory).callEvent(argThat(input -> {
@@ -441,7 +441,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
     @Test
     public void testIncrementStatisticWithValueCancelled() {
         when(eventFactory.callEvent(any(Event.class)))
-                .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
+            .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
 
         entity.incrementStatistic(Statistic.ANIMALS_BRED, 12);
         verify(eventFactory).callEvent(argThat(input -> {
@@ -477,7 +477,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
     @Test
     public void testIncrementStatisticMaterialCancelled() {
         when(eventFactory.callEvent(any(Event.class)))
-                .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
+            .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
 
         entity.incrementStatistic(Statistic.MINE_BLOCK, Material.DIRT);
         verify(eventFactory).callEvent(argThat(input -> {
@@ -514,7 +514,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
     @Test
     public void testIncrementStatisticMaterialWithValueCancelled() {
         when(eventFactory.callEvent(any(Event.class)))
-                .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
+            .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
 
         entity.incrementStatistic(Statistic.MINE_BLOCK, Material.DIRT, 13);
         verify(eventFactory).callEvent(argThat(input -> {
@@ -551,7 +551,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
     @Test
     public void testIncrementStatisticEntityTypeCancelled() {
         when(eventFactory.callEvent(any(Event.class)))
-                .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
+            .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
 
         entity.incrementStatistic(Statistic.KILL_ENTITY, EntityType.CAVE_SPIDER);
         verify(eventFactory).callEvent(argThat(input -> {
@@ -588,7 +588,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
     @Test
     public void testIncrementStatisticEntityTypeWithValueCancelled() {
         when(eventFactory.callEvent(any(Event.class))).thenAnswer(
-                cancelIfInstance(PlayerStatisticIncrementEvent.class));
+            cancelIfInstance(PlayerStatisticIncrementEvent.class));
         entity.incrementStatistic(Statistic.KILL_ENTITY, EntityType.CAVE_SPIDER, 14);
         verify(eventFactory).callEvent(argThat(input -> {
             PlayerStatisticIncrementEvent event = (PlayerStatisticIncrementEvent) input;
@@ -613,7 +613,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
      * @return an Answer that returns the possibly-cancelled first argument
      */
     protected static Answer<Event> cancelIfInstance(
-            final Class<? extends Cancellable> typeToCancel) {
+        final Class<? extends Cancellable> typeToCancel) {
         return invocation -> {
             Event event = invocation.getArgument(0);
             if (typeToCancel.isInstance(event)) {

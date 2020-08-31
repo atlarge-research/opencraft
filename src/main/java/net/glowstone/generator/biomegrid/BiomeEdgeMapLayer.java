@@ -78,14 +78,14 @@ public class BiomeEdgeMapLayer extends MapLayer {
                         int leftVal = values[j + (i + 1) * gridSizeX];
                         int rightVal = values[j + 2 + (i + 1) * gridSizeX];
                         if (entry.getValue() == null && (
-                                !map.containsKey(upperVal)
+                            !map.containsKey(upperVal)
                                 || !map.containsKey(lowerVal)
                                 || !map.containsKey(leftVal)
                                 || !map.containsKey(rightVal))) {
                             val = map.get(centerVal);
                             break;
                         } else if (entry.getValue() != null && (
-                                entry.getValue().contains(upperVal)
+                            entry.getValue().contains(upperVal)
                                 || entry.getValue().contains(lowerVal)
                                 || entry.getValue().contains(leftVal)
                                 || entry.getValue().contains(rightVal))) {

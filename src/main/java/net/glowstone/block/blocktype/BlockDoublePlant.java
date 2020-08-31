@@ -20,12 +20,12 @@ public class BlockDoublePlant extends BlockNeedsAttached implements IBlockGrowab
     public boolean canPlaceAt(GlowPlayer player, GlowBlock block, BlockFace against) {
         Material type = block.getRelative(BlockFace.DOWN).getType();
         return (type == Material.GRASS || type == Material.DIRT || type == Material.SOIL)
-                && block.getRelative(BlockFace.UP).getType() == Material.AIR;
+            && block.getRelative(BlockFace.UP).getType() == Material.AIR;
     }
 
     @Override
     public void afterPlace(GlowPlayer player, GlowBlock block, ItemStack holding,
-        GlowBlockState oldState) {
+                           GlowBlockState oldState) {
         GlowBlockState headBlockState = block.getRelative(BlockFace.UP).getState();
         headBlockState.setType(Material.DOUBLE_PLANT);
         headBlockState.setData(new DoublePlant(DoublePlantSpecies.PLANT_APEX));

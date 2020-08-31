@@ -29,6 +29,7 @@ class GlowMetaBook extends GlowMetaItem implements BookMeta {
      * Creates an instance by copying from the given {@link ItemMeta}. If that item is another
      * {@link BookMeta}, its title, author, pages and generation are copied; otherwise, the new book
      * is blank.
+     *
      * @param meta the {@link ItemMeta} to copy
      */
     public GlowMetaBook(ItemMeta meta) {
@@ -41,7 +42,7 @@ class GlowMetaBook extends GlowMetaItem implements BookMeta {
         author = book.getAuthor();
         if (book.hasPages()) {
             pages = new ArrayList<>(book instanceof GlowMetaBook
-                    ? ((GlowMetaBook) book).pages : book.getPages());
+                ? ((GlowMetaBook) book).pages : book.getPages());
             filterPages();
         }
         if (hasGeneration()) {

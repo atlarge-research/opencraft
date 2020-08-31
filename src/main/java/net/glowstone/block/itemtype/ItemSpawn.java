@@ -21,7 +21,7 @@ public class ItemSpawn extends ItemType {
 
     @Override
     public void rightClickBlock(GlowPlayer player, GlowBlock against, BlockFace face,
-        ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
+                                ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
         Location location = against.getLocation()
             .add(face.getModX(), face.getModY(), face.getModZ());
         // TODO: change mob spawner when clicked by monster egg
@@ -38,9 +38,9 @@ public class ItemSpawn extends ItemType {
 
             if (type != null) {
                 GlowEntity entity = against.getWorld().spawn(
-                       location.add(0.5, GlowEntity.COLLISION_OFFSET, 0.5),
-                       EntityRegistry.getEntity(type),
-                       SpawnReason.SPAWNER_EGG
+                    location.add(0.5, GlowEntity.COLLISION_OFFSET, 0.5),
+                    EntityRegistry.getEntity(type),
+                    SpawnReason.SPAWNER_EGG
                 );
                 if (tag != null) {
                     EntityStorage.load(entity, tag);

@@ -26,7 +26,7 @@ public class GlowCraftingInventory extends GlowInventory implements CraftingInve
      * Create an inventory for the 2x2 or 3x3 crafting grid.
      *
      * @param owner the crafting player
-     * @param type {@link InventoryType#CRAFTING} or {@link InventoryType#WORKBENCH}
+     * @param type  {@link InventoryType#CRAFTING} or {@link InventoryType#WORKBENCH}
      */
     public GlowCraftingInventory(InventoryHolder owner, InventoryType type) {
         super(owner, type);
@@ -58,7 +58,7 @@ public class GlowCraftingInventory extends GlowInventory implements CraftingInve
 
     @Override
     public void handleShiftClick(GlowPlayer player, InventoryView view, int clickedSlot,
-        ItemStack clickedItem) {
+                                 ItemStack clickedItem) {
         if (getSlotType(view.convertSlot(clickedSlot)) == SlotType.RESULT) {
             // If the player clicked on the result give it to them
             Recipe recipe = getRecipe();

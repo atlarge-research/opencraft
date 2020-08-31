@@ -13,7 +13,7 @@ import org.bukkit.block.BlockState;
 
 public class LavaDecorator extends BlockDecorator {
 
-    private static final BlockFace[] SIDES = new BlockFace[]{BlockFace.NORTH, BlockFace.EAST,
+    private static final BlockFace[] SIDES = new BlockFace[] {BlockFace.NORTH, BlockFace.EAST,
         BlockFace.SOUTH, BlockFace.WEST, BlockFace.DOWN};
 
     private boolean flowing;
@@ -34,7 +34,7 @@ public class LavaDecorator extends BlockDecorator {
 
         Block block = world.getBlockAt(sourceX, sourceY, sourceZ);
         if ((block.getType() != Material.NETHERRACK && !block.isEmpty())
-                || block.getRelative(BlockFace.UP).getType() != Material.NETHERRACK) {
+            || block.getRelative(BlockFace.UP).getType() != Material.NETHERRACK) {
             return;
         }
         int netherrackBlockCount = 0;

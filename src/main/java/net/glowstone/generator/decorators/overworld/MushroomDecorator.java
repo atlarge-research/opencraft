@@ -69,7 +69,7 @@ public class MushroomDecorator extends BlockDecorator {
                             MaterialData data = blockBelow.getState().getData();
                             if (data instanceof Dirt) {
                                 canPlaceShroom = (((Dirt) data).getType() == DirtType.PODZOL
-                                        || block.getLightLevel() < 13);
+                                    || block.getLightLevel() < 13);
                             } else {
                                 canPlaceShroom = false;
                             }

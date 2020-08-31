@@ -17,12 +17,12 @@ public class TestUtils {
      * Asserts that exactly the expected number of items matching a predicate are in the given
      * inventory, summed across all stacks.
      *
-     * @param inventory the inventory to scan
+     * @param inventory       the inventory to scan
      * @param expectedMatches the number of matching items to expect
-     * @param filter the predicate that determines which items match
+     * @param filter          the predicate that determines which items match
      */
     public static void checkInventory(Inventory inventory, int expectedMatches,
-            Predicate<ItemStack> filter) {
+                                      Predicate<ItemStack> filter) {
         int matches = 0;
         for (ItemStack item : inventory.getContents()) {
             if (item != null && filter.test(item)) {
@@ -35,8 +35,8 @@ public class TestUtils {
                         expectedMatches, matches, filter, inventory), expectedMatches, matches);
         */
         assertEquals(
-                String.format("Expected exactly %d items but found %d, matching {%s}",
-                        expectedMatches, matches, filter), expectedMatches, matches);
+            String.format("Expected exactly %d items but found %d, matching {%s}",
+                expectedMatches, matches, filter), expectedMatches, matches);
     }
 
     /**
@@ -52,6 +52,7 @@ public class TestUtils {
             public boolean test(ItemStack item) {
                 return item.getType() == type;
             }
+
             @Override
             public String toString() {
                 return "items of type " + type;
@@ -72,6 +73,7 @@ public class TestUtils {
             public boolean test(ItemStack item) {
                 return types.contains(item.getType());
             }
+
             @Override
             public String toString() {
                 return "items of types " + types;

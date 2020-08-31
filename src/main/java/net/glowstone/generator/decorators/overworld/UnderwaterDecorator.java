@@ -22,7 +22,7 @@ public class UnderwaterDecorator extends BlockDecorator {
      * Updates the size of this decorator.
      *
      * @param horizRadius the maximum radius on the horizontal plane
-     * @param vertRadius the depth above and below the center
+     * @param vertRadius  the depth above and below the center
      * @return this, updated
      */
     public final UnderwaterDecorator setRadii(int horizRadius, int vertRadius) {

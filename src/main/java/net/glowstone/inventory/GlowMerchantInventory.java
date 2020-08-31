@@ -23,7 +23,7 @@ public class GlowMerchantInventory extends GlowInventory implements MerchantInve
     /**
      * Creates the inventory for a merchant.
      *
-     * @param owner the CUSTOMER as an {@link InventoryHolder}
+     * @param owner    the CUSTOMER as an {@link InventoryHolder}
      * @param merchant the merchant as a {@link Merchant}
      */
     public GlowMerchantInventory(InventoryHolder owner, Merchant merchant) {

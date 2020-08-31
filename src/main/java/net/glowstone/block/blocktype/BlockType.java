@@ -362,9 +362,9 @@ public class BlockType extends ItemType {
             List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(target);
             GlowWorld world = target.getWorld();
             List<Entity> entities = boxes.stream()
-                 .map(box -> world.getEntityManager().getEntitiesInside(box, null))
-                 .flatMap(List::stream)
-                 .collect(Collectors.toList());
+                .map(box -> world.getEntityManager().getEntitiesInside(box, null))
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
 
             for (Entity e : entities) {
                 if (e instanceof LivingEntity) {

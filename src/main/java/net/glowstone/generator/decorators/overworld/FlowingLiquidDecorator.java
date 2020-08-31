@@ -13,7 +13,7 @@ import org.bukkit.block.BlockState;
 
 public class FlowingLiquidDecorator extends BlockDecorator {
 
-    private static final BlockFace[] SIDES = new BlockFace[]{BlockFace.NORTH, BlockFace.EAST,
+    private static final BlockFace[] SIDES = new BlockFace[] {BlockFace.NORTH, BlockFace.EAST,
         BlockFace.SOUTH, BlockFace.WEST};
     private final Material type;
 

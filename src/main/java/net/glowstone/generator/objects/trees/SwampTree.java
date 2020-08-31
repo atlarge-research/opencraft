@@ -12,12 +12,12 @@ import org.bukkit.material.types.DirtType;
 public class SwampTree extends CocoaTree {
 
     public static final ImmutableList<Material> WATER_BLOCK_TYPES
-            = ImmutableList.of(Material.WATER, Material.STATIONARY_WATER);
+        = ImmutableList.of(Material.WATER, Material.STATIONARY_WATER);
 
     /**
      * Initializes this tree with a random height, preparing it to attempt to generate.
      *
-     * @param random the PRNG
+     * @param random   the PRNG
      * @param delegate the BlockStateDelegate used to check for space and to fill wood and
      */
     public SwampTree(Random random, BlockStateDelegate delegate) {
@@ -99,9 +99,9 @@ public class SwampTree extends CocoaTree {
         for (int y = 0; y < height; y++) {
             Material material = blockTypeAt(blockX, blockY + y, blockZ, world);
             if (material == Material.AIR || material == Material.LEAVES
-                    || material == Material.WATER || material == Material.STATIONARY_WATER) {
+                || material == Material.WATER || material == Material.STATIONARY_WATER) {
                 delegate.setTypeAndRawData(
-                        world, blockX, blockY + y, blockZ, Material.LOG, logType);
+                    world, blockX, blockY + y, blockZ, Material.LOG, logType);
             }
         }
 

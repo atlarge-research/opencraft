@@ -16,7 +16,7 @@ public class BlockLog2 extends BlockType {
 
     @Override
     public void placeBlock(GlowPlayer player, GlowBlockState state, BlockFace face,
-        ItemStack holding, Vector clickedLoc) {
+                           ItemStack holding, Vector clickedLoc) {
         super.placeBlock(player, state, face, holding, clickedLoc);
 
         // No Tree2 MaterialData
@@ -29,7 +29,8 @@ public class BlockLog2 extends BlockType {
 
     /**
      * Returns data updated to face the given direction.
-     * @param dir the direction to face
+     *
+     * @param dir  the direction to face
      * @param data a data value that specifies species but not direction
      * @return the data value with facing direction specified
      */

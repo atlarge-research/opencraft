@@ -26,7 +26,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Bukkit.class, CommandUtils.class})
+@PrepareForTest( {Bukkit.class, CommandUtils.class})
 public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCommand> {
 
     protected CommandSender opPlayer;
@@ -50,7 +50,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
 
     @Test
     public void testExecuteFailsWithIncorrectSound() {
-        assertThat(command.execute(opSender, "label", new String[]{"noise", "source", "player"}),
+        assertThat(command.execute(opSender, "label", new String[] {"noise", "source", "player"}),
             is(false));
         Mockito.verify(opSender).sendMessage(eq(ChatColor.RED + "'noise' is not a valid sound."));
     }
@@ -58,7 +58,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteFailsWithIncorrectSoundCategory() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "source", "player"}), is(false));
+            new String[] {"minecraft:entity.parrot.imitate.wither", "source", "player"}), is(false));
         Mockito.verify(opSender)
             .sendMessage(eq(ChatColor.RED + "'source' is not a valid sound category."));
     }
@@ -66,14 +66,14 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteFailsUnknownTarget() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "player"}), is(false));
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "player"}), is(false));
         Mockito.verify(opSender).sendMessage(eq(ChatColor.RED + "Player 'player' cannot be found."));
     }
 
     @Test
     public void testExecuteFailsMinimumVolumeOutOfRange() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
                 "0", "300", "2", "300"}), is(false));
         Mockito.verify(opSender)
             .sendMessage(eq(ChatColor.RED + "Minimum volume value (300) must be between 0 and 1."));
@@ -82,7 +82,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteFailsMinimumVolumeInvalid() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
                 "0", "300", "2", "volume"}), is(false));
         Mockito.verify(opSender).sendMessage(eq(ChatColor.RED + "'volume' is not a valid number."));
     }
@@ -90,7 +90,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteFailsPitchOutOfRange() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
                 "0", "300", "300", "1"}), is(false));
         Mockito.verify(opSender)
             .sendMessage(eq(ChatColor.RED + "Pitch value (300) must be between 0 and 2."));
@@ -99,7 +99,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteFailsPitchInvalid() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
                 "0", "300", "pitch", "1"}), is(false));
         Mockito.verify(opSender).sendMessage(eq(ChatColor.RED + "'pitch' is not a valid number."));
     }
@@ -107,7 +107,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteFailsVolumeInvalid() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
                 "0", "volume", "1", "1"}), is(false));
         Mockito.verify(opSender).sendMessage(eq(ChatColor.RED + "'volume' is not a valid number."));
     }
@@ -115,7 +115,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteFailsPositionInvalid() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
                 "Y", "30", "1", "1"}), is(false));
         Mockito.verify(opSender).sendMessage(eq(ChatColor.RED + "The position (0,0,Y) is invalid."));
     }
@@ -123,7 +123,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteFailsPlayerTooFarAway() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "player1", "100000",
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "player1", "100000",
                 "100000", "100000"}), is(false));
         Mockito.verify(opSender)
             .sendMessage(eq(ChatColor.RED + "player1 is too far away to hear the sound."));
@@ -132,7 +132,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteSucceedsWithoutMinecraftPrefix() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"entity.parrot.imitate.wither", "master", "player1"}), is(true));
+            new String[] {"entity.parrot.imitate.wither", "master", "player1"}), is(true));
         Mockito.verify(Bukkit.getPlayerExact("player1"))
             .playSound(new Location(world, 10.5, 20.0, 30.5), Sound.ENTITY_PARROT_IMITATE_WITHER,
                 SoundCategory.MASTER, 1, 1);
@@ -141,7 +141,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteSucceedsOnAnotherPlayerWithCurrentLocation() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "player1"}), is(true));
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "player1"}), is(true));
         Mockito.verify(Bukkit.getPlayerExact("player1"))
             .playSound(new Location(world, 10.5, 20.0, 30.5), Sound.ENTITY_PARROT_IMITATE_WITHER,
                 SoundCategory.MASTER, 1, 1);
@@ -150,7 +150,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteSucceedsOnAllPlayersWithCurrentLocation() {
         assertThat(command.execute(opPlayer, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "@a"}), is(true));
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "@a"}), is(true));
         Mockito.verify(Bukkit.getPlayerExact("player1"))
             .playSound(new Location(world, 10.5, 20.0, 30.5), Sound.ENTITY_PARROT_IMITATE_WITHER,
                 SoundCategory.MASTER, 1, 1);
@@ -165,7 +165,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteSucceedsOnAnotherPlayerWithSpecificLocation() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
                 "0", "200"}), is(true));
         Mockito.verify(Bukkit.getPlayerExact("player1"))
             .playSound(new Location(world, 0.5, 0.0, 0.5), Sound.ENTITY_PARROT_IMITATE_WITHER,
@@ -175,7 +175,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteSucceedsOnAllPlayersWithSpecificLocation() {
         assertThat(command.execute(opPlayer, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "@a", "0", "0", "0",
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "@a", "0", "0", "0",
                 "200"}), is(true));
         Mockito.verify(Bukkit.getPlayerExact("player1"))
             .playSound(new Location(world, 0.5, 0.0, 0.5), Sound.ENTITY_PARROT_IMITATE_WITHER,
@@ -191,7 +191,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteSucceedsOnAnotherPlayerWithRelativeLocation() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "player1", "~20",
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "player1", "~20",
                 "~20", "~5", "200"}), is(true));
         Mockito.verify(Bukkit.getPlayerExact("player1"))
             .playSound(new Location(world, 31, 40.0, 36), Sound.ENTITY_PARROT_IMITATE_WITHER,
@@ -201,7 +201,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteSucceedsOnAnotherPlayerWithSmallPitch() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
                 "0", "200", "0.05"}), is(true));
         Mockito.verify(Bukkit.getPlayerExact("player1"))
             .playSound(new Location(world, 0.5, 0.0, 0.5), Sound.ENTITY_PARROT_IMITATE_WITHER,
@@ -211,7 +211,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteSucceedsOnAnotherPlayerWithSpecificPitch() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
                 "0", "200", "0.6"}), is(true));
         Mockito.verify(Bukkit.getPlayerExact("player1"))
             .playSound(new Location(world, 0.5, 0.0, 0.5), Sound.ENTITY_PARROT_IMITATE_WITHER,
@@ -221,7 +221,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
     @Test
     public void testExecuteSucceedsOnAnotherPlayerWithMinimumVolume() {
         assertThat(command.execute(opSender, "label",
-            new String[]{"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
+            new String[] {"minecraft:entity.parrot.imitate.wither", "master", "player1", "0", "0",
                 "0", "10", "0.6", "1"}), is(true));
         Mockito.verify(Bukkit.getPlayerExact("player1"))
             .playSound(any(Location.class), eq(Sound.ENTITY_PARROT_IMITATE_WITHER),
@@ -235,25 +235,25 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
             is(Collections.emptyList()));
 
         assertThat(command
-                .tabComplete(opSender, "alias", new String[]{"minecraft:entity.parrot.imitate.wither"}),
+                .tabComplete(opSender, "alias", new String[] {"minecraft:entity.parrot.imitate.wither"}),
             is(ImmutableList.of("minecraft:entity.parrot.imitate.wither",
                 "minecraft:entity.parrot.imitate.wither.skeleton")));
         assertThat(
-            command.tabComplete(opSender, "alias", new String[]{"entity.parrot.imitate.wither"}),
+            command.tabComplete(opSender, "alias", new String[] {"entity.parrot.imitate.wither"}),
             is(ImmutableList.of("minecraft:entity.parrot.imitate.wither",
                 "minecraft:entity.parrot.imitate.wither.skeleton")));
         assertThat(command.tabComplete(opSender, "alias",
-            new String[]{"chuckNorris:entity.parrot.imitate.wither"}),
-                is(Collections.emptyList()));
+            new String[] {"chuckNorris:entity.parrot.imitate.wither"}),
+            is(Collections.emptyList()));
 
-        assertThat(command.tabComplete(opSender, "alias", new String[]{"sound", "hosti"}),
+        assertThat(command.tabComplete(opSender, "alias", new String[] {"sound", "hosti"}),
             is(ImmutableList.of("hostile")));
 
-        assertThat(command.tabComplete(opSender, "alias", new String[]{"sound", "hostile", ""}),
+        assertThat(command.tabComplete(opSender, "alias", new String[] {"sound", "hostile", ""}),
             is(ImmutableList.of("player1", "player2", "thePlayer3")));
-        assertThat(command.tabComplete(opSender, "alias", new String[]{"sound", "hostile", "play"}),
+        assertThat(command.tabComplete(opSender, "alias", new String[] {"sound", "hostile", "play"}),
             is(ImmutableList.of("player1", "player2")));
-        assertThat(command.tabComplete(opSender, "alias", new String[]{"sound", "hostile", "the"}),
+        assertThat(command.tabComplete(opSender, "alias", new String[] {"sound", "hostile", "the"}),
             is(ImmutableList.of("thePlayer3")));
 
         assertThat(command.tabComplete(opSender, "alias", new String[4]),

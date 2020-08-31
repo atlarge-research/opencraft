@@ -79,10 +79,10 @@ public class NbtPlayerDataService implements PlayerDataService {
         }
 
         CompletableFuture<Void> gotAll = CompletableFuture.allOf(futures.toArray(
-                new CompletableFuture[futures.size()]));
+            new CompletableFuture[futures.size()]));
 
         return gotAll.thenApplyAsync((v) ->
-                futures.stream().map((f) -> f.join()).collect(Collectors.toList()));
+            futures.stream().map((f) -> f.join()).collect(Collectors.toList()));
     }
 
     @Override

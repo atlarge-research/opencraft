@@ -13,6 +13,6 @@ public class PluginMessageCodecTest extends CodecTest<PluginMessage> {
 
     @Override
     protected PluginMessage createMessage() {
-        return new PluginMessage("one", new byte[] { 1, 2 });
+        return new PluginMessage("one", new byte[] {1, 2});
     }
 }

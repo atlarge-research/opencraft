@@ -14,14 +14,15 @@ public class RedwoodTree extends GenericTree {
 
     /**
      * Initializes this tree with a random height, preparing it to attempt to generate.
-     * @param random the PRNG
+     *
+     * @param random   the PRNG
      * @param delegate the BlockStateDelegate used to check for space and to fill wood and
      */
     public RedwoodTree(Random random, BlockStateDelegate delegate) {
         super(random, delegate);
         setOverridables(
-                Material.AIR,
-                Material.LEAVES
+            Material.AIR,
+            Material.LEAVES
         );
         setHeight(random.nextInt(4) + 6);
         setLeavesHeight(random.nextInt(2) + 1);
@@ -80,10 +81,10 @@ public class RedwoodTree extends GenericTree {
             for (int x = blockX - radius; x <= blockX + radius; x++) {
                 for (int z = blockZ - radius; z <= blockZ + radius; z++) {
                     if ((Math.abs(x - blockX) != radius
-                                    || Math.abs(z - blockZ) != radius || radius <= 0)
-                            && blockTypeAt(x, y, z, world) == Material.AIR) {
+                        || Math.abs(z - blockZ) != radius || radius <= 0)
+                        && blockTypeAt(x, y, z, world) == Material.AIR) {
                         delegate.setTypeAndRawData(world, x, y, z, Material.LEAVES,
-                                leavesType);
+                            leavesType);
                     }
                 }
             }
@@ -104,16 +105,16 @@ public class RedwoodTree extends GenericTree {
             Material type = blockTypeAt(blockX, blockY + y, blockZ, world);
             if (overridables.contains(type)) {
                 delegate.setTypeAndRawData(world, blockX, blockY + y,
-                        blockZ, Material.LOG, logType);
+                    blockZ, Material.LOG, logType);
             }
         }
 
         // block below trunk is always dirt
         Dirt dirt = new Dirt(DirtType.NORMAL);
         delegate
-                .setTypeAndData(world, blockX,
-                        blockY - 1, blockZ,
-                        Material.DIRT, dirt);
+            .setTypeAndData(world, blockX,
+                blockY - 1, blockZ,
+                Material.DIRT, dirt);
 
         return true;
     }

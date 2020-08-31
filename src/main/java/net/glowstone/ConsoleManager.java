@@ -48,9 +48,12 @@ import org.jetbrains.annotations.NonNls;
 public final class ConsoleManager {
 
     private static final Logger logger = Logger.getLogger("");
-    @NonNls private static String CONSOLE_DATE = "HH:mm:ss";
-    @NonNls private static String FILE_DATE = "yyyy/MM/dd HH:mm:ss";
-    @NonNls private static String CONSOLE_PROMPT = ">";
+    @NonNls
+    private static String CONSOLE_DATE = "HH:mm:ss";
+    @NonNls
+    private static String FILE_DATE = "yyyy/MM/dd HH:mm:ss";
+    @NonNls
+    private static String CONSOLE_PROMPT = ">";
     private final GlowServer server;
     private final Map<ChatColor, String> replacements = new EnumMap<>(ChatColor.class);
     private final ChatColor[] colors = ChatColor.values();
@@ -300,7 +303,7 @@ public final class ConsoleManager {
         public int complete(String buffer, int cursor, List<CharSequence> candidates) {
             try {
                 List<String> completions = server.getScheduler()
-                        .syncIfNeeded(() -> server.getCommandMap().tabComplete(sender, buffer));
+                    .syncIfNeeded(() -> server.getCommandMap().tabComplete(sender, buffer));
                 if (completions == null) {
                     return cursor;  // no completions
                 }
@@ -353,7 +356,7 @@ public final class ConsoleManager {
         @Override
         public void run() {
             ServerCommandEvent event = EventFactory.getInstance()
-                    .callEvent(new ServerCommandEvent(sender, command));
+                .callEvent(new ServerCommandEvent(sender, command));
             if (!event.isCancelled()) {
                 server.dispatchCommand(sender, event.getCommand());
             }
@@ -413,7 +416,7 @@ public final class ConsoleManager {
         @Override
         public void setOp(boolean value) {
             throw new UnsupportedOperationException(
-                    "Cannot change operator status of server console");
+                "Cannot change operator status of server console");
         }
 
         ////////////////////////////////////////////////////////////////////////
@@ -441,7 +444,7 @@ public final class ConsoleManager {
 
         @Override
         public PermissionAttachment addAttachment(Plugin plugin,
-                @NonNls String name, boolean value) {
+                                                  @NonNls String name, boolean value) {
             return perm.addAttachment(plugin, name, value);
         }
 
@@ -452,7 +455,7 @@ public final class ConsoleManager {
 
         @Override
         public PermissionAttachment addAttachment(Plugin plugin, @NonNls String name, boolean value,
-                int ticks) {
+                                                  int ticks) {
             return perm.addAttachment(plugin, name, value, ticks);
         }
 
@@ -501,7 +504,7 @@ public final class ConsoleManager {
 
         @Override
         public void abandonConversation(Conversation conversation,
-                ConversationAbandonedEvent details) {
+                                        ConversationAbandonedEvent details) {
 
         }
 

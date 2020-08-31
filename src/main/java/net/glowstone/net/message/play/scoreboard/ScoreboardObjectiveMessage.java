@@ -21,7 +21,7 @@ public final class ScoreboardObjectiveMessage implements Message {
     }
 
     public static ScoreboardObjectiveMessage create(String name, String displayName,
-        RenderType renderType) {
+                                                    RenderType renderType) {
         return new ScoreboardObjectiveMessage(name, displayName, Action.CREATE.ordinal(),
             renderType);
     }
@@ -36,7 +36,7 @@ public final class ScoreboardObjectiveMessage implements Message {
     }
 
     public static ScoreboardObjectiveMessage update(String name, String displayName,
-        RenderType renderType) {
+                                                    RenderType renderType) {
         return new ScoreboardObjectiveMessage(name, displayName, Action.UPDATE.ordinal(),
             renderType);
     }

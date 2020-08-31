@@ -174,21 +174,21 @@ public class OverworldGenerator extends GlowChunkGenerator {
 
     static {
         setBiomeSpecificGround(new SandyGroundGenerator(), BEACHES, COLD_BEACH, DESERT,
-                DESERT_HILLS, MUTATED_DESERT);
+            DESERT_HILLS, MUTATED_DESERT);
         setBiomeSpecificGround(new RockyGroundGenerator(), STONE_BEACH);
         setBiomeSpecificGround(new SnowyGroundGenerator(), MUTATED_ICE_FLATS);
         setBiomeSpecificGround(new MycelGroundGenerator(), MUSHROOM_ISLAND, MUSHROOM_ISLAND_SHORE);
         setBiomeSpecificGround(new StonePatchGroundGenerator(), EXTREME_HILLS);
         setBiomeSpecificGround(new GravelPatchGroundGenerator(), MUTATED_EXTREME_HILLS,
-                MUTATED_EXTREME_HILLS_WITH_TREES);
+            MUTATED_EXTREME_HILLS_WITH_TREES);
         setBiomeSpecificGround(new DirtAndStonePatchGroundGenerator(), MUTATED_SAVANNA,
-                MUTATED_SAVANNA_ROCK);
+            MUTATED_SAVANNA_ROCK);
         setBiomeSpecificGround(new DirtPatchGroundGenerator(), REDWOOD_TAIGA, REDWOOD_TAIGA_HILLS,
-                MUTATED_REDWOOD_TAIGA, MUTATED_REDWOOD_TAIGA_HILLS);
+            MUTATED_REDWOOD_TAIGA, MUTATED_REDWOOD_TAIGA_HILLS);
         setBiomeSpecificGround(new MesaGroundGenerator(), MESA, MESA_CLEAR_ROCK, MESA_ROCK);
         setBiomeSpecificGround(new MesaGroundGenerator(MesaType.BRYCE), MUTATED_MESA);
         setBiomeSpecificGround(new MesaGroundGenerator(MesaType.FOREST), MESA_ROCK,
-                MUTATED_MESA_ROCK);
+            MUTATED_MESA_ROCK);
 
         setBiomeHeight(BiomeHeight.OCEAN, OCEAN, FROZEN_OCEAN);
         setBiomeHeight(BiomeHeight.DEEP_OCEAN, DEEP_OCEAN);
@@ -197,22 +197,22 @@ public class OverworldGenerator extends GlowChunkGenerator {
         setBiomeHeight(BiomeHeight.ROCKY_SHORE, STONE_BEACH);
         setBiomeHeight(BiomeHeight.FLATLANDS, DESERT, ICE_FLATS, SAVANNA);
         setBiomeHeight(BiomeHeight.EXTREME_HILLS, EXTREME_HILLS, EXTREME_HILLS_WITH_TREES,
-                MUTATED_EXTREME_HILLS, MUTATED_EXTREME_HILLS_WITH_TREES);
+            MUTATED_EXTREME_HILLS, MUTATED_EXTREME_HILLS_WITH_TREES);
         setBiomeHeight(BiomeHeight.MID_PLAINS, TAIGA, TAIGA_COLD, REDWOOD_TAIGA);
         setBiomeHeight(BiomeHeight.SWAMPLAND, SWAMPLAND);
         setBiomeHeight(BiomeHeight.LOW_HILLS, MUSHROOM_ISLAND);
         setBiomeHeight(BiomeHeight.HILLS, ICE_MOUNTAINS, DESERT_HILLS, FOREST_HILLS, TAIGA_HILLS,
-                SMALLER_EXTREME_HILLS, JUNGLE_HILLS, BIRCH_FOREST_HILLS, TAIGA_COLD_HILLS,
-                REDWOOD_TAIGA_HILLS, MUTATED_MESA_ROCK, MUTATED_MESA_CLEAR_ROCK);
+            SMALLER_EXTREME_HILLS, JUNGLE_HILLS, BIRCH_FOREST_HILLS, TAIGA_COLD_HILLS,
+            REDWOOD_TAIGA_HILLS, MUTATED_MESA_ROCK, MUTATED_MESA_CLEAR_ROCK);
         setBiomeHeight(BiomeHeight.HIGH_PLATEAU, SAVANNA_ROCK, MESA_ROCK, MESA_CLEAR_ROCK);
         setBiomeHeight(BiomeHeight.FLATLANDS_HILLS, MUTATED_DESERT);
         setBiomeHeight(BiomeHeight.BIG_HILLS, MUTATED_ICE_FLATS);
         setBiomeHeight(BiomeHeight.BIG_HILLS2, MUTATED_BIRCH_FOREST_HILLS);
         setBiomeHeight(BiomeHeight.SWAMPLAND_HILLS, MUTATED_SWAMPLAND);
         setBiomeHeight(BiomeHeight.DEFAULT_HILLS, MUTATED_JUNGLE, MUTATED_JUNGLE_EDGE,
-                MUTATED_BIRCH_FOREST, MUTATED_ROOFED_FOREST);
+            MUTATED_BIRCH_FOREST, MUTATED_ROOFED_FOREST);
         setBiomeHeight(BiomeHeight.MID_HILLS, MUTATED_TAIGA, MUTATED_TAIGA_COLD,
-                MUTATED_REDWOOD_TAIGA, MUTATED_REDWOOD_TAIGA_HILLS);
+            MUTATED_REDWOOD_TAIGA, MUTATED_REDWOOD_TAIGA_HILLS);
         setBiomeHeight(BiomeHeight.MID_HILLS2, MUTATED_FOREST);
         setBiomeHeight(BiomeHeight.LOW_SPIKES, MUTATED_SAVANNA);
         setBiomeHeight(BiomeHeight.HIGH_SPIKES, MUTATED_SAVANNA_ROCK);
@@ -241,8 +241,8 @@ public class OverworldGenerator extends GlowChunkGenerator {
      */
     public OverworldGenerator() {
         super(new OverworldPopulator(),
-                new StructurePopulator(),
-                new SnowPopulator());
+            new StructurePopulator(),
+            new SnowPopulator());
 
         coordinateScale = getWorldConfig().getDouble(OVERWORLD_COORDINATE_SCALE);
         heightScale = getWorldConfig().getDouble(OVERWORLD_HEIGHT_SCALE);
@@ -274,14 +274,14 @@ public class OverworldGenerator extends GlowChunkGenerator {
 
     @Override
     public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ,
-            BiomeGrid biomes) {
+                                       BiomeGrid biomes) {
         ChunkData chunkData = generateRawTerrain(world, chunkX, chunkZ);
 
         int cx = chunkX << 4;
         int cz = chunkZ << 4;
 
         SimplexOctaveGenerator octaveGenerator = ((SimplexOctaveGenerator) getWorldOctaves(world)
-                .get("surface"));
+            .get("surface"));
         int sizeX = octaveGenerator.getSizeX();
         int sizeZ = octaveGenerator.getSizeZ();
         if (((GlowServer) ServerProvider.getServer()).doesUseGraphicsCompute()) {
@@ -292,32 +292,32 @@ public class OverworldGenerator extends GlowChunkGenerator {
                 CLProgram program = OpenCompute.getProgram("net/glowstone/CLRandom.cl");
                 int workSize = sizeX * octaveGenerator.getSizeY() * sizeZ;
                 noise = OpenCompute.getContext()
-                        .createFloatBuffer(workSize, CLMemory.Mem.WRITE_ONLY);
+                    .createFloatBuffer(workSize, CLMemory.Mem.WRITE_ONLY);
                 noiseGen = OpenCompute.getKernel(program, "GenerateNoise");
                 noiseGen.putArg(random.nextFloat())
-                        .putArg(random.nextFloat())
-                        .putArg(noise)
-                        .putArg(workSize);
+                    .putArg(random.nextFloat())
+                    .putArg(noise)
+                    .putArg(workSize);
 
                 // Calculate noise on GPU
                 OpenCompute.getQueue()
-                        .put1DRangeKernel(noiseGen, 0, OpenCompute.getGlobalSize(workSize),
-                                OpenCompute.getLocalSize())
-                        .putReadBuffer(noise, true);
+                    .put1DRangeKernel(noiseGen, 0, OpenCompute.getGlobalSize(workSize),
+                        OpenCompute.getLocalSize())
+                    .putReadBuffer(noise, true);
 
                 // Use noise
                 for (int x = 0; x < sizeX; x++) {
                     for (int z = 0; z < sizeZ; z++) {
                         if (GROUND_MAP.containsKey(biomes.getBiome(x, z))) {
                             GROUND_MAP.get(biomes.getBiome(x, z))
-                                    .generateTerrainColumn(chunkData, world, random, cx + x, cz + z,
-                                            biomes.getBiome(x, z), noise.getBuffer()
-                                                    .get(x | z << 4));
+                                .generateTerrainColumn(chunkData, world, random, cx + x, cz + z,
+                                    biomes.getBiome(x, z), noise.getBuffer()
+                                        .get(x | z << 4));
                         } else {
                             groundGen
-                                    .generateTerrainColumn(chunkData, world, random, cx + x, cz + z,
-                                            biomes.getBiome(x, z), noise.getBuffer()
-                                                    .get(x | z << 4));
+                                .generateTerrainColumn(chunkData, world, random, cx + x, cz + z,
+                                    biomes.getBiome(x, z), noise.getBuffer()
+                                        .get(x | z << 4));
                         }
                     }
                 }
@@ -325,7 +325,7 @@ public class OverworldGenerator extends GlowChunkGenerator {
                 // Clean up
                 if (noise != null) {
                     ServerProvider.getServer().getScheduler()
-                            .runTaskAsynchronously(null, noise::release);
+                        .runTaskAsynchronously(null, noise::release);
                 }
                 if (noiseGen != null) {
                     noiseGen.rewind();
@@ -337,11 +337,11 @@ public class OverworldGenerator extends GlowChunkGenerator {
                 for (int z = 0; z < sizeZ; z++) {
                     if (GROUND_MAP.containsKey(biomes.getBiome(x, z))) {
                         GROUND_MAP.get(biomes.getBiome(x, z))
-                                .generateTerrainColumn(chunkData, world, random, cx + x, cz + z,
-                                        biomes.getBiome(x, z), surfaceNoise[x | z << 4]);
+                            .generateTerrainColumn(chunkData, world, random, cx + x, cz + z,
+                                biomes.getBiome(x, z), surfaceNoise[x | z << 4]);
                     } else {
                         groundGen.generateTerrainColumn(chunkData, world, random, cx + x, cz + z,
-                                biomes.getBiome(x, z), surfaceNoise[x | z << 4]);
+                            biomes.getBiome(x, z), surfaceNoise[x | z << 4]);
                     }
                 }
             }
@@ -429,32 +429,32 @@ public class OverworldGenerator extends GlowChunkGenerator {
                                 // 0, so don't get too confused by the naming :)
                                 if (afill == 1 || afill == 10 || afill == 13 || afill == 16) {
                                     chunkData.setBlock(m + (i << 2), l + (k << 3), n + (j << 2),
-                                            Material.STATIONARY_WATER);
+                                        Material.STATIONARY_WATER);
                                 } else if (afill == 2 || afill == 9 || afill == 12 || afill == 15) {
                                     chunkData.setBlock(m + (i << 2), l + (k << 3), n + (j << 2),
-                                            Material.STONE);
+                                        Material.STONE);
                                 }
                                 if (dens > densityOffset && fill > -1
-                                        || dens <= densityOffset && fill < 0) {
+                                    || dens <= densityOffset && fill < 0) {
                                     if (afill == 0 || afill == 3 || afill == 6 || afill == 9
-                                            || afill == 12) {
+                                        || afill == 12) {
                                         chunkData.setBlock(m + (i << 2), l + (k << 3), n + (j << 2),
-                                                Material.STONE);
+                                            Material.STONE);
                                     } else if (afill == 2 || afill == 7 || afill == 10
-                                            || afill == 16) {
+                                        || afill == 16) {
                                         chunkData.setBlock(m + (i << 2), l + (k << 3), n + (j << 2),
-                                                Material.STATIONARY_WATER);
+                                            Material.STATIONARY_WATER);
                                     }
                                 } else if (l + (k << 3) < seaLevel - 1 && seaFill == 0
-                                        || l + (k << 3) >= seaLevel - 1 && seaFill == 1) {
+                                    || l + (k << 3) >= seaLevel - 1 && seaFill == 1) {
                                     if (afill == 0 || afill == 3 || afill == 7 || afill == 10
-                                            || afill == 13) {
+                                        || afill == 13) {
                                         chunkData.setBlock(m + (i << 2), l + (k << 3), n + (j << 2),
-                                                Material.STATIONARY_WATER);
+                                            Material.STATIONARY_WATER);
                                     } else if (afill == 1 || afill == 6 || afill == 9
-                                            || afill == 15) {
+                                        || afill == 15) {
                                         chunkData.setBlock(m + (i << 2), l + (k << 3), n + (j << 2),
-                                                Material.STONE);
+                                            Material.STONE);
                                     }
                                 }
                                 // interpolation along z
@@ -498,17 +498,17 @@ public class OverworldGenerator extends GlowChunkGenerator {
         // This gives a total of 81 biome grid columns to work with, and this includes the chunk
         // neighborhood.
         int[] biomeGrid = ((GlowWorld) world).getChunkManager()
-                .getBiomeGridAtLowerRes(x - 2, z - 2, 10, 10);
+            .getBiomeGridAtLowerRes(x - 2, z - 2, 10, 10);
 
         Map<String, OctaveGenerator> octaves = getWorldOctaves(world);
         double[] heightNoise = ((PerlinOctaveGenerator) octaves.get("height"))
-                .getFractalBrownianMotion(x, z, 0.5D, 2.0D);
+            .getFractalBrownianMotion(x, z, 0.5D, 2.0D);
         double[] roughnessNoise = ((PerlinOctaveGenerator) octaves.get("roughness"))
-                .getFractalBrownianMotion(x, 0, z, 0.5D, 2.0D);
+            .getFractalBrownianMotion(x, 0, z, 0.5D, 2.0D);
         double[] roughnessNoise2 = ((PerlinOctaveGenerator) octaves.get("roughness2"))
-                .getFractalBrownianMotion(x, 0, z, 0.5D, 2.0D);
+            .getFractalBrownianMotion(x, 0, z, 0.5D, 2.0D);
         double[] detailNoise = ((PerlinOctaveGenerator) octaves.get("detail"))
-                .getFractalBrownianMotion(x, 0, z, 0.5D, 2.0D);
+            .getFractalBrownianMotion(x, 0, z, 0.5D, 2.0D);
 
         int index = 0;
         int indexHeight = 0;
@@ -540,11 +540,11 @@ public class OverworldGenerator extends GlowChunkGenerator {
                     for (int n = 0; n < 5; n++) {
                         Biome nearBiome = GlowBiome.getBiome(biomeGrid[i + m + (j + n) * 10]);
                         BiomeHeight nearBiomeHeight = HEIGHT_MAP
-                                .getOrDefault(nearBiome, defaultHeight);
+                            .getOrDefault(nearBiome, defaultHeight);
                         double heightBase =
-                                biomeHeightOffset + nearBiomeHeight.getHeight() * biomeHeightWeight;
+                            biomeHeightOffset + nearBiomeHeight.getHeight() * biomeHeightWeight;
                         double heightScale =
-                                biomeScaleOffset + nearBiomeHeight.getScale() * biomeScaleWeight;
+                            biomeScaleOffset + nearBiomeHeight.getScale() * biomeScaleWeight;
                         if (type == WorldType.AMPLIFIED && heightBase > 0) {
                             heightBase = 1.0D + heightBase * 2.0D;
                             heightScale = 1.0D + heightScale * 4.0D;
@@ -587,7 +587,7 @@ public class OverworldGenerator extends GlowChunkGenerator {
                     double noiseD = (detailNoise[index] / 10.0D + 1.0D) / 2.0D;
                     // linear interpolation
                     double dens = noiseD < 0 ? noiseR
-                            : noiseD > 1 ? noiseR2 : noiseR + (noiseR2 - noiseR) * noiseD;
+                        : noiseD > 1 ? noiseR2 : noiseR + (noiseR2 - noiseR) * noiseD;
                     dens -= nh;
                     index++;
                     if (k > 29) {
@@ -605,71 +605,71 @@ public class OverworldGenerator extends GlowChunkGenerator {
     private static class BiomeHeight {
 
         public static final BiomeHeight DEFAULT = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_DEFAULT),
-                getWorldConfig().getDouble(BIOME_SCALE_DEFAULT));
+            getWorldConfig().getDouble(BIOME_HEIGHT_DEFAULT),
+            getWorldConfig().getDouble(BIOME_SCALE_DEFAULT));
         public static final BiomeHeight FLAT_SHORE = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_FLAT_SHORE),
-                getWorldConfig().getDouble(BIOME_SCALE_FLAT_SHORE));
+            getWorldConfig().getDouble(BIOME_HEIGHT_FLAT_SHORE),
+            getWorldConfig().getDouble(BIOME_SCALE_FLAT_SHORE));
         public static final BiomeHeight HIGH_PLATEAU = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_HIGH_PLATEAU),
-                getWorldConfig().getDouble(BIOME_SCALE_HIGH_PLATEAU));
+            getWorldConfig().getDouble(BIOME_HEIGHT_HIGH_PLATEAU),
+            getWorldConfig().getDouble(BIOME_SCALE_HIGH_PLATEAU));
         public static final BiomeHeight FLATLANDS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_FLATLANDS),
-                getWorldConfig().getDouble(BIOME_SCALE_FLATLANDS));
+            getWorldConfig().getDouble(BIOME_HEIGHT_FLATLANDS),
+            getWorldConfig().getDouble(BIOME_SCALE_FLATLANDS));
         public static final BiomeHeight SWAMPLAND = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_SWAMPLAND),
-                getWorldConfig().getDouble(BIOME_SCALE_SWAMPLAND));
+            getWorldConfig().getDouble(BIOME_HEIGHT_SWAMPLAND),
+            getWorldConfig().getDouble(BIOME_SCALE_SWAMPLAND));
         public static final BiomeHeight MID_PLAINS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_MID_PLAINS),
-                getWorldConfig().getDouble(BIOME_SCALE_MID_PLAINS));
+            getWorldConfig().getDouble(BIOME_HEIGHT_MID_PLAINS),
+            getWorldConfig().getDouble(BIOME_SCALE_MID_PLAINS));
         public static final BiomeHeight FLATLANDS_HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_FLATLANDS_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_FLATLANDS_HILLS));
+            getWorldConfig().getDouble(BIOME_HEIGHT_FLATLANDS_HILLS),
+            getWorldConfig().getDouble(BIOME_SCALE_FLATLANDS_HILLS));
         public static final BiomeHeight SWAMPLAND_HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_SWAMPLAND_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_SWAMPLAND_HILLS));
+            getWorldConfig().getDouble(BIOME_HEIGHT_SWAMPLAND_HILLS),
+            getWorldConfig().getDouble(BIOME_SCALE_SWAMPLAND_HILLS));
         public static final BiomeHeight LOW_HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_LOW_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_LOW_HILLS));
+            getWorldConfig().getDouble(BIOME_HEIGHT_LOW_HILLS),
+            getWorldConfig().getDouble(BIOME_SCALE_LOW_HILLS));
         public static final BiomeHeight HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_HILLS));
+            getWorldConfig().getDouble(BIOME_HEIGHT_HILLS),
+            getWorldConfig().getDouble(BIOME_SCALE_HILLS));
         public static final BiomeHeight MID_HILLS2 = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_MID_HILLS2),
-                getWorldConfig().getDouble(BIOME_SCALE_MID_HILLS2));
+            getWorldConfig().getDouble(BIOME_HEIGHT_MID_HILLS2),
+            getWorldConfig().getDouble(BIOME_SCALE_MID_HILLS2));
         public static final BiomeHeight DEFAULT_HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_DEFAULT_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_DEFAULT_HILLS));
+            getWorldConfig().getDouble(BIOME_HEIGHT_DEFAULT_HILLS),
+            getWorldConfig().getDouble(BIOME_SCALE_DEFAULT_HILLS));
         public static final BiomeHeight MID_HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_MID_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_MID_HILLS));
+            getWorldConfig().getDouble(BIOME_HEIGHT_MID_HILLS),
+            getWorldConfig().getDouble(BIOME_SCALE_MID_HILLS));
         public static final BiomeHeight BIG_HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_BIG_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_BIG_HILLS));
+            getWorldConfig().getDouble(BIOME_HEIGHT_BIG_HILLS),
+            getWorldConfig().getDouble(BIOME_SCALE_BIG_HILLS));
         public static final BiomeHeight BIG_HILLS2 = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_BIG_HILLS2),
-                getWorldConfig().getDouble(BIOME_SCALE_BIG_HILLS2));
+            getWorldConfig().getDouble(BIOME_HEIGHT_BIG_HILLS2),
+            getWorldConfig().getDouble(BIOME_SCALE_BIG_HILLS2));
         public static final BiomeHeight EXTREME_HILLS = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_EXTREME_HILLS),
-                getWorldConfig().getDouble(BIOME_SCALE_EXTREME_HILLS));
+            getWorldConfig().getDouble(BIOME_HEIGHT_EXTREME_HILLS),
+            getWorldConfig().getDouble(BIOME_SCALE_EXTREME_HILLS));
         public static final BiomeHeight ROCKY_SHORE = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_ROCKY_SHORE),
-                getWorldConfig().getDouble(BIOME_SCALE_ROCKY_SHORE));
+            getWorldConfig().getDouble(BIOME_HEIGHT_ROCKY_SHORE),
+            getWorldConfig().getDouble(BIOME_SCALE_ROCKY_SHORE));
         public static final BiomeHeight LOW_SPIKES = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_LOW_SPIKES),
-                getWorldConfig().getDouble(BIOME_SCALE_LOW_SPIKES));
+            getWorldConfig().getDouble(BIOME_HEIGHT_LOW_SPIKES),
+            getWorldConfig().getDouble(BIOME_SCALE_LOW_SPIKES));
         public static final BiomeHeight HIGH_SPIKES = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_HIGH_SPIKES),
-                getWorldConfig().getDouble(BIOME_SCALE_HIGH_SPIKES));
+            getWorldConfig().getDouble(BIOME_HEIGHT_HIGH_SPIKES),
+            getWorldConfig().getDouble(BIOME_SCALE_HIGH_SPIKES));
         public static final BiomeHeight RIVER = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_RIVER),
-                getWorldConfig().getDouble(BIOME_SCALE_RIVER));
+            getWorldConfig().getDouble(BIOME_HEIGHT_RIVER),
+            getWorldConfig().getDouble(BIOME_SCALE_RIVER));
         public static final BiomeHeight OCEAN = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_OCEAN),
-                getWorldConfig().getDouble(BIOME_SCALE_OCEAN));
+            getWorldConfig().getDouble(BIOME_HEIGHT_OCEAN),
+            getWorldConfig().getDouble(BIOME_SCALE_OCEAN));
         public static final BiomeHeight DEEP_OCEAN = new BiomeHeight(
-                getWorldConfig().getDouble(BIOME_HEIGHT_DEEP_OCEAN),
-                getWorldConfig().getDouble(BIOME_SCALE_DEEP_OCEAN));
+            getWorldConfig().getDouble(BIOME_HEIGHT_DEEP_OCEAN),
+            getWorldConfig().getDouble(BIOME_SCALE_DEEP_OCEAN));
 
         @Getter
         private final double height;

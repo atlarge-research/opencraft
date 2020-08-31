@@ -35,6 +35,7 @@ public class HttpClient {
 
     /**
      * Creates an HttpClient configured to hit the given DNS endpoints.
+     *
      * @param endpoints The DNS endpoints to use for resolving domains. If the list is empty, then
      */
     public HttpClient(List<DnsEndpoint> endpoints) {
@@ -57,9 +58,9 @@ public class HttpClient {
     /**
      * Opens a URL.
      *
-     * @param url the URL to download
+     * @param url       the URL to download
      * @param eventLoop an {@link EventLoop} that will receive the response body
-     * @param callback a callback to handle the response or any error
+     * @param callback  a callback to handle the response or any error
      */
     public void connect(String url, EventLoop eventLoop, HttpCallback callback) {
 

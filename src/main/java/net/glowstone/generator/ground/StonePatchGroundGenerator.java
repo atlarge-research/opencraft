@@ -9,7 +9,7 @@ public class StonePatchGroundGenerator extends GroundGenerator {
 
     @Override
     public void generateTerrainColumn(ChunkData chunkData, World world, Random random, int x, int z,
-        Biome biome, double surfaceNoise) {
+                                      Biome biome, double surfaceNoise) {
         if (surfaceNoise > 1.0D) {
             setTopMaterial(STONE);
             setGroundMaterial(STONE);

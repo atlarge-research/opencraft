@@ -37,7 +37,7 @@ public class TestForBlocksCommandTest extends CommandTest<TestForBlocksCommand> 
         when(opPlayer.hasPermission("minecraft.command.testforblocks")).thenReturn(true);
         when(opPlayer.getWorld()).thenReturn(world);
         when(world.getBlockAt(any(Location.class))).then(
-                (invocation) -> blockStorage.getBlockAt(invocation.getArgument(0)));
+            (invocation) -> blockStorage.getBlockAt(invocation.getArgument(0)));
     }
 
     public void createCubeAt(int x, int y, int z) {

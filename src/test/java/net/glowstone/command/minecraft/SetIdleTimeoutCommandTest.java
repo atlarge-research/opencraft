@@ -39,7 +39,7 @@ public class SetIdleTimeoutCommandTest extends CommandTest<SetIdleTimeoutCommand
     @Test
     public void testExecuteFailsWithIncorrectNumber() {
         final boolean commandResult = command
-            .execute(opSender, "label", new String[]{"invalidNumber"});
+            .execute(opSender, "label", new String[] {"invalidNumber"});
 
         MatcherAssert.assertThat(commandResult, is(false));
         Mockito.verify(opSender)
@@ -48,7 +48,7 @@ public class SetIdleTimeoutCommandTest extends CommandTest<SetIdleTimeoutCommand
 
     @Test
     public void testExecuteFailsWithNegativeTimeout() {
-        final boolean commandResult = command.execute(opSender, "label", new String[]{"-42"});
+        final boolean commandResult = command.execute(opSender, "label", new String[] {"-42"});
 
         MatcherAssert.assertThat(commandResult, is(false));
         Mockito.verify(opSender).sendMessage(eq(ChatColor.RED
@@ -57,7 +57,7 @@ public class SetIdleTimeoutCommandTest extends CommandTest<SetIdleTimeoutCommand
 
     @Test
     public void testExecuteFailsWithNullTimeout() {
-        final boolean commandResult = command.execute(opSender, "label", new String[]{"0"});
+        final boolean commandResult = command.execute(opSender, "label", new String[] {"0"});
 
         MatcherAssert.assertThat(commandResult, is(false));
         Mockito.verify(opSender).sendMessage(eq(ChatColor.RED
@@ -66,7 +66,7 @@ public class SetIdleTimeoutCommandTest extends CommandTest<SetIdleTimeoutCommand
 
     @Test
     public void testExecuteSucceeds() {
-        final boolean commandResult = command.execute(opSender, "label", new String[]{"50"});
+        final boolean commandResult = command.execute(opSender, "label", new String[] {"50"});
 
         MatcherAssert.assertThat(commandResult, is(true));
         Mockito.verify(opSender)
@@ -78,9 +78,9 @@ public class SetIdleTimeoutCommandTest extends CommandTest<SetIdleTimeoutCommand
     public void testTabComplete() {
         MatcherAssert.assertThat(command.tabComplete(null, null, null), is(Collections.emptyList()));
         MatcherAssert.assertThat(command.tabComplete(sender, "", new String[0]), is(Collections.emptyList()));
-        MatcherAssert.assertThat(command.tabComplete(sender, "", new String[]{"12"}),
+        MatcherAssert.assertThat(command.tabComplete(sender, "", new String[] {"12"}),
             is(Collections.emptyList()));
-        MatcherAssert.assertThat(command.tabComplete(sender, "", new String[]{"12", "test"}),
+        MatcherAssert.assertThat(command.tabComplete(sender, "", new String[] {"12", "test"}),
             is(Collections.emptyList()));
     }
 }

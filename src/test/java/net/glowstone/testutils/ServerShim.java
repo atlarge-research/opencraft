@@ -80,11 +80,11 @@ public class ServerShim implements Server {
 
     @Getter
     private final PluginManager pluginManager
-            = Mockito.mock(PluginManager.class, Mockito.RETURNS_SMART_NULLS);
+        = Mockito.mock(PluginManager.class, Mockito.RETURNS_SMART_NULLS);
 
     @Getter
     private final GlowScheduler scheduler
-            = new GlowScheduler(this, worldScheduler, sessionRegistry);
+        = new GlowScheduler(this, worldScheduler, sessionRegistry);
 
     @Override
     public String getName() {
@@ -569,7 +569,7 @@ public class ServerShim implements Server {
 
     @Override
     public BossBar createBossBar(String s, BarColor barColor, BarStyle barStyle,
-        BarFlag... barFlags) {
+                                 BarFlag... barFlags) {
         return null;
     }
 

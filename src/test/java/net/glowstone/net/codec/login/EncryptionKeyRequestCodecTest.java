@@ -14,8 +14,8 @@ public class EncryptionKeyRequestCodecTest extends CodecTest<EncryptionKeyReques
     @Override
     protected EncryptionKeyRequestMessage createMessage() {
         String sessionId = "one";
-        byte[] publicKey = { 2, 3 };
-        byte[] verifyToken = { 4, 5 };
+        byte[] publicKey = {2, 3};
+        byte[] verifyToken = {4, 5};
         return new EncryptionKeyRequestMessage(sessionId, publicKey, verifyToken);
     }
 }

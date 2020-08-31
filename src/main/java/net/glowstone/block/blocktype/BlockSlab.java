@@ -19,7 +19,7 @@ public class BlockSlab extends BlockType {
 
     @Override
     public void placeBlock(GlowPlayer player, GlowBlockState state, BlockFace face,
-        ItemStack holding, Vector clickedLoc) {
+                           ItemStack holding, Vector clickedLoc) {
         super.placeBlock(player, state, face, holding, clickedLoc);
         Material blockType = state.getBlock().getType();
         if (blockType == Material.STEP) {
@@ -57,7 +57,7 @@ public class BlockSlab extends BlockType {
     }
 
     private boolean matchingType(GlowBlock block, BlockFace face, ItemStack holding,
-        boolean ignoreFace) {
+                                 boolean ignoreFace) {
         if (holding == null) {
             return false;
         }
@@ -65,11 +65,11 @@ public class BlockSlab extends BlockType {
         byte blockData = block.getData();
         byte holdingData = holding.getData().getData();
         return (blockType == Material.STEP || blockType == Material.WOOD_STEP
-                        || blockType == Material.STONE_SLAB2 || blockType == Material.PURPUR_SLAB)
-                && blockType == holding.getType()
-                && (face == BlockFace.UP && blockData == holdingData
-                        || face == BlockFace.DOWN && blockData - 8 == holdingData
-                        || ignoreFace && blockData % 8 == holdingData);
+            || blockType == Material.STONE_SLAB2 || blockType == Material.PURPUR_SLAB)
+            && blockType == holding.getType()
+            && (face == BlockFace.UP && blockData == holdingData
+            || face == BlockFace.DOWN && blockData - 8 == holdingData
+            || ignoreFace && blockData % 8 == holdingData);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class BlockSlab extends BlockType {
     @Override
     public Collection<ItemStack> getDrops(GlowBlock block, ItemStack tool) {
         if (block.getType() == Material.WOOD_STEP
-                || tool != null && ToolType.PICKAXE.matches(tool.getType())) {
+            || tool != null && ToolType.PICKAXE.matches(tool.getType())) {
             return getMinedDrops(block);
         }
         return Collections.emptyList();

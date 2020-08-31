@@ -18,12 +18,12 @@ public class GlowSuperInventory extends GlowInventory {
     }
 
     public GlowSuperInventory(List<GlowInventory> parents, InventoryHolder owner,
-        InventoryType type) {
+                              InventoryType type) {
         initialize(parents, owner, type);
     }
 
     public GlowSuperInventory(List<GlowInventory> parents, InventoryHolder owner,
-        InventoryType type, String title) {
+                              InventoryType type, String title) {
         initialize(parents, owner, type, title);
     }
 
@@ -39,12 +39,12 @@ public class GlowSuperInventory extends GlowInventory {
     // Using "this" after the super call inside the constructor is possible,
     // so I'm using these pseudo-constructors.
     protected void initialize(List<GlowInventory> parents, InventoryHolder owner,
-        InventoryType type) {
+                              InventoryType type) {
         initialize(parents, owner, type, type.getDefaultTitle());
     }
 
     protected void initialize(List<GlowInventory> parents, InventoryHolder owner,
-        InventoryType type, String title) {
+                              InventoryType type, String title) {
         SuperList<GlowInventorySlot> slots = new SuperList<>();
         SuperSet<HumanEntity> viewers = new SuperSet<>();
 

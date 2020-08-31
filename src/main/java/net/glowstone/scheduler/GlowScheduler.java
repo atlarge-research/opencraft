@@ -61,8 +61,8 @@ public final class GlowScheduler implements BukkitScheduler {
      * Executor to handle execution of async tasks.
      */
     private final ExecutorService asyncTaskExecutor
-            = new ThreadPoolExecutor(0, MAX_THREADS, 60L, TimeUnit.SECONDS,
-            new LinkedBlockingDeque<>(), GlowThreadFactory.INSTANCE);
+        = new ThreadPoolExecutor(0, MAX_THREADS, 60L, TimeUnit.SECONDS,
+        new LinkedBlockingDeque<>(), GlowThreadFactory.INSTANCE);
 
     /**
      * A list of active tasks.
@@ -104,7 +104,7 @@ public final class GlowScheduler implements BukkitScheduler {
      *
      * @param server The server that will use this scheduler.
      * @param worlds The {@link WorldScheduler} this scheduler will use for ticking the server's
-     *         worlds.
+     *               worlds.
      */
     public GlowScheduler(GlowServer server, WorldScheduler worlds) {
         this(server, worlds, server.getSessionRegistry());
@@ -112,13 +112,14 @@ public final class GlowScheduler implements BukkitScheduler {
 
     /**
      * Creates a new task scheduler.
-     * @param server The server that will use this scheduler.
-     * @param worlds The {@link WorldScheduler} this scheduler will use for ticking the server's
-     *         worlds.
+     *
+     * @param server          The server that will use this scheduler.
+     * @param worlds          The {@link WorldScheduler} this scheduler will use for ticking the server's
+     *                        worlds.
      * @param sessionRegistry The {@link SessionRegistry} this scheduler will use to tick players
      */
     public GlowScheduler(Server server, WorldScheduler worlds,
-            SessionRegistry sessionRegistry) {
+                         SessionRegistry sessionRegistry) {
         this.server = server;
         this.worlds = worlds;
         this.sessionRegistry = sessionRegistry;
@@ -193,7 +194,8 @@ public final class GlowScheduler implements BukkitScheduler {
 
     /**
      * Start the yardstick collector.
-     * @param key the key.
+     *
+     * @param key  the key.
      * @param help the help message.
      */
     private void startMeasurement(String key, String help) {
@@ -204,6 +206,7 @@ public final class GlowScheduler implements BukkitScheduler {
 
     /**
      * Stop the yardstick collector.
+     *
      * @param key the key.
      */
     private void stopMeasurement(String key) {
@@ -223,14 +226,14 @@ public final class GlowScheduler implements BukkitScheduler {
 
         // Process player packets
         startMeasurement("tick_network",
-                "The duration of a tick processing the network");
+            "The duration of a tick processing the network");
         sessionRegistry.pulse();
         stopMeasurement("tick_network");
 
         // Run the relevant tasks.
         startMeasurement("tick_jobs",
-                "Duration of the server tick spent processing jobs");
-        for (Iterator<GlowTask> it = tasks.values().iterator(); it.hasNext();) {
+            "Duration of the server tick spent processing jobs");
+        for (Iterator<GlowTask> it = tasks.values().iterator(); it.hasNext(); ) {
             GlowTask task = it.next();
             switch (task.shouldExecute()) {
                 case RUN:
@@ -310,7 +313,7 @@ public final class GlowScheduler implements BukkitScheduler {
     @Override
     @Deprecated
     public int scheduleSyncRepeatingTask(Plugin plugin, BukkitRunnable task, long delay,
-        long period) {
+                                         long period) {
         return task.runTaskTimer(plugin, delay, period).getTaskId();
     }
 
@@ -399,14 +402,14 @@ public final class GlowScheduler implements BukkitScheduler {
 
     @Override
     public BukkitTask runTaskTimerAsynchronously(Plugin plugin, Runnable task, long delay,
-        long period) throws IllegalArgumentException {
+                                                 long period) throws IllegalArgumentException {
         return schedule(new GlowTask(plugin, task, false, delay, period));
     }
 
     @Override
     @Deprecated
     public BukkitTask runTaskTimerAsynchronously(Plugin plugin, BukkitRunnable task, long delay,
-        long period) throws IllegalArgumentException {
+                                                 long period) throws IllegalArgumentException {
         return task.runTaskTimerAsynchronously(plugin, delay, period);
     }
 
@@ -421,7 +424,7 @@ public final class GlowScheduler implements BukkitScheduler {
      * Runs a task on the primary thread, and blocks waiting for it to finish.
      *
      * @param task the task to run
-     * @param <T> the task's return type
+     * @param <T>  the task's return type
      * @return the task result
      * @throws Exception if thrown by the task
      */

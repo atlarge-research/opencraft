@@ -33,16 +33,16 @@ public class GroundGenerator {
     /**
      * Generates a terrain column.
      *
-     * @param chunkData the affected chunk
-     * @param world the affected world
-     * @param random the PRNG to use
-     * @param x the chunk X coordinate
-     * @param z the chunk Z coordinate
-     * @param biome the biome this column is in
+     * @param chunkData    the affected chunk
+     * @param world        the affected world
+     * @param random       the PRNG to use
+     * @param x            the chunk X coordinate
+     * @param z            the chunk Z coordinate
+     * @param biome        the biome this column is in
      * @param surfaceNoise the amplitude of random variation in surface height
      */
     public void generateTerrainColumn(ChunkData chunkData, World world, Random random, int x, int z,
-        Biome biome, double surfaceNoise) {
+                                      Biome biome, double surfaceNoise) {
 
         int seaLevel = world.getSeaLevel();
 
@@ -91,7 +91,7 @@ public class GroundGenerator {
                         }
                     }
                 } else if (mat == Material.STATIONARY_WATER && y == seaLevel - 2
-                        && GlowBiomeClimate.isCold(biome, chunkX, y, chunkZ)) {
+                    && GlowBiomeClimate.isCold(biome, chunkX, y, chunkZ)) {
                     chunkData.setBlock(x, y, z, Material.ICE);
                 }
             }

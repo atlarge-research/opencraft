@@ -12,9 +12,9 @@ public class ZoomMapLayer extends MapLayer {
     /**
      * Creates a map layer. TODO: improve documentation
      *
-     * @param seed the layer random seed
+     * @param seed       the layer random seed
      * @param belowLayer the layer generated before this one
-     * @param zoomType the zoom-type parameter
+     * @param zoomType   the zoom-type parameter
      */
     public ZoomMapLayer(long seed, MapLayer belowLayer, ZoomType zoomType) {
         super(seed);
@@ -62,7 +62,7 @@ public class ZoomMapLayer extends MapLayer {
     }
 
     private int getNearest(int upperLeftVal, int upperRightVal, int lowerLeftVal,
-        int lowerRightVal) {
+                           int lowerRightVal) {
         if (zoomType == ZoomType.NORMAL) {
             if (upperRightVal == lowerLeftVal && lowerLeftVal == lowerRightVal) {
                 return upperRightVal;
@@ -86,7 +86,7 @@ public class ZoomMapLayer extends MapLayer {
                 return lowerLeftVal;
             }
         }
-        int[] values = new int[]{upperLeftVal, upperRightVal, lowerLeftVal, lowerRightVal};
+        int[] values = new int[] {upperLeftVal, upperRightVal, lowerLeftVal, lowerRightVal};
         return values[nextInt(values.length)];
     }
 

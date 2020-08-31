@@ -86,14 +86,14 @@ public class BiomeThinEdgeMapLayer extends MapLayer {
                         int rightVal = values[j + 2 + (i + 1) * gridSizeX];
                         List<Integer> entryValue = entry.getValue();
                         if (entryValue == null && (
-                                !OCEANS.contains(upperVal) && !map.containsKey(upperVal)
+                            !OCEANS.contains(upperVal) && !map.containsKey(upperVal)
                                 || !OCEANS.contains(lowerVal) && !map.containsKey(lowerVal)
                                 || !OCEANS.contains(leftVal) && !map.containsKey(leftVal)
                                 || !OCEANS.contains(rightVal) && !map.containsKey(rightVal))) {
                             val = map.get(centerVal);
                             break;
                         } else if (entryValue != null && (
-                                !OCEANS.contains(upperVal) && !entryValue.contains(upperVal)
+                            !OCEANS.contains(upperVal) && !entryValue.contains(upperVal)
                                 || !OCEANS.contains(lowerVal) && !entryValue.contains(lowerVal)
                                 || !OCEANS.contains(leftVal) && !entryValue.contains(leftVal)
                                 || !OCEANS.contains(rightVal) && !entryValue.contains(rightVal))) {

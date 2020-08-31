@@ -68,29 +68,29 @@ public final class ScoreboardTeamCodec implements Codec<ScoreboardTeamMessage> {
 
             case CREATE:
                 return ScoreboardTeamMessage.create(
-                        teamName,
-                        displayName,
-                        prefix,
-                        suffix,
-                        friendlyFire,
-                        seeInvisible,
-                        nameTagVisibility,
-                        collisionRule,
-                        color,
-                        players
+                    teamName,
+                    displayName,
+                    prefix,
+                    suffix,
+                    friendlyFire,
+                    seeInvisible,
+                    nameTagVisibility,
+                    collisionRule,
+                    color,
+                    players
                 );
 
             case UPDATE:
                 return ScoreboardTeamMessage.update(
-                        teamName,
-                        displayName,
-                        prefix,
-                        suffix,
-                        friendlyFire,
-                        seeInvisible,
-                        nameTagVisibility,
-                        collisionRule,
-                        color
+                    teamName,
+                    displayName,
+                    prefix,
+                    suffix,
+                    friendlyFire,
+                    seeInvisible,
+                    nameTagVisibility,
+                    collisionRule,
+                    color
                 );
 
             case ADD_PLAYERS:

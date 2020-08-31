@@ -61,8 +61,8 @@ public final class CraftingManager implements Iterable<Recipe> {
 
         // Report stats
         ConsoleMessages.Info.RECIPE_COUNTS.log(shapedRecipes.size(),
-                shapelessRecipes.size(), furnaceRecipes.size(),
-                dynamicRecipes.size(), furnaceFuels.size());
+            shapelessRecipes.size(), furnaceRecipes.size(),
+            dynamicRecipes.size(), furnaceFuels.size());
     }
 
     /**
@@ -131,7 +131,7 @@ public final class CraftingManager implements Iterable<Recipe> {
      * @param amount The amount of items you want to remove.
      */
     public void removeItems(final ItemStack[] items, final GlowCraftingInventory inv,
-            final int amount) {
+                            final int amount) {
         if (amount < 0) {
             throw new IllegalArgumentException("Can not remove negative amount of layers.");
         }
@@ -168,7 +168,7 @@ public final class CraftingManager implements Iterable<Recipe> {
 
         if (size * size != items.length) {
             throw new IllegalArgumentException(
-                    "ItemStack list was not square (was " + items.length + ")");
+                "ItemStack list was not square (was " + items.length + ")");
         }
 
         ShapedRecipe result = getShapedRecipe(size, items);
@@ -227,7 +227,7 @@ public final class CraftingManager implements Iterable<Recipe> {
                         for (int col = 0; col < cols; ++col) {
                             ItemStack given = items[(rowStart + row) * size + colStart + col];
                             char ingredientChar =
-                                    shape[row].length() > col ? shape[row].charAt(col) : ' ';
+                                shape[row].length() > col ? shape[row].charAt(col) : ' ';
                             ItemStack expected = ingredients.get(ingredientChar);
 
                             // check for mismatch in presence of an item in that slot at all
@@ -253,8 +253,8 @@ public final class CraftingManager implements Iterable<Recipe> {
                         for (int col = 0; col < size; col++) {
                             // if this position is outside the recipe and non-null, fail
                             if ((row < rowStart || row >= rowStart + rows || col < colStart
-                                    || col >= colStart + cols)
-                                    && items[row * size + col] != null) {
+                                || col >= colStart + cols)
+                                && items[row * size + col] != null) {
                                 continue position;
                             }
                         }
@@ -310,7 +310,7 @@ public final class CraftingManager implements Iterable<Recipe> {
     @Override
     public Iterator<Recipe> iterator() {
         return Iterators.concat(shapedRecipes.iterator(), shapelessRecipes.iterator(),
-                dynamicRecipes.iterator(), furnaceRecipes.iterator());
+            dynamicRecipes.iterator(), furnaceRecipes.iterator());
     }
 
     private boolean isWildcard(short data) {
@@ -320,8 +320,8 @@ public final class CraftingManager implements Iterable<Recipe> {
 
     private boolean matchesWildcard(ItemStack expected, ItemStack actual) {
         return actual != null && expected.getType() == actual.getType() && (
-                isWildcard(expected.getDurability()) || expected.getDurability() == actual
-                        .getDurability());
+            isWildcard(expected.getDurability()) || expected.getDurability() == actual
+                .getDurability());
     }
 
     /**
@@ -458,19 +458,19 @@ public final class CraftingManager implements Iterable<Recipe> {
         }
 
         ConfigurationSection config = YamlConfiguration
-                .loadConfiguration(new InputStreamReader(in));
+            .loadConfiguration(new InputStreamReader(in));
 
         // shaped
         for (Map<?, ?> data : config.getMapList("shaped")) { // NON-NLS
             ItemStack resultStack =
-                    ItemStack.deserialize((Map<String, Object>) data.get("result")); // NON-NLS
+                ItemStack.deserialize((Map<String, Object>) data.get("result")); // NON-NLS
             NamespacedKey key = readKey(data, resultStack);
             ShapedRecipe recipe = new ShapedRecipe(key, resultStack);
             List<String> shape = (List<String>) data.get("shape"); // NON-NLS
             recipe.shape(shape.toArray(new String[shape.size()]));
 
             Map<String, Map<String, Object>> ingredients = (Map<String, Map<String, Object>>) data
-                    .get("ingredients"); // NON-NLS
+                .get("ingredients"); // NON-NLS
             for (Entry<String, Map<String, Object>> entry : ingredients.entrySet()) {
                 ItemStack stack = ItemStack.deserialize(entry.getValue());
                 recipe.setIngredient(entry.getKey().charAt(0), stack.getData());
@@ -482,12 +482,12 @@ public final class CraftingManager implements Iterable<Recipe> {
         // shapeless
         for (Map<?, ?> data : config.getMapList("shapeless")) { // NON-NLS
             ItemStack resultStack =
-                    ItemStack.deserialize((Map<String, Object>) data.get("result")); // NON-NLS
+                ItemStack.deserialize((Map<String, Object>) data.get("result")); // NON-NLS
             NamespacedKey key = readKey(data, resultStack);
             ShapelessRecipe recipe = new ShapelessRecipe(key, resultStack);
 
             List<Map<String, Object>> ingreds
-                    = (List<Map<String, Object>>) data.get("ingredients"); // NON-NLS
+                = (List<Map<String, Object>>) data.get("ingredients"); // NON-NLS
             for (Map<String, Object> entry : ingreds) {
                 recipe.addIngredient(ItemStack.deserialize(entry).getData());
             }
@@ -498,13 +498,13 @@ public final class CraftingManager implements Iterable<Recipe> {
         // furnace
         for (Map<?, ?> data : config.getMapList("furnace")) { // NON-NLS
             ItemStack inputStack
-                    = ItemStack.deserialize((Map<String, Object>) data.get("input")); // NON-NLS
+                = ItemStack.deserialize((Map<String, Object>) data.get("input")); // NON-NLS
             ItemStack resultStack
-                    = ItemStack.deserialize((Map<String, Object>) data.get("result")); // NON-NLS
+                = ItemStack.deserialize((Map<String, Object>) data.get("result")); // NON-NLS
             float xp = ((Number) data.get("xp")).floatValue(); // NON-NLS
             furnaceRecipes.add(
-                    new FurnaceRecipe(resultStack, inputStack.getType(), inputStack.getDurability(),
-                            xp));
+                new FurnaceRecipe(resultStack, inputStack.getType(), inputStack.getDurability(),
+                    xp));
         }
     }
 
@@ -516,7 +516,7 @@ public final class CraftingManager implements Iterable<Recipe> {
                 key = new NamespacedKey(NamespacedKey.MINECRAFT, keyRaw);
             } else {
                 key = new NamespacedKey(keyRaw.substring(0, keyRaw.indexOf(':')),
-                        keyRaw.substring(keyRaw.indexOf(':') + 1, keyRaw.length()));
+                    keyRaw.substring(keyRaw.indexOf(':') + 1, keyRaw.length()));
             }
         } else {
             // todo: remove ambiguity of items with 'data/damage' values inside recipes.yml (will

@@ -24,7 +24,7 @@ import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 public class EnchantmentManager {
 
-    private static final MaterialMatcher[] ENCHANTABLE_TOOLS = new MaterialMatcher[]{ToolType.AXE,
+    private static final MaterialMatcher[] ENCHANTABLE_TOOLS = new MaterialMatcher[] {ToolType.AXE,
         ToolType.PICKAXE, ToolType.SPADE};
 
     private final Random random = new Random();
@@ -39,7 +39,7 @@ public class EnchantmentManager {
      * Creates an instance to manage the given enchanting table for the given player.
      *
      * @param inventory the enchanting table
-     * @param player the user
+     * @param player    the user
      */
     public EnchantmentManager(GlowEnchantingInventory inventory, GlowPlayer player) {
         this.player = player;
@@ -157,7 +157,7 @@ public class EnchantmentManager {
     }
 
     private static List<LeveledEnchant> getAllPossibleEnchants(ItemStack item, int modifier,
-        int cost) {
+                                                               int cost) {
         List<LeveledEnchant> enchantments = new ArrayList<>();
 
         boolean isBook = item.getType() == Material.BOOK;
@@ -165,7 +165,7 @@ public class EnchantmentManager {
         for (Enchantment enchantment : Enchantment.values()) {
             if (isBook || enchantment.canEnchantItem(item)) {
                 for (int level = enchantment.getStartLevel(); level <= enchantment.getMaxLevel();
-                    level++) {
+                     level++) {
                     if (((GlowEnchantment) enchantment).isInRange(level, modifier)) {
                         enchantments.add(new LeveledEnchant(enchantment, level, cost));
                     }
@@ -180,7 +180,7 @@ public class EnchantmentManager {
     // Internal stuff / helper functions
 
     private static void removeConflicting(List<LeveledEnchant> enchants,
-        List<LeveledEnchant> toReduce) {
+                                          List<LeveledEnchant> toReduce) {
         Iterator<LeveledEnchant> it = toReduce.iterator();
 
         while (it.hasNext()) {

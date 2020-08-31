@@ -104,7 +104,7 @@ public class RconCommandSender implements RemoteConsoleCommandSender {
 
     @Override
     public PermissionAttachment addAttachment(Plugin plugin, String name, boolean value,
-        int ticks) {
+                                              int ticks) {
         return perm.addAttachment(plugin, name, value, ticks);
     }
 

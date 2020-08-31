@@ -42,6 +42,7 @@ public final class GlowScore implements Score {
 
     /**
      * Sets this score's value.
+     *
      * @param score the new value
      * @throws IllegalStateException if the objective is not registered on a scoreboard
      */

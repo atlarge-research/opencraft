@@ -81,17 +81,17 @@ public class UseItemHandlerTest {
         inventory.setItemInMainHand(stack);
         UseItemMessage message = new UseItemMessage(EquipmentSlot.HAND.ordinal());
         PlayerInteractEvent event = new PlayerInteractEvent(player,
-                Action.RIGHT_CLICK_AIR, stack, null, null);
+            Action.RIGHT_CLICK_AIR, stack, null, null);
 
         // prepare mock behaviours
         Mockito.when(session.getPlayer()).thenReturn(player);
         Mockito.when(player.getInventory()).thenReturn(inventory);
         Mockito.when(player.getLocation()).thenReturn(playerLocation);
         Mockito.when(player.getTargetBlock((Set<Material>) null,
-                5)).thenReturn(targetBlock);
+            5)).thenReturn(targetBlock);
         Mockito.when(player.getGameMode()).thenReturn(GameMode.SURVIVAL);
         Mockito.when(eventFactory.onPlayerInteract(player, Action.RIGHT_CLICK_AIR,
-                EquipmentSlot.HAND)).thenReturn(event);
+            EquipmentSlot.HAND)).thenReturn(event);
 
         Mockito.when(emptyBlock.isEmpty()).thenReturn(Boolean.TRUE);
         Mockito.when(emptyBlock.getLocation()).thenReturn(location);

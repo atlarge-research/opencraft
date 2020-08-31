@@ -34,7 +34,7 @@ public class Library implements Comparable<Library> {
     public static Library fromConfigMap(Map<?, ?> configMap) {
         String group = (String) configMap.get(GROUP_ID_KEY);
         String artifact = (String) configMap.get(ARTIFACT_ID_KEY);
-        String version  = (String) configMap.get(VERSION_KEY);
+        String version = (String) configMap.get(VERSION_KEY);
         String repository = (String) configMap.get(REPOSITORY_KEY);
         HashAlgorithm checksumType = null;
         String checksumValue = null;
@@ -51,7 +51,7 @@ public class Library implements Comparable<Library> {
         }
 
         return new Library(group, artifact, version, repository, checksumType,
-                checksumValue, excludeDependencies);
+            checksumValue, excludeDependencies);
     }
 
     /**
@@ -96,9 +96,9 @@ public class Library implements Comparable<Library> {
     /**
      * Creates a {@link Library} instance with the specified group ID, artifact ID, and version.
      *
-     * @param groupId The group ID of the library, separated by periods.
+     * @param groupId    The group ID of the library, separated by periods.
      * @param artifactId The artifact ID of the library.
-     * @param version The version of the library.
+     * @param version    The version of the library.
      */
     public Library(String groupId, String artifactId, String version) {
         this(groupId, artifactId, version, null, null, null, false);
@@ -108,9 +108,9 @@ public class Library implements Comparable<Library> {
      * Creates a {@link Library} instance with the specified group ID, artifact ID, version, and
      * repository.
      *
-     * @param groupId The group ID of the library, separated by periods.
+     * @param groupId    The group ID of the library, separated by periods.
      * @param artifactId The artifact ID of the library.
-     * @param version The version of the library.
+     * @param version    The version of the library.
      * @param repository The URL of the library's repository.
      */
     public Library(String groupId, String artifactId, String version, String repository) {
@@ -121,26 +121,27 @@ public class Library implements Comparable<Library> {
      * Creates a {@link Library} instance with the specified group ID, artifact ID, version, and
      * checksum.
      *
-     * @param groupId The group ID of the library, separated by periods.
-     * @param artifactId The artifact ID of the library.
-     * @param version The version of the library.
-     * @param checksumType The type of hash the checksum is using.
+     * @param groupId       The group ID of the library, separated by periods.
+     * @param artifactId    The artifact ID of the library.
+     * @param version       The version of the library.
+     * @param checksumType  The type of hash the checksum is using.
      * @param checksumValue The checksum to validate the downloaded library against.
      */
     public Library(@NonNls String groupId, @NonNls String artifactId, @NonNls String version,
-            HashAlgorithm checksumType, @NonNls String checksumValue) {
+                   HashAlgorithm checksumType, @NonNls String checksumValue) {
         this(groupId, artifactId, version, null, checksumType, checksumValue, false);
     }
 
     /**
      * Creates a {@link Library} instance with the specified group ID, artifact ID, version,
      * repository, and checksum.
-     *  @param groupId The group ID of the library, separated by periods.
-     * @param artifactId The artifact ID of the library.
-     * @param version The version of the library.
-     * @param repository The URL of the library's repository.
-     * @param checksumType The type of hash the checksum is using.
-     * @param checksumValue The checksum to validate the downloaded library against.
+     *
+     * @param groupId             The group ID of the library, separated by periods.
+     * @param artifactId          The artifact ID of the library.
+     * @param version             The version of the library.
+     * @param repository          The URL of the library's repository.
+     * @param checksumType        The type of hash the checksum is using.
+     * @param checksumValue       The checksum to validate the downloaded library against.
      * @param excludeDependencies Specifies that dependencies may be excluded.
      */
     public Library(String groupId, String artifactId, String version,
@@ -218,7 +219,7 @@ public class Library implements Comparable<Library> {
         }
         Library library = (Library) o;
         return Objects.equals(libraryKey, library.libraryKey)
-                && Objects.equals(version, library.version);
+            && Objects.equals(version, library.version);
     }
 
     @Override
@@ -229,8 +230,8 @@ public class Library implements Comparable<Library> {
     @Override
     public int compareTo(Library o) {
         return ComparisonChain.start()
-                .compare(libraryKey, o.libraryKey)
-                .compare(new ComparableVersion(version), new ComparableVersion(o.version))
-                .result();
+            .compare(libraryKey, o.libraryKey)
+            .compare(new ComparableVersion(version), new ComparableVersion(o.version))
+            .result();
     }
 }

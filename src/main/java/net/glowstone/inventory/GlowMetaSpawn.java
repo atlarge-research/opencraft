@@ -22,6 +22,7 @@ public class GlowMetaSpawn extends GlowMetaItem implements SpawnEggMeta {
      * Creates an instance by copying from the given {@link ItemMeta}. If that item is another
      * {@link SpawnEggMeta}, the creature type is copied; if it's a {@link GlowMetaSpawn}, any
      * custom NBT for the spawned entity is also copied.
+     *
      * @param meta the {@link ItemMeta} to copy
      */
     public GlowMetaSpawn(ItemMeta meta) {

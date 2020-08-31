@@ -19,13 +19,13 @@ public final class SpawnPaintingCodec implements Codec<SpawnPaintingMessage> {
         BlockVector vector = GlowBufUtils.readBlockPosition(buffer);
         int facing = buffer.readByte();
         return new SpawnPaintingMessage(
-                id,
-                uuid,
-                title,
-                vector.getBlockX(),
-                vector.getBlockY(),
-                vector.getBlockZ(),
-                facing
+            id,
+            uuid,
+            title,
+            vector.getBlockX(),
+            vector.getBlockY(),
+            vector.getBlockZ(),
+            facing
         );
     }
 

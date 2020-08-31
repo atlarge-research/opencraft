@@ -37,13 +37,16 @@ public class BlockPiston extends BlockDirectional {
     @Getter
     private final boolean sticky;
 
-    /** Creates the basic (non-sticky) piston block type. */
+    /**
+     * Creates the basic (non-sticky) piston block type.
+     */
     public BlockPiston() {
         this(false);
     }
 
     /**
      * Creates a piston block type.
+     *
      * @param sticky true for the sticky-piston type; false for the basic piston type
      */
     public BlockPiston(boolean sticky) {
@@ -71,7 +74,7 @@ public class BlockPiston extends BlockDirectional {
     }
 
     private void performMovement(BlockFace direction,
-        List<Block> blocksToMove, List<Block> blocksToBreak) {
+                                 List<Block> blocksToMove, List<Block> blocksToBreak) {
 
         blocksToMove.sort((a, b) -> {
             switch (direction) {
@@ -129,7 +132,7 @@ public class BlockPiston extends BlockDirectional {
             }
 
             BlockPistonExtendEvent event = EventFactory.getInstance().callEvent(
-                    new BlockPistonExtendEvent(me, blocksToMove, pistonBlockFace)
+                new BlockPistonExtendEvent(me, blocksToMove, pistonBlockFace)
             );
 
             if (event.isCancelled()) {
@@ -196,8 +199,8 @@ public class BlockPiston extends BlockDirectional {
     };
 
     private boolean addBlock(GlowBlock piston, BlockFace movementDirection,
-        GlowBlock block, BlockFace ignoredFace,
-        List<Block> blocksToMove, List<Block> blocksToBreak) {
+                             GlowBlock block, BlockFace ignoredFace,
+                             List<Block> blocksToMove, List<Block> blocksToBreak) {
 
         boolean isPushing = (movementDirection == ignoredFace.getOppositeFace());
         MaterialValueManager.ValueCollection materialValues = block.getMaterialValues();

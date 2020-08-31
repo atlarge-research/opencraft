@@ -59,7 +59,7 @@ public final class GlowStatistic {
     /**
      * Get the statistic name for a specified Statistic and Material.
      *
-     * @param stat the Statistic
+     * @param stat     the Statistic
      * @param material the Material
      * @return the statistic name
      */
@@ -77,7 +77,7 @@ public final class GlowStatistic {
     /**
      * Get the statistic name for a specified Statistic and EntityType.
      *
-     * @param stat the Statistic
+     * @param stat       the Statistic
      * @param entityType the EntityType
      * @return the statistic name
      */
@@ -140,12 +140,12 @@ public final class GlowStatistic {
 
             if (Monster.class.isAssignableFrom(entityClass)) {
                 set(ENTITY_KILLED_BY, entityType, "entityKilledBy."
-                        + entityClass.getSimpleName());
+                    + entityClass.getSimpleName());
             }
 
             if (Creature.class.isAssignableFrom(entityClass)) {
                 set(KILL_ENTITY, entityType, "killEntity."
-                        + entityClass.getSimpleName());
+                    + entityClass.getSimpleName());
             }
         }
     }

@@ -93,9 +93,9 @@ class ChunkRunnableTest {
      */
     private static Stream<Pair<World.Environment, Boolean>> run() {
         return Stream.of(
-                Pair.of(World.Environment.NORMAL, true),
-                Pair.of(World.Environment.NETHER, false),
-                Pair.of(World.Environment.THE_END, false)
+            Pair.of(World.Environment.NORMAL, true),
+            Pair.of(World.Environment.NETHER, false),
+            Pair.of(World.Environment.THE_END, false)
         );
     }
 

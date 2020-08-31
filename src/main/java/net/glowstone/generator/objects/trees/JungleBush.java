@@ -12,7 +12,8 @@ public class JungleBush extends GenericTree {
 
     /**
      * Initializes this bush, preparing it to attempt to generate.
-     *  @param random the PRNG
+     *
+     * @param random   the PRNG
      * @param delegate the BlockStateDelegate used to check for space and to fill wood and leaf
      */
     public JungleBush(Random random, BlockStateDelegate delegate) {
@@ -29,7 +30,7 @@ public class JungleBush extends GenericTree {
     public boolean generate(World world, Random random, int blockX, int blockY, int blockZ) {
         Location l = new Location(world, blockX, blockY, blockZ);
         while ((l.getBlock().getType() == Material.AIR || l.getBlock().getType() == Material.LEAVES)
-                && blockY > 0) {
+            && blockY > 0) {
             l.subtract(0, 1, 0);
         }
 
@@ -50,8 +51,8 @@ public class JungleBush extends GenericTree {
             for (int x = blockX - radius; x <= blockX + radius; x++) {
                 for (int z = blockZ - radius; z <= blockZ + radius; z++) {
                     if ((Math.abs(x - l.getBlockX()) != radius
-                            || Math.abs(z - l.getBlockZ()) != radius || random.nextBoolean())
-                            && !delegate.getBlockState(world, x, y, z).getType().isSolid()) {
+                        || Math.abs(z - l.getBlockZ()) != radius || random.nextBoolean())
+                        && !delegate.getBlockState(world, x, y, z).getType().isSolid()) {
                         delegate
                             .setTypeAndRawData(world, x, y, z, Material.LEAVES, leavesType);
                     }

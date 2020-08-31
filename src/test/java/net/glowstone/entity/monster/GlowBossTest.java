@@ -34,7 +34,7 @@ public abstract class GlowBossTest<T extends GlowBoss> extends GlowMonsterTest<T
     protected GlowPlayer player;
 
     protected GlowBossTest(
-            Function<Location, ? extends T> entityCreator) {
+        Function<Location, ? extends T> entityCreator) {
         super(entityCreator);
     }
 
@@ -54,7 +54,7 @@ public abstract class GlowBossTest<T extends GlowBoss> extends GlowMonsterTest<T
         doNothing().when(entityManager, "register", any(GlowEntity.class));
         doNothing().when(entityManager, "unregister", any(GlowEntity.class));
         when(server.createBossBar(anyString(), any(BarColor.class), any(BarStyle.class),
-                any(BarFlag[].class))).thenCallRealMethod();
+            any(BarFlag[].class))).thenCallRealMethod();
         entity = entityCreator.apply(location);
     }
 

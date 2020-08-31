@@ -13,8 +13,8 @@ public class EncryptionKeyResponseCodecTest extends CodecTest<EncryptionKeyRespo
 
     @Override
     protected EncryptionKeyResponseMessage createMessage() {
-        byte[] sharedSecret = { 1, 2 };
-        byte[] verifyToken = { 3, 4 };
+        byte[] sharedSecret = {1, 2};
+        byte[] verifyToken = {3, 4};
         return new EncryptionKeyResponseMessage(sharedSecret, verifyToken);
     }
 }

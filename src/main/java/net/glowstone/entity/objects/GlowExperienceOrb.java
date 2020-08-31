@@ -47,7 +47,7 @@ public class GlowExperienceOrb extends GlowEntity implements ExperienceOrb {
     /**
      * Creates an experience orb.
      *
-     * @param location the location
+     * @param location   the location
      * @param experience the amount of experience contained
      */
     public GlowExperienceOrb(Location location, int experience) {
@@ -99,7 +99,7 @@ public class GlowExperienceOrb extends GlowEntity implements ExperienceOrb {
         DestroyEntitiesMessage destroyMessage = new DestroyEntitiesMessage(
             Collections.singletonList(this.getEntityId()));
         List<Message> spawnMessages = this.createSpawnMessage();
-        Message[] messages = new Message[]{destroyMessage, spawnMessages.get(0)};
+        Message[] messages = new Message[] {destroyMessage, spawnMessages.get(0)};
         getWorld()
             .getRawPlayers()
             .stream()

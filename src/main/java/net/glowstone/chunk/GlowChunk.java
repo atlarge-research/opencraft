@@ -674,6 +674,7 @@ public class GlowChunk implements Chunk {
     /**
      * Computes the regional difficulty.
      * Not used at the moment.
+     *
      * @return regional difficulty.
      */
     public double getRegionalDifficulty() {
@@ -687,7 +688,7 @@ public class GlowChunk implements Chunk {
         } else if (worldTime < TickUtil.TICKS_PER_HOUR) {
             totalTimeFactor = 0;
         } else {
-            totalTimeFactor =  (worldTime - TickUtil.TICKS_PER_HOUR) / 5760000d;
+            totalTimeFactor = (worldTime - TickUtil.TICKS_PER_HOUR) / 5760000d;
         }
 
         double chunkFactor;
@@ -726,6 +727,7 @@ public class GlowChunk implements Chunk {
     /**
      * Compute the normalized regional difficulty.
      * Not used at the moment.
+     *
      * @return normalized regional difficulty.
      */
     public double getClampedRegionalDifficulty() {

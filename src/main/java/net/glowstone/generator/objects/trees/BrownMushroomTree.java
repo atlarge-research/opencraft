@@ -13,7 +13,7 @@ public class BrownMushroomTree extends GenericTree {
     /**
      * Initializes this mushroom with a random height, preparing it to attempt to generate.
      *
-     * @param random the PRNG
+     * @param random   the PRNG
      * @param delegate the BlockStateDelegate used to check for space and to fill wood and leaf
      */
     public BrownMushroomTree(Random random, BlockStateDelegate delegate) {

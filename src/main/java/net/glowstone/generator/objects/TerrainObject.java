@@ -24,8 +24,8 @@ public interface TerrainObject {
      * Plant block types.
      */
     SortedSet<Material> PLANT_TYPES = ImmutableSortedSet
-            .of(Material.LONG_GRASS, Material.YELLOW_FLOWER, Material.RED_ROSE,
-                    Material.DOUBLE_PLANT, Material.BROWN_MUSHROOM, Material.RED_MUSHROOM);
+        .of(Material.LONG_GRASS, Material.YELLOW_FLOWER, Material.RED_ROSE,
+            Material.DOUBLE_PLANT, Material.BROWN_MUSHROOM, Material.RED_MUSHROOM);
 
     /**
      * Removes the grass, shrub, flower or mushroom directly above the given block, if present. Does
@@ -41,10 +41,10 @@ public interface TerrainObject {
             if (mat == Material.DOUBLE_PLANT) {
                 MaterialData dataAbove = blockAbove.getState().getData();
                 if (dataAbove instanceof DoublePlant
-                        && ((DoublePlant) dataAbove).getSpecies()
-                        == DoublePlantSpecies.PLANT_APEX) {
+                    && ((DoublePlant) dataAbove).getSpecies()
+                    == DoublePlantSpecies.PLANT_APEX) {
                     blockAbove.getRelative(BlockFace.UP)
-                            .setType(Material.AIR);
+                        .setType(Material.AIR);
                 }
             }
             blockAbove.setType(Material.AIR);
@@ -56,8 +56,8 @@ public interface TerrainObject {
     /**
      * Generates this feature.
      *
-     * @param world the world to generate in
-     * @param random the PRNG that will choose the size and a few details of the shape
+     * @param world   the world to generate in
+     * @param random  the PRNG that will choose the size and a few details of the shape
      * @param sourceX the base X coordinate
      * @param sourceY the base Y coordinate
      * @param sourceZ the base Z coordinate

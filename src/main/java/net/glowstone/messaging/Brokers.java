@@ -24,14 +24,14 @@ public final class Brokers {
     /**
      * Create a broker based on the given configuration.
      *
-     * @param config the configuration to be used.
-     * @param <Topic> the type of topics that is allowed to identify channels.
+     * @param config       the configuration to be used.
+     * @param <Topic>      the type of topics that is allowed to identify channels.
      * @param <Subscriber> the type of subscribers that is allowed to subscribe to a channel.
      * @return the created broker.
      */
     public static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newBroker(
-            BrokerConfig config,
-            Supplier<JmsCodec<Message>> codecFactory
+        BrokerConfig config,
+        Supplier<JmsCodec<Message>> codecFactory
     ) {
         Broker<Topic, Subscriber, Message> base = newBaseBroker(config, codecFactory);
         if (config.getAsync()) {
@@ -41,8 +41,8 @@ public final class Brokers {
     }
 
     private static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newBaseBroker(
-            BrokerConfig config,
-            Supplier<JmsCodec<Message>> codecFactory
+        BrokerConfig config,
+        Supplier<JmsCodec<Message>> codecFactory
     ) {
         switch (config.getType()) {
 
@@ -64,14 +64,14 @@ public final class Brokers {
     }
 
     private static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newConcurrentBroker(
-            BrokerConfig config
+        BrokerConfig config
     ) {
         ChannelFactory<Subscriber, Message> factory = newChannelFactory(config);
         return new ConcurrentBroker<>(factory);
     }
 
     private static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newReadWriteBroker(
-            BrokerConfig config
+        BrokerConfig config
     ) {
         ChannelFactory<Subscriber, Message> factory = newChannelFactory(config);
         return new ReadWriteBroker<>(factory);
@@ -98,8 +98,8 @@ public final class Brokers {
     }
 
     private static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newActivemqBroker(
-            BrokerConfig config,
-            Supplier<JmsCodec<Message>> codecFactory
+        BrokerConfig config,
+        Supplier<JmsCodec<Message>> codecFactory
     ) {
         try {
             JmsCodec<Message> codec = codecFactory.get();
@@ -114,8 +114,8 @@ public final class Brokers {
     }
 
     private static <Topic, Subscriber, Message> Broker<Topic, Subscriber, Message> newRabbitmqBroker(
-            BrokerConfig config,
-            Supplier<JmsCodec<Message>> codecFactory
+        BrokerConfig config,
+        Supplier<JmsCodec<Message>> codecFactory
     ) {
         try {
             JmsCodec<Message> codec = codecFactory.get();
@@ -133,5 +133,6 @@ public final class Brokers {
     /**
      * The constructor is private to prevent the initialization of the factory class.
      */
-    private Brokers() {}
+    private Brokers() {
+    }
 }

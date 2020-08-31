@@ -19,7 +19,7 @@ public class EntityBoundingBox extends BoundingBox {
      * Create an EntityBoundingBox with the given size.
      *
      * @param horizontalSize the width and depth of the box.
-     * @param verticalSize the height of the box.
+     * @param verticalSize   the height of the box.
      */
     public EntityBoundingBox(double horizontalSize, double verticalSize) {
         this(horizontalSize, verticalSize, horizontalSize);
@@ -28,9 +28,9 @@ public class EntityBoundingBox extends BoundingBox {
     /**
      * Creates an instance with the given size.
      *
-     * @param width the size on the X axis
+     * @param width  the size on the X axis
      * @param height the size on the Y axis
-     * @param depth the size on the Z axis
+     * @param depth  the size on the Z axis
      */
     public EntityBoundingBox(double width, double height, double depth) {
         this.width = width;
@@ -66,7 +66,7 @@ public class EntityBoundingBox extends BoundingBox {
     /**
      * Returns the inverse exit position vector.
      *
-     * @param velocity The velocity of the entity
+     * @param velocity  The velocity of the entity
      * @param staticBox The bounding box to check collision with
      * @return The inverse exit position vector
      */
@@ -98,7 +98,7 @@ public class EntityBoundingBox extends BoundingBox {
     /**
      * Returns the inverse entry position vector.
      *
-     * @param velocity The velocity of the entity
+     * @param velocity  The velocity of the entity
      * @param staticBox The bounding box to check collision with
      * @return The inverse entry position vector
      */
@@ -130,7 +130,7 @@ public class EntityBoundingBox extends BoundingBox {
     /**
      * Returns the surface normal of the surface that gets collided with first.
      *
-     * @param entry The entry vector of the collision
+     * @param entry        The entry vector of the collision
      * @param inverseEntry The inverse entry vector
      * @return The normal with which collision occurs
      */
@@ -175,11 +175,11 @@ public class EntityBoundingBox extends BoundingBox {
      * This function implements swept AABB collision detection as specified in the link below
      * https://www.gamedev.net/tutorials/programming/general-and-gameplay-programming/swept-aabb-collision-detection-and-response-r3084/
      *
-     * @param velocity The displacement that will be applied to the entityboundingbox
+     * @param velocity  The displacement that will be applied to the entityboundingbox
      * @param staticBox The static box which will be checked for collision
      * @return A pair containing a double between 0.0 and 1.0 that indicates the amount
-     *      of displacement that can be done without collision
-     *      And a vector containing the normal in the place of collision
+     * of displacement that can be done without collision
+     * And a vector containing the normal in the place of collision
      */
     public Pair<Double, Vector> sweptAxisAlignedBoundingBox(Vector velocity, BoundingBox staticBox) {
 

@@ -181,7 +181,7 @@ public class CommandTarget {
     public Entity[] getMatched(Location source) {
         if (selector == SelectorType.SENDER) {
             if (sender instanceof Entity) {
-                return new Entity[]{(Entity) sender};
+                return new Entity[] {(Entity) sender};
             } else {
                 return new Entity[0];
             }
@@ -294,11 +294,15 @@ public class CommandTarget {
      */
     public static class SelectorValue {
 
-        /** The value of the argument. */
+        /**
+         * The value of the argument.
+         */
         @Getter
         private String value;
 
-        /** Whether the argument is inverted (functionality should be done in reverse). */
+        /**
+         * Whether the argument is inverted (functionality should be done in reverse).
+         */
         @Getter
         private boolean inverted = false;
 

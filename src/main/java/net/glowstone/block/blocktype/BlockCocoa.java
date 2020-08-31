@@ -23,7 +23,7 @@ public class BlockCocoa extends BlockNeedsAttached implements IBlockGrowable {
 
     @Override
     public void placeBlock(GlowPlayer player, GlowBlockState state, BlockFace face,
-        ItemStack holding, Vector clickedLoc) {
+                           ItemStack holding, Vector clickedLoc) {
         state.setType(getMaterial());
         MaterialData data = state.getData();
         if (data instanceof CocoaPlant) {

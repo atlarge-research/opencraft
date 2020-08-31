@@ -21,13 +21,14 @@ import org.bukkit.inventory.meta.SkullMeta;
 public class GlowMetaSkull extends GlowMetaItem implements SkullMeta {
 
     private static final GlowPlayerProfile UNKNOWN_PLAYER = new GlowPlayerProfile("MHF_Steve",
-            new UUID(0xc06f89064c8a4911L, 0x9c29ea1dbd1aab82L), true);
+        new UUID(0xc06f89064c8a4911L, 0x9c29ea1dbd1aab82L), true);
 
     final AtomicReference<GlowPlayerProfile> owner = new AtomicReference<>();
 
     /**
      * Creates an instance by copying from the given {@link ItemMeta}. If that item is another
      * {@link SkullMeta} with an owner, attempts to copy the owning player.
+     *
      * @param meta the {@link ItemMeta} to copy
      */
     public GlowMetaSkull(ItemMeta meta) {
@@ -173,7 +174,7 @@ public class GlowMetaSkull extends GlowMetaItem implements SkullMeta {
             return true;
         } else {
             CompletableFuture<GlowPlayerProfile> profileFuture = GlowPlayerProfile
-                    .getProfile(owningPlayer.getName());
+                .getProfile(owningPlayer.getName());
             GlowPlayerProfile profile = profileFuture.getNow(null);
             if (profile != null) {
                 this.owner.set(profile);

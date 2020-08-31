@@ -29,7 +29,7 @@ public class GlowZombie extends GlowMonster implements Zombie {
     /**
      * Creates a zombie.
      *
-     * @param loc the location
+     * @param loc  the location
      * @param type the zombie type
      */
     public GlowZombie(Location loc, EntityType type) {

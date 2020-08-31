@@ -6,7 +6,7 @@ import org.bukkit.Location;
 public class GlowSlimeTest extends GlowMonsterTest<GlowSlime> {
 
     protected GlowSlimeTest(
-            Function<Location, ? extends GlowSlime> entityCreator) {
+        Function<Location, ? extends GlowSlime> entityCreator) {
         super(entityCreator);
     }
 

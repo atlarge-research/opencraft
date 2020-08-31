@@ -33,7 +33,7 @@ public class GlowWitchHut extends GlowTemplePiece {
 
     @Override
     public boolean generate(World world, Random random, StructureBoundingBox genBoundingBox,
-        BlockStateDelegate delegate) {
+                            BlockStateDelegate delegate) {
         if (!super.generate(world, random, boundingBox, delegate)) {
             return false;
         }

@@ -42,9 +42,9 @@ class PriorityExecutorTest {
     /**
      * Verify that elements are executed in the correct order and properly cancelled.
      *
-     * @throws ExecutionException Whenever the future is completed exceptionally.
+     * @throws ExecutionException   Whenever the future is completed exceptionally.
      * @throws InterruptedException Whenever the future's getter is interrupted.
-     * @throws TimeoutException Whenever the timeout is reached on the future's getter.
+     * @throws TimeoutException     Whenever the timeout is reached on the future's getter.
      */
     @Test
     void executeAndCancel() throws ExecutionException, InterruptedException, TimeoutException {
@@ -74,7 +74,7 @@ class PriorityExecutorTest {
         assertTrue(notCancelled.isEmpty());
 
         Collection<TestPriorityRunnable> cancelled =
-                executor.executeAndCancel(Collections.singletonList(toBeExecuted), runnable -> runnable == toBeCancelled);
+            executor.executeAndCancel(Collections.singletonList(toBeExecuted), runnable -> runnable == toBeCancelled);
 
         latch.countDown();
 

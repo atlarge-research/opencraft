@@ -20,7 +20,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({CommandUtils.class})
+@PrepareForTest( {CommandUtils.class})
 public class SetWorldSpawnCommandTest extends CommandTest<SetWorldSpawnCommand> {
 
     protected CommandSender opPlayer;
@@ -37,7 +37,7 @@ public class SetWorldSpawnCommandTest extends CommandTest<SetWorldSpawnCommand> 
         super.before();
         world = PowerMockito.mock(GlowWorld.class);
         opPlayer = prepareMockPlayers(
-                new Location(world, 10.5, 20.0, 30.5), null, world, "ChuckNorris")[0];
+            new Location(world, 10.5, 20.0, 30.5), null, world, "ChuckNorris")[0];
         Mockito.when(opPlayer.hasPermission(Mockito.anyString())).thenReturn(true);
         Mockito.when(world.getMaxHeight()).thenReturn(50);
         PowerMockito.stub(PowerMockito.method(CommandUtils.class, "getWorld", CommandSender.class))
@@ -76,21 +76,21 @@ public class SetWorldSpawnCommandTest extends CommandTest<SetWorldSpawnCommand> 
 
     @Test
     public void testExecuteFailsWithRelativeLocation() {
-        assertThat(command.execute(opSender, "label", new String[]{"~2", "3", "4"}), is(false));
+        assertThat(command.execute(opSender, "label", new String[] {"~2", "3", "4"}), is(false));
         Mockito.verify(opSender).sendMessage(
             eq(ChatColor.RED + "This command needs absolute coordinates when you're not a player or command block."));
     }
 
     @Test
     public void testExecuteFailsWithYCoordinatesTooHigh() {
-        assertThat(command.execute(opSender, "label", new String[]{"2", "10000", "4"}), is(false));
+        assertThat(command.execute(opSender, "label", new String[] {"2", "10000", "4"}), is(false));
         Mockito.verify(opSender).sendMessage(
             eq(ChatColor.RED + "Too high: maximum Y coordinate in this world is 50."));
     }
 
     @Test
     public void testExecuteFailsWithYCoordinatesTooSmall() {
-        assertThat(command.execute(opSender, "label", new String[]{"2", "-10000", "4"}), is(false));
+        assertThat(command.execute(opSender, "label", new String[] {"2", "-10000", "4"}), is(false));
         // -10001 because of the floor, it's not supposed to be negative
         Mockito.verify(opSender).sendMessage(
             eq(ChatColor.RED + "Too low: Y coordinate can't be negative."));
@@ -104,13 +104,13 @@ public class SetWorldSpawnCommandTest extends CommandTest<SetWorldSpawnCommand> 
 
     @Test
     public void testExecuteSucceedsWithSpecificLocation() {
-        assertThat(command.execute(opPlayer, "label", new String[]{"30", "20", "10"}), is(true));
+        assertThat(command.execute(opPlayer, "label", new String[] {"30", "20", "10"}), is(true));
         Mockito.verify(world).setSpawnLocation(30, 20, 10);
     }
 
     @Test
     public void testExecuteSucceedsWithRelativeLocation() {
-        assertThat(command.execute(opPlayer, "label", new String[]{"30", "~20", "10"}), is(true));
+        assertThat(command.execute(opPlayer, "label", new String[] {"30", "~20", "10"}), is(true));
         Mockito.verify(world).setSpawnLocation(30, 40, 10);
     }
 
@@ -118,9 +118,9 @@ public class SetWorldSpawnCommandTest extends CommandTest<SetWorldSpawnCommand> 
     public void testTabComplete() {
         assertThat(command.tabComplete(opSender, "alias", new String[0]),
             is(Collections.emptyList()));
-        assertThat(command.tabComplete(opSender, "alias", new String[]{"test"}),
+        assertThat(command.tabComplete(opSender, "alias", new String[] {"test"}),
             is(Collections.emptyList()));
-        assertThat(command.tabComplete(opSender, "alias", new String[]{"test", "test"}),
+        assertThat(command.tabComplete(opSender, "alias", new String[] {"test", "test"}),
             is(Collections.emptyList()));
     }
 }

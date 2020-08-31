@@ -18,15 +18,21 @@ import org.bukkit.util.Vector;
 @RequiredArgsConstructor
 public abstract class GlowStructure implements TerrainObject {
 
-    /** The world to generate the structure in. */
+    /**
+     * The world to generate the structure in.
+     */
     @Getter
     protected final World world;
 
-    /** The x coordinate of the root chunk. */
+    /**
+     * The x coordinate of the root chunk.
+     */
     @Getter
     protected final int chunkX;
 
-    /** The z coordinate of the root chunk. */
+    /**
+     * The z coordinate of the root chunk.
+     */
     @Getter
     protected final int chunkZ;
     private final List<GlowStructurePiece> children = new ArrayList<>();
@@ -57,10 +63,10 @@ public abstract class GlowStructure implements TerrainObject {
      */
     public void wrapAllPieces() {
         boundingBox = new StructureBoundingBox(
-                new Vector(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE),
-                new Vector(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE));
+            new Vector(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE),
+            new Vector(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE));
         children.stream().filter(Objects::nonNull)
-                .forEach(piece -> boundingBox.expandTo(piece.getBoundingBox()));
+            .forEach(piece -> boundingBox.expandTo(piece.getBoundingBox()));
     }
 
     @Override
@@ -71,9 +77,9 @@ public abstract class GlowStructure implements TerrainObject {
     /**
      * Attempts to generate this structure.
      *
-     * @param random the PRNG to use
-     * @param x the x coordinate for the structure's root block
-     * @param z the z coordinate for the structure's root block
+     * @param random   the PRNG to use
+     * @param x        the x coordinate for the structure's root block
+     * @param z        the z coordinate for the structure's root block
      * @param delegate the {@link BlockStateDelegate} that will check and update blocks
      * @return whether the structure was successfully generated
      */
@@ -86,9 +92,9 @@ public abstract class GlowStructure implements TerrainObject {
         while (it.hasNext()) {
             GlowStructurePiece piece = it.next();
             if (piece != null && piece.getBoundingBox().intersectsWith(x, z, x + 15, z + 15)
-                    && piece.generate(world, random, new StructureBoundingBox(
-                            new Vector(x, 1, z), new Vector(x + 15, 511, z + 15)),
-                    delegate)) {
+                && piece.generate(world, random, new StructureBoundingBox(
+                    new Vector(x, 1, z), new Vector(x + 15, 511, z + 15)),
+                delegate)) {
                 it.remove();
             } else {
                 return false;

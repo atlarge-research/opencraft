@@ -27,6 +27,7 @@ public class GlowMetaFirework extends GlowMetaItem implements FireworkMeta {
      * Creates an instance by copying from the given {@link ItemMeta}. If that item is another
      * {@link FireworkMeta}, its effects and power are copied; otherwise, the new firework has no
      * effects and zero power.
+     *
      * @param meta the {@link ItemMeta} to copy
      */
     public GlowMetaFirework(ItemMeta meta) {
@@ -37,7 +38,7 @@ public class GlowMetaFirework extends GlowMetaItem implements FireworkMeta {
 
         FireworkMeta firework = (FireworkMeta) meta;
         effects.addAll(firework instanceof GlowMetaFirework
-                ? ((GlowMetaFirework) firework).effects : firework.getEffects());
+            ? ((GlowMetaFirework) firework).effects : firework.getEffects());
         power = firework.getPower();
     }
 

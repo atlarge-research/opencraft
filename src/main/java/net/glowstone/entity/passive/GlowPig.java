@@ -21,8 +21,8 @@ import org.bukkit.inventory.ItemStack;
 public class GlowPig extends GlowAnimal implements Pig {
 
     private static final Set<Material> BREEDING_FOODS = Sets.immutableEnumSet(Material.CARROT_ITEM,
-            Material.POTATO_ITEM,
-            Material.BEETROOT);
+        Material.POTATO_ITEM,
+        Material.BEETROOT);
 
     public GlowPig(Location location) {
         super(location, EntityType.PIG, 10);

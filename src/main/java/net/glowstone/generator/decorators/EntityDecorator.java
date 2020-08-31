@@ -56,7 +56,7 @@ public class EntityDecorator extends BlockPopulator {
         int sourceZ = chunk.getZ() << 4;
         EntityType type = entityTypes[random.nextInt(entityTypes.length)];
         if ((!allowAnimals && Animals.class.isAssignableFrom(type.getEntityClass()))
-                || !allowMonsters && Monster.class.isAssignableFrom(type.getEntityClass())) {
+            || !allowMonsters && Monster.class.isAssignableFrom(type.getEntityClass())) {
             return;
         }
         int centerX = sourceX + random.nextInt(16);

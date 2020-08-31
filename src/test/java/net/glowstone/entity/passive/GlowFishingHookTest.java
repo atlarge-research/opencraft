@@ -41,7 +41,9 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @RunWith(PowerMockRunner.class)
 public class GlowFishingHookTest extends GlowEntityTest<GlowFishingHook> {
 
-    /** This needs to be static because it's used in the constructor's super call. */
+    /**
+     * This needs to be static because it's used in the constructor's super call.
+     */
     @Mock
     private static GlowPlayer player;
     @Mock
@@ -49,7 +51,9 @@ public class GlowFishingHookTest extends GlowEntityTest<GlowFishingHook> {
 
     private FishingRewardManager fishingRewardManager;
 
-    /** Necessary because of an issue with verifyStatic */
+    /**
+     * Necessary because of an issue with verifyStatic
+     */
     protected Multimap<Class<? extends Event>, Event> eventsFired = ArrayListMultimap.create();
 
     public GlowFishingHookTest() {
@@ -75,7 +79,7 @@ public class GlowFishingHookTest extends GlowEntityTest<GlowFishingHook> {
             return e;
         });
         when(eventFactory.onEntityDamage(any(EntityDamageEvent.class))).thenAnswer(
-                returnsFirstArg());
+            returnsFirstArg());
     }
 
     @After
@@ -104,7 +108,7 @@ public class GlowFishingHookTest extends GlowEntityTest<GlowFishingHook> {
         assertTrue(hook.isRemoved());
         verify(player).giveExp(intThat(new GreaterThan<>(0)));
         verify(world).dropItemNaturally(eq(location),
-                argThat(itemStack -> !InventoryUtil.isEmpty(itemStack)));
+            argThat(itemStack -> !InventoryUtil.isEmpty(itemStack)));
         assertEquals(1, eventsFired.get(PlayerFishEvent.class).size());
     }
 

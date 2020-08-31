@@ -72,8 +72,8 @@ class ArmorStandStore extends LivingEntityStore<GlowArmorStand> {
         tag.readFloatList(key, list -> {
             if (list.size() >= 3) {
                 out[0] = new EulerAngle(
-                        Math.toRadians(list.get(0)), Math.toRadians(list.get(1)),
-                        Math.toRadians(list.get(2)));
+                    Math.toRadians(list.get(0)), Math.toRadians(list.get(1)),
+                    Math.toRadians(list.get(2)));
             }
         });
         return out[0];

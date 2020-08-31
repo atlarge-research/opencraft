@@ -18,11 +18,11 @@ class EndermanStore extends MonsterStore<GlowEnderman> {
         // Load carried block. May be saved as a String or short ID.
         // If the id is 0 or AIR, it is ignored.
         compound.tryGetMaterial("carried")
-                .map(MaterialData::new)
-                .ifPresent(carried -> {
-                    compound.readShort("carriedData", data -> carried.setData((byte) data));
-                    entity.setCarriedMaterial(carried);
-                });
+            .map(MaterialData::new)
+            .ifPresent(carried -> {
+                compound.readShort("carriedData", data -> carried.setData((byte) data));
+                entity.setCarriedMaterial(carried);
+            });
     }
 
     @Override

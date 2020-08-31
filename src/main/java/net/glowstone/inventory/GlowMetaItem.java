@@ -61,7 +61,7 @@ public class GlowMetaItem implements ItemMeta {
     }
 
     protected static void serializeEnchants(String name, Map<String, Object> map,
-        Map<Enchantment, Integer> enchants) {
+                                            Map<Enchantment, Integer> enchants) {
         Map<String, Object> enchantList = new HashMap<>();
 
         for (Entry<Enchantment, Integer> enchantment : enchants.entrySet()) {
@@ -72,7 +72,7 @@ public class GlowMetaItem implements ItemMeta {
     }
 
     protected static void writeNbtEnchants(String name, CompoundTag to,
-        Map<Enchantment, Integer> enchants) {
+                                           Map<Enchantment, Integer> enchants) {
         List<CompoundTag> ench = new ArrayList<>();
 
         for (Entry<Enchantment, Integer> enchantment : enchants.entrySet()) {

@@ -25,6 +25,7 @@ public class GlowMetaFireworkEffect extends GlowMetaItem implements FireworkEffe
      * Creates an instance by copying from the given {@link ItemMeta}. If that item is another
      * {@link FireworkEffectMeta}, it is copied fully; otherwise, the {@link FireworkEffect} is
      * null.
+     *
      * @param meta the {@link ItemMeta} to copy
      */
     public GlowMetaFireworkEffect(ItemMeta meta) {

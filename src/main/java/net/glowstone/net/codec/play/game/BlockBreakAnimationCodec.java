@@ -16,11 +16,11 @@ public class BlockBreakAnimationCodec implements Codec<BlockBreakAnimationMessag
         BlockVector vector = GlowBufUtils.readBlockPosition(buffer);
         int destroyStage = buffer.readByte();
         return new BlockBreakAnimationMessage(
-                entityId,
-                vector.getBlockX(),
-                vector.getBlockY(),
-                vector.getBlockZ(),
-                destroyStage
+            entityId,
+            vector.getBlockX(),
+            vector.getBlockY(),
+            vector.getBlockZ(),
+            destroyStage
         );
     }
 

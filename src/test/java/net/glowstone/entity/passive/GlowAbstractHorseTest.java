@@ -12,7 +12,7 @@ import org.junit.Test;
 
 public abstract class GlowAbstractHorseTest<T extends GlowAbstractHorse> extends GlowAnimalTest<T> {
     protected GlowAbstractHorseTest(
-            Function<Location, ? extends T> entityCreator) {
+        Function<Location, ? extends T> entityCreator) {
         super(entityCreator);
     }
 
@@ -62,7 +62,7 @@ public abstract class GlowAbstractHorseTest<T extends GlowAbstractHorse> extends
     @Override
     public void testGetBreedingFoods() {
         assertEquals(EnumSet.of(Material.GOLDEN_APPLE, Material.GOLDEN_CARROT),
-                entity.getBreedingFoods());
+            entity.getBreedingFoods());
     }
 
     @Test

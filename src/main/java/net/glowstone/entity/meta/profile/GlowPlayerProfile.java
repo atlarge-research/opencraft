@@ -39,7 +39,7 @@ public class GlowPlayerProfile implements PlayerProfile {
     private final Map<String, ProfileProperty> properties;
 
     private static CompletableFuture<UUID> maybeLookUpNull(String name, UUID maybeUuid,
-            boolean asyncLookup) {
+                                                           boolean asyncLookup) {
         if (maybeUuid == null) {
             if (asyncLookup) {
                 return ProfileCache.getUuid(name);
@@ -56,8 +56,8 @@ public class GlowPlayerProfile implements PlayerProfile {
      *
      * <p>This does not try to resolve the name if it's null.
      *
-     * @param name The player's name.
-     * @param uuid The player's UUID; may be null.
+     * @param name        The player's name.
+     * @param uuid        The player's UUID; may be null.
      * @param asyncLookup If true and {@code uuid} is null, the UUID is looked up asynchronously.
      */
     public GlowPlayerProfile(String name, UUID uuid, boolean asyncLookup) {
@@ -69,15 +69,15 @@ public class GlowPlayerProfile implements PlayerProfile {
      *
      * <p>This does not try to resolve the name if it's null.
      *
-     * @param name The player's name.
-     * @param uuid The player's UUID; may be null.
-     * @param properties A list of extra properties.
+     * @param name        The player's name.
+     * @param uuid        The player's UUID; may be null.
+     * @param properties  A list of extra properties.
      * @param asyncLookup If true and {@code uuid} is null, the UUID is looked up asynchronously
-     *     even if it's not in cache.
+     *                    even if it's not in cache.
      * @throws IllegalArgumentException if properties are null.
      */
     public GlowPlayerProfile(String name, UUID uuid, Collection<ProfileProperty> properties,
-            boolean asyncLookup) {
+                             boolean asyncLookup) {
         this(name, maybeLookUpNull(name, uuid, asyncLookup), properties);
     }
 
@@ -86,13 +86,13 @@ public class GlowPlayerProfile implements PlayerProfile {
      *
      * <p>This does not try to resolve the name if it's null.
      *
-     * @param name The player's name.
-     * @param uuid Lookup of the player's UUID.
+     * @param name       The player's name.
+     * @param uuid       Lookup of the player's UUID.
      * @param properties A list of extra properties.
      * @throws IllegalArgumentException if uuid or properties are null.
      */
     private GlowPlayerProfile(String name, CompletableFuture<UUID> uuid,
-            Collection<ProfileProperty> properties) {
+                              Collection<ProfileProperty> properties) {
         checkNotNull(properties, "properties must not be null");
         this.name = name;
         this.uniqueId = uuid;
@@ -147,7 +147,7 @@ public class GlowPlayerProfile implements PlayerProfile {
 
         if (tag.containsKey("Name")) {
             return completedFuture(
-                    new GlowPlayerProfile(tag.getString("Name"), uuid, properties, true));
+                new GlowPlayerProfile(tag.getString("Name"), uuid, properties, true));
         } else {
             return ProfileCache.getProfile(uuid).thenApplyAsync(
                 (profile) -> new GlowPlayerProfile(profile.getName(), uuid, properties, true));
@@ -211,14 +211,14 @@ public class GlowPlayerProfile implements PlayerProfile {
             propertyValueTag.putString("Value", property.getValue());
 
             propertiesTag.putCompoundList(property.getName(),
-                    Collections.singletonList(propertyValueTag));
+                Collections.singletonList(propertyValueTag));
         }
         if (!propertiesTag.isEmpty()) { // Only add properties if not empty
             profileTag.putCompound("Properties", propertiesTag);
         }
         return profileTag;
     }
-    
+
     private void checkOwnerCriteria(String name, UUID id) {
         if (id == null && (name == null || name.isEmpty())) {
             throw new IllegalArgumentException("Either name or uuid must be present in profile");
@@ -227,7 +227,7 @@ public class GlowPlayerProfile implements PlayerProfile {
 
     @Override
     public String setName(@Nullable String name) {
-        checkOwnerCriteria(name,getId());
+        checkOwnerCriteria(name, getId());
         String oldname = this.name;
         this.name = name;
         return oldname;
@@ -240,7 +240,7 @@ public class GlowPlayerProfile implements PlayerProfile {
 
     @Override
     public UUID setId(@Nullable UUID uuid) {
-        checkOwnerCriteria(name,uuid);
+        checkOwnerCriteria(name, uuid);
         UUID oldUuid = null;
         if (uniqueId == null) {
             synchronized (this) {
@@ -399,8 +399,8 @@ public class GlowPlayerProfile implements PlayerProfile {
         GlowPlayerProfile other = (GlowPlayerProfile) object;
 
         return Objects.equals(name, other.name)
-                && Objects.equals(getUuid(), other.getUuid())
-                && Objects.equals(properties, other.properties);
+            && Objects.equals(getUuid(), other.getUuid())
+            && Objects.equals(properties, other.properties);
     }
 
     @Override

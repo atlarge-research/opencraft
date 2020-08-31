@@ -11,7 +11,7 @@ import net.glowstone.net.protocol.StatusProtocol;
  */
 public class StatusProtocolTest extends BaseProtocolTest {
 
-    private static final Message[] TEST_MESSAGES = new Message[]{
+    private static final Message[] TEST_MESSAGES = new Message[] {
         new StatusPingMessage(1),
         new StatusResponseMessage(ProtocolTestUtils.getJson()),
         new StatusRequestMessage(),

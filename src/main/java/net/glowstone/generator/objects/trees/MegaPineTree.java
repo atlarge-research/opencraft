@@ -14,9 +14,9 @@ public class MegaPineTree extends MegaRedwoodTree {
     /**
      * Initializes this tree with a random height, preparing it to attempt to generate.
      *
-     * @param random the PRNG
+     * @param random   the PRNG
      * @param delegate the BlockStateDelegate used to check for space and to fill wood and leaf
-     *     blocks
+     *                 blocks
      */
     public MegaPineTree(Random random, BlockStateDelegate delegate) {
         super(random, delegate);
@@ -34,7 +34,7 @@ public class MegaPineTree extends MegaRedwoodTree {
 
     @Override
     protected void generateDirtBelowTrunk(World world, int blockX, int blockY,
-            int blockZ) {
+                                          int blockZ) {
         // SELF, SOUTH, EAST, SOUTH EAST
         Dirt dirt = new Dirt(DirtType.PODZOL);
         delegate

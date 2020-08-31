@@ -38,9 +38,9 @@ public abstract class GlowStructurePiece {
     /**
      * Creates a structure piece.
      *
-     * @param random the PRNG that will choose the orientation
+     * @param random   the PRNG that will choose the orientation
      * @param location the root location
-     * @param size the size as a width-height-depth vector
+     * @param size     the size as a width-height-depth vector
      */
     public GlowStructurePiece(Random random, Location location, Vector size) {
         orientation = getOrientationFromOrdinal(random.nextInt(4));
@@ -85,14 +85,14 @@ public abstract class GlowStructurePiece {
     protected final BlockFace getRelativeFacing(BlockFace face) {
         BlockFace f = getOrientationFromOrdinal(orientation.ordinal() + face.ordinal() & 0x3);
         if ((orientation == BlockFace.SOUTH || orientation == BlockFace.WEST)
-                && (face == BlockFace.EAST || face == BlockFace.WEST)) {
+            && (face == BlockFace.EAST || face == BlockFace.WEST)) {
             return f.getOppositeFace();
         }
         return f;
     }
 
     public boolean generate(World world, Random random, StructureBoundingBox boundingBox,
-        BlockStateDelegate delegate) {
+                            BlockStateDelegate delegate) {
         return boundingBox != null;
     }
 

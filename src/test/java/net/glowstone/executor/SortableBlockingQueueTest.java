@@ -174,7 +174,7 @@ class SortableBlockingQueueTest {
      * Verify that an element can be taken out of the queue, even when it's not already there.
      *
      * @throws InterruptedException thrown when the element could not be taken out of the queue.
-     * @throws ExecutionException thrown whenever the take method is interrupted by another thread.
+     * @throws ExecutionException   thrown whenever the take method is interrupted by another thread.
      */
     @Test
     void takeWaitTest() throws InterruptedException, ExecutionException {
@@ -211,7 +211,7 @@ class SortableBlockingQueueTest {
      * Verify that an element can be polled from the queue even when its not already there.
      *
      * @throws InterruptedException thrown whenever the element cannot be retrieved.
-     * @throws ExecutionException thrown whenever the poll method is interrupted by another thread.
+     * @throws ExecutionException   thrown whenever the poll method is interrupted by another thread.
      */
     @Test
     void pollTimeoutWaitTest() throws InterruptedException, ExecutionException {
@@ -521,7 +521,7 @@ class SortableBlockingQueueTest {
         queue.add(2);
         Integer[] integers = queue.toArray(new Integer[0]);
         Collection<Integer> elements = Arrays.stream(integers)
-                .collect(Collectors.toList());
+            .collect(Collectors.toList());
         assertTrue(elements.containsAll(Arrays.asList(1, 2)));
     }
 

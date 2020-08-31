@@ -43,6 +43,6 @@ public class BlockDeadBush extends BlockNeedsAttached {
         // Dead bush drops 0-2 sticks when broken without shears
         ThreadLocalRandom random = ThreadLocalRandom.current();
         return Collections.unmodifiableList(Arrays.asList(
-            new ItemStack(Material.STICK,random.nextInt(3))));
+            new ItemStack(Material.STICK, random.nextInt(3))));
     }
 }

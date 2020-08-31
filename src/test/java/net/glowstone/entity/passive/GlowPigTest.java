@@ -16,6 +16,6 @@ public class GlowPigTest extends GlowAnimalTest<GlowPig> {
     @Override
     public void testGetBreedingFoods() {
         assertEquals(EnumSet.of(Material.POTATO_ITEM, Material.CARROT_ITEM, Material.BEETROOT),
-                entity.getBreedingFoods());
+            entity.getBreedingFoods());
     }
 }

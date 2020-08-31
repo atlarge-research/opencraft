@@ -10,7 +10,8 @@ public class Vectors {
     /**
      * A private Vectors constructor that ensures that this class is will only be used for static methods.
      */
-    private Vectors(){}
+    private Vectors() {
+    }
 
     /**
      * Floors every parameter in the vector.
@@ -20,9 +21,9 @@ public class Vectors {
      */
     public static Vector floor(Vector vector) {
         return new Vector(
-                Math.floor(vector.getX()),
-                Math.floor(vector.getY()),
-                Math.floor(vector.getZ())
+            Math.floor(vector.getX()),
+            Math.floor(vector.getY()),
+            Math.floor(vector.getZ())
         );
     }
 
@@ -34,9 +35,9 @@ public class Vectors {
      */
     public static Vector ceil(Vector vector) {
         return new Vector(
-                Math.ceil(vector.getX()),
-                Math.ceil(vector.getY()),
-                Math.ceil(vector.getZ())
+            Math.ceil(vector.getX()),
+            Math.ceil(vector.getY()),
+            Math.ceil(vector.getZ())
         );
     }
 
@@ -55,13 +56,13 @@ public class Vectors {
     /**
      * Clamp a vector within some magnitude.
      *
-     * @param vector The vector that will be clamped
+     * @param vector    The vector that will be clamped
      * @param magnitude The value that will be used a clamping threshold
      * @return A projected vector
      */
     public static Vector clamp(Vector vector, double magnitude) {
         double length = vector.length();
-        if  (length > magnitude) {
+        if (length > magnitude) {
             return vector.clone().multiply(magnitude / length);
         }
         return vector.clone();
@@ -70,9 +71,9 @@ public class Vectors {
     /**
      * An equals method that allows matching two vectors per parameter with a certain tolerance.
      *
-     * @param vector one of the vectors to compare
+     * @param vector      one of the vectors to compare
      * @param otherVector one of the vectors to compare
-     * @param tolerance an allowed tolerance
+     * @param tolerance   an allowed tolerance
      * @return A boolean that is true if the vectors are equal within tolerance
      */
     public static boolean equals(Vector vector, Vector otherVector, double tolerance) {
@@ -101,7 +102,7 @@ public class Vectors {
     /**
      * An equals method that allows matching two vectors per parameter with a certain tolerance prefilled.
      *
-     * @param vector one of the vectors to compare
+     * @param vector      one of the vectors to compare
      * @param otherVector one of the vectors to compare
      * @return A boolean that is true if the vectors are equal within tolerance
      */

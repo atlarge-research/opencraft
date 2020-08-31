@@ -5,7 +5,7 @@ import org.bukkit.Location;
 
 public class GlowSplashPotionTest extends GlowProjectileTest<GlowSplashPotion> {
     protected GlowSplashPotionTest(
-            Function<? super Location, ? extends GlowSplashPotion> entityCreator) {
+        Function<? super Location, ? extends GlowSplashPotion> entityCreator) {
         super(entityCreator);
     }
 

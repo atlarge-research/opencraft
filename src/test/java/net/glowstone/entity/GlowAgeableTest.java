@@ -23,7 +23,7 @@ import org.mockito.Mockito;
 public abstract class GlowAgeableTest<T extends GlowAgeable> extends GlowLivingEntityTest<T> {
 
     protected GlowAgeableTest(
-            Function<Location, ? extends T> entityCreator) {
+        Function<Location, ? extends T> entityCreator) {
         super(entityCreator);
     }
 
@@ -143,9 +143,9 @@ public abstract class GlowAgeableTest<T extends GlowAgeable> extends GlowLivingE
     @Test
     public void testCreateBaby() {
         Mockito.when(world.spawn(any(Location.class),
-                (Class<? extends GlowEntity>) any(Class.class),
-                eq(CreatureSpawnEvent.SpawnReason.SPAWNER_EGG)))
-                .thenCallRealMethod();
+            (Class<? extends GlowEntity>) any(Class.class),
+            eq(CreatureSpawnEvent.SpawnReason.SPAWNER_EGG)))
+            .thenCallRealMethod();
         T baby = (T) entity.createBaby();
         assertNotNull(baby);
         assertNotEquals(entity, baby);

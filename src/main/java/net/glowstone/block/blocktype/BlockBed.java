@@ -31,8 +31,8 @@ public class BlockBed extends BlockType {
     /**
      * Helper method for set whether the specified bed blocks are occupied.
      *
-     * @param head head of the bed
-     * @param foot foot of the bed
+     * @param head     head of the bed
+     * @param foot     foot of the bed
      * @param occupied if the bed is occupied by a player
      */
     public static void setOccupied(GlowBlock head, GlowBlock foot, boolean occupied) {
@@ -93,7 +93,7 @@ public class BlockBed extends BlockType {
     @Override
     public Collection<ItemStack> getDrops(GlowBlock block, ItemStack tool) {
         return Collections.singletonList(new ItemStack(Material.BED, 1,
-                (((GlowBed) block.getState()).getColor().getWoolData())));
+            (((GlowBed) block.getState()).getColor().getWoolData())));
     }
 
     @Override
@@ -210,7 +210,7 @@ public class BlockBed extends BlockType {
 
     @Override
     public void placeBlock(GlowPlayer player, GlowBlockState state, BlockFace face,
-            ItemStack holding, Vector clickedLoc) {
+                           ItemStack holding, Vector clickedLoc) {
         BlockFace direction = getOppositeBlockFace(player.getLocation(), false).getOppositeFace();
         super.placeBlock(player, state, face, holding, clickedLoc);
 
@@ -231,7 +231,7 @@ public class BlockBed extends BlockType {
 
     @Override
     public void afterPlace(GlowPlayer player, GlowBlock block, ItemStack holding,
-        GlowBlockState oldState) {
+                           GlowBlockState oldState) {
         if (block.getType() == Material.BED_BLOCK) {
             GlowBed bed = (GlowBed) block.getState();
             bed.setColor(DyeColor.getByWoolData(holding.getData().getData()));
@@ -251,7 +251,7 @@ public class BlockBed extends BlockType {
 
     @Override
     public boolean blockInteract(final GlowPlayer player, GlowBlock block, final BlockFace face,
-            final Vector clickedLoc) {
+                                 final Vector clickedLoc) {
         GlowWorld world = player.getWorld();
         MaterialData data = block.getState().getData();
         if (!(data instanceof Bed)) {
@@ -303,10 +303,10 @@ public class BlockBed extends BlockType {
      * Checks whether the entity is within the specified distance from the block.
      *
      * @param entity the entity
-     * @param block the block
-     * @param x maximum distance on x axis
-     * @param y maximum distance on y axis
-     * @param z maximum distance on z axis
+     * @param block  the block
+     * @param x      maximum distance on x axis
+     * @param y      maximum distance on y axis
+     * @param z      maximum distance on z axis
      * @return Whether the entity is within distance
      */
     private boolean isWithinDistance(Entity entity, Block block, int x, int y, int z) {

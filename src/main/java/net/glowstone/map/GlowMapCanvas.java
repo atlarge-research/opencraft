@@ -33,7 +33,7 @@ public final class GlowMapCanvas implements MapCanvas {
      * given player.
      *
      * @param mapView The {@link MapView} to associate with this canvas and render
-     * @param player The player to pass to {@link MapRenderer#render(MapView, MapCanvas, Player)}
+     * @param player  The player to pass to {@link MapRenderer#render(MapView, MapCanvas, Player)}
      * @return a new, rendered GlowMapCanvas
      */
     public static GlowMapCanvas createAndRender(MapView mapView, Player player) {
@@ -106,6 +106,6 @@ public final class GlowMapCanvas implements MapCanvas {
      */
     public Section toSection() {
         return new Section(
-                MAP_SIZE, MAP_SIZE, mapView.getCenterX(), mapView.getCenterZ(), buffer.clone());
+            MAP_SIZE, MAP_SIZE, mapView.getCenterX(), mapView.getCenterZ(), buffer.clone());
     }
 }

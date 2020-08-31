@@ -30,7 +30,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Bukkit.class, CommandUtils.class})
+@PrepareForTest( {Bukkit.class, CommandUtils.class})
 public abstract class CommandTest<T extends Command> {
     protected CommandSender sender;
     protected CommandSender opSender;
@@ -72,7 +72,7 @@ public abstract class CommandTest<T extends Command> {
     }
 
     protected GlowPlayer[] prepareMockPlayers(Location location, @Nullable GlowServer server,
-            @Nullable GlowWorld world, String... names) {
+                                              @Nullable GlowWorld world, String... names) {
         assertFalse("prepareMockPlayers called with no names!", names.length == 0);
         PowerMockito.mockStatic(Bukkit.class);
         GlowPlayer[] players = new GlowPlayer[names.length];

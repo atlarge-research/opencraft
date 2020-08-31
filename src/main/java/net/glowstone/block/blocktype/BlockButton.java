@@ -21,7 +21,7 @@ public class BlockButton extends BlockAttachable {
 
     @Override
     public boolean blockInteract(GlowPlayer player, GlowBlock block, BlockFace face,
-        Vector clickedLoc) {
+                                 Vector clickedLoc) {
         GlowBlockState state = block.getState();
         MaterialData data = state.getData();
 
@@ -81,11 +81,11 @@ public class BlockButton extends BlockAttachable {
 
     @Override
     public void placeBlock(
-            GlowPlayer player,
-            GlowBlockState state,
-            BlockFace face,
-            ItemStack holding,
-            Vector clickedLoc
+        GlowPlayer player,
+        GlowBlockState state,
+        BlockFace face,
+        ItemStack holding,
+        Vector clickedLoc
     ) {
         super.placeBlock(player, state, face, holding, clickedLoc);
 

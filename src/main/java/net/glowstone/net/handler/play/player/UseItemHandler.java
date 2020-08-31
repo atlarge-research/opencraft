@@ -25,14 +25,14 @@ import org.bukkit.util.Vector;
 public class UseItemHandler implements MessageHandler<GlowSession, UseItemMessage> {
 
     private static final SortedSet<Material> IGNORE_MATS = ImmutableSortedSet.of(
-            Material.AIR, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA,
-            Material.STATIONARY_WATER);
+        Material.AIR, Material.WATER, Material.LAVA, Material.STATIONARY_LAVA,
+        Material.STATIONARY_WATER);
 
     @Override
     public void handle(GlowSession session, UseItemMessage message) {
         GlowPlayer player = session.getPlayer();
         ItemStack holding = InventoryUtil
-                .itemOrEmpty(player.getInventory().getItem(message.getEquipmentSlot()));
+            .itemOrEmpty(player.getInventory().getItem(message.getEquipmentSlot()));
 
         handleRightClick(player, holding, message.getEquipmentSlot());
     }
@@ -73,13 +73,13 @@ public class UseItemHandler implements MessageHandler<GlowSession, UseItemMessag
             handleRightClickAir(player, holding, slot);
         } else {
             BlockPlacementHandler.handleRightClickBlock(
-                    player, holding, slot, block, face, clickedAt);
+                player, holding, slot, block, face, clickedAt);
         }
     }
 
     static void handleRightClickAir(GlowPlayer player, ItemStack holding, EquipmentSlot slot) {
         PlayerInteractEvent event = EventFactory.getInstance().onPlayerInteract(
-                player, Action.RIGHT_CLICK_AIR, slot);
+            player, Action.RIGHT_CLICK_AIR, slot);
 
         if (event.useItemInHand() == null || event.useItemInHand() == Event.Result.DENY) {
             return;

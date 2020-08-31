@@ -15,6 +15,7 @@ public class GlowMetaKnowledgeBook extends GlowMetaItem implements KnowledgeBook
     /**
      * Creates an instance by copying from the given {@link ItemMeta}. If that item is another
      * {@link KnowledgeBookMeta}, its recipes are copied; otherwise, the new book is empty.
+     *
      * @param meta the {@link ItemMeta} to copy
      */
     public GlowMetaKnowledgeBook(ItemMeta meta) {
@@ -27,7 +28,7 @@ public class GlowMetaKnowledgeBook extends GlowMetaItem implements KnowledgeBook
         KnowledgeBookMeta book = (KnowledgeBookMeta) meta;
         if (book.hasRecipes()) {
             recipes.addAll(book instanceof GlowMetaKnowledgeBook
-                    ? ((GlowMetaKnowledgeBook) book).recipes : book.getRecipes());
+                ? ((GlowMetaKnowledgeBook) book).recipes : book.getRecipes());
         }
     }
 

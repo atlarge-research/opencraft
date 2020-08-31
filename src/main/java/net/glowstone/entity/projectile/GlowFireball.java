@@ -44,7 +44,7 @@ public class GlowFireball extends GlowProjectile implements Fireball {
     private void explode() {
         ProjectileSource source = getShooter();
         world.createExplosion(source instanceof Entity ? (Entity) source : this,
-                location.getX(), location.getY(), location.getZ(), yield, incendiary, true);
+            location.getX(), location.getY(), location.getZ(), yield, incendiary, true);
         remove();
     }
 

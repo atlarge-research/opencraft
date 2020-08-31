@@ -125,7 +125,7 @@ public final class GlowScoreboard implements Scoreboard {
     /**
      * Set the objective displayed in the given slot.
      *
-     * @param slot The display slot.
+     * @param slot      The display slot.
      * @param objective The objective to display there, possibly null.
      */
     void setDisplaySlot(DisplaySlot slot, GlowObjective objective) {
@@ -200,7 +200,7 @@ public final class GlowScoreboard implements Scoreboard {
      * Update what team a player is associated with.
      *
      * @param player The player.
-     * @param team The team, or null for no team.
+     * @param team   The team, or null for no team.
      */
     void setPlayerTeam(OfflinePlayer player, GlowTeam team) {
         GlowTeam previous = entryTeams.put(player.getName(), team);

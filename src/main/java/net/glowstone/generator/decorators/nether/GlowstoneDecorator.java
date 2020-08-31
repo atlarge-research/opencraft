@@ -11,7 +11,7 @@ import org.bukkit.block.BlockState;
 
 public class GlowstoneDecorator extends BlockDecorator {
 
-    private static final BlockFace[] SIDES = new BlockFace[]{BlockFace.EAST, BlockFace.WEST,
+    private static final BlockFace[] SIDES = new BlockFace[] {BlockFace.EAST, BlockFace.WEST,
         BlockFace.DOWN, BlockFace.UP, BlockFace.SOUTH, BlockFace.NORTH};
 
     private boolean variableAmount;
@@ -35,7 +35,7 @@ public class GlowstoneDecorator extends BlockDecorator {
 
             Block block = world.getBlockAt(sourceX, sourceY, sourceZ);
             if (!block.isEmpty()
-                    || block.getRelative(BlockFace.UP).getType() != Material.NETHERRACK) {
+                || block.getRelative(BlockFace.UP).getType() != Material.NETHERRACK) {
                 continue;
             }
             BlockState state = block.getState();

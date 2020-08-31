@@ -41,14 +41,14 @@ public class EntityManager implements Iterable<GlowEntity> {
      * A map of entity types to a set containing all entities of that type.
      */
     private final Multimap<Class<? extends GlowEntity>, GlowEntity> groupedEntities
-            = newSetMultimap(new ConcurrentHashMap<>(),
-                    Sets::newConcurrentHashSet);
+        = newSetMultimap(new ConcurrentHashMap<>(),
+        Sets::newConcurrentHashSet);
 
     /**
      * Returns all entities with the specified type.
      *
      * @param type The {@link Class} for the type.
-     * @param <T> The type of entity.
+     * @param <T>  The type of entity.
      * @return A collection of entities with the specified type.
      */
     @SuppressWarnings("unchecked")
@@ -76,13 +76,14 @@ public class EntityManager implements Iterable<GlowEntity> {
      */
     public List<GlowPlayer> getPlayers() {
         return entities.values().stream()
-                .filter(GlowPlayer.class::isInstance)
-                .map(GlowPlayer.class::cast)
-                .collect(Collectors.toList());
+            .filter(GlowPlayer.class::isInstance)
+            .map(GlowPlayer.class::cast)
+            .collect(Collectors.toList());
     }
 
     /**
      * Gets an entity by its uuid.
+     *
      * @param uuid The uuid.
      * @return The entity, or {@code null} if it could not be found.
      */
@@ -107,17 +108,19 @@ public class EntityManager implements Iterable<GlowEntity> {
 
     /**
      * Gets a list with all living entities.
+     *
      * @return a list with all living entities.
      */
     public List<LivingEntity> getLivingEntities() {
         return getAll().stream()
-                .filter(e -> e instanceof GlowLivingEntity)
-                .map(e -> (GlowLivingEntity) e)
-                .collect(Collectors.toCollection(LinkedList::new));
+            .filter(e -> e instanceof GlowLivingEntity)
+            .map(e -> (GlowLivingEntity) e)
+            .collect(Collectors.toCollection(LinkedList::new));
     }
 
     /**
      * Gets all entities by class.
+     *
      * @param cls the class.
      * @param <T> the type.
      * @return a collection of entities.
@@ -125,13 +128,14 @@ public class EntityManager implements Iterable<GlowEntity> {
     @SuppressWarnings("unchecked")
     public <T extends Entity> Collection<T> getEntitiesByClass(Class<T> cls) {
         return getAll().stream()
-                .filter(e -> cls.isAssignableFrom(e.getClass()))
-                .map(e -> (T) e)
-                .collect(Collectors.toCollection(ArrayList::new));
+            .filter(e -> cls.isAssignableFrom(e.getClass()))
+            .map(e -> (T) e)
+            .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /**
      * Gets a collection of entities by classes.
+     *
      * @param classes the classes.
      * @return a collection of entities.
      */
@@ -162,9 +166,9 @@ public class EntityManager implements Iterable<GlowEntity> {
      */
     public Collection<Entity> getNearbyEntities(Location location, double x, double y, double z) {
         Vector minCorner = new Vector(
-                location.getX() - x, location.getY() - y, location.getZ() - z);
+            location.getX() - x, location.getY() - y, location.getZ() - z);
         Vector maxCorner = new Vector(
-                location.getX() + x, location.getY() + y, location.getZ() + z);
+            location.getX() + x, location.getY() + y, location.getZ() + z);
         BoundingBox searchBox = BoundingBox.fromCorners(minCorner, maxCorner); // TODO: test
         GlowEntity except = null;
         return getEntitiesInside(searchBox, except);
@@ -173,15 +177,16 @@ public class EntityManager implements Iterable<GlowEntity> {
     /**
      * Returns all entities that are inside or partly inside the given bounding box, with optionally
      * one exception.
+     *
      * @param searchBox the bounding box to search inside
-     * @param except the entity to exclude, or null to include all
+     * @param except    the entity to exclude, or null to include all
      * @return the entities contained in or touching {@code searchBox}, other than {@code except}
      */
     public List<Entity> getEntitiesInside(BoundingBox searchBox, GlowEntity except) {
         // todo: narrow search based on the box's corners
         return getAll().stream()
-                .filter(entity -> entity != except && entity.intersects(searchBox))
-                .collect(Collectors.toCollection(LinkedList::new));
+            .filter(entity -> entity != except && entity.intersects(searchBox))
+            .collect(Collectors.toCollection(LinkedList::new));
     }
 
     /**
@@ -198,7 +203,7 @@ public class EntityManager implements Iterable<GlowEntity> {
         groupedEntities.put(entity.getClass(), entity);
         ((GlowChunk) entity.location.getChunk()).getRawEntities().add(entity);
         EventFactory.getInstance().callEvent(
-                new EntityAddToWorldEvent(entity)
+            new EntityAddToWorldEvent(entity)
         );
     }
 
@@ -217,7 +222,7 @@ public class EntityManager implements Iterable<GlowEntity> {
     /**
      * Notes that an entity has moved from one location to another for physics and storage purposes.
      *
-     * @param entity The entity.
+     * @param entity      The entity.
      * @param newLocation The new location.
      */
     void move(GlowEntity entity, Location newLocation) {

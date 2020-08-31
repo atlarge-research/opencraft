@@ -23,7 +23,7 @@ public class BlockLeaves extends BlockType {
 
     @Override
     public void placeBlock(GlowPlayer player, GlowBlockState state, BlockFace face,
-        ItemStack holding, Vector clickedLoc) {
+                           ItemStack holding, Vector clickedLoc) {
         super.placeBlock(player, state, face, holding, clickedLoc);
         state.setRawData((byte) (state.getRawData() | 0x04));
     }
@@ -86,7 +86,7 @@ public class BlockLeaves extends BlockType {
     public void updateBlock(GlowBlock block) {
         GlowBlockState state = block.getState();
         if ((state.getRawData() & 0x08) == 0
-                || (state.getRawData() & 0x04) != 0) {
+            || (state.getRawData() & 0x04) != 0) {
             // check decay is off or decay is off
             return;
         }

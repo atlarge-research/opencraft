@@ -20,7 +20,7 @@ public class GlowGuardianTest extends GlowMonsterTest<GlowGuardian> {
     }
 
     protected GlowGuardianTest(
-            Function<Location, ? extends GlowGuardian> entityCreator) {
+        Function<Location, ? extends GlowGuardian> entityCreator) {
         super(entityCreator);
     }
 

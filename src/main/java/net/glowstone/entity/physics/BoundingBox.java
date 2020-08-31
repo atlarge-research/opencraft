@@ -8,7 +8,7 @@ import org.bukkit.util.Vector;
 public class BoundingBox implements Cloneable {
 
     public static class Dimensions {
-        
+
         public final double width;
         public final double height;
 
@@ -27,6 +27,7 @@ public class BoundingBox implements Cloneable {
 
     /**
      * Tests whether this intersects another bounding box.
+     *
      * @param other another bounding box
      * @return true if this bounding box and {@code other} intersect; false otherwise
      */
@@ -37,8 +38,8 @@ public class BoundingBox implements Cloneable {
     /**
      * Tests whether two bounding boxes intersect.
      *
-     * @param a a bounding box
-     * @param b a bounding box
+     * @param a         a bounding box
+     * @param b         a bounding box
      * @param tolerance a double that functions as allowed tolerance between blocks before they are deemed to intersect
      * @return true if {@code a} and {@code b} intersect; false otherwise
      */
@@ -65,6 +66,7 @@ public class BoundingBox implements Cloneable {
 
     /**
      * An overloaded variant of the intersects function that includes a predefined tolerance.
+     *
      * @param a a bounding box
      * @param b a bounding box
      * @return true if {@code a} and {@code b} intersect; false otherwise
@@ -75,6 +77,7 @@ public class BoundingBox implements Cloneable {
 
     /**
      * Converts two Vector instances to a BoundingBox.
+     *
      * @param a any corner
      * @param b the corner opposite {@code a}
      * @return a bounding box from {@code a} to {@code b}
@@ -92,7 +95,8 @@ public class BoundingBox implements Cloneable {
 
     /**
      * Creates a bounding box given its minimum corner and its size.
-     * @param pos the minimum corner
+     *
+     * @param pos  the minimum corner
      * @param size the displacement of the maximum corner from the minimum corner
      * @return a bounding box from {@code pos} to {@code pos.clone().add(size)}
      */
@@ -105,7 +109,8 @@ public class BoundingBox implements Cloneable {
 
     /**
      * Creates a bounding box that is centered just as far from the minimum corner as from the maximum corner.
-     * @param pos The position to start from
+     *
+     * @param pos       The position to start from
      * @param dimension The dimensions of the box
      * @return The bounding box
      */
@@ -116,9 +121,10 @@ public class BoundingBox implements Cloneable {
 
     /**
      * Creates a bounding box that is centered just as far from the minimum corner as from the maximum corner.
-     * @param pos The position to start from
+     *
+     * @param pos    The position to start from
      * @param xzSize The x and z axis size
-     * @param ySize The height of the bounding box
+     * @param ySize  The height of the bounding box
      * @return The bounding box
      */
     public static BoundingBox fromCenterAndSize(Vector pos, double xzSize, double ySize) {
@@ -130,6 +136,7 @@ public class BoundingBox implements Cloneable {
 
     /**
      * Returns a deep copy of a BoundingBox.
+     *
      * @param original the BoundingBox to copy
      * @return a copy of {@code original}
      */
@@ -142,6 +149,7 @@ public class BoundingBox implements Cloneable {
 
     /**
      * Returns the displacement of the maximum corner from the minimum corner.
+     *
      * @return the displacement of the maximum corner from the minimum corner
      */
     public Vector getSize() {

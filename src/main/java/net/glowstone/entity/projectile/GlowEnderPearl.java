@@ -37,7 +37,7 @@ public class GlowEnderPearl extends GlowProjectile implements EnderPearl {
      * Creates a thrown ender pearl.
      *
      * @param location the position and facing of the thrower
-     * @param speed the initial speed
+     * @param speed    the initial speed
      */
     public GlowEnderPearl(Location location, float speed) {
         super(location);
@@ -71,7 +71,7 @@ public class GlowEnderPearl extends GlowProjectile implements EnderPearl {
             // Give fall damage to the eneity that threw this ender pearl.
             if (source instanceof LivingEntity) {
                 ((LivingEntity) entity).damage(ENDER_PEARL_DAMAGE,
-                        EntityDamageEvent.DamageCause.FALL);
+                    EntityDamageEvent.DamageCause.FALL);
             }
         }
 
@@ -112,12 +112,12 @@ public class GlowEnderPearl extends GlowProjectile implements EnderPearl {
     @Override
     public List<Message> createSpawnMessage() {
         return Arrays.asList(
-                new SpawnObjectMessage(
-                        entityId, getUniqueId(), SpawnObjectMessage.THROWN_ENDERPEARL, location),
-                new EntityMetadataMessage(entityId, metadata.getEntryList()),
-                // These keep the client from assigning a random velocity
-                new EntityTeleportMessage(entityId, location),
-                new EntityVelocityMessage(entityId, getVelocity())
+            new SpawnObjectMessage(
+                entityId, getUniqueId(), SpawnObjectMessage.THROWN_ENDERPEARL, location),
+            new EntityMetadataMessage(entityId, metadata.getEntryList()),
+            // These keep the client from assigning a random velocity
+            new EntityTeleportMessage(entityId, location),
+            new EntityVelocityMessage(entityId, getVelocity())
         );
     }
 }

@@ -32,9 +32,9 @@ public final class GlowObjective implements Objective {
      * Creates a scoreboard objective.
      *
      * @param scoreboard the scoreboard to add to
-     * @param name the name of the objective
-     * @param criteria one of the constants from {@link Criterias}, or anything else if this score
-     *         is only modified by commands and/or plugins.
+     * @param name       the name of the objective
+     * @param criteria   one of the constants from {@link Criterias}, or anything else if this score
+     *                   is only modified by commands and/or plugins.
      */
     public GlowObjective(GlowScoreboard scoreboard, String name, String criteria) {
         this.scoreboard = scoreboard;
@@ -91,7 +91,7 @@ public final class GlowObjective implements Objective {
      *
      * @param displayName the new display name, up to 32 characters long
      * @throws IllegalArgumentException if {@code displayName} is null or longer than 32 characters
-     * @throws IllegalStateException if this objective isn't registered with a scoreboard
+     * @throws IllegalStateException    if this objective isn't registered with a scoreboard
      */
     @Override
     public void setDisplayName(String displayName)
@@ -140,7 +140,7 @@ public final class GlowObjective implements Objective {
      *
      * @param renderType the new render type
      * @throws IllegalArgumentException if {@code renderType} is null
-     * @throws IllegalStateException if this objective isn't registered with a scoreboard
+     * @throws IllegalStateException    if this objective isn't registered with a scoreboard
      */
     public void setType(RenderType renderType) throws IllegalStateException {
         checkValid();
@@ -164,7 +164,7 @@ public final class GlowObjective implements Objective {
      * @param entry the key (e.g. player name or team name)
      * @return the score for {@code entry}
      * @throws IllegalArgumentException if {@code entry} is null
-     * @throws IllegalStateException if this objective isn't registered with a scoreboard
+     * @throws IllegalStateException    if this objective isn't registered with a scoreboard
      */
     @Override
     public Score getScore(String entry) throws IllegalArgumentException, IllegalStateException {
@@ -206,7 +206,7 @@ public final class GlowObjective implements Objective {
      * @param entry the key (e.g. player name or team name)
      * @return true if the score exists; false otherwise
      * @throws IllegalArgumentException if {@code entry} is null
-     * @throws IllegalStateException if this objective isn't registered with a scoreboard
+     * @throws IllegalStateException    if this objective isn't registered with a scoreboard
      */
     public boolean hasScore(String entry) throws IllegalArgumentException, IllegalStateException {
         checkNotNull(entry, "Entry cannot be null");

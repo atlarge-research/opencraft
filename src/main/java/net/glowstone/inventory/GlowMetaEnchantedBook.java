@@ -17,6 +17,7 @@ public class GlowMetaEnchantedBook extends GlowMetaItem implements EnchantmentSt
      * Creates an instance by copying from the given {@link ItemMeta}. If that item is another
      * {@link EnchantmentStorageMeta}, its enchantments are copied; otherwise, the new book has no
      * enchantments.
+     *
      * @param meta the {@link ItemMeta} to copy
      */
     public GlowMetaEnchantedBook(ItemMeta meta) {
@@ -29,7 +30,7 @@ public class GlowMetaEnchantedBook extends GlowMetaItem implements EnchantmentSt
         EnchantmentStorageMeta book = (EnchantmentStorageMeta) meta;
         if (book.hasStoredEnchants()) {
             storedEnchants = new HashMap<>(book instanceof GlowMetaEnchantedBook
-                    ? ((GlowMetaEnchantedBook) book).storedEnchants : book.getStoredEnchants());
+                ? ((GlowMetaEnchantedBook) book).storedEnchants : book.getStoredEnchants());
         }
     }
 
@@ -91,7 +92,7 @@ public class GlowMetaEnchantedBook extends GlowMetaItem implements EnchantmentSt
     @Override
     public Map<Enchantment, Integer> getStoredEnchants() {
         return hasStoredEnchants() ? Collections.unmodifiableMap(storedEnchants)
-                : Collections.emptyMap();
+            : Collections.emptyMap();
     }
 
     @Override
@@ -101,7 +102,7 @@ public class GlowMetaEnchantedBook extends GlowMetaItem implements EnchantmentSt
         }
 
         if (ignoreLevelRestriction || level >= ench.getStartLevel() && level <= ench
-                .getMaxLevel()) {
+            .getMaxLevel()) {
             Integer old = storedEnchants.put(ench, level);
             return old == null || old != level;
         }

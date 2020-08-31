@@ -65,7 +65,7 @@ public final class GlowUnsafeValues implements UnsafeValues {
 
     @Override
     public List<String> tabCompleteInternalStatisticOrAchievementName(
-            String token, List<String> completions) {
+        String token, List<String> completions) {
         Statistic[] stats = Statistic.values();
         Achievement[] achievements = Achievement.values();
         List<String> names = new ArrayList<>(stats.length + achievements.length);

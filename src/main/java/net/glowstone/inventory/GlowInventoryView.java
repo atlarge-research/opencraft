@@ -54,7 +54,7 @@ public class GlowInventoryView extends InventoryView {
     /**
      * Create an inventory view for this player looking at a given top inventory.
      *
-     * @param player The player.
+     * @param player       The player.
      * @param topInventory The top inventory.
      */
     public GlowInventoryView(HumanEntity player, Inventory topInventory) {
@@ -69,8 +69,8 @@ public class GlowInventoryView extends InventoryView {
      */
     public static boolean isDefault(InventoryView view) {
         return view.getBottomInventory() instanceof GlowPlayerInventory
-                && view.getTopInventory() == ((GlowPlayerInventory) view.getBottomInventory())
-                .getCraftingInventory();
+            && view.getTopInventory() == ((GlowPlayerInventory) view.getBottomInventory())
+            .getCraftingInventory();
     }
 
     @Override

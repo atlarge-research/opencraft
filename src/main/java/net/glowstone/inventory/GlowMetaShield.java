@@ -17,6 +17,7 @@ public class GlowMetaShield extends GlowMetaBanner {
     /**
      * Creates an instance by copying from the given {@link ItemMeta}. If that item is another
      * {@link BannerMeta}, the banner is copied; otherwise, the new shield has no banner.
+     *
      * @param meta the {@link ItemMeta} to copy
      */
     public GlowMetaShield(ItemMeta meta) {

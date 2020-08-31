@@ -23,9 +23,10 @@ public class BlockPatch implements TerrainObject {
 
     /**
      * Creates a patch.
-     * @param type the ground cover block type
-     * @param horizRadius the maximum radius on the horizontal plane
-     * @param vertRadius the depth above and below the center
+     *
+     * @param type         the ground cover block type
+     * @param horizRadius  the maximum radius on the horizontal plane
+     * @param vertRadius   the depth above and below the center
      * @param overridables the blocks that can be replaced
      */
     public BlockPatch(Material type, int horizRadius, int vertRadius, Material... overridables) {

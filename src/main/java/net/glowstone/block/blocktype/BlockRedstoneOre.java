@@ -18,7 +18,7 @@ public class BlockRedstoneOre extends BlockRandomDrops {
 
     @Override
     public boolean blockInteract(GlowPlayer player, GlowBlock block, BlockFace face,
-        Vector clickedLoc) {
+                                 Vector clickedLoc) {
         EntityChangeBlockEvent changeBlockEvent = new EntityChangeBlockEvent(player, block,
             Material.GLOWING_REDSTONE_ORE, (byte) 0);
         EventFactory.getInstance().callEvent(changeBlockEvent);

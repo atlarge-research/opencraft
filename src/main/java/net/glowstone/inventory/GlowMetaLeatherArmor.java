@@ -13,13 +13,14 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 public class GlowMetaLeatherArmor extends GlowMetaItem implements LeatherArmorMeta {
 
     private static final Color DEFAULT_LEATHER_COLOR
-            = GlowItemFactory.instance().getDefaultLeatherColor();
+        = GlowItemFactory.instance().getDefaultLeatherColor();
     @Getter
     private Color color = GlowItemFactory.instance().getDefaultLeatherColor();
 
     /**
      * Creates an instance by copying from the given {@link ItemMeta}. If that item is another
      * {@link LeatherArmorMeta}, its color is copied; otherwise, the new item is undyed.
+     *
      * @param meta the {@link ItemMeta} to copy
      */
     public GlowMetaLeatherArmor(ItemMeta meta) {
@@ -73,7 +74,7 @@ public class GlowMetaLeatherArmor extends GlowMetaItem implements LeatherArmorMe
     void readNbt(CompoundTag tag) {
         super.readNbt(tag);
         tag.readCompound("display", display ->
-                display.readInt("color", rgb -> color = Color.fromRGB(rgb))
+            display.readInt("color", rgb -> color = Color.fromRGB(rgb))
         );
     }
 

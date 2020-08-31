@@ -21,8 +21,8 @@ public class DeadBushDecorator extends BlockDecorator {
         int sourceZ = (source.getZ() << 4) + random.nextInt(16);
         int sourceY = random.nextInt(world.getHighestBlockYAt(sourceX, sourceZ) << 1);
         while (sourceY > 0
-                && (world.getBlockAt(sourceX, sourceY, sourceZ).isEmpty()
-                || world.getBlockAt(sourceX, sourceY, sourceZ).getType() == Material.LEAVES)) {
+            && (world.getBlockAt(sourceX, sourceY, sourceZ).isEmpty()
+            || world.getBlockAt(sourceX, sourceY, sourceZ).getType() == Material.LEAVES)) {
             sourceY--;
         }
 

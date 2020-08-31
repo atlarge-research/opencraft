@@ -7,7 +7,7 @@ cache:
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
   MAVEN_CLI_OPTS: "--batch-mode"
-  
+
 workflow:
   rules:
     - if: $CI_MERGE_REQUEST_ID

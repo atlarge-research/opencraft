@@ -55,8 +55,8 @@ public class IceSpike implements TerrainObject {
                 for (int z = -radius; z <= radius; z++) {
                     float fz = -0.25F - z;
                     if ((x != 0 || z != 0) && (fx * fx + fz * fz > f * f || (
-                            (x == Math.abs(radius) || z == Math.abs(radius))
-                                    && random.nextFloat() > 0.75F))) {
+                        (x == Math.abs(radius) || z == Math.abs(radius))
+                            && random.nextFloat() > 0.75F))) {
                         continue;
                     }
                     // tip shape in top direction

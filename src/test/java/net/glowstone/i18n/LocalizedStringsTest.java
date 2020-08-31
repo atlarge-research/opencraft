@@ -34,11 +34,11 @@ public class LocalizedStringsTest {
      * GlowstoneMessages, and which GlowstoneMessages should therefore not be expected to cover.
      */
     private static final Set<String> EXEMPT_KEYS = ImmutableSet.of(
-            "glowstone.achievement.unknown",
-            "glowstone.difficulty.names",
-            "glowstone.difficulty.unknown",
-            "glowstone.gamemode.names",
-            "glowstone.gamemode.unknown");
+        "glowstone.achievement.unknown",
+        "glowstone.difficulty.names",
+        "glowstone.difficulty.unknown",
+        "glowstone.gamemode.names",
+        "glowstone.gamemode.unknown");
     private static final ResourceBundle STRINGS = ResourceBundle.getBundle("strings");
     private static final String MOCK_KEY = "foo";
     private static final String MOCK_VALUE_NO_FORMAT = "bar";
@@ -139,18 +139,18 @@ public class LocalizedStringsTest {
         final Set<String> missingRegisteredKeys = new HashSet<>();
 
         Deque<Class<?>> classesToScan = new ArrayDeque<>(Arrays.asList(
-                ConsoleMessages.class.getDeclaredClasses()));
+            ConsoleMessages.class.getDeclaredClasses()));
         classesToScan.addAll(Arrays.asList(GlowstoneMessages.class.getDeclaredClasses()));
         while (!classesToScan.isEmpty()) {
             Class<?> innerClass = classesToScan.removeFirst();
             classesToScan.addAll(Arrays.asList(innerClass.getDeclaredClasses()));
             for (Field field : innerClass.getDeclaredFields()) {
                 if (Modifier.isStatic(field.getModifiers())
-                        && Modifier.isFinal(field.getModifiers())) {
+                    && Modifier.isFinal(field.getModifiers())) {
                     Object value = field.get(null);
                     if (value instanceof LocalizedStringImpl) {
                         validateLocalizedString(bundleKeys, missingRegisteredKeys, unusedKeys,
-                                (LocalizedStringImpl) value);
+                            (LocalizedStringImpl) value);
                     } else {
                         fail("Field '" + field + "' does not contain an object of type '" + LocalizedStringImpl.class.getName() + "'.");
                     }
@@ -163,7 +163,7 @@ public class LocalizedStringsTest {
 
         assertTrue("Resource file contains unused keys: " + unusedKeys, unusedKeys.isEmpty());
         assertTrue("Nonexistent keys are being referenced: " + missingRegisteredKeys,
-                missingRegisteredKeys.isEmpty());
+            missingRegisteredKeys.isEmpty());
     }
 
     private void validateLocalizedString(Set<String> bundleKeys, Set<String> missingRegisteredKeys,

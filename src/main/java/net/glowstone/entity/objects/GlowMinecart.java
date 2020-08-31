@@ -61,7 +61,7 @@ public abstract class GlowMinecart extends GlowVehicle implements Minecart {
     /**
      * Creates a minecart.
      *
-     * @param location the location
+     * @param location     the location
      * @param minecartType the minecart type (i.e. the type of block carried, if any)
      */
     public GlowMinecart(Location location, MinecartType minecartType) {
@@ -75,7 +75,7 @@ public abstract class GlowMinecart extends GlowVehicle implements Minecart {
     /**
      * Factory method that creates a minecart.
      *
-     * @param location the location
+     * @param location     the location
      * @param minecartType the minecart type (i.e. the type of block carried, if any)
      * @return The resultant minecart
      */
@@ -86,7 +86,7 @@ public abstract class GlowMinecart extends GlowVehicle implements Minecart {
     @Override
     public List<Message> createSpawnMessage() {
         return Collections.singletonList(new SpawnObjectMessage(
-                entityId, getUniqueId(), 10, location, minecartType.ordinal()));
+            entityId, getUniqueId(), 10, location, minecartType.ordinal()));
     }
 
     @Override
@@ -98,7 +98,7 @@ public abstract class GlowMinecart extends GlowVehicle implements Minecart {
                 if (inv.getInventory() != null) {
                     for (ItemStack drop : inv.getInventory().getContents()) {
                         if (drop == null || drop.getType() == Material.AIR
-                                || drop.getAmount() < 1) {
+                            || drop.getAmount() < 1) {
                             continue;
                         }
                         GlowItem item = world.dropItemNaturally(getLocation(), drop);
@@ -117,10 +117,10 @@ public abstract class GlowMinecart extends GlowVehicle implements Minecart {
         RIDEABLE(Rideable.class, EntityType.MINECART, RideableMinecart.class, Rideable::new),
         CHEST(Storage.class, EntityType.MINECART_CHEST, StorageMinecart.class, Storage::new),
         FURNACE(Powered.class, EntityType.MINECART_FURNACE, PoweredMinecart.class, Powered
-                ::new),
+            ::new),
         TNT(Explosive.class, EntityType.MINECART_TNT, ExplosiveMinecart.class, Explosive::new),
         SPAWNER(Spawner.class, EntityType.MINECART_MOB_SPAWNER, SpawnerMinecart.class,
-                Spawner::new),
+            Spawner::new),
         HOPPER(Hopper.class, EntityType.MINECART_HOPPER, HopperMinecart.class, Hopper::new),
         COMMAND(Command.class, EntityType.MINECART_COMMAND, CommandMinecart.class, Command::new);
 
@@ -171,7 +171,7 @@ public abstract class GlowMinecart extends GlowVehicle implements Minecart {
         public Storage(Location location) {
             super(location, MinecartType.CHEST);
             inventory = new GlowInventory(this, InventoryType.CHEST,
-                    InventoryType.CHEST.getDefaultSize(), "Minecart with Chest");
+                InventoryType.CHEST.getDefaultSize(), "Minecart with Chest");
         }
 
         @Override
@@ -218,7 +218,7 @@ public abstract class GlowMinecart extends GlowVehicle implements Minecart {
         public Hopper(Location location) {
             super(location, MinecartType.HOPPER);
             inventory = new GlowInventory(this, InventoryType.HOPPER,
-                    InventoryType.HOPPER.getDefaultSize(), "Minecart with Hopper");
+                InventoryType.HOPPER.getDefaultSize(), "Minecart with Hopper");
         }
 
         @Override

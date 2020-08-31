@@ -7,7 +7,7 @@ import org.bukkit.Location;
 public abstract class GlowMonsterTest<T extends GlowMonster> extends GlowCreatureTest<T> {
 
     protected GlowMonsterTest(
-            Function<Location, ? extends T> entityCreator) {
+        Function<Location, ? extends T> entityCreator) {
         super(entityCreator);
     }
 }

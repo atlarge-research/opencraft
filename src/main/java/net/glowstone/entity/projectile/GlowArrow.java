@@ -18,7 +18,9 @@ import org.bukkit.util.Vector;
 
 public class GlowArrow extends GlowProjectile implements Arrow {
 
-    /** How many ticks an arrow lasts when stuck in a block. */
+    /**
+     * How many ticks an arrow lasts when stuck in a block.
+     */
     private static final int TICKS_TO_LIVE_ON_GROUND = 20 * 60;
     private volatile PickupStatus customPickupStatus = null;
     private final Arrow.Spigot spigot = new GlowArrow.Spigot();
@@ -51,10 +53,10 @@ public class GlowArrow extends GlowProjectile implements Arrow {
         super.pulsePhysics();
         if (!isInBlock()) {
             if (isTouchingMaterial(Material.WATER)
-                    || isTouchingMaterial(Material.STATIONARY_WATER)) {
+                || isTouchingMaterial(Material.STATIONARY_WATER)) {
                 setFireTicks(0);
             } else if (isTouchingMaterial(Material.LAVA)
-                    || isTouchingMaterial(Material.STATIONARY_LAVA)) {
+                || isTouchingMaterial(Material.STATIONARY_LAVA)) {
                 setFireTicks(Integer.MAX_VALUE);
             }
         }
@@ -105,7 +107,7 @@ public class GlowArrow extends GlowProjectile implements Arrow {
             damage += 1.0;
         }
         entity.damage(damage, shooter instanceof Entity ? (Entity) shooter : null,
-                EntityDamageEvent.DamageCause.PROJECTILE);
+            EntityDamageEvent.DamageCause.PROJECTILE);
         // Burning arrow ignites target, but doesn't stack if target is already on fire.
         if (getFireTicks() > 0 && entity.getFireTicks() < TARGET_BURN_TICKS) {
             entity.setFireTicks(TARGET_BURN_TICKS);
@@ -134,7 +136,7 @@ public class GlowArrow extends GlowProjectile implements Arrow {
     public PickupStatus getPickupStatus() {
         PickupStatus customPickupStatus = this.customPickupStatus;
         return customPickupStatus != null ? customPickupStatus :
-                getShooter() instanceof Monster ? PickupStatus.DISALLOWED :
+            getShooter() instanceof Monster ? PickupStatus.DISALLOWED :
                 PickupStatus.ALLOWED;
     }
 

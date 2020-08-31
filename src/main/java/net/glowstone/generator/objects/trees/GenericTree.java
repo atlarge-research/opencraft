@@ -13,7 +13,9 @@ import org.bukkit.block.BlockState;
 import org.bukkit.material.Dirt;
 import org.bukkit.material.types.DirtType;
 
-/** Oak tree, and superclass for other types. */
+/**
+ * Oak tree, and superclass for other types.
+ */
 public class GenericTree implements TerrainObject {
 
     protected final BlockStateDelegate delegate;
@@ -25,7 +27,7 @@ public class GenericTree implements TerrainObject {
     /**
      * Initializes this tree with a random height, preparing it to attempt to generate.
      *
-     * @param random the PRNG
+     * @param random   the PRNG
      * @param delegate the BlockStateDelegate used to check for space and to fill in wood and leaves
      */
     public GenericTree(Random random, BlockStateDelegate delegate) {
@@ -55,7 +57,7 @@ public class GenericTree implements TerrainObject {
     /**
      * Sets the block data values for this tree's blocks.
      *
-     * @param logType the species portion of the data value for wood blocks.
+     * @param logType    the species portion of the data value for wood blocks.
      * @param leavesType the species portion of the data value for leaf blocks.
      */
     protected final void setTypes(int logType, int leavesType) {
@@ -65,8 +67,8 @@ public class GenericTree implements TerrainObject {
 
     /**
      * Checks whether this tree fits under the upper world limit.
-     * @param baseHeight the height of the base of the trunk
      *
+     * @param baseHeight the height of the base of the trunk
      * @return true if this tree can grow without exceeding block height 255; false otherwise.
      */
     public boolean canHeightFit(int baseHeight) {
@@ -75,6 +77,7 @@ public class GenericTree implements TerrainObject {
 
     /**
      * Checks whether this tree can grow on top of the given block.
+     *
      * @param soil the block we're growing on
      * @return true if this tree can grow on the type of block below it; false otherwise
      */
@@ -130,7 +133,7 @@ public class GenericTree implements TerrainObject {
     @Deprecated
     public boolean generate(Location loc) {
         return generate(loc.getWorld(), ThreadLocalRandom.current(),
-                loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+            loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
     }
 
     @Override
@@ -157,7 +160,7 @@ public class GenericTree implements TerrainObject {
         // generate the trunk
         for (int y = 0; y < height; y++) {
             replaceIfAirOrLeaves(blockX,
-                    blockY + y, blockZ, Material.LOG, logType, world);
+                blockY + y, blockZ, Material.LOG, logType, world);
         }
 
         // block below trunk is always dirt
@@ -180,24 +183,24 @@ public class GenericTree implements TerrainObject {
      * @return true if any of the checks prevent us from generating, false otherwise
      */
     protected boolean cannotGenerateAt(int baseX, int baseY, int baseZ,
-            World world) {
+                                       World world) {
         return !canHeightFit(baseY)
-                || !canPlaceOn(world.getBlockAt(baseX, baseY - 1, baseZ).getState())
-                || !canPlace(baseX, baseY, baseZ, world);
+            || !canPlaceOn(world.getBlockAt(baseX, baseY - 1, baseZ).getState())
+            || !canPlace(baseX, baseY, baseZ, world);
     }
 
     /**
      * Replaces the block at a location with the given new one, if it is air or leaves.
      *
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @param z the z coordinate
+     * @param x           the x coordinate
+     * @param y           the y coordinate
+     * @param z           the z coordinate
      * @param newMaterial the new block type
-     * @param data the new block data
-     * @param world the world we are generating in
+     * @param data        the new block data
+     * @param world       the world we are generating in
      */
     protected void replaceIfAirOrLeaves(int x, int y, int z, Material newMaterial, int data,
-            World world) {
+                                        World world) {
         Material oldMaterial = blockTypeAt(x, y, z, world);
         if (oldMaterial == Material.AIR || oldMaterial == Material.LEAVES) {
             delegate.setTypeAndRawData(world, x, y, z, newMaterial, data);
@@ -206,9 +209,10 @@ public class GenericTree implements TerrainObject {
 
     /**
      * Returns the block type at the given coordinates.
-     * @param x the x coordinate
-     * @param y the y coordinate
-     * @param z the z coordinate
+     *
+     * @param x     the x coordinate
+     * @param y     the y coordinate
+     * @param z     the z coordinate
      * @param world the world we are generating in
      * @return the block type
      */

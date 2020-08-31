@@ -17,7 +17,7 @@ public final class CraftingBookDataMessage implements Message {
     /**
      * Creates a message about the given recipe.
      *
-     * @param type {@link #TYPE_DISPLAYED_RECIPE} or {@link #TYPE_STATUS}
+     * @param type     {@link #TYPE_DISPLAYED_RECIPE} or {@link #TYPE_STATUS}
      * @param recipeId the ID of a crafting recipe
      */
     public CraftingBookDataMessage(int type, int recipeId) {
@@ -30,9 +30,9 @@ public final class CraftingBookDataMessage implements Message {
     /**
      * Creates a message about the whole crafting book.
      *
-     * @param type {@link #TYPE_DISPLAYED_RECIPE} or {@link #TYPE_STATUS}
+     * @param type     {@link #TYPE_DISPLAYED_RECIPE} or {@link #TYPE_STATUS}
      * @param bookOpen TODO: document this parameter
-     * @param filter TODO: document this parameter
+     * @param filter   TODO: document this parameter
      */
     public CraftingBookDataMessage(int type, boolean bookOpen, boolean filter) {
         this.type = type;

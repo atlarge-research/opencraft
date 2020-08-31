@@ -8,8 +8,8 @@ public class WhittakerMapLayer extends MapLayer {
     private static final Map<ClimateType, Climate> MAP = new EnumMap<>(ClimateType.class);
 
     static {
-        MAP.put(ClimateType.WARM_WET, new Climate(2, new int[]{3, 1}, 4));
-        MAP.put(ClimateType.COLD_DRY, new Climate(3, new int[]{2, 4}, 1));
+        MAP.put(ClimateType.WARM_WET, new Climate(2, new int[] {3, 1}, 4));
+        MAP.put(ClimateType.COLD_DRY, new Climate(3, new int[] {2, 4}, 1));
     }
 
     private final MapLayer belowLayer;
@@ -18,9 +18,9 @@ public class WhittakerMapLayer extends MapLayer {
     /**
      * Creates a map layer. TODO: improve documentation
      *
-     * @param seed the layer random seed
+     * @param seed       the layer random seed
      * @param belowLayer the layer generated before this one
-     * @param type the climate-type parameter
+     * @param type       the climate-type parameter
      */
     public WhittakerMapLayer(long seed, MapLayer belowLayer, ClimateType type) {
         super(seed);

@@ -119,8 +119,8 @@ public class NbtScoreboardIoReader {
         data.readBoolean("AllowFriendlyFire", team::setAllowFriendlyFire);
         data.readBoolean("SeeFriendlyInvisibles", team::setCanSeeFriendlyInvisibles);
         data.readString("NameTagVisibility", nameTagVisibility -> team.setOption(
-                Team.Option.NAME_TAG_VISIBILITY,
-                Team.OptionStatus.valueOf(nameTagVisibility.toUpperCase())));
+            Team.Option.NAME_TAG_VISIBILITY,
+            Team.OptionStatus.valueOf(nameTagVisibility.toUpperCase())));
         team.setOption(Team.Option.DEATH_MESSAGE_VISIBILITY, deathMessageVisibility);
         team.setOption(Team.Option.COLLISION_RULE, collisionRule);
         if (teamColor != null) {

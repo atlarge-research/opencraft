@@ -20,15 +20,15 @@ class VillagerStore extends AgeableStore<GlowVillager> {
     public void load(GlowVillager entity, CompoundTag compound) {
         super.load(entity, compound);
         compound.tryGetInt("Profession")
-                .filter(GlowVillager::isValidProfession)
-                .map(GlowVillager::getProfessionById)
-                .ifPresent(entity::setProfession);
+            .filter(GlowVillager::isValidProfession)
+            .map(GlowVillager::getProfessionById)
+            .ifPresent(entity::setProfession);
         compound.tryGetInt("Career")
-                .map(id -> GlowVillager.getCareerById(id, entity.getProfession()))
-                .ifPresent(career -> {
-                    entity.setCareer(career);
-                    entity.setCareerLevel(compound.tryGetInt("CareerLevel").orElse(1));
-                });
+            .map(id -> GlowVillager.getCareerById(id, entity.getProfession()))
+            .ifPresent(career -> {
+                entity.setCareer(career);
+                entity.setCareerLevel(compound.tryGetInt("CareerLevel").orElse(1));
+            });
         compound.readInt("Riches", entity::setRiches);
         compound.readBoolean("Willing", entity::setWilling);
         // Recipes
@@ -45,7 +45,7 @@ class VillagerStore extends AgeableStore<GlowVillager> {
                         int uses = recipeTag.getInt("uses");
                         int maxUses = recipeTag.getInt("maxUses");
                         MerchantRecipe recipe = new MerchantRecipe(sell, uses, maxUses,
-                                experienceReward);
+                            experienceReward);
                         recipe.setIngredients(ingredients);
                         recipes.add(recipe);
                     });

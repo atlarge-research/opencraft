@@ -37,15 +37,15 @@ public class OreType {
      * 0 to {@code minY}*2, with greatest density around {@code minY}. Otherwise, density is uniform
      * over the height range.
      *
-     * @param type the block type
-     * @param data the block data value
-     * @param minY the minimum height
-     * @param maxY the maximum height
-     * @param amount the size of a vein
+     * @param type       the block type
+     * @param data       the block data value
+     * @param minY       the minimum height
+     * @param maxY       the maximum height
+     * @param amount     the size of a vein
      * @param targetType the block this can replace
      */
     public OreType(Material type, MaterialData data, int minY, int maxY, int amount,
-        Material targetType) {
+                   Material targetType) {
         this.type = type;
         this.data = data;
         this.minY = minY;
@@ -62,7 +62,7 @@ public class OreType {
      */
     public int getRandomHeight(Random random) {
         return getMinY() == getMaxY()
-                ? random.nextInt(getMinY()) + random.nextInt(getMinY())
-                : random.nextInt(getMaxY() - getMinY()) + getMinY();
+            ? random.nextInt(getMinY()) + random.nextInt(getMinY())
+            : random.nextInt(getMaxY() - getMinY()) + getMinY();
     }
 }

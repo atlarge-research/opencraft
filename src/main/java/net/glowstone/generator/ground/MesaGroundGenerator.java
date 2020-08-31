@@ -13,7 +13,7 @@ public class MesaGroundGenerator extends GroundGenerator {
 
     protected static final MaterialData RED_SAND = new MaterialData(Material.SAND, (byte) 1);
     protected static final MaterialData ORANGE_STAINED_CLAY = new MaterialData(
-            Material.STAINED_CLAY, (byte) 1);
+        Material.STAINED_CLAY, (byte) 1);
 
     private final MesaType type;
     private final int[] colorLayer = new int[64];
@@ -41,7 +41,7 @@ public class MesaGroundGenerator extends GroundGenerator {
 
     private void initialize(long seed) {
         if (seed != this.seed || colorNoise == null || canyonScaleNoise == null
-                || canyonHeightNoise == null) {
+            || canyonHeightNoise == null) {
             Random random = new Random(seed);
             colorNoise = new SimplexOctaveGenerator(random, 1);
             colorNoise.setScale(1 / 512.0D);
@@ -57,13 +57,13 @@ public class MesaGroundGenerator extends GroundGenerator {
 
     @Override
     public void generateTerrainColumn(
-            ChunkData chunkData,
-            World world,
-            Random random,
-            int x,
-            int z,
-            Biome biome,
-            double surfaceNoise
+        ChunkData chunkData,
+        World world,
+        Random random,
+        int x,
+        int z,
+        Biome biome,
+        double surfaceNoise
     ) {
         initialize(world.getSeed());
 
@@ -78,8 +78,8 @@ public class MesaGroundGenerator extends GroundGenerator {
             int noiseX = (x & 0xFFFFFFF0) + (z & 0xF);
             int noiseZ = (z & 0xFFFFFFF0) + (x & 0xF);
             double noiseCanyonHeight = Math.min(
-                    Math.abs(surfaceNoise),
-                    canyonHeightNoise.noise(noiseX, noiseZ, 0.5D, 2.0D)
+                Math.abs(surfaceNoise),
+                canyonHeightNoise.noise(noiseX, noiseZ, 0.5D, 2.0D)
             );
             if (noiseCanyonHeight > 0) {
                 double heightScale = Math.abs(canyonScaleNoise.noise(noiseX, noiseZ, 0.5D, 2.0D));

@@ -7,7 +7,7 @@ import org.bukkit.Location;
 public abstract class GlowProjectileTest<T extends GlowProjectile> extends GlowEntityTest<T> {
 
     protected GlowProjectileTest(
-            Function<? super Location, ? extends T> entityCreator) {
+        Function<? super Location, ? extends T> entityCreator) {
         super(entityCreator);
     }
 }

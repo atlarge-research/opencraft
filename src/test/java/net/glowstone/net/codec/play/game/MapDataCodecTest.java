@@ -16,6 +16,6 @@ public class MapDataCodecTest extends CodecTest<MapDataMessage> {
     @Override
     protected MapDataMessage createMessage() {
         List<MapDataMessage.Icon> icons = new ArrayList<>();
-        return new MapDataMessage(1, 2, icons, new MapDataMessage.Section(1, 2, 3, 4, new byte[]{ 1, 2 }));
+        return new MapDataMessage(1, 2, icons, new MapDataMessage.Section(1, 2, 3, 4, new byte[] {1, 2}));
     }
 }

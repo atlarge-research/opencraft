@@ -31,19 +31,19 @@ public final class FeedbackFilter implements Filter<Player, Message> {
      */
     public FeedbackFilter() {
         getters = new ClassToGetterMapBuilder<Message, Integer>()
-                .put(BlockBreakAnimationMessage.class, BlockBreakAnimationMessage::getId)
-                .put(EntityTeleportMessage.class, EntityTeleportMessage::getId)
-                .put(RelativeEntityPositionRotationMessage.class, RelativeEntityPositionRotationMessage::getId)
-                .put(EntityRotationMessage.class, EntityRotationMessage::getId)
-                .put(RelativeEntityPositionMessage.class, RelativeEntityPositionMessage::getId)
-                .put(EntityMetadataMessage.class, EntityMetadataMessage::getId)
-                .put(EntityEquipmentMessage.class, EntityEquipmentMessage::getId)
-                .put(EntityHeadRotationMessage.class, EntityHeadRotationMessage::getId)
-                .put(SpawnPlayerMessage.class, SpawnPlayerMessage::getId)
-                .put(UseBedMessage.class, UseBedMessage::getId)
-                .put(EntityVelocityMessage.class, EntityVelocityMessage::getId)
-                .put(SetPassengerMessage.class, SetPassengerMessage::getEntityId)
-                .build();
+            .put(BlockBreakAnimationMessage.class, BlockBreakAnimationMessage::getId)
+            .put(EntityTeleportMessage.class, EntityTeleportMessage::getId)
+            .put(RelativeEntityPositionRotationMessage.class, RelativeEntityPositionRotationMessage::getId)
+            .put(EntityRotationMessage.class, EntityRotationMessage::getId)
+            .put(RelativeEntityPositionMessage.class, RelativeEntityPositionMessage::getId)
+            .put(EntityMetadataMessage.class, EntityMetadataMessage::getId)
+            .put(EntityEquipmentMessage.class, EntityEquipmentMessage::getId)
+            .put(EntityHeadRotationMessage.class, EntityHeadRotationMessage::getId)
+            .put(SpawnPlayerMessage.class, SpawnPlayerMessage::getId)
+            .put(UseBedMessage.class, UseBedMessage::getId)
+            .put(EntityVelocityMessage.class, EntityVelocityMessage::getId)
+            .put(SetPassengerMessage.class, SetPassengerMessage::getEntityId)
+            .build();
     }
 
     @Override

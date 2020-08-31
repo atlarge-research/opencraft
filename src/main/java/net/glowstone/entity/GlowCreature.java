@@ -34,8 +34,8 @@ public class GlowCreature extends GlowLivingEntity implements Creature {
     /**
      * Creates a new monster.
      *
-     * @param location The location of the monster.
-     * @param type The type of monster.
+     * @param location  The location of the monster.
+     * @param type      The type of monster.
      * @param maxHealth The max health of the monster.
      */
     public GlowCreature(Location location, EntityType type, double maxHealth) {
@@ -49,7 +49,7 @@ public class GlowCreature extends GlowLivingEntity implements Creature {
 
         // spawn mob
         result.add(new SpawnMobMessage(
-                entityId, getUniqueId(), type.getTypeId(), location, metadata.getEntryList()));
+            entityId, getUniqueId(), type.getTypeId(), location, metadata.getEntryList()));
 
         // head facing
         result.add(new EntityHeadRotationMessage(entityId, Position.getIntYaw(location)));

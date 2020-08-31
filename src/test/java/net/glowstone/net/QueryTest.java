@@ -130,7 +130,7 @@ public class QueryTest {
     }
 
     @Test
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings( {"unchecked", "rawtypes"})
     public void testBasicStats() throws Exception {
         World world = mock(World.class);
         when(world.getName()).thenReturn("world");

@@ -29,7 +29,7 @@ public class Flower implements TerrainObject {
 
             Block block = world.getBlockAt(x, y, z);
             if (y < 255 && block.getType() == Material.AIR
-                    && block.getRelative(BlockFace.DOWN).getType() == Material.GRASS) {
+                && block.getRelative(BlockFace.DOWN).getType() == Material.GRASS) {
                 block.setType(type);
                 block.setData((byte) data);
                 succeeded = true;

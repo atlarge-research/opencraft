@@ -25,8 +25,8 @@ public class AttributeManagerTest {
         public void requireKeysForAttributes() {
             Set<Attribute> attributes = EnumSet.copyOf(Arrays.asList(Attribute.values()));
             Set<Attribute> implementedAttributes = Arrays.stream(AttributeManager.Key.values())
-                    .map(AttributeManager.Key::getAttribute)
-                    .collect(() -> EnumSet.noneOf(Attribute.class), AbstractCollection::add, AbstractCollection::addAll);
+                .map(AttributeManager.Key::getAttribute)
+                .collect(() -> EnumSet.noneOf(Attribute.class), AbstractCollection::add, AbstractCollection::addAll);
 
             attributes.removeAll(implementedAttributes);
 
@@ -61,20 +61,20 @@ public class AttributeManagerTest {
             assertEquals("prerequirement", def, property.getValue(), DELTA);
 
             property.addModifier(new AttributeModifier(
-                    UUID.randomUUID(), "random name 01",
-                    15, AttributeModifier.Operation.ADD_NUMBER));
+                UUID.randomUUID(), "random name 01",
+                15, AttributeModifier.Operation.ADD_NUMBER));
 
             assertEquals(def + 15, property.getValue(), DELTA);
 
             property.addModifier(new AttributeModifier(
-                    UUID.randomUUID(), "random name 02",
-                    20, AttributeModifier.Operation.ADD_NUMBER));
+                UUID.randomUUID(), "random name 02",
+                20, AttributeModifier.Operation.ADD_NUMBER));
 
             assertEquals(def + 15 + 20, property.getValue(), DELTA);
 
             property.addModifier(new AttributeModifier(
-                    UUID.randomUUID(), "random name 03",
-                    -32, AttributeModifier.Operation.ADD_NUMBER));
+                UUID.randomUUID(), "random name 03",
+                -32, AttributeModifier.Operation.ADD_NUMBER));
 
             assertEquals(def + 15 + 20 - 32, property.getValue(), DELTA);
         }
@@ -87,20 +87,20 @@ public class AttributeManagerTest {
             assertEquals("prerequirement", def, property.getValue(), DELTA);
 
             property.addModifier(new AttributeModifier(
-                    UUID.randomUUID(), "random name 01",
-                    2, AttributeModifier.Operation.ADD_SCALAR));
+                UUID.randomUUID(), "random name 01",
+                2, AttributeModifier.Operation.ADD_SCALAR));
 
             assertEquals(def * (1 + 2), property.getValue(), DELTA);
 
             property.addModifier(new AttributeModifier(
-                    UUID.randomUUID(), "random name 02",
-                    3, AttributeModifier.Operation.ADD_SCALAR));
+                UUID.randomUUID(), "random name 02",
+                3, AttributeModifier.Operation.ADD_SCALAR));
 
             assertEquals(def * (1 + 2 + 3), property.getValue(), DELTA);
 
             property.addModifier(new AttributeModifier(
-                    UUID.randomUUID(), "random name 03",
-                    -9, AttributeModifier.Operation.ADD_SCALAR));
+                UUID.randomUUID(), "random name 03",
+                -9, AttributeModifier.Operation.ADD_SCALAR));
 
             assertEquals(def * (1 + 2 + 3 - 9), property.getValue(), DELTA);
         }
@@ -113,20 +113,20 @@ public class AttributeManagerTest {
             assertEquals("prerequirement", def, property.getValue(), DELTA);
 
             property.addModifier(new AttributeModifier(
-                    UUID.randomUUID(), "random name 01",
-                    2, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+                UUID.randomUUID(), "random name 01",
+                2, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
 
             assertEquals(def * (1 + 2), property.getValue(), DELTA);
 
             property.addModifier(new AttributeModifier(
-                    UUID.randomUUID(), "random name 02",
-                    3, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+                UUID.randomUUID(), "random name 02",
+                3, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
 
             assertEquals(def * (1 + 2) * (1 + 3), property.getValue(), DELTA);
 
             property.addModifier(new AttributeModifier(
-                    UUID.randomUUID(), "random name 03",
-                    -9, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
+                UUID.randomUUID(), "random name 03",
+                -9, AttributeModifier.Operation.MULTIPLY_SCALAR_1));
 
             assertEquals(def * (1 + 2) * (1 + 3) * (1 - 9), property.getValue(), DELTA);
         }
@@ -136,8 +136,8 @@ public class AttributeManagerTest {
             AttributeManager.Property property = defaultProperty(AttributeManager.Key.KEY_LUCK);
 
             property.addModifier(new AttributeModifier(
-                    UUID.randomUUID(), "random name",
-                    -10000, AttributeModifier.Operation.ADD_NUMBER));
+                UUID.randomUUID(), "random name",
+                -10000, AttributeModifier.Operation.ADD_NUMBER));
 
             assertEquals(AttributeManager.Key.KEY_LUCK.getMin(), property.getValue(), DELTA);
         }
@@ -147,8 +147,8 @@ public class AttributeManagerTest {
             AttributeManager.Property property = defaultProperty(AttributeManager.Key.KEY_LUCK);
 
             property.addModifier(new AttributeModifier(
-                    UUID.randomUUID(), "random name",
-                    100000, AttributeModifier.Operation.ADD_NUMBER));
+                UUID.randomUUID(), "random name",
+                100000, AttributeModifier.Operation.ADD_NUMBER));
 
             assertEquals(AttributeManager.Key.KEY_LUCK.getMax(), property.getValue(), DELTA);
         }

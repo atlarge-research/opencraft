@@ -18,14 +18,15 @@ public class CommandFunction {
 
     /**
      * Reads a function from a file.
+     *
      * @param namespace the function namespace
-     * @param name the function name
-     * @param file the file to read from
+     * @param name      the function name
+     * @param file      the file to read from
      * @return an instance to handle {@code /function namespace:name}
      * @throws IOException if the file can't be read
      */
     public static CommandFunction read(String namespace, String name, File file)
-            throws IOException {
+        throws IOException {
         List<FunctionLine> lines = new ArrayList<>();
         Scanner scanner = new Scanner(file);
         while (scanner.hasNextLine()) {
@@ -44,6 +45,7 @@ public class CommandFunction {
 
     /**
      * Calls the function.
+     *
      * @param sender the caller
      */
     public void execute(CommandSender sender) {
@@ -55,7 +57,7 @@ public class CommandFunction {
             }
         }
         sender.sendMessage(
-                "Executed " + count + " command(s) from function '" + getFullName() + "'");
+            "Executed " + count + " command(s) from function '" + getFullName() + "'");
     }
 
     @Override
@@ -71,6 +73,7 @@ public class CommandFunction {
 
         /**
          * Converts a line of code to a FunctionLine.
+         *
          * @param line a line from a function file
          * @return the line as a FunctionLine
          */
@@ -89,6 +92,7 @@ public class CommandFunction {
 
         /**
          * Executes the command on this line.
+         *
          * @param sender the function caller
          */
         public void execute(CommandSender sender) {

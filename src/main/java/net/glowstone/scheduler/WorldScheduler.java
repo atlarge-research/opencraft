@@ -178,7 +178,7 @@ public class WorldScheduler {
                     tickBegin.arriveAndAwaitAdvance();
                     if (ServerConfig.Key.OPENCRAFT_COLLECTOR.equals(true)) {
                         YSCollector.start("world_" + world.getName() + "_tick",
-                                "World thread: Duration processing tick.");
+                            "World thread: Duration processing tick.");
                     }
                     try {
                         world.pulse();

@@ -36,10 +36,10 @@ public class TreeDecorator extends BlockDecorator {
         int sourceX = (source.getX() << 4) + random.nextInt(16);
         int sourceZ = (source.getZ() << 4) + random.nextInt(16);
         Block sourceBlock = world
-                .getBlockAt(sourceX, world.getHighestBlockYAt(sourceX, sourceZ), sourceZ);
+            .getBlockAt(sourceX, world.getHighestBlockYAt(sourceX, sourceZ), sourceZ);
 
         BiFunction<Random, BlockStateDelegate, ? extends GenericTree> ctor
-                = getRandomTree(random, trees);
+            = getRandomTree(random, trees);
         if (ctor != null) {
             BlockStateDelegate delegate = new BlockStateDelegate();
             GenericTree tree;
@@ -55,7 +55,7 @@ public class TreeDecorator extends BlockDecorator {
     }
 
     private BiFunction<Random, BlockStateDelegate, ? extends GenericTree>
-            getRandomTree(Random random, List<TreeDecoration> decorations) {
+    getRandomTree(Random random, List<TreeDecoration> decorations) {
         int totalWeight = 0;
         for (TreeDecoration decoration : decorations) {
             totalWeight += decoration.getWeight();

@@ -26,7 +26,7 @@ public class BlockBoundingBoxesTest {
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        when(block.getLocation()).thenReturn(new Location(null,0,0,0));
+        when(block.getLocation()).thenReturn(new Location(null, 0, 0, 0));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class BlockBoundingBoxesTest {
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
         assertTrue(Vectors.equals(box.minCorner, new Vector(0, 0, 0)));
-        assertTrue(Vectors.equals(box.maxCorner, new Vector(1, 2.0/7.0, 1)));
+        assertTrue(Vectors.equals(box.maxCorner, new Vector(1, 2.0 / 7.0, 1)));
     }
 
     @Test
@@ -80,7 +80,7 @@ public class BlockBoundingBoxesTest {
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
         assertTrue(Vectors.equals(box.minCorner, new Vector(0, 0, 0)));
-        assertTrue(Vectors.equals(box.maxCorner, new Vector(1, 3.0/4.0, 1)));
+        assertTrue(Vectors.equals(box.maxCorner, new Vector(1, 3.0 / 4.0, 1)));
     }
 
     @Test

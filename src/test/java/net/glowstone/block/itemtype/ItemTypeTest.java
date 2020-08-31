@@ -26,6 +26,7 @@ public abstract class ItemTypeTest {
     /**
      * Override this to work around https://github.com/mockito/mockito/issues/357 by removing
      * RETURNS_SMART_NULLS.
+     *
      * @return a mock GlowPlayer
      */
     protected GlowPlayer mockPlayer() {

@@ -63,16 +63,17 @@ public class GameServerTest {
     static {
         try {
             LOCALHOST_IPV4 = new InetSocketAddress(
-                        InetAddress.getByAddress(new byte[]{127,0,0,1}), ServerConfig.DEFAULT_PORT);
+                InetAddress.getByAddress(new byte[] {127, 0, 0, 1}), ServerConfig.DEFAULT_PORT);
             LOCALHOST_IPV6 = new InetSocketAddress(
-                    InetAddress.getByAddress(new byte[]{0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1}),
-                    ServerConfig.DEFAULT_PORT);
+                InetAddress.getByAddress(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}),
+                ServerConfig.DEFAULT_PORT);
         } catch (UnknownHostException e) {
             throw new AssertionError(e);
         }
     }
 
-    @Mock private GlowServer glowServer;
+    @Mock
+    private GlowServer glowServer;
     private Logger logger;
     private Logger unspiedLogger;
     private GameServer gameServer;
@@ -125,7 +126,7 @@ public class GameServerTest {
         }
         assertEquals(1, matches, () -> {
             return "Actual log entries:\n"
-                    + logRecords.stream().map(LOG_FORMATTER::format).collect(Collectors.joining("\n"));
+                + logRecords.stream().map(LOG_FORMATTER::format).collect(Collectors.joining("\n"));
         });
     }
 }

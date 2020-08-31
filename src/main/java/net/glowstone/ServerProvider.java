@@ -20,6 +20,7 @@ public final class ServerProvider {
 
     /**
      * Returns the current GlowServer instance.
+     *
      * @return the GlowServer instance
      */
     public static Server getServer() {

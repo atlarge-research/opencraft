@@ -25,7 +25,7 @@ public final class StructureStorage {
      * stored.
      */
     private static final Map<Class<? extends GlowStructure>, StructureStore<?>> classTable
-            = new HashMap<>();
+        = new HashMap<>();
 
     /*
      * Populates the maps with stores.
@@ -44,7 +44,7 @@ public final class StructureStorage {
      * Binds a store by adding entries for it to the tables.
      *
      * @param store The store object.
-     * @param <T> The type of structure.
+     * @param <T>   The type of structure.
      */
     private static <T extends GlowStructure> void bind(StructureStore<T> store) {
         idTable.put(store.getId(), store);
@@ -63,7 +63,7 @@ public final class StructureStorage {
     /**
      * Load a structure in the given world from the given data tag.
      *
-     * @param world The target world.
+     * @param world    The target world.
      * @param compound The tag to load from.
      * @return The newly constructed structure.
      * @throws IllegalArgumentException if there is an error in the data.
@@ -76,7 +76,7 @@ public final class StructureStorage {
         StructureStore<?> store = idTable.get(compound.getString("id"));
         if (store == null) {
             throw new IllegalArgumentException(
-                    "Unknown structure type: \"" + compound.getString("id") + "\"");
+                "Unknown structure type: \"" + compound.getString("id") + "\"");
         }
 
         final int[] x = {0};
@@ -90,16 +90,16 @@ public final class StructureStorage {
      * Save a structure data to the given compound tag.
      *
      * @param structure The structure to save.
-     * @param compound The target tag.
+     * @param compound  The target tag.
      * @return The structure store for the saved structure.
      */
     public static StructureStore<GlowStructure> saveStructure(GlowStructure structure,
-            CompoundTag compound) {
+                                                              CompoundTag compound) {
         // look up the store for the structure
         StructureStore<?> store = classTable.get(structure.getClass());
         if (store == null) {
             throw new IllegalArgumentException(
-                    "Unknown structure type to save: \"" + structure.getClass() + "\"");
+                "Unknown structure type to save: \"" + structure.getClass() + "\"");
         }
 
         compound.putString("id", store.getId());
@@ -116,7 +116,7 @@ public final class StructureStorage {
      * Helper method to call StructureStore methods for type safety.
      */
     private static <T extends GlowStructure> T createStructure(GlowWorld world, int chunkX,
-            int chunkZ, StructureStore<T> store, CompoundTag compound) {
+                                                               int chunkZ, StructureStore<T> store, CompoundTag compound) {
         T structure = store.createStructure(world, chunkX, chunkZ);
         store.load(structure, compound);
         return structure;

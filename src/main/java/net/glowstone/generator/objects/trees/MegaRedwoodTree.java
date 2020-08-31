@@ -10,7 +10,8 @@ public class MegaRedwoodTree extends MegaJungleTree {
 
     /**
      * Initializes this tree with a random height, preparing it to attempt to generate.
-     *  @param random the PRNG
+     *
+     * @param random   the PRNG
      * @param delegate the BlockStateDelegate used to check for space and to fill wood and leaf
      */
     public MegaRedwoodTree(Random random, BlockStateDelegate delegate) {
@@ -53,7 +54,7 @@ public class MegaRedwoodTree extends MegaJungleTree {
 
     @Override
     protected void generateDirtBelowTrunk(World world, int blockX, int blockY,
-            int blockZ) {
+                                          int blockZ) {
         // mega redwood tree does not replaces blocks below (surely to preserves podzol)
     }
 }

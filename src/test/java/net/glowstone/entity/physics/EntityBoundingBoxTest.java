@@ -25,10 +25,10 @@ public class EntityBoundingBoxTest {
         @Override
         public Stream<? extends Arguments> provideArguments(ExtensionContext context) {
             return Stream.of(
-                    Arguments.of(BoundingBox.fromCorners(new Vector(0, 0, 0), new Vector(1, 1, 1))),
-                    Arguments.of(BoundingBox.fromCorners(new Vector(-1, -1, -1), new Vector(1, 1, 1))),
-                    Arguments.of(BoundingBox.fromCorners(new Vector(-0.5, -0.5, -0.5),
-                            new Vector(0.5, 0.5, 0.5)))
+                Arguments.of(BoundingBox.fromCorners(new Vector(0, 0, 0), new Vector(1, 1, 1))),
+                Arguments.of(BoundingBox.fromCorners(new Vector(-1, -1, -1), new Vector(1, 1, 1))),
+                Arguments.of(BoundingBox.fromCorners(new Vector(-0.5, -0.5, -0.5),
+                    new Vector(0.5, 0.5, 0.5)))
             );
         }
     }
@@ -130,10 +130,10 @@ public class EntityBoundingBoxTest {
     }
 
     @Test
-    public void bigEntityGroundCollisionTest(){
-        
+    public void bigEntityGroundCollisionTest() {
+
         EntityBoundingBox spiderBox = new EntityBoundingBox(1.4, 0.9);
-        spiderBox.setCenter(0.5,1,0.5);
+        spiderBox.setCenter(0.5, 1, 0.5);
 
         Vector velocity = new Vector(0, -1, 0);
         BoundingBox block1 = BoundingBox.fromCorners(new Vector(1, 1, 1), new Vector(0, 0, 0));
@@ -144,7 +144,7 @@ public class EntityBoundingBoxTest {
     }
 
     @Test
-    public void createCopyAtTest(){
+    public void createCopyAtTest() {
         Location loc = mock(Location.class);
         when(loc.getX()).thenReturn(0.0);
         when(loc.getY()).thenReturn(0.0);
@@ -153,7 +153,7 @@ public class EntityBoundingBoxTest {
     }
 
     @Test
-    public void getSizeTest(){
+    public void getSizeTest() {
         assertTrue(Vectors.equals(box.getSize(), new Vector(1.0, 1.0, 1.0)));
     }
 

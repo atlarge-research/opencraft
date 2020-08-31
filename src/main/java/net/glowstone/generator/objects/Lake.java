@@ -58,8 +58,8 @@ public class Lake implements TerrainObject {
         }
 
         Biome biome = world
-                .getBiome(
-                        sourceX + 8 + (int) MAX_DIAMETER / 2, sourceZ + 8 + (int) MAX_DIAMETER / 2);
+            .getBiome(
+                sourceX + 8 + (int) MAX_DIAMETER / 2, sourceZ + 8 + (int) MAX_DIAMETER / 2);
         boolean mycelBiome = Arrays.asList(MYCEL_BIOMES).contains(biome);
 
         for (int x = 0; x < (int) MAX_DIAMETER; x++) {
@@ -74,10 +74,10 @@ public class Lake implements TerrainObject {
                     Material blockType = block.getType();
                     Material blockAboveType = blockAbove.getType();
                     if (blockType == Material.DIRT
-                                    && (blockAboveType == Material.LOG
-                                    || blockAboveType == Material.LOG_2)
-                            || blockType == Material.LOG
-                            || blockType == Material.LOG_2) {
+                        && (blockAboveType == Material.LOG
+                        || blockAboveType == Material.LOG_2)
+                        || blockType == Material.LOG
+                        || blockType == Material.LOG_2) {
                         continue;
                     }
                     if (y >= (int) MAX_HEIGHT / 2) {
@@ -86,14 +86,14 @@ public class Lake implements TerrainObject {
                             break;
                         }
                         if (this.type == Material.STATIONARY_WATER && (
-                                blockType == Material.ICE
-                                        || blockType == Material.PACKED_ICE)) {
+                            blockType == Material.ICE
+                                || blockType == Material.PACKED_ICE)) {
                             type = blockType;
                         }
                     } else if (y == MAX_HEIGHT / 2 - 1) {
                         if (type == Material.STATIONARY_WATER && GlowBiomeClimate
-                                .isCold(world.getBiome(sourceX + x, sourceZ + z),
-                                        sourceX + x, y, sourceZ + z)) {
+                            .isCold(world.getBiome(sourceX + x, sourceZ + z),
+                                sourceX + x, y, sourceZ + z)) {
                             type = Material.ICE;
                         }
                     }
@@ -111,8 +111,8 @@ public class Lake implements TerrainObject {
                     Block block = world.getBlockAt(sourceX + x, sourceY + y - 1, sourceZ + z);
                     Block blockAbove = block.getRelative(BlockFace.UP);
                     if (block.getType() == Material.DIRT
-                            && !blockAbove.getType().isOccluding()
-                            && blockAbove.getLightLevel() > 0) {
+                        && !blockAbove.getType().isOccluding()
+                        && blockAbove.getLightLevel() > 0) {
                         block.setType(mycelBiome ? Material.MYCEL : Material.GRASS);
                     }
                 }
@@ -126,21 +126,21 @@ public class Lake implements TerrainObject {
             for (int z = 0; z < MAX_DIAMETER; z++) {
                 for (int y = 0; y < MAX_HEIGHT; y++) {
                     if (isLakeBlock(lakeMap, x, y, z)
-                            || (((x >= (MAX_DIAMETER - 1)) || !isLakeBlock(lakeMap, x + 1, y, z))
-                            && ((x <= 0) || !isLakeBlock(lakeMap, x - 1, y, z))
-                            && ((z >= (MAX_DIAMETER - 1)) || !isLakeBlock(lakeMap, x, y,
-                            z + 1))
-                            && ((z <= 0) || !isLakeBlock(lakeMap, x, y, z - 1))
-                            && ((z >= (MAX_HEIGHT - 1)) || !isLakeBlock(lakeMap, x, y + 1, z))
-                            && ((z <= 0) || !isLakeBlock(lakeMap, x, y - 1, z)))) {
+                        || (((x >= (MAX_DIAMETER - 1)) || !isLakeBlock(lakeMap, x + 1, y, z))
+                        && ((x <= 0) || !isLakeBlock(lakeMap, x - 1, y, z))
+                        && ((z >= (MAX_DIAMETER - 1)) || !isLakeBlock(lakeMap, x, y,
+                        z + 1))
+                        && ((z <= 0) || !isLakeBlock(lakeMap, x, y, z - 1))
+                        && ((z >= (MAX_HEIGHT - 1)) || !isLakeBlock(lakeMap, x, y + 1, z))
+                        && ((z <= 0) || !isLakeBlock(lakeMap, x, y - 1, z)))) {
                         continue;
                     }
                     Block block = world.getBlockAt(sourceX + x, sourceY + y, sourceZ + z);
                     if (y >= MAX_HEIGHT / 2 && (block.isLiquid()
-                            || block.getType() == Material.ICE)) {
+                        || block.getType() == Material.ICE)) {
                         return false; // there's already some liquids above
                     } else if (y < MAX_HEIGHT / 2 && !block.getType().isSolid()
-                            && block.getType() != type) {
+                        && block.getType() != type) {
                         return false;
                         // bottom must be solid and do not overlap with another liquid type
                     }

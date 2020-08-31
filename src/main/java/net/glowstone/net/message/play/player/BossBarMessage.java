@@ -57,6 +57,7 @@ public class BossBarMessage implements Message {
 
         /**
          * Since values() is expensive, we cache it.
+         *
          * @param i the ordinal to look up
          * @return the Action with ordinal {@code i}
          * @throws ArrayIndexOutOfBoundsException if {@code values()[i]} doesn't exist
@@ -82,6 +83,7 @@ public class BossBarMessage implements Message {
 
         /**
          * Since values() is expensive, we cache it.
+         *
          * @param i the ordinal to look up
          * @return the Color with ordinal {@code i}
          * @throws ArrayIndexOutOfBoundsException if {@code values()[i]} doesn't exist
@@ -95,6 +97,7 @@ public class BossBarMessage implements Message {
 
         /**
          * Converts a {@link BarColor} to an instance of this enum.
+         *
          * @param barColor the bar color to convert
          * @return the bar color as a Color
          */
@@ -117,6 +120,7 @@ public class BossBarMessage implements Message {
 
         /**
          * Since values() is expensive, we cache it.
+         *
          * @param i the ordinal to look up
          * @return the Action with ordinal {@code i}
          * @throws ArrayIndexOutOfBoundsException if {@code values()[i]} doesn't exist
@@ -130,6 +134,7 @@ public class BossBarMessage implements Message {
 
         /**
          * Converts a {@link BarStyle} to an instance of this enum.
+         *
          * @param barStyle the bar style to convert
          * @return the bar style as a Division
          */

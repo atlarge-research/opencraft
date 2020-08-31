@@ -252,8 +252,9 @@ public enum MetadataIndex {
 
     /**
      * Returns the first {@link MetadataIndex} with a given index and {@link MetadataType}.
+     *
      * @param index the index to look up
-     * @param type the type to look up
+     * @param type  the type to look up
      * @return a {@link MetadataIndex} with that index and type, or null if none match
      */
     public static MetadataIndex getIndex(int index, MetadataType type) {

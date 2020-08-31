@@ -31,9 +31,9 @@ public abstract class GlowTemplePiece extends GlowStructurePiece {
     /**
      * Creates a temple piece.
      *
-     * @param random the PRNG that will choose the orientation
+     * @param random   the PRNG that will choose the orientation
      * @param location the root location
-     * @param size the size as a width-height-depth vector
+     * @param size     the size as a width-height-depth vector
      */
     public GlowTemplePiece(Random random, Location location, Vector size) {
         super(random, location, size);
@@ -51,11 +51,11 @@ public abstract class GlowTemplePiece extends GlowStructurePiece {
         int blockCount = 0;
         for (int x = boundingBox.getMin().getBlockX(); x <= boundingBox.getMax().getBlockX(); x++) {
             for (int z = boundingBox.getMin().getBlockZ(); z <= boundingBox.getMax().getBlockZ();
-                z++) {
+                 z++) {
                 int y = world.getHighestBlockYAt(x, z);
                 Material type = world.getBlockAt(x, y - 1, z).getType();
                 while ((type == Material.LEAVES || type == Material.LEAVES_2
-                        || type == Material.LOG || type == Material.LOG_2) && y > 1) {
+                    || type == Material.LOG || type == Material.LOG_2) && y > 1) {
                     y--;
                     type = world.getBlockAt(x, y - 1, z).getType();
                 }
