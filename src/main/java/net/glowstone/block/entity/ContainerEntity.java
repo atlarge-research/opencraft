@@ -4,6 +4,7 @@ import lombok.Getter;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.inventory.GlowInventory;
 import net.glowstone.io.nbt.NbtSerialization;
+import net.glowstone.lambda.population.serialization.ExcludeField;
 import net.glowstone.util.nbt.CompoundTag;
 import org.bukkit.inventory.ItemStack;
 
@@ -13,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 public abstract class ContainerEntity extends BlockEntity {
 
     @Getter
+    @ExcludeField
     private final GlowInventory inventory;
 
     public ContainerEntity(GlowBlock block, GlowInventory inventory) {
