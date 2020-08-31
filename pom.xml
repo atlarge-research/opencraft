@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.atlarge-research</groupId>
-    <artifactId>opencraft</artifactId>
+    <artifactId>glowstone</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
 
