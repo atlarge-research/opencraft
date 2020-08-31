@@ -84,8 +84,7 @@ public class ChunkManager {
      */
     @Getter
     @Setter
-    @Expose
-    private ArrayList<GlowChunk> chunksForLambda = new ArrayList<>();
+    private ArrayList<GlowChunk> knownChunks = new ArrayList<>();
 
     /**
      * A set of chunks which are being kept loaded by players or other factors.
@@ -119,7 +118,7 @@ public class ChunkManager {
     public GlowChunk getChunk(int x, int z) {
         if (world.isServerless()) {
             GlowChunk res = null;
-            for (GlowChunk chunk : chunksForLambda) {
+            for (GlowChunk chunk : knownChunks) {
                 if (chunk.getX() == x && chunk.getZ() == z) {
                     res = chunk;
                 }
@@ -128,7 +127,7 @@ public class ChunkManager {
             // create new GlowChunk and add it to the list
             if (res == null) {
                 res = new GlowChunk(world, x, z);
-                chunksForLambda.add(res);
+                knownChunks.add(res);
             }
 
             // generate in case it isn't already
@@ -259,16 +258,17 @@ public class ChunkManager {
     }
 
     /**
-     * Loads the adjacent chunks of the given coordinates into the adjacentChunks list
+     * Returns the adjacent chunks of the given coordinates
      * @param x The X coordinate
      * @param z The Z coordinate
      */
-    public ArrayList<GlowChunk> getAdjacentChunks(int x, int z) {
+    public ArrayList<GlowChunk> getKnownChunks(int x, int z) {
         ArrayList<GlowChunk> adjacentChunks = new ArrayList<>();
         for (int i = x - 1; i <= x + 1; ++i) {
             for (int j = z - 1; j <= z + 1; ++j) {
                 GlowChunk current = getChunk(i, j);
-                if (current != null) {
+                // send the adjacent chunks that have been loaded i.e. generated
+                if (current != null && current.isLoaded()) {
                     adjacentChunks.add(current);
                 }
             }
@@ -301,18 +301,6 @@ public class ChunkManager {
                 }
             }
 
-        //loadAdjacent(x, z);
-        //try {
-        //    String tmp = JsonUtil.getGson().toJson(this.world);
-        //    File f = new File("tmp.txt");
-        //    if (!f.exists() && f.createNewFile()) {
-        //        FileWriter fw = new FileWriter("tmp.txt");
-        //        fw.write(tmp);
-        //    }
-        //    GlowWorld reconstructed = JsonUtil.getGson().fromJson(tmp, GlowWorld.class);
-        //} catch (Exception e) {
-        //    System.err.println(e.getMessage());
-        //}
         // it might have loaded since before, so check again that it's not already populated
         if (chunk.isPopulated()) {
             return;
@@ -354,19 +342,26 @@ public class ChunkManager {
 
         // invoke the lambda function
         PopulateInfo.PopulateOutput output = new PopulationInvoker().invoke(
-                //new PopulateInfo.PopulateInput(world, random, getAdjacentChunks(x, z), x, z)
-                new PopulateInfo.PopulateInput(world, random, new ArrayList<>(), x, z)
+                new PopulateInfo.PopulateInput(world, random, getKnownChunks(x, z), x, z)
         );
 
         // set the populated chunks back to this world
-        // TODO: pick which chunks are sent back (only send modified chunks)
         for (GlowChunk ch : output.populatedChunks) {
             getChunk(ch.getX(), ch.getZ()).setFromChunk(ch);
         }
 
+        // start pulse tasks
+        if (output.pulseTasks != null) {
+            for (PopulateInfo.PopulateOutput.PulseTaskInfo pti : output.pulseTasks) {
+                pti.getPulseTask(world).startPulseTask();
+            }
+        }
+
         // send block change messages to users
-        for (BlockChangeMessage message : output.changedBlocks) {
-            world.broadcastBlockChangeInRange(Key.of(message.getX() >> 4, message.getZ() >> 4), message);
+        if (output.changedBlocks != null) {
+            for (BlockChangeMessage message : output.changedBlocks) {
+                world.broadcastBlockChange(message);
+            }
         }
 
         EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
@@ -379,10 +374,13 @@ public class ChunkManager {
      * @param x The X coordinate.
      * @param z The Z coordinate.
      */
-    public void forcePopulation(int x, int z) {
+    public void forcePopulation(int x, int z, boolean serverless) {
         try {
-            //populateChunk(x, z, true);
-            populateChunkServerless(x, z);
+            if (serverless) {
+                populateChunkServerless(x, z);
+            } else {
+                populateChunk(x, z, true);
+            }
         } catch (Throwable ex) {
             ConsoleMessages.Error.Chunk.POP_FAILED.log(ex, x, z);
         }

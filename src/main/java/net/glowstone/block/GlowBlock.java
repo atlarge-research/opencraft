@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 import lombok.Getter;
+import lombok.Setter;
 import net.glowstone.GlowServer;
 import net.glowstone.GlowWorld;
 import net.glowstone.ServerProvider;
@@ -73,6 +74,7 @@ public class GlowBlock implements Block {
     @Expose
     private final int z;
     @Getter
+    @Setter
     private GlowWorld world;
 
     /**
@@ -246,7 +248,11 @@ public class GlowBlock implements Block {
 
         if (oldTypeId == Material.DOUBLE_PLANT
                 && getRelative(BlockFace.UP).getType() == Material.DOUBLE_PLANT) {
-            world.getChunkAtAsync(this, c -> ((GlowChunk) c).setType(x & 0xf, z & 0xf, y + 1, 0));
+            if (world.isServerless()) {
+                ((GlowChunk) world.getChunkAt(this)).setType(x & 0xf, z & 0xf, y + 1, 0);
+            } else {
+                world.getChunkAtAsync(this, c -> ((GlowChunk) c).setType(x & 0xf, z & 0xf, y + 1, 0));
+            }
             BlockChangeMessage bcmsg = new BlockChangeMessage(x, y + 1, z, 0, 0);
             world.broadcastBlockChange(bcmsg);
         }

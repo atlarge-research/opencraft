@@ -25,10 +25,10 @@ public class App implements RequestHandler<String, String> {
         world.getChunkManager().setWorld(world);
 
         // set the chunksForLambda field in chunk manager
-        world.getChunkManager().setChunksForLambda(deserialized.adjacentChunks);
+        world.getChunkManager().setKnownChunks(deserialized.adjacentChunks);
 
         // for each chunk set their world field
-        for (GlowChunk chunk : world.getChunkManager().getChunksForLambda()) {
+        for (GlowChunk chunk : world.getChunkManager().getKnownChunks()) {
             chunk.setWorld(world);
         }
 
@@ -41,7 +41,6 @@ public class App implements RequestHandler<String, String> {
             p.populate(world, random, chunk);
         }
 
-        return new PopulateOutput(world.getPopulatedBlockMessages(),
-                world.getChunkManager().getChunksForLambda()).toJson();
+        return new PopulateOutput(world).toJson();
     }
 }

@@ -58,6 +58,7 @@ import net.glowstone.generator.structures.GlowStructure;
 import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
+import net.glowstone.lambda.population.serialization.PopulateInfo;
 import net.glowstone.messaging.Brokers;
 import net.glowstone.messaging.codecs.CompositeCodec;
 import net.glowstone.messaging.filters.FeedbackFilter;
@@ -212,7 +213,7 @@ public class GlowWorld implements World {
      */
     @Getter
     @Expose
-    private final GameRuleManager gameRuleMap = new GameRuleManager();
+    private GameRuleManager gameRuleMap = new GameRuleManager();
     /**
      * The environment.
      */
@@ -415,8 +416,17 @@ public class GlowWorld implements World {
 
     private ImmutableMap<GlowPlayer, AreaOfInterest> previousAreas;
 
+    /**
+     * List that contains BlockChangeMessages generated during serverless population
+     */
     @Getter
     private List<BlockChangeMessage> populatedBlockMessages;
+
+    /**
+     * List that contains PulseTasks generated during serverless population
+     */
+    @Getter
+    private List<PopulateInfo.PopulateOutput.PulseTaskInfo> populatedPulseTasks;
 
     /**
      * Creates a new world from the options in the given WorldCreator.
@@ -779,8 +789,15 @@ public class GlowWorld implements World {
      * @param message The message to be stored.
      */
     public void broadcastBlockChange(BlockChangeMessage message) {
-        GlowBlock block = getBlockAt(message.getX(), message.getY(), message.getZ());
-        messagingSystem.broadcast(block, message);
+        if (isServerless()) {
+            if (populatedBlockMessages == null) {
+                populatedBlockMessages = new ArrayList<>();
+            }
+            populatedBlockMessages.add(message);
+        } else {
+            GlowBlock block = getBlockAt(message.getX(), message.getY(), message.getZ());
+            messagingSystem.broadcast(block, message);
+        }
     }
 
     /**
@@ -905,18 +922,6 @@ public class GlowWorld implements World {
         }
         return true;
     }
-    
-    public void broadcastBlockChangeInRange(GlowChunk.Key chunkKey, BlockChangeMessage message) {
-        if (isServerless()) {
-            if (populatedBlockMessages == null) {
-                populatedBlockMessages = new ArrayList<>();
-            }
-            populatedBlockMessages.add(message);
-        } else {
-            getRawPlayers().stream().filter(player -> player.canSeeChunk(chunkKey))
-                    .forEach(player -> player.sendBlockChangeForce(message));
-        }
-    }
 
     private void maybeStrikeLightningInChunk(int cx, int cz) {
         if (environment == Environment.NORMAL && currentlyRaining && thundering) {
@@ -1015,6 +1020,14 @@ public class GlowWorld implements World {
 
     public Collection<GlowPlayer> getRawPlayers() {
         return entityManager.getAll(GlowPlayer.class);
+    }
+
+    public void addPulseTaskInfo(PopulateInfo.PopulateOutput.PulseTaskInfo pti) {
+        if (populatedPulseTasks == null) {
+            populatedPulseTasks = new ArrayList<>();
+        }
+
+        populatedPulseTasks.add(pti);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -1184,7 +1197,7 @@ public class GlowWorld implements World {
             for (int z = centerZ - radius; z <= centerZ + radius; ++z) {
                 ++current;
                 if (populateAnchoredChunks) {
-                    getChunkManager().forcePopulation(x, z);
+                    getChunkManager().forcePopulation(x, z, false);
                 } else {
                     loadChunk(x, z);
                 }
