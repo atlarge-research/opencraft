@@ -34,7 +34,7 @@
     <repositories>
         <repository>
             <id>opencraft-group</id>
-            <url>https://opencraft-vm.labs.vu.nl/repository/opencraft-group/</url>
+            <url>https://opencraft-vm.labs.vu.nl/nexus/repository/opencraft-group/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
