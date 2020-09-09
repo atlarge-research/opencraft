@@ -1,4 +1,4 @@
-package net.glowstone.lambda.population.serialization;
+package net.glowstone.lambda.population.serialization.json;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
@@ -98,10 +98,13 @@ import net.glowstone.generator.populators.overworld.SnowPopulator;
 import net.glowstone.generator.populators.overworld.SunflowerPlainsPopulator;
 import net.glowstone.generator.populators.overworld.SwamplandPopulator;
 import net.glowstone.generator.populators.overworld.TaigaPopulator;
-import net.glowstone.lambda.population.serialization.adapters.IntListDeserializer;
-import net.glowstone.lambda.population.serialization.adapters.IntListSerializer;
-import net.glowstone.lambda.population.serialization.adapters.TreeDecorationDeserializer;
-import net.glowstone.lambda.population.serialization.adapters.TreeDecorationSerializer;
+import net.glowstone.lambda.population.serialization.GlowSerializer;
+import net.glowstone.lambda.population.serialization.json.adapters.IntListDeserializer;
+import net.glowstone.lambda.population.serialization.json.adapters.IntListSerializer;
+import net.glowstone.lambda.population.serialization.json.adapters.TreeDecorationDeserializer;
+import net.glowstone.lambda.population.serialization.json.adapters.TreeDecorationSerializer;
+import net.glowstone.lambda.population.serialization.json.annotations.ExcludeField;
+import net.glowstone.lambda.population.serialization.json.annotations.ExposeClass;
 import net.glowstone.util.noise.PerlinNoise;
 import net.glowstone.util.noise.PerlinOctaveGenerator;
 import net.glowstone.util.noise.SimplexNoise;
@@ -113,9 +116,13 @@ import org.bukkit.util.noise.OctaveGenerator;
 import org.bukkit.util.noise.PerlinNoiseGenerator;
 import org.bukkit.util.noise.SimplexNoiseGenerator;
 
+import java.lang.reflect.Type;
 
-public class JsonUtil {
-    public static Gson getGson() {
+
+public class JsonSerializer implements GlowSerializer {
+    private final Gson gson = getGson();
+
+    private static Gson getGson() {
         ExclusionStrategy exclusionStrategy = new ExclusionStrategy() {
             @Override
             public boolean shouldSkipField(FieldAttributes fieldAttributes) {
@@ -266,5 +273,17 @@ public class JsonUtil {
             .enableComplexMapKeySerialization()  // enables Map<ComplexObject, Object>
             //.setPrettyPrinting()
             .create();
+    }
+
+    public String serialize(Object src, Type typeOfSrc) {
+        return gson.toJson(src, typeOfSrc);
+    }
+
+    public String serialize(Object src) {
+        return gson.toJson(src);
+    }
+
+    public <T> T deserialize(String src, Type typeOfT) {
+        return gson.fromJson(src, typeOfT);
     }
 }

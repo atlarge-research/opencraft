@@ -1,4 +1,4 @@
-package net.glowstone.lambda.population.serialization.adapters;
+package net.glowstone.lambda.population.serialization.json.adapters;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

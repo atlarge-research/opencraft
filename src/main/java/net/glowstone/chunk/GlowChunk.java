@@ -26,7 +26,7 @@ import net.glowstone.block.ItemTable;
 import net.glowstone.block.blocktype.BlockType;
 import net.glowstone.block.entity.BlockEntity;
 import net.glowstone.entity.GlowEntity;
-import net.glowstone.lambda.population.serialization.ExposeClass;
+import net.glowstone.lambda.population.serialization.json.annotations.ExposeClass;
 import net.glowstone.net.message.play.game.ChunkDataMessage;
 import net.glowstone.util.Coordinates;
 import net.glowstone.util.TickUtil;

@@ -10,40 +10,38 @@ import com.amazonaws.services.lambda.model.InvokeResult;
 
 import java.nio.charset.StandardCharsets;
 
-import net.glowstone.lambda.population.serialization.PopulateInfo.PopulateInput;
-import net.glowstone.lambda.population.serialization.PopulateInfo.PopulateOutput;
+import net.glowstone.lambda.population.PopulateInfo.PopulateInput;
+import net.glowstone.lambda.population.PopulateInfo.PopulateOutput;
 
 public class PopulationInvoker {
-    private final AWSLambda client;
+    private final static AWSLambda client = getClient();
 
-    public PopulationInvoker() {
-        this(System.getenv("LAMBDA_REGION"),
+    private static AWSLambda getClient() {
+        return getClient(System.getenv("LAMBDA_REGION"),
                 System.getenv("LAMBDA_ACCESS_KEY"),
                 System.getenv("LAMBDA_SECRET_KEY"));
     }
 
-    public PopulationInvoker(String regionName, String accessKey, String secretKey) {
+    private static AWSLambda getClient(String regionName, String accessKey, String secretKey) {
         Regions region = Regions.fromName(regionName);
-
         BasicAWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
-
         AWSLambdaClientBuilder builder = AWSLambdaClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(credentials))
                 .withRegion(region);
 
-        client = builder.build();
+        return builder.build();
     }
 
-    public PopulateOutput invoke(PopulateInput input) {
+    public static PopulateOutput invoke(PopulateInput input) {
         InvokeRequest req = new InvokeRequest()
                 .withFunctionName("NaivePopulate")
-                .withPayload(input.toJson());
+                .withPayload(input.serialize());
         InvokeResult response = client.invoke(req);
 
         // get text of response
         String serializedResponse = StandardCharsets.UTF_8.decode(response.getPayload()).toString();
 
         // deserialize
-        return PopulateOutput.fromJson(serializedResponse);
+        return PopulateOutput.deserialize(serializedResponse);
     }
 }

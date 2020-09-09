@@ -28,8 +28,8 @@ import net.glowstone.generator.biomegrid.MapLayer;
 import net.glowstone.i18n.ConsoleMessages;
 import net.glowstone.io.ChunkIoService;
 import net.glowstone.lambda.population.PopulationInvoker;
-import net.glowstone.lambda.population.serialization.ExposeClass;
-import net.glowstone.lambda.population.serialization.PopulateInfo;
+import net.glowstone.lambda.population.serialization.json.annotations.ExposeClass;
+import net.glowstone.lambda.population.PopulateInfo;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
@@ -341,7 +341,7 @@ public class ChunkManager {
         random.setSeed(x * xrand + z * zrand ^ world.getSeed());
 
         // invoke the lambda function
-        PopulateInfo.PopulateOutput output = new PopulationInvoker().invoke(
+        PopulateInfo.PopulateOutput output = PopulationInvoker.invoke(
                 new PopulateInfo.PopulateInput(world, random, getKnownChunks(x, z), x, z)
         );
 

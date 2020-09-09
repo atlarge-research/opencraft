@@ -1,4 +1,4 @@
-package net.glowstone.lambda.population.serialization;
+package net.glowstone.lambda.population.serialization.json.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

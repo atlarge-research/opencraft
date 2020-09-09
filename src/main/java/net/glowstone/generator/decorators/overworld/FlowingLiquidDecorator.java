@@ -5,7 +5,7 @@ import java.util.Random;
 import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.generator.decorators.BlockDecorator;
-import net.glowstone.lambda.population.serialization.PopulateInfo;
+import net.glowstone.lambda.population.PopulateInfo;
 import net.glowstone.scheduler.PulseTask;
 import org.bukkit.Chunk;
 import org.bukkit.Material;

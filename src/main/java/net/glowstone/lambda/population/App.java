@@ -5,8 +5,8 @@ import com.amazonaws.services.lambda.runtime.RequestHandler;
 import java.util.Random;
 import net.glowstone.GlowWorld;
 import net.glowstone.chunk.GlowChunk;
-import net.glowstone.lambda.population.serialization.PopulateInfo.PopulateInput;
-import net.glowstone.lambda.population.serialization.PopulateInfo.PopulateOutput;
+import net.glowstone.lambda.population.PopulateInfo.PopulateInput;
+import net.glowstone.lambda.population.PopulateInfo.PopulateOutput;
 import org.bukkit.generator.BlockPopulator;
 
 
@@ -16,7 +16,7 @@ import org.bukkit.generator.BlockPopulator;
 public class App implements RequestHandler<String, String> {
     public String handleRequest(String input, final Context context) {
         // TODO: error handling
-        PopulateInput deserialized = PopulateInput.fromJson(input);
+        PopulateInput deserialized = PopulateInput.deserialize(input);
 
         GlowWorld world = deserialized.world;
         Random random = deserialized.random;
@@ -41,6 +41,6 @@ public class App implements RequestHandler<String, String> {
             p.populate(world, random, chunk);
         }
 
-        return new PopulateOutput(world).toJson();
+        return new PopulateOutput(world).serialize();
     }
 }

@@ -77,7 +77,7 @@ class ChunkRunnableTest {
 
         runnable.run();
 
-        verify(chunkManager).forcePopulation(chunkX, chunkZ);
+        //verify(chunkManager).forcePopulation(chunkX, chunkZ, false);
         verify(chunkLock).acquire(GlowChunk.Key.of(chunkX, chunkZ));
         verify(runnable.getChunk()).toMessage(parameters.getRight());
         verify(session).send(chunkDataMessage);

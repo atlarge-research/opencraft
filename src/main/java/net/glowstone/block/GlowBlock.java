@@ -21,7 +21,7 @@ import net.glowstone.block.blocktype.BlockRedstoneTorch;
 import net.glowstone.block.blocktype.BlockType;
 import net.glowstone.block.entity.BlockEntity;
 import net.glowstone.chunk.GlowChunk;
-import net.glowstone.lambda.population.serialization.ExposeClass;
+import net.glowstone.lambda.population.serialization.json.annotations.ExposeClass;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import org.bukkit.Location;
 import org.bukkit.Material;

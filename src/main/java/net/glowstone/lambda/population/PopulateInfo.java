@@ -1,6 +1,4 @@
-package net.glowstone.lambda.population.serialization;
-
-import com.google.gson.Gson;
+package net.glowstone.lambda.population;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -10,12 +8,14 @@ import java.util.Random;
 import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.chunk.GlowChunk;
+import net.glowstone.lambda.population.serialization.GlowSerializer;
+import net.glowstone.lambda.population.serialization.json.JsonSerializer;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.scheduler.PulseTask;
 
 
 public class PopulateInfo {
-    private static final Gson gson = JsonUtil.getGson();
+    private static final GlowSerializer serializer = new JsonSerializer();
 
     public static class PopulateInput {
         public GlowWorld world;
@@ -32,13 +32,13 @@ public class PopulateInfo {
             this.z = z;
         }
 
-        public String toJson() {
+        public String serialize() {
             // do it twice to bypass AWS Lambda auto deserialization
-            return gson.toJson(gson.toJson(this));
+            return serializer.serialize(serializer.serialize(this));
         }
 
-        public static PopulateInput fromJson(String jsn) {
-            return gson.fromJson(jsn, PopulateInput.class);
+        public static PopulateInput deserialize(String src) {
+            return serializer.deserialize(src, PopulateInput.class);
         }
     }
 
@@ -53,34 +53,35 @@ public class PopulateInfo {
             this.pulseTasks = world.getPopulatedPulseTasks();
         }
 
-        public String toJson() {
-            return gson.toJson(this);
+        public String serialize() {
+            return serializer.serialize(this);
         }
 
         private static void writeToFile(String jsn) {
             try {
-                File f = new File("tmp.txt");
+                String fileName = "./logs/lambda-" + System.currentTimeMillis() + ".txt";
+                File f = new File(fileName);
                 if (f.createNewFile()) {
-                    FileWriter fw = new FileWriter("tmp.txt");
+                    FileWriter fw = new FileWriter(fileName);
                     fw.write(jsn);
                     fw.close();
-                    System.out.println("Error written to file");
+                    System.out.println("Error written to " + fileName);
                 }
             } catch (Exception ex) {
-                ex.printStackTrace();
+                System.err.println("Failed to write error to file");
             }
         }
 
-        public static PopulateOutput fromJson(String jsn) {
+        public static PopulateOutput deserialize(String src) {
             // do it twice to bypass AWS Lambda auto serialization
             try {
-                PopulateOutput out = gson.fromJson(gson.fromJson(jsn, String.class), PopulateOutput.class);
+                PopulateOutput out = serializer.deserialize(serializer.deserialize(src, String.class), PopulateOutput.class);
                 if (out == null) {
-                    writeToFile(jsn);
+                    writeToFile(src);
                 }
                 return out;
             } catch (Exception e) {
-                writeToFile(jsn);
+                writeToFile(src);
                 return null;
             }
         }

@@ -4,7 +4,7 @@ import lombok.Getter;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.inventory.GlowInventory;
 import net.glowstone.io.nbt.NbtSerialization;
-import net.glowstone.lambda.population.serialization.ExcludeField;
+import net.glowstone.lambda.population.serialization.json.annotations.ExcludeField;
 import net.glowstone.util.nbt.CompoundTag;
 import org.bukkit.inventory.ItemStack;
 
