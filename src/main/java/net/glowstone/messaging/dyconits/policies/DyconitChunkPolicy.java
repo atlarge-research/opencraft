@@ -18,12 +18,10 @@ import science.atlarge.opencraft.dyconits.policies.DyconitSubscribeCommand;
 
 public class DyconitChunkPolicy implements DyconitPolicy<Player, Message> {
 
-    private final World world;
     private final int viewDistance;
-    private final String catchAllDyconitName = "catch-all";
+    private static final String CATCH_ALL_DYCONIT_NAME = "catch-all";
 
-    public DyconitChunkPolicy(World world, int viewDistance) {
-        this.world = world;
+    public DyconitChunkPolicy(int viewDistance) {
         this.viewDistance = viewDistance;
     }
 
@@ -50,19 +48,17 @@ public class DyconitChunkPolicy implements DyconitPolicy<Player, Message> {
             return chunkToName(chunk);
         }
 
-        return catchAllDyconitName;
+        return CATCH_ALL_DYCONIT_NAME;
     }
 
     private String chunkToName(Chunk chunk) {
-        return chunk.getX() + "-" + chunk.getZ();
+        return chunk.getWorld().getName() + "-" + chunk.getX() + "-" + chunk.getZ();
     }
 
     @Override
     public List<DyconitCommand<Player, Message>> update(Subscriber<Player, Message> sub) {
         Location location = sub.getKey().getLocation();
-        if (location.getWorld() != world) {
-            return new ArrayList<>();
-        }
+        World world = location.getWorld();
 
         int centerX = location.getBlockX() >> 4;
         int centerZ = location.getBlockZ() >> 4;
@@ -72,7 +68,7 @@ public class DyconitChunkPolicy implements DyconitPolicy<Player, Message> {
         for (int x = centerX - radius; x <= centerX + radius; x++) {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
                 Chunk chunk = world.getChunkAt(x, z);
-                chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(Integer.MAX_VALUE / 2, 2), chunk.getX() + "-" + chunk.getZ()));
+                chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(Integer.MAX_VALUE / 2, 2), chunkToName(chunk)));
             }
         }
         return chunks;

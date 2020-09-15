@@ -17,11 +17,16 @@ import science.atlarge.opencraft.messaging.MessagingSystem;
 
 public class MessagingFactory {
 
+    DyconitMessaging dyconitMessagingSystem;
+
     public Messaging fromConfig(GlowWorld world, GlowServer server) {
         String type = server.getConfig().getString(ServerConfig.Key.OPENCRAFT_MESSAGING_TYPE);
         Messaging res;
         if (type.equals("dyconit")) {
-            res = new DyconitMessaging(new DyconitSystem<>(new DyconitChunkPolicy(world, server.getViewDistance()), new FeedbackFilter()));
+            if (dyconitMessagingSystem == null) {
+                dyconitMessagingSystem = new DyconitMessaging(new DyconitSystem<>(new DyconitChunkPolicy(server.getViewDistance()), new FeedbackFilter()));
+            }
+            res = dyconitMessagingSystem;
         } else { // if type.equals("pubsub")
             type = "pubsub";
             ChunkPolicy policy = new ChunkPolicy(world, server.getViewDistance());
