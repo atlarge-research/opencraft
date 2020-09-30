@@ -18,7 +18,7 @@ public class DyconitMessaging implements Messaging {
 
     @Override
     public void update(GlowPlayer sub, Consumer<Message> callback) {
-        if (sub.isOnline()) {
+        if (!sub.isDisconnected()) {
             system.update(new Subscriber<>(sub, callback));
         } else {
             remove(sub);

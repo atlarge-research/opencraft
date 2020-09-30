@@ -1293,6 +1293,10 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         return session.isActive() && session.isOnline();
     }
 
+    public boolean isDisconnected() {
+        return session.isDisconnected();
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // HumanEntity overrides
 

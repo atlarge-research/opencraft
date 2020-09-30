@@ -157,6 +157,7 @@ public class GlowSession extends BasicSession {
     /**
      * If the connection has been disconnected.
      */
+    @Getter
     private volatile boolean disconnected;
 
     /**
