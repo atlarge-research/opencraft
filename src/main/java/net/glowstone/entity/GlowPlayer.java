@@ -570,7 +570,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      *
      * @param session The player's session.
      * @param profile The player's profile with name and UUID information.
-     * @param reader The PlayerReader to be used to initialize the player.
+     * @param reader  The PlayerReader to be used to initialize the player.
      */
     public GlowPlayer(GlowSession session, GlowPlayerProfile profile, PlayerReader reader) {
         super(initLocation(session, reader), profile);
@@ -616,7 +616,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * <p>Will fall back to a reasonable default rather than returning null.
      *
      * @param session The player's session.
-     * @param reader The PlayerReader to get the location from.
+     * @param reader  The PlayerReader to get the location from.
      * @return The location to spawn the player.
      */
     private static Location initLocation(GlowSession session, PlayerReader reader) {
@@ -665,7 +665,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * Loads the player's state and sends the messages that are necessary on login.
      *
      * @param session the player's session
-     * @param reader the source of the player's saved state
+     * @param reader  the source of the player's saved state
      */
     public void join(GlowSession session, PlayerReader reader) {
         String type = world.getWorldType().getName().toLowerCase();
@@ -1608,7 +1608,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     @Override
     public void giveExp(int xp) {
         PlayerExpChangeEvent event = EventFactory.getInstance()
-            .callEvent(new PlayerExpChangeEvent(this, xp));
+                .callEvent(new PlayerExpChangeEvent(this, xp));
         xp = event.getAmount();
         totalExperience += xp;
 
@@ -1748,7 +1748,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     /**
      * Updates the hunger bar and hunger saturation.
      *
-     * @param food the amount of food (in half-icons on the hunger bar)
+     * @param food       the amount of food (in half-icons on the hunger bar)
      * @param saturation the amount of food saturation (in half-icons of food it will save)
      */
     public void setFoodLevelAndSaturation(int food, float saturation) {
@@ -2099,9 +2099,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
         if (distance <= 1024.0D || isLongDistance && distance <= 262144.0D) {
             getSession().send(new PlayParticleMessage(particleId, isLongDistance,
-                (float) location.getX(), (float) location.getY(), (float) location.getZ(),
-                (float) offsetX, (float) offsetY, (float) offsetZ,
-                (float) extra, count, particleData));
+                    (float) location.getX(), (float) location.getY(), (float) location.getZ(),
+                    (float) offsetX, (float) offsetY, (float) offsetZ,
+                    (float) extra, count, particleData));
         }
     }
 
@@ -2161,7 +2161,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     /**
      * Says a message (or runs a command).
      *
-     * @param text message sent by the player.
+     * @param text  message sent by the player.
      * @param async whether the message was received asynchronously.
      */
     public void chat(String text, boolean async) {
@@ -2403,7 +2403,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             ByteBufUtils.writeUTF8(buffer, source); //Source
             ByteBufUtils.writeUTF8(buffer, sound); //Sound
             session.sendAndRelease(new PluginMessage("MC|StopSound", buffer.array()), // NON-NLS
-                buffer);
+                    buffer);
         } catch (IOException e) {
             logger.info("Failed to send stop-sound event.");
             e.printStackTrace();
@@ -2434,14 +2434,14 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     /**
      * Sends a {@link PlayParticleMessage} to display the given particle.
      *
-     * @param loc the location
+     * @param loc      the location
      * @param particle the particle type
      * @param material the item or block data
-     * @param offsetX TODO: document this parameter
-     * @param offsetY TODO: document this parameter
-     * @param offsetZ TODO: document this parameter
-     * @param speed TODO: document this parameter
-     * @param amount the number of particles
+     * @param offsetX  TODO: document this parameter
+     * @param offsetY  TODO: document this parameter
+     * @param offsetZ  TODO: document this parameter
+     * @param speed    TODO: document this parameter
+     * @param amount   the number of particles
      */
     //@Override
     public void showParticle(Location loc, Effect particle, MaterialData material, float offsetX,
@@ -2497,7 +2497,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
     @Override
     public void setPlayerListHeaderFooter(BaseComponent header, BaseComponent footer) {
-        setPlayerListHeaderFooter(new BaseComponent[]{header}, new BaseComponent[]{footer});
+        setPlayerListHeaderFooter(new BaseComponent[] {header}, new BaseComponent[] {footer});
     }
 
     @Override
@@ -2602,7 +2602,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * Update a specific attribute of the player's title.
      *
      * @param action the attribute to update
-     * @param value the value of the attribute
+     * @param value  the value of the attribute
      */
     public void updateTitle(TitleMessage.Action action, Object... value) {
         Preconditions.checkArgument(
@@ -2696,7 +2696,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * <p>If {@code awardParents} is true, award the player all parent achievements and the given
      * achievement, making this method equivalent to {@link #awardAchievement(Achievement)}.
      *
-     * @param achievement the achievement to award.
+     * @param achievement  the achievement to award.
      * @param awardParents whether parent achievements should be awarded.
      * @return {@code true} if the achievement was awarded, {@code false} otherwise
      */
@@ -2933,7 +2933,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         int viewId = invMonitor.getId();
         if (viewId != 0) {
             InventoryOpenEvent event = EventFactory.getInstance().callEvent(
-                new InventoryOpenEvent(view));
+                    new InventoryOpenEvent(view));
             if (event.isCancelled()) {
                 // close the inventory but don't fire the InventoryCloseEvent
                 resetInventoryView();
