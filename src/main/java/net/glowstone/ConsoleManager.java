@@ -108,7 +108,7 @@ public final class ConsoleManager {
      *
      * @param jline whether the console should use JLine
      */
-    public void startConsole(boolean jline) {
+    public void startConsole(boolean jline, String loglevel) {
         this.jline = jline;
 
         if (jline) {
@@ -119,6 +119,7 @@ public final class ConsoleManager {
         CONSOLE_DATE = server.getConsoleDateFormat();
         for (Handler handler : logger.getHandlers()) {
             if (handler.getClass() == FancyConsoleHandler.class) {
+                handler.setLevel(Level.parse(loglevel.toUpperCase()));
                 handler.setFormatter(new DateOutputFormatter(CONSOLE_DATE, true));
             }
         }
@@ -135,45 +136,45 @@ public final class ConsoleManager {
 
         // set up colorization replacements
         replacements.put(ChatColor.BLACK,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.BLACK).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.BLACK).boldOff().toString());
         replacements.put(ChatColor.DARK_BLUE,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.BLUE).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.BLUE).boldOff().toString());
         replacements.put(ChatColor.DARK_GREEN,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.GREEN).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.GREEN).boldOff().toString());
         replacements.put(ChatColor.DARK_AQUA,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.CYAN).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.CYAN).boldOff().toString());
         replacements.put(ChatColor.DARK_RED,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.RED).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.RED).boldOff().toString());
         replacements.put(ChatColor.DARK_PURPLE,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.MAGENTA).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.MAGENTA).boldOff().toString());
         replacements.put(ChatColor.GOLD,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.YELLOW).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.YELLOW).boldOff().toString());
         replacements.put(ChatColor.GRAY,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.WHITE).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.WHITE).boldOff().toString());
         replacements.put(ChatColor.DARK_GRAY,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.BLACK).bold().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.BLACK).bold().toString());
         replacements
-            .put(ChatColor.BLUE, Ansi.ansi().a(Attribute.RESET).fg(Color.BLUE).bold()
-                .toString());
+                .put(ChatColor.BLUE, Ansi.ansi().a(Attribute.RESET).fg(Color.BLUE).bold()
+                        .toString());
         replacements
-            .put(ChatColor.GREEN, Ansi.ansi().a(Attribute.RESET).fg(Color.GREEN).bold()
-                .toString());
+                .put(ChatColor.GREEN, Ansi.ansi().a(Attribute.RESET).fg(Color.GREEN).bold()
+                        .toString());
         replacements
-            .put(ChatColor.AQUA, Ansi.ansi().a(Attribute.RESET).fg(Color.CYAN).bold()
-                .toString());
+                .put(ChatColor.AQUA, Ansi.ansi().a(Attribute.RESET).fg(Color.CYAN).bold()
+                        .toString());
         replacements
-            .put(ChatColor.RED, Ansi.ansi().a(Attribute.RESET).fg(Color.RED).bold().toString());
+                .put(ChatColor.RED, Ansi.ansi().a(Attribute.RESET).fg(Color.RED).bold().toString());
         replacements.put(ChatColor.LIGHT_PURPLE,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.MAGENTA).bold().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.MAGENTA).bold().toString());
         replacements.put(ChatColor.YELLOW,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.YELLOW).bold().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.YELLOW).bold().toString());
         replacements
-            .put(ChatColor.WHITE, Ansi.ansi().a(Attribute.RESET).fg(Color.WHITE).bold()
-                .toString());
+                .put(ChatColor.WHITE, Ansi.ansi().a(Attribute.RESET).fg(Color.WHITE).bold()
+                        .toString());
         replacements.put(ChatColor.MAGIC, Ansi.ansi().a(Attribute.BLINK_SLOW).toString());
         replacements.put(ChatColor.BOLD, Ansi.ansi().a(Attribute.UNDERLINE_DOUBLE).toString());
         replacements
-            .put(ChatColor.STRIKETHROUGH, Ansi.ansi().a(Attribute.STRIKETHROUGH_ON).toString());
+                .put(ChatColor.STRIKETHROUGH, Ansi.ansi().a(Attribute.STRIKETHROUGH_ON).toString());
         replacements.put(ChatColor.UNDERLINE, Ansi.ansi().a(Attribute.UNDERLINE).toString());
         replacements.put(ChatColor.ITALIC, Ansi.ansi().a(Attribute.ITALIC).toString());
         replacements.put(ChatColor.RESET, Ansi.ansi().a(Attribute.RESET).toString());
@@ -184,13 +185,14 @@ public final class ConsoleManager {
      *
      * @param logfile the file path
      */
-    public void startFile(String logfile) {
+    public void startFile(String logfile, String loglevel) {
         File parent = new File(logfile).getParentFile();
         if (!parent.isDirectory() && !parent.mkdirs()) {
             logger.warning("Could not create log folder: " + parent);
         }
         Handler fileHandler = new RotatingFileHandler(logfile);
         FILE_DATE = server.getConsoleLogDateFormat();
+        fileHandler.setLevel(Level.parse(loglevel.toUpperCase()));
         fileHandler.setFormatter(new DateOutputFormatter(FILE_DATE, false));
         logger.addHandler(fileHandler);
     }
@@ -307,7 +309,7 @@ public final class ConsoleManager {
         public int complete(String buffer, int cursor, List<CharSequence> candidates) {
             try {
                 List<String> completions = server.getScheduler()
-                    .syncIfNeeded(() -> server.getCommandMap().tabComplete(sender, buffer));
+                        .syncIfNeeded(() -> server.getCommandMap().tabComplete(sender, buffer));
                 if (completions == null) {
                     return cursor;  // no completions
                 }
@@ -360,7 +362,7 @@ public final class ConsoleManager {
         @Override
         public void run() {
             ServerCommandEvent event = EventFactory.getInstance()
-                .callEvent(new ServerCommandEvent(sender, command));
+                    .callEvent(new ServerCommandEvent(sender, command));
             if (!event.isCancelled()) {
                 server.dispatchCommand(sender, event.getCommand());
             }
@@ -420,7 +422,7 @@ public final class ConsoleManager {
         @Override
         public void setOp(boolean value) {
             throw new UnsupportedOperationException(
-                "Cannot change operator status of server console");
+                    "Cannot change operator status of server console");
         }
 
         ////////////////////////////////////////////////////////////////////////
@@ -448,7 +450,7 @@ public final class ConsoleManager {
 
         @Override
         public PermissionAttachment addAttachment(Plugin plugin,
-                                                  @NonNls String name, boolean value) {
+                @NonNls String name, boolean value) {
             return perm.addAttachment(plugin, name, value);
         }
 
@@ -459,7 +461,7 @@ public final class ConsoleManager {
 
         @Override
         public PermissionAttachment addAttachment(Plugin plugin, @NonNls String name, boolean value,
-                                                  int ticks) {
+                int ticks) {
             return perm.addAttachment(plugin, name, value, ticks);
         }
 
@@ -508,7 +510,7 @@ public final class ConsoleManager {
 
         @Override
         public void abandonConversation(Conversation conversation,
-                                        ConversationAbandonedEvent details) {
+                ConversationAbandonedEvent details) {
 
         }
 
