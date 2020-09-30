@@ -16,12 +16,12 @@ import science.atlarge.opencraft.dyconits.policies.DyconitCommand;
 import science.atlarge.opencraft.dyconits.policies.DyconitPolicy;
 import science.atlarge.opencraft.dyconits.policies.DyconitSubscribeCommand;
 
-public class DyconitChunkPolicy implements DyconitPolicy<Player, Message> {
+public class ChunkPolicy implements DyconitPolicy<Player, Message> {
 
     private final int viewDistance;
     private static final String CATCH_ALL_DYCONIT_NAME = "catch-all";
 
-    public DyconitChunkPolicy(int viewDistance) {
+    public ChunkPolicy(int viewDistance) {
         this.viewDistance = viewDistance;
     }
 

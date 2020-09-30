@@ -21,6 +21,11 @@ public class PubSubMessaging implements Messaging {
     }
 
     @Override
+    public void remove(GlowPlayer sub) {
+        // Nothing to do here.
+    }
+
+    @Override
     public void publish(Object sub, Message message) {
         this.messageMessagingSystem.broadcast(sub, message);
     }

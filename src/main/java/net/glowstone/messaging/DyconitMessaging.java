@@ -6,6 +6,7 @@ import net.glowstone.entity.GlowPlayer;
 import org.bukkit.entity.Player;
 import science.atlarge.opencraft.dyconits.DyconitSystem;
 import science.atlarge.opencraft.dyconits.Subscriber;
+import science.atlarge.opencraft.dyconits.policies.DyconitPolicy;
 
 public class DyconitMessaging implements Messaging {
 
@@ -21,6 +22,11 @@ public class DyconitMessaging implements Messaging {
     }
 
     @Override
+    public void remove(GlowPlayer sub) {
+        system.unsubscribeAll(sub);
+    }
+
+    @Override
     public void publish(Object sub, Message message) {
         system.publish(sub, message);
     }
@@ -28,5 +34,13 @@ public class DyconitMessaging implements Messaging {
     @Override
     public void close() {
         // Nothing to close.
+    }
+
+    public DyconitPolicy<Player, Message> getPolicy() {
+        return system.getPolicy();
+    }
+
+    public void setPolicy(DyconitPolicy<Player, Message> policy) {
+        system.setPolicy(policy);
     }
 }

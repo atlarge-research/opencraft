@@ -7,6 +7,8 @@ import net.glowstone.entity.GlowPlayer;
 public interface Messaging {
     void update(GlowPlayer sub, Consumer<Message> callback);
 
+    void remove(GlowPlayer sub);
+
     void publish(Object sub, Message message);
 
     void close();

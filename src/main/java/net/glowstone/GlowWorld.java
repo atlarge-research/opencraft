@@ -437,7 +437,7 @@ public class GlowWorld implements World {
         worldBorder = new GlowWorldBorder(this);
 
         // Set up messaging system
-        messagingSystem = new MessagingFactory().fromConfig(this, server);
+        messagingSystem = MessagingFactory.fromConfig(this, server);
 
         executor = new PriorityExecutor<>();
         previousAreas = ImmutableMap.of();
@@ -526,7 +526,7 @@ public class GlowWorld implements World {
      * @param players the players in the world.
      */
     private void updateAreasOfInterest(Collection<GlowPlayer> players) {
-
+        // TODO break apart these unrelated tasks
         ImmutableMap.Builder<GlowPlayer, AreaOfInterest> currentAreasBuilder = ImmutableMap.builder();
         players.forEach(player -> currentAreasBuilder.put(player, player.getAreaOfInterest()));
         ImmutableMap<GlowPlayer, AreaOfInterest> currentAreas = currentAreasBuilder.build();
@@ -1011,7 +1011,6 @@ public class GlowWorld implements World {
 
     @Override
     @Deprecated
-    @SuppressWarnings("unchecked")
     public <T extends Entity> Collection<T> getEntitiesByClass(Class<T>... classes) {
         return (Collection<T>) entityManager.getEntitiesByClasses(classes);
     }
@@ -1611,7 +1610,6 @@ public class GlowWorld implements World {
     // Entity spawning
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T extends Entity> T spawn(Location location, Class<T> type) throws IllegalArgumentException {
         return (T) spawn(location, EntityRegistry.getEntity(type), SpawnReason.CUSTOM);
     }
@@ -2441,5 +2439,9 @@ public class GlowWorld implements World {
         protected String disambiguate(World subject, String metadataKey) {
             return subject.getName() + ":" + metadataKey;
         }
+    }
+
+    public Messaging getMessagingSystem() {
+        return messagingSystem;
     }
 }

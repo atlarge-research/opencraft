@@ -106,6 +106,7 @@ import net.glowstone.command.minecraft.WeatherCommand;
 import net.glowstone.command.minecraft.WhitelistCommand;
 import net.glowstone.command.minecraft.WorldBorderCommand;
 import net.glowstone.command.minecraft.XpCommand;
+import net.glowstone.command.opencraft.DyconitPolicyCommand;
 import net.glowstone.constants.GlowEnchantment;
 import net.glowstone.constants.GlowPotionEffect;
 import net.glowstone.entity.EntityIdManager;
@@ -450,6 +451,7 @@ public class GlowServer implements Server {
      * Additional Spigot APIs for the server.
      */
     private Spigot spigot = new Spigot() {
+        @Override
         public org.bukkit.configuration.file.YamlConfiguration getConfig() {
             return config.getConfig();
         }
@@ -1238,10 +1240,11 @@ public class GlowServer implements Server {
     /**
      * Loads all plugins, calling onLoad, &c.
      */
-    @SuppressWarnings("HardCodedStringLiteral")
     private void loadPlugins() {
         // clear the map
         commandMap.clearCommands();
+        // opencraft commands
+        commandMap.register("opencraft", new DyconitPolicyCommand());
         // glowstone commands
         commandMap.register("glowstone", new ColorCommand());
         commandMap.register("glowstone", new GlowstoneCommand());
@@ -1505,6 +1508,7 @@ public class GlowServer implements Server {
      *
      * @return The {@link SimpleCommandMap}.
      */
+    @Override
     public SimpleCommandMap getCommandMap() {
         return commandMap;
     }
@@ -2299,7 +2303,6 @@ public class GlowServer implements Server {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<World> getWorlds() {
         // Shenanigans needed to cast List<GlowWorld> to List<World>
         return (List) worlds.getWorlds();
