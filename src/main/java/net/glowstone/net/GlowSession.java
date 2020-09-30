@@ -424,8 +424,6 @@ public class GlowSession extends BasicSession {
         if (disconnected) {
             connectionManager.sessionInactivated(this);
 
-            player.getWorld().getMessagingSystem().remove(player);
-
             if (player == null) {
                 return;
             }

@@ -57,7 +57,8 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
 
     @Override
     public List<DyconitCommand<Player, Message>> update(Subscriber<Player, Message> sub) {
-        Location location = sub.getKey().getLocation();
+        Player player = sub.getKey();
+        Location location = player.getLocation();
         World world = location.getWorld();
 
         int centerX = location.getBlockX() >> 4;
