@@ -47,11 +47,11 @@
     <distributionManagement>
         <repository>
             <id>opencraft-releases</id>
-            <url>https://opencraft-vm.labs.vu.nl/repository/opencraft-releases/</url>
+            <url>https://opencraft-vm.labs.vu.nl/nexus/repository/opencraft-releases/</url>
         </repository>
         <snapshotRepository>
             <id>opencraft-snapshots</id>
-            <url>https://opencraft-vm.labs.vu.nl/repository/opencraft-snapshots/</url>
+            <url>https://opencraft-vm.labs.vu.nl/nexus/repository/opencraft-snapshots/</url>
         </snapshotRepository>
     </distributionManagement>
 
