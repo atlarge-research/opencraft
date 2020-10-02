@@ -82,7 +82,7 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         this.configFile = configFile;
         this.parameters = parameters;
 
-        config.options().indent(4).copyHeader(true).header(
+        config.options().copyHeader(true).header(
                 "opencraft.yml is the main configuration file for a Opencraft server\n"
                         + "It contains everything from server.properties and bukkit.yml in a\n"
                         + "normal CraftBukkit installation.\n");
@@ -153,7 +153,6 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
      * @param key the key to look up
      * @return the value as a list of maps
      */
-    @SuppressWarnings("unchecked")
     public List<Map<?, ?>> getMapList(Key key) {
         if (parameters.containsKey(key)) {
             return (List<Map<?, ?>>) parameters.get(key);
@@ -392,18 +391,20 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         OPENCRAFT_COLLECTOR("opencraft.collector", false, Boolean.class::isInstance),
 
         // Opencraft - Messaging System
-        OPENCRAFT_POLICY("opencraft.policy", "chunk", String.class::isInstance),
-        OPENCRAFT_BROKER_TYPE("opencraft.broker.type", "read-write", String.class::isInstance),
-        OPENCRAFT_BROKER_ASYNC("opencraft.broker.async", true, Boolean.class::isInstance),
-        OPENCRAFT_BROKER_THREADS("opencraft.broker.threads", Runtime.getRuntime().availableProcessors(),
+        OPENCRAFT_MESSAGING_TYPE("opencraft.messaging.type", "dyconit", String.class::isInstance),
+        OPENCRAFT_POLICY("opencraft.messaging.policy", "chunk", String.class::isInstance),
+        // Opencraft - Messaging System - Pub/Sub Only
+        OPENCRAFT_BROKER_TYPE("opencraft.messaging.broker.type", "read-write", String.class::isInstance),
+        OPENCRAFT_BROKER_ASYNC("opencraft.messaging.broker.async", true, Boolean.class::isInstance),
+        OPENCRAFT_BROKER_THREADS("opencraft.messaging.broker.threads", Runtime.getRuntime().availableProcessors(),
                 Integer.class::isInstance),
-        OPENCRAFT_BROKER_CAPACITY("opencraft.broker.capacity", Integer.MAX_VALUE, Integer.class::isInstance),
-        OPENCRAFT_BROKER_CHANNEL("opencraft.broker.channel", "unsafe", String.class::isInstance),
-        OPENCRAFT_BROKER_HOST("opencraft.broker.host", "localhost", String.class::isInstance),
-        OPENCRAFT_BROKER_PORT("opencraft.broker.port", 0, Integer.class::isInstance),
-        OPENCRAFT_BROKER_USERNAME("opencraft.broker.username", "", String.class::isInstance),
-        OPENCRAFT_BROKER_PASSWORD("opencraft.broker.password", "", String.class::isInstance),
-        OPENCRAFT_BROKER_VIRTUAL_HOST("opencraft.broker.virtualHost", "", String.class::isInstance),
+        OPENCRAFT_BROKER_CAPACITY("opencraft.messaging.broker.capacity", Integer.MAX_VALUE, Integer.class::isInstance),
+        OPENCRAFT_BROKER_CHANNEL("opencraft.messaging.broker.channel", "unsafe", String.class::isInstance),
+        OPENCRAFT_BROKER_HOST("opencraft.messaging.broker.host", "localhost", String.class::isInstance),
+        OPENCRAFT_BROKER_PORT("opencraft.messaging.broker.port", 0, Integer.class::isInstance),
+        OPENCRAFT_BROKER_USERNAME("opencraft.messaging.broker.username", "", String.class::isInstance),
+        OPENCRAFT_BROKER_PASSWORD("opencraft.messaging.broker.password", "", String.class::isInstance),
+        OPENCRAFT_BROKER_VIRTUAL_HOST("opencraft.messaging.broker.virtualHost", "", String.class::isInstance),
 
         // server
         SERVER_IP("server.ip", "", Migrate.PROPS, "server-ip", String.class::isInstance),
@@ -423,6 +424,7 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
                 "settings.shutdown-message", String.class::isInstance),
         ALLOW_CLIENT_MODS("server.allow-client-mods", true, Boolean.class::isInstance),
         DNS_OVERRIDES("server.dns", new ArrayList<>()),
+        LOG_LEVEL_FILE("server.log-level", "INFO", String.class::isInstance),
 
         // console
         USE_JLINE("console.use-jline", true, Boolean.class::isInstance),
@@ -430,6 +432,7 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         CONSOLE_DATE("console.date-format", "HH:mm:ss", String.class::isInstance),
         CONSOLE_LOG_DATE("console.log-date-format", "yyyy/MM/dd HH:mm:ss",
                 String.class::isInstance),
+        LOG_LEVEL_CONSOLE("console.log-level", "INFO", String.class::isInstance),
 
         // game props
         GAMEMODE("game.gamemode", "CREATIVE", Migrate.PROPS, "gamemode",
