@@ -6,7 +6,7 @@
 
     <groupId>com.atlarge-research</groupId>
     <artifactId>opencraft</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
 
     <name>Opencraft</name>
@@ -121,7 +121,7 @@
         <dependency>
             <groupId>com.flowpowered</groupId>
             <artifactId>flow-network</artifactId>
-            <version>1.2.8-SNAPSHOT</version>
+            <version>1.2.8-20200223.162006-1</version>
         </dependency>
         <!-- uuid library-->
         <dependency>
