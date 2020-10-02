@@ -48,7 +48,7 @@ public class StoneBoulder implements TerrainObject {
                         }
                         BlockState state = world
                                 .getBlockAt(sourceX + x, sourceY + y, sourceZ + z).getState();
-                        if (!killPlantAbove(state.getBlock())) {
+                        if (!TerrainObject.killPlantAbove(state.getBlock())) {
                             // FIXME: Is it a bug to suppress the cobblestone beneath where a plant
                             // previously stood?!
                             state.setType(Material.MOSSY_COBBLESTONE);
