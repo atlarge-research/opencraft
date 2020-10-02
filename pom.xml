@@ -121,7 +121,7 @@
         <dependency>
             <groupId>com.flowpowered</groupId>
             <artifactId>flow-network</artifactId>
-            <version>1.2.8-SNAPSHOT</version>
+            <version>1.2.8-20200223.162006-1</version>
         </dependency>
         <!-- uuid library-->
         <dependency>
