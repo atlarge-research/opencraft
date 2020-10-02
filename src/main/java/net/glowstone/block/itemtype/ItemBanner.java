@@ -2,7 +2,6 @@ package net.glowstone.block.itemtype;
 
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.ItemTable;
-import net.glowstone.block.blocktype.BlockType;
 import net.glowstone.entity.GlowPlayer;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -15,14 +14,16 @@ public class ItemBanner extends ItemType {
     @Override
     public void rightClickBlock(GlowPlayer player, GlowBlock target, BlockFace face,
         ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
-        BlockType placeAs;
+
+        ItemTable instance = ItemTable.instance();
         if (face == BlockFace.UP) {
-            placeAs = ItemTable.instance().getBlock(Material.STANDING_BANNER);
-        } else if (face == BlockFace.DOWN) {
-            return;
+            setPlaceAs(instance.getBlock(Material.STANDING_BANNER));
+        } else if (face != BlockFace.DOWN) {
+            setPlaceAs(instance.getBlock(Material.WALL_BANNER));
         } else {
-            placeAs = ItemTable.instance().getBlock(Material.WALL_BANNER);
+            return;
         }
-        placeAs.rightClickBlock(player, target, face, holding, clickedLoc, hand);
+
+        super.rightClickBlock(player, target, face, holding, clickedLoc, hand);
     }
 }

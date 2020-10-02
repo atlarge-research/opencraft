@@ -3,12 +3,11 @@ package net.glowstone.block.blocktype;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import net.glowstone.EventFactory;
+import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.GlowBlockState;
 import net.glowstone.block.ItemTable;
-import net.glowstone.chunk.GlowChunk;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
 import net.glowstone.scheduler.PulseTask;
@@ -289,10 +288,15 @@ public class BlockRedstone extends BlockNeedsAttached {
     }
 
     @Override
-    public void receivePulse(GlowBlock me) {
-        GlowChunk.Key key = GlowChunk.Key.of(me.getX() >> 4, me.getZ() >> 4);
-        BlockChangeMessage bcmsg = new BlockChangeMessage(me.getX(), me.getY(), me.getZ(),
-            me.getTypeId(), me.getData());
-        me.getWorld().broadcastBlockChangeInRange(key, bcmsg);
+    public void receivePulse(GlowBlock current) {
+        BlockChangeMessage message = new BlockChangeMessage(
+                current.getX(),
+                current.getY(),
+                current.getZ(),
+                current.getTypeId(),
+                current.getData()
+        );
+        GlowWorld world = current.getWorld();
+        world.broadcastBlockChange(message);
     }
 }

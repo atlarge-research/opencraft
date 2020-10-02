@@ -11,28 +11,28 @@ import org.bukkit.util.BlockVector;
 public final class TabCompleteCodec implements Codec<TabCompleteMessage> {
 
     @Override
-    public TabCompleteMessage decode(ByteBuf buf) throws IOException {
-        String text = ByteBufUtils.readUTF8(buf);
-        boolean assumeCommand = buf.readBoolean();
-        boolean hasLocation = buf.readBoolean();
+    public TabCompleteMessage decode(ByteBuf buffer) throws IOException {
+        String text = ByteBufUtils.readUTF8(buffer);
+        boolean assumeCommand = buffer.readBoolean();
+        boolean hasLocation = buffer.readBoolean();
         BlockVector location = null;
         if (hasLocation) {
-            location = GlowBufUtils.readBlockPosition(buf);
+            location = GlowBufUtils.readBlockPosition(buffer);
         }
         return new TabCompleteMessage(text, assumeCommand, location);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, TabCompleteMessage message) throws IOException {
-        ByteBufUtils.writeUTF8(buf, message.getText());
-        buf.writeBoolean(message.isAssumeCommand());
+    public ByteBuf encode(ByteBuf buffer, TabCompleteMessage message) throws IOException {
+        ByteBufUtils.writeUTF8(buffer, message.getText());
+        buffer.writeBoolean(message.isAssumeCommand());
         BlockVector location = message.getLocation();
         if (location != null) {
-            buf.writeBoolean(true);
-            GlowBufUtils.writeBlockPosition(buf, location);
+            buffer.writeBoolean(true);
+            GlowBufUtils.writeBlockPosition(buffer, location);
         } else {
-            buf.writeBoolean(false);
+            buffer.writeBoolean(false);
         }
-        return buf;
+        return buffer;
     }
 }

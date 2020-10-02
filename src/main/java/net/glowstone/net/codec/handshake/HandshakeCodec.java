@@ -14,16 +14,15 @@ public final class HandshakeCodec implements Codec<HandshakeMessage> {
         String address = ByteBufUtils.readUTF8(buffer);
         int port = buffer.readUnsignedShort();
         int state = ByteBufUtils.readVarInt(buffer);
-
         return new HandshakeMessage(version, address, port, state);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, HandshakeMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getVersion());
-        ByteBufUtils.writeUTF8(buf, message.getAddress());
-        buf.writeShort(message.getPort());
-        ByteBufUtils.writeVarInt(buf, message.getState());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, HandshakeMessage message) throws IOException {
+        ByteBufUtils.writeVarInt(buffer, message.getVersion());
+        ByteBufUtils.writeUTF8(buffer, message.getAddress());
+        buffer.writeShort(message.getPort());
+        ByteBufUtils.writeVarInt(buffer, message.getState());
+        return buffer;
     }
 }

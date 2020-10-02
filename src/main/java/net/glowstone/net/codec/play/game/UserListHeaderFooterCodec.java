@@ -17,9 +17,9 @@ public final class UserListHeaderFooterCodec implements Codec<UserListHeaderFoot
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, UserListHeaderFooterMessage message) throws IOException {
-        GlowBufUtils.writeChat(buf, message.getHeader());
-        GlowBufUtils.writeChat(buf, message.getFooter());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, UserListHeaderFooterMessage message) throws IOException {
+        GlowBufUtils.writeChat(buffer, message.getHeader());
+        GlowBufUtils.writeChat(buffer, message.getFooter());
+        return buffer;
     }
 }

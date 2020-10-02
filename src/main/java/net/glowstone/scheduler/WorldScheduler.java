@@ -1,5 +1,6 @@
 package net.glowstone.scheduler;
 
+import com.atlarge.yscollector.YSCollector;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import java.util.List;
@@ -8,10 +9,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import lombok.Getter;
 import net.glowstone.GlowServer;
 import net.glowstone.GlowWorld;
+import net.glowstone.util.config.ServerConfig;
 
 /**
  * Manager for world thread pool.
@@ -126,7 +129,14 @@ public class WorldScheduler {
     void stop() {
         tickBegin.forceTermination();
         tickEnd.forceTermination();
-        worldExecutor.shutdownNow();
+        worldExecutor.shutdown();
+        try {
+            if (!worldExecutor.awaitTermination(1L, TimeUnit.MINUTES)) {
+                worldExecutor.shutdownNow();
+            }
+        } catch (InterruptedException exception) {
+            exception.printStackTrace();
+        }
     }
 
     void doTickEnd() {
@@ -166,6 +176,10 @@ public class WorldScheduler {
             try {
                 while (!isInterrupted() && !tickEnd.isTerminated()) {
                     tickBegin.arriveAndAwaitAdvance();
+                    if (ServerConfig.Key.OPENCRAFT_COLLECTOR.equals(true)) {
+                        YSCollector.start("world_" + world.getName() + "_tick",
+                                "World thread: Duration processing tick.");
+                    }
                     try {
                         world.pulse();
                     } catch (Exception e) {
@@ -173,6 +187,9 @@ public class WorldScheduler {
                             "Error occurred while pulsing world " + world.getName(), e);
                     } finally {
                         tickEnd.arriveAndAwaitAdvance();
+                    }
+                    if (ServerConfig.Key.OPENCRAFT_COLLECTOR.equals(true)) {
+                        YSCollector.stop("world_" + world.getName() + "_tick");
                     }
                 }
             } finally {

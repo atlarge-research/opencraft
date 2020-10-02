@@ -20,6 +20,7 @@ public class GlowZombieVillager extends GlowZombie implements ZombieVillager {
     @Getter
     @Setter
     private UUID conversionPlayer;
+
     /**
      * The conversion time of this Zombie Villager, in ticks.
      *

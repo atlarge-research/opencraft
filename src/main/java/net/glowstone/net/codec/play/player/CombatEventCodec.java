@@ -32,16 +32,16 @@ public final class CombatEventCodec implements Codec<CombatEventMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, CombatEventMessage message) throws IOException {
-        ByteBufUtils.writeVarInt(buf, message.getEvent().ordinal());
+    public ByteBuf encode(ByteBuf buffer, CombatEventMessage message) throws IOException {
+        ByteBufUtils.writeVarInt(buffer, message.getEvent().ordinal());
         if (message.getEvent() == Event.END_COMBAT) {
-            ByteBufUtils.writeVarInt(buf, message.getDuration());
-            buf.writeInt(message.getEntityId());
+            ByteBufUtils.writeVarInt(buffer, message.getDuration());
+            buffer.writeInt(message.getEntityId());
         } else if (message.getEvent() == Event.ENTITY_DEAD) {
-            ByteBufUtils.writeVarInt(buf, message.getPlayerId());
-            buf.writeInt(message.getEntityId());
-            GlowBufUtils.writeChat(buf, message.getMessage());
+            ByteBufUtils.writeVarInt(buffer, message.getPlayerId());
+            buffer.writeInt(message.getEntityId());
+            GlowBufUtils.writeChat(buffer, message.getMessage());
         }
-        return buf;
+        return buffer;
     }
 }

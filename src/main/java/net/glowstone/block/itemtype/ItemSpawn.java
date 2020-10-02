@@ -4,6 +4,7 @@ import net.glowstone.block.GlowBlock;
 import net.glowstone.entity.EntityRegistry;
 import net.glowstone.entity.GlowEntity;
 import net.glowstone.entity.GlowPlayer;
+import net.glowstone.entity.physics.BlockBoundingBoxes;
 import net.glowstone.inventory.GlowMetaSpawn;
 import net.glowstone.io.entity.EntityStorage;
 import net.glowstone.util.nbt.CompoundTag;
@@ -29,15 +30,18 @@ public class ItemSpawn extends ItemType {
             EntityType type = meta.getSpawnedType();
             CompoundTag tag = meta.getEntityTag();
 
-            // TODO: check for fence/wall
-            //if (face == BlockFace.UP && against instanceof BlockFence) {
-            //location.add(0, 0.5, 0);
-            //}
+            if (face == BlockFace.UP) {
+                if (BlockBoundingBoxes.getBoundingBoxes(against).stream().anyMatch(box -> box.getSize().getY() > 1.0)) {
+                    location.add(0, 0.5, 0);
+                }
+            }
 
             if (type != null) {
-                GlowEntity entity = against.getWorld()
-                    .spawn(location.add(0.5, 0, 0.5), EntityRegistry.getEntity(type),
-                        SpawnReason.SPAWNER_EGG);
+                GlowEntity entity = against.getWorld().spawn(
+                       location.add(0.5, GlowEntity.COLLISION_OFFSET, 0.5),
+                       EntityRegistry.getEntity(type),
+                       SpawnReason.SPAWNER_EGG
+                );
                 if (tag != null) {
                     EntityStorage.load(entity, tag);
                 }

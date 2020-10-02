@@ -2,13 +2,12 @@ package net.glowstone.net.codec.play.player;
 
 import com.flowpowered.network.Codec;
 import io.netty.buffer.ByteBuf;
-import java.io.IOException;
 import net.glowstone.net.message.play.player.PlayerLookMessage;
 
 public final class PlayerLookCodec implements Codec<PlayerLookMessage> {
 
     @Override
-    public PlayerLookMessage decode(ByteBuf buffer) throws IOException {
+    public PlayerLookMessage decode(ByteBuf buffer) {
         float yaw = buffer.readFloat();
         float pitch = buffer.readFloat();
         boolean onGround = buffer.readBoolean();
@@ -16,10 +15,10 @@ public final class PlayerLookCodec implements Codec<PlayerLookMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, PlayerLookMessage message) throws IOException {
-        buf.writeFloat(message.getYaw());
-        buf.writeFloat(message.getPitch());
-        buf.writeBoolean(message.isOnGround());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, PlayerLookMessage message) {
+        buffer.writeFloat(message.getYaw());
+        buffer.writeFloat(message.getPitch());
+        buffer.writeBoolean(message.isOnGround());
+        return buffer;
     }
 }

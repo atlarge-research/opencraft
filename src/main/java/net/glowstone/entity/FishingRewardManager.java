@@ -97,14 +97,17 @@ public class FishingRewardManager {
          * The item to drop, without any random enchantments.
          */
         private ItemStack item;
+
         /**
          * Chance to get this item in this category.
          */
         private double chance;
+
         /**
          * Minimum enchantment level, or zero for unenchanted item.
          */
         private int minEnchantmentLevel;
+
         /**
          * Maximum enchantment level, or zero for unenchanted item.
          */

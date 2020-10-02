@@ -28,6 +28,7 @@ import org.bukkit.projectiles.ProjectileSource;
 public class GlowAreaEffectCloud extends GlowEntity implements AreaEffectCloud {
 
     private static final int NETWORK_TYPE_ID = 3;
+
     /**
      * Used to implement the reapplication delay. Note that this isn't serialized -- all
      * reapplication delays will effectively end when the chunk unloads.

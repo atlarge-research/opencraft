@@ -14,8 +14,8 @@ public final class IncomingChatCodec implements Codec<IncomingChatMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, IncomingChatMessage message) throws IOException {
-        ByteBufUtils.writeUTF8(buf, message.getText());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, IncomingChatMessage message) throws IOException {
+        ByteBufUtils.writeUTF8(buffer, message.getText());
+        return buffer;
     }
 }

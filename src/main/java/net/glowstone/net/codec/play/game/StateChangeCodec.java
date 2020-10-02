@@ -2,13 +2,12 @@ package net.glowstone.net.codec.play.game;
 
 import com.flowpowered.network.Codec;
 import io.netty.buffer.ByteBuf;
-import java.io.IOException;
 import net.glowstone.net.message.play.game.StateChangeMessage;
 
 public final class StateChangeCodec implements Codec<StateChangeMessage> {
 
     @Override
-    public StateChangeMessage decode(ByteBuf buffer) throws IOException {
+    public StateChangeMessage decode(ByteBuf buffer) {
         int reason = buffer.readByte();
         float value = buffer.readFloat();
 
@@ -16,9 +15,9 @@ public final class StateChangeCodec implements Codec<StateChangeMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, StateChangeMessage message) throws IOException {
-        buf.writeByte(message.getReason());
-        buf.writeFloat(message.getValue());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, StateChangeMessage message) {
+        buffer.writeByte(message.getReason());
+        buffer.writeFloat(message.getValue());
+        return buffer;
     }
 }

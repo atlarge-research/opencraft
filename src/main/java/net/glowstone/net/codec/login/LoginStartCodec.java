@@ -14,8 +14,8 @@ public final class LoginStartCodec implements Codec<LoginStartMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, LoginStartMessage message) throws IOException {
-        ByteBufUtils.writeUTF8(buf, message.getUsername());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, LoginStartMessage message) throws IOException {
+        ByteBufUtils.writeUTF8(buffer, message.getUsername());
+        return buffer;
     }
 }

@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -104,7 +105,7 @@ public class AttributeManager {
             modifiers = Collections.emptyList();
         }
 
-        properties.put(key.toString(), new Property(key, value, modifiers));
+        properties.put(key.toString(), new Property(this, key, value, modifiers));
         needsUpdate = true;
     }
 
@@ -193,11 +194,13 @@ public class AttributeManager {
          */
         @Getter
         private final double def;
+
         /**
          * Minimum attribute value.
          */
         @Getter
         private final double min;
+
         /**
          * Maximum attribute value.
          */
@@ -222,7 +225,10 @@ public class AttributeManager {
     }
 
     @AllArgsConstructor
-    public class Property implements AttributeInstance {
+    public static class Property implements AttributeInstance {
+
+        private final AttributeManager manager;
+
         @Getter
         private Key key;
         private double value;
@@ -234,11 +240,28 @@ public class AttributeManager {
         /**
          * Create a new property instance.
          *
+         * @param manager of the property.
+         * @param key of the property
+         * @param value of the property
+         * @param modifiers of the property
+         */
+        public Property(AttributeManager manager, Key key, double value, Collection<AttributeModifier> modifiers) {
+            this.manager = manager;
+            this.key = key;
+            this.value = value;
+            this.modifiers = modifiers.stream()
+                    .collect(Collectors.toMap(AttributeModifier::getUniqueId, Function.identity()));
+        }
+
+        /**
+         * Create a new property instance without a manager.
+         *
          * @param key of the property
          * @param value of the property
          * @param modifiers of the property
          */
         public Property(Key key, double value, Collection<AttributeModifier> modifiers) {
+            this.manager = null;
             this.key = key;
             this.value = value;
             this.modifiers = modifiers.stream()
@@ -304,8 +327,10 @@ public class AttributeManager {
         }
 
         private void onMutation() {
-            this.isCacheUpToDate = false;
-            AttributeManager.this.needsUpdate = true;
+            isCacheUpToDate = false;
+            if (manager != null) {
+                manager.needsUpdate = true;
+            }
         }
 
         /**
@@ -359,6 +384,42 @@ public class AttributeManager {
         public Collection<AttributeModifier> getModifiers() {
             return modifiers.values();
         }
-    }
 
+        @Override
+        public String toString() {
+            return "Property{"
+                    + "manager=" + manager
+                    + ", key=" + key
+                    + ", value=" + value
+                    + ", modifiers=" + modifiers
+                    + ", cachedValue=" + cachedValue
+                    + ", isCacheUpToDate=" + isCacheUpToDate
+                    + '}';
+        }
+
+        @Override
+        public boolean equals(Object object) {
+
+            if (this == object) {
+                return true;
+            }
+
+            if (object == null || getClass() != object.getClass()) {
+                return false;
+            }
+
+            Property property = (Property) object;
+            return Double.compare(property.value, value) == 0
+                    && Double.compare(property.cachedValue, cachedValue) == 0
+                    && isCacheUpToDate == property.isCacheUpToDate
+                    && Objects.equals(manager, property.manager)
+                    && key == property.key
+                    && Objects.equals(modifiers, property.modifiers);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(manager, key, value, modifiers, cachedValue, isCacheUpToDate);
+        }
+    }
 }

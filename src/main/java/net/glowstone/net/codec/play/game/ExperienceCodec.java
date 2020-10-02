@@ -17,10 +17,10 @@ public final class ExperienceCodec implements Codec<ExperienceMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, ExperienceMessage message) throws IOException {
-        buf.writeFloat(message.getBarValue());
-        ByteBufUtils.writeVarInt(buf, message.getLevel());
-        ByteBufUtils.writeVarInt(buf, message.getTotalExp());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, ExperienceMessage message) {
+        buffer.writeFloat(message.getBarValue());
+        ByteBufUtils.writeVarInt(buffer, message.getLevel());
+        ByteBufUtils.writeVarInt(buffer, message.getTotalExp());
+        return buffer;
     }
 }

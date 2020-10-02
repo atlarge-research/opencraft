@@ -9,14 +9,16 @@ import net.glowstone.net.message.play.scoreboard.ScoreboardDisplayMessage;
 public final class ScoreboardDisplayCodec implements Codec<ScoreboardDisplayMessage> {
 
     @Override
-    public ScoreboardDisplayMessage decode(ByteBuf buf) throws IOException {
-        throw new UnsupportedOperationException("Cannot decode ScoreboardDisplayMessage");
+    public ScoreboardDisplayMessage decode(ByteBuf buffer) throws IOException {
+        byte position = buffer.readByte();
+        String objective = ByteBufUtils.readUTF8(buffer);
+        return new ScoreboardDisplayMessage(position, objective);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, ScoreboardDisplayMessage message) throws IOException {
-        buf.writeByte(message.getPosition());
-        ByteBufUtils.writeUTF8(buf, message.getObjective());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, ScoreboardDisplayMessage message) throws IOException {
+        buffer.writeByte(message.getPosition());
+        ByteBufUtils.writeUTF8(buffer, message.getObjective());
+        return buffer;
     }
 }

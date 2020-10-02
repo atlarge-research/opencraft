@@ -2,13 +2,12 @@ package net.glowstone.net.codec.play.player;
 
 import com.flowpowered.network.Codec;
 import io.netty.buffer.ByteBuf;
-import java.io.IOException;
 import net.glowstone.net.message.play.player.PlayerPositionLookMessage;
 
 public final class PlayerPositionLookCodec implements Codec<PlayerPositionLookMessage> {
 
     @Override
-    public PlayerPositionLookMessage decode(ByteBuf buffer) throws IOException {
+    public PlayerPositionLookMessage decode(ByteBuf buffer) {
         double x = buffer.readDouble();
         double y = buffer.readDouble();
         double z = buffer.readDouble();
@@ -20,13 +19,13 @@ public final class PlayerPositionLookCodec implements Codec<PlayerPositionLookMe
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, PlayerPositionLookMessage message) throws IOException {
-        buf.writeDouble(message.getX());
-        buf.writeDouble(message.getY());
-        buf.writeDouble(message.getZ());
-        buf.writeFloat(message.getYaw());
-        buf.writeFloat(message.getPitch());
-        buf.writeBoolean(message.isOnGround());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, PlayerPositionLookMessage message) {
+        buffer.writeDouble(message.getX());
+        buffer.writeDouble(message.getY());
+        buffer.writeDouble(message.getZ());
+        buffer.writeFloat(message.getYaw());
+        buffer.writeFloat(message.getPitch());
+        buffer.writeBoolean(message.isOnGround());
+        return buffer;
     }
 }

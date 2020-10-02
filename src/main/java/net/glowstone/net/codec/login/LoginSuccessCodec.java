@@ -12,14 +12,13 @@ public final class LoginSuccessCodec implements Codec<LoginSuccessMessage> {
     public LoginSuccessMessage decode(ByteBuf buffer) throws IOException {
         String uuid = ByteBufUtils.readUTF8(buffer);
         String username = ByteBufUtils.readUTF8(buffer);
-
         return new LoginSuccessMessage(uuid, username);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, LoginSuccessMessage message) throws IOException {
-        ByteBufUtils.writeUTF8(buf, message.getUuid());
-        ByteBufUtils.writeUTF8(buf, message.getUsername());
-        return buf;
+    public ByteBuf encode(ByteBuf buffer, LoginSuccessMessage message) throws IOException {
+        ByteBufUtils.writeUTF8(buffer, message.getUuid());
+        ByteBufUtils.writeUTF8(buffer, message.getUsername());
+        return buffer;
     }
 }

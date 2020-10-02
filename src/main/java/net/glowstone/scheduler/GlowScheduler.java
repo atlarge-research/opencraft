@@ -1,5 +1,6 @@
 package net.glowstone.scheduler;
 
+import com.atlarge.yscollector.YSCollector;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import net.glowstone.GlowServer;
 import net.glowstone.net.SessionRegistry;
+import net.glowstone.util.config.ServerConfig;
 import org.bukkit.Server;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -32,7 +34,8 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scheduler.BukkitWorker;
 
 /**
- * A scheduler for managing server ticks, Bukkit tasks, and other synchronization.
+ * A scheduler for managing server ticks, Bukkit tasks, and other
+ * synchronization.
  */
 public final class GlowScheduler implements BukkitScheduler {
 
@@ -40,46 +43,57 @@ public final class GlowScheduler implements BukkitScheduler {
      * The number of milliseconds between pulses.
      */
     static final int PULSE_EVERY = 50;
+
     private static final int MAX_THREADS = Runtime.getRuntime().availableProcessors();
+
     /**
      * The server this scheduler is managing for.
      */
     private final Server server;
+
     /**
      * The scheduled executor service which backs this worlds.
      */
     private final ScheduledExecutorService executor = Executors
         .newSingleThreadScheduledExecutor(GlowThreadFactory.INSTANCE);
+
     /**
      * Executor to handle execution of async tasks.
      */
     private final ExecutorService asyncTaskExecutor
             = new ThreadPoolExecutor(0, MAX_THREADS, 60L, TimeUnit.SECONDS,
             new LinkedBlockingDeque<>(), GlowThreadFactory.INSTANCE);
+
     /**
      * A list of active tasks.
      */
     private final ConcurrentMap<Integer, GlowTask> tasks = new ConcurrentHashMap<>();
+
     /**
      * World tick scheduler.
      */
     private final WorldScheduler worlds;
+
     /**
      * Tasks to be executed during the tick.
      */
     private final Deque<Runnable> inTickTasks = new ConcurrentLinkedDeque<>();
+
     /**
      * Condition to wait on when processing in-tick tasks.
      */
     private final Object inTickTaskCondition;
+
     /**
      * Runnable to run at end of tick.
      */
     private final Runnable tickEndRun;
+
     /**
      * The primary worlds thread in which pulse() is called.
      */
     private Thread primaryThread;
+
     /**
      * The session registry used to pulse all players.
      */
@@ -132,7 +146,7 @@ public final class GlowScheduler implements BukkitScheduler {
     public void stop() {
         cancelAllTasks();
         worlds.stop();
-        executor.shutdownNow();
+        executor.shutdown();
         asyncTaskExecutor.shutdown();
 
         synchronized (inTickTaskCondition) {
@@ -178,17 +192,45 @@ public final class GlowScheduler implements BukkitScheduler {
     }
 
     /**
+     * Start the yardstick collector.
+     * @param key the key.
+     * @param help the help message.
+     */
+    private void startMeasurement(String key, String help) {
+        if (ServerConfig.Key.OPENCRAFT_COLLECTOR.equals(true)) {
+            YSCollector.start(key, help);
+        }
+    }
+
+    /**
+     * Stop the yardstick collector.
+     * @param key the key.
+     */
+    private void stopMeasurement(String key) {
+        if (ServerConfig.Key.OPENCRAFT_COLLECTOR.equals(true)) {
+            YSCollector.stop(key);
+        }
+    }
+
+    /**
      * Adds new tasks and updates existing tasks, removing them if necessary.
      */
     // TODO: Add watchdog system to make sure ticks advance
     private void pulse() {
+
+        startMeasurement("tick", "The duration of a tick.");
         primaryThread = Thread.currentThread();
 
         // Process player packets
+        startMeasurement("tick_network",
+                "The duration of a tick processing the network");
         sessionRegistry.pulse();
+        stopMeasurement("tick_network");
 
         // Run the relevant tasks.
-        for (Iterator<GlowTask> it = tasks.values().iterator(); it.hasNext(); ) {
+        startMeasurement("tick_jobs",
+                "Duration of the server tick spent processing jobs");
+        for (Iterator<GlowTask> it = tasks.values().iterator(); it.hasNext();) {
             GlowTask task = it.next();
             switch (task.shouldExecute()) {
                 case RUN:
@@ -205,6 +247,9 @@ public final class GlowScheduler implements BukkitScheduler {
                     // do nothing
             }
         }
+        stopMeasurement("tick_jobs");
+
+        startMeasurement("tick_worlds", "Duration of a tick processing worlds");
         try {
             int currentTick = worlds.beginTick();
             try {
@@ -230,7 +275,9 @@ public final class GlowScheduler implements BukkitScheduler {
             System.out.flush();
             System.err.flush();
         }
+        stopMeasurement("tick_worlds");
 
+        stopMeasurement("tick");
     }
 
     @Override

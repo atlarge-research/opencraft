@@ -15,6 +15,7 @@ import net.glowstone.scoreboard.NbtScoreboardIoWriter;
 public final class NbtScoreboardIoService implements ScoreboardIoService {
 
     private static final String SCOREBOARD_SAVE_FILE = "scoreboard.dat"; // NON-NLS
+
     /**
      * The root directory of the scoreboard.
      */
