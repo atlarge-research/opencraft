@@ -4,9 +4,9 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.atlarge-research</groupId>
+    <groupId>science.atlarge.opencraft</groupId>
     <artifactId>opencraft</artifactId>
-    <version>1.1</version>
+    <version>1.1.1</version>
     <packaging>jar</packaging>
 
     <name>Opencraft</name>
@@ -276,7 +276,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
-                <version>1.17</version>
+                <version>1.18</version>
                 <executions>
                     <execution>
                         <phase>process-classes</phase>
@@ -339,8 +339,8 @@
                     <forceCreation>true</forceCreation>
                     <archive>
                         <manifestEntries>
-                            <Launcher-Agent-Class>net.glowstone.util.ClassPathAgent</Launcher-Agent-Class>
-                            <Main-Class>net.glowstone.Main</Main-Class>
+                            <Launcher-Agent-Class>science.atlarge.opencraft.opencraft.util.ClassPathAgent</Launcher-Agent-Class>
+                            <Main-Class>science.atlarge.opencraft.opencraft.Main</Main-Class>
                             <Implementation-Title>${project.name}</Implementation-Title>
                             <Implementation-Version>${project.version}</Implementation-Version>
                             <Implementation-Vendor>${maven.build.timestamp}</Implementation-Vendor>
