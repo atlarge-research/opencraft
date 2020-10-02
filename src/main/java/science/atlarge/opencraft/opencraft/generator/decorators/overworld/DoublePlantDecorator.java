@@ -1,0 +1,52 @@
+package science.atlarge.opencraft.opencraft.generator.decorators.overworld;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+import lombok.Data;
+import science.atlarge.opencraft.opencraft.generator.decorators.BlockDecorator;
+import science.atlarge.opencraft.opencraft.generator.objects.DoubleTallPlant;
+import org.bukkit.Chunk;
+import org.bukkit.World;
+import org.bukkit.material.types.DoublePlantSpecies;
+
+public class DoublePlantDecorator extends BlockDecorator {
+
+    private List<DoublePlantDecoration> doublePlants;
+
+    public final void setDoublePlants(DoublePlantDecoration... doublePlants) {
+        this.doublePlants = Arrays.asList(doublePlants);
+    }
+
+    @Override
+    public void decorate(World world, Random random, Chunk source) {
+        int sourceX = (source.getX() << 4) + random.nextInt(16);
+        int sourceZ = (source.getZ() << 4) + random.nextInt(16);
+        int sourceY = random.nextInt(world.getHighestBlockYAt(sourceX, sourceZ) + 32);
+
+        DoublePlantSpecies species = getRandomDoublePlant(random, doublePlants);
+        new DoubleTallPlant(species).generate(world, random, sourceX, sourceY, sourceZ);
+    }
+
+    private DoublePlantSpecies getRandomDoublePlant(Random random,
+        List<DoublePlantDecoration> decorations) {
+        int totalWeight = 0;
+        for (DoublePlantDecoration decoration : decorations) {
+            totalWeight += decoration.getWeight();
+        }
+        int weight = random.nextInt(totalWeight);
+        for (DoublePlantDecoration decoration : decorations) {
+            weight -= decoration.getWeight();
+            if (weight < 0) {
+                return decoration.getSpecies();
+            }
+        }
+        return null;
+    }
+
+    @Data
+    public static final class DoublePlantDecoration {
+        private final DoublePlantSpecies species;
+        private final int weight;
+    }
+}
