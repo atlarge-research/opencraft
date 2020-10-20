@@ -196,13 +196,22 @@ public class EventFactory {
         return event;
     }
 
-    public PlayerJoinEvent onPlayerJoin(Player player) {
-        numJoins.incrementAndGet();
-        try (PrintWriter writer = new PrintWriter(new FileWriter("players.log", true))) {
-            writer.println(System.currentTimeMillis() + " join " + numJoins);
-        } catch (IOException e) {
-            GlowServer.logger.warning("Cannot write to players.log");
+    private void logIncrease(Server server, AtomicInteger counter, String name) {
+        if (server instanceof GlowServer) {
+            GlowServer glowServer = (GlowServer) server;
+            if (glowServer.isLogNumberOfPlayers()) {
+                counter.incrementAndGet();
+                try (PrintWriter writer = new PrintWriter(new FileWriter("players.log", true))) {
+                    writer.println(System.currentTimeMillis() + " " + name + " " + counter);
+                } catch (IOException e) {
+                    GlowServer.logger.warning("Cannot write to players.log");
+                }
+            }
         }
+    }
+
+    public PlayerJoinEvent onPlayerJoin(Player player) {
+        logIncrease(player.getServer(), numJoins, "join");
         return callEvent(new PlayerJoinEvent(player,
                 GlowstoneMessages.Player.JOINED.get(ChatColor.YELLOW, player.getName())));
     }
@@ -212,12 +221,7 @@ public class EventFactory {
     }
 
     public PlayerQuitEvent onPlayerQuit(Player player) {
-        numLeaves.incrementAndGet();
-        try (PrintWriter writer = new PrintWriter(new FileWriter("players.log", true))) {
-            writer.println(System.currentTimeMillis() + " leave " + numLeaves);
-        } catch (IOException e) {
-            GlowServer.logger.warning("Cannot write to players.log");
-        }
+        logIncrease(player.getServer(), numLeaves, "leave");
         return callEvent(new PlayerQuitEvent(player,
                 GlowstoneMessages.Player.LEFT.get(ChatColor.YELLOW, player.getName())));
     }

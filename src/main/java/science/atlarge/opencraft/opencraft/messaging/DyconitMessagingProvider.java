@@ -22,7 +22,7 @@ public class DyconitMessagingProvider implements MessagingProvider {
             if (policy == null) {
                 throw new RuntimeException("Policy '" + policyString + "' does not exist.");
             }
-            dyconitMessagingSystem = new DyconitMessaging(new DyconitSystem<>(policy, new FeedbackFilter(), true));
+            dyconitMessagingSystem = new DyconitMessaging(new DyconitSystem<>(policy, new FeedbackFilter(), server.isLogDyconits()));
         }
         return dyconitMessagingSystem;
     }
