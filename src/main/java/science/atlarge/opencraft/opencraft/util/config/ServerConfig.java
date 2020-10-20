@@ -418,7 +418,7 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         LOG_FILE("server.log-file", "logs/log-%D.txt", String.class::isInstance),
         ONLINE_MODE("server.online-mode", true, Migrate.PROPS, "online-mode",
                 Boolean.class::isInstance),
-        MAX_PLAYERS("server.max-players", 20, Migrate.PROPS, "max-players",
+        MAX_PLAYERS("server.max-players", 999, Migrate.PROPS, "max-players",
                 Validators.POSITIVE_INTEGER),
         WHITELIST("server.whitelisted", false, Migrate.PROPS, "white-list",
                 Boolean.class::isInstance),
