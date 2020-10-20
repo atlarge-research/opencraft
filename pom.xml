@@ -6,7 +6,7 @@
 
     <groupId>science.atlarge.opencraft</groupId>
     <artifactId>opencraft</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <packaging>jar</packaging>
 
     <name>Opencraft</name>
@@ -339,7 +339,8 @@
                     <forceCreation>true</forceCreation>
                     <archive>
                         <manifestEntries>
-                            <Launcher-Agent-Class>science.atlarge.opencraft.opencraft.util.ClassPathAgent</Launcher-Agent-Class>
+                            <Launcher-Agent-Class>science.atlarge.opencraft.opencraft.util.ClassPathAgent
+                            </Launcher-Agent-Class>
                             <Main-Class>science.atlarge.opencraft.opencraft.Main</Main-Class>
                             <Implementation-Title>${project.name}</Implementation-Title>
                             <Implementation-Version>${project.version}</Implementation-Version>
