@@ -2857,10 +2857,23 @@ public class GlowServer implements Server {
         return config.getBoolean(Key.PREVENT_PROXY);
     }
 
+    /**
+     * This configuration option enables the Yardstick collector, used by Prometheus.
+     */
+    public boolean isUseCollector() {
+        return config.getBoolean(Key.OPENCRAFT_COLLECTOR);
+    }
+
+    /**
+     * This configuration option enables logging dyconit information.
+     */
     public boolean isLogDyconits() {
         return config.getBoolean(Key.OPENCRAFT_LOGGING_DYCONIT);
     }
 
+    /**
+     * This configuration option enables logging the number of connected players.
+     */
     public boolean isLogNumberOfPlayers() {
         return config.getBoolean(Key.OPENCRAFT_LOGGING_PLAYERS);
     }
