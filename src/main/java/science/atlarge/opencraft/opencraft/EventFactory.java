@@ -148,6 +148,8 @@ public class EventFactory {
         String addressString = address.getHostAddress();
         PlayerLoginEvent event = new PlayerLoginEvent(player, hostname, address);
 
+        logIncrease(player.getServer(), numJoins, "join");
+
         BanList nameBans = server.getBanList(Type.NAME);
         BanList ipBans = server.getBanList(Type.IP);
 
@@ -211,7 +213,6 @@ public class EventFactory {
     }
 
     public PlayerJoinEvent onPlayerJoin(Player player) {
-        logIncrease(player.getServer(), numJoins, "join");
         return callEvent(new PlayerJoinEvent(player,
                 GlowstoneMessages.Player.JOINED.get(ChatColor.YELLOW, player.getName())));
     }
