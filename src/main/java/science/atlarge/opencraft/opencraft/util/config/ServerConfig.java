@@ -20,9 +20,6 @@ import java.util.Properties;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import lombok.Getter;
-import science.atlarge.opencraft.opencraft.GlowServer;
-import science.atlarge.opencraft.opencraft.util.CompatibilityBundle;
-import science.atlarge.opencraft.opencraft.util.DynamicallyTypedMap;
 import org.bukkit.Difficulty;
 import org.bukkit.GameMode;
 import org.bukkit.WorldType;
@@ -32,6 +29,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.FileUtil;
 import org.jetbrains.annotations.NonNls;
 import org.yaml.snakeyaml.error.YAMLException;
+import science.atlarge.opencraft.opencraft.GlowServer;
+import science.atlarge.opencraft.opencraft.util.CompatibilityBundle;
+import science.atlarge.opencraft.opencraft.util.DynamicallyTypedMap;
 
 /**
  * Utilities for handling the server configuration files.
@@ -390,6 +390,10 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         // Opencraft - Collector
         OPENCRAFT_COLLECTOR("opencraft.collector", false, Boolean.class::isInstance),
 
+        // Opencraft - Logging
+        OPENCRAFT_LOGGING_DYCONIT("opencraft.logging.dyconit", false, Boolean.class::isInstance),
+        OPENCRAFT_LOGGING_PLAYERS("opencraft.logging.players", false, Boolean.class::isInstance),
+
         // Opencraft - Messaging System
         OPENCRAFT_MESSAGING_TYPE("opencraft.messaging.type", "dyconit", String.class::isInstance),
         OPENCRAFT_POLICY("opencraft.messaging.policy", "chunk", String.class::isInstance),
@@ -414,7 +418,7 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         LOG_FILE("server.log-file", "logs/log-%D.txt", String.class::isInstance),
         ONLINE_MODE("server.online-mode", true, Migrate.PROPS, "online-mode",
                 Boolean.class::isInstance),
-        MAX_PLAYERS("server.max-players", 20, Migrate.PROPS, "max-players",
+        MAX_PLAYERS("server.max-players", 999, Migrate.PROPS, "max-players",
                 Validators.POSITIVE_INTEGER),
         WHITELIST("server.whitelisted", false, Migrate.PROPS, "white-list",
                 Boolean.class::isInstance),

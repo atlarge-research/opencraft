@@ -52,6 +52,66 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import lombok.Getter;
+import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.BanEntry;
+import org.bukkit.BanList;
+import org.bukkit.BanList.Type;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Difficulty;
+import org.bukkit.GameMode;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.Server;
+import org.bukkit.UnsafeValues;
+import org.bukkit.Warning.WarningState;
+import org.bukkit.World;
+import org.bukkit.World.Environment;
+import org.bukkit.WorldCreator;
+import org.bukkit.WorldType;
+import org.bukkit.advancement.Advancement;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarFlag;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandException;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemorySection;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.server.BroadcastMessageEvent;
+import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.generator.ChunkGenerator.ChunkData;
+import org.bukkit.help.HelpMap;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFactory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Merchant;
+import org.bukkit.inventory.Recipe;
+import org.bukkit.permissions.Permissible;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginLoadOrder;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.ServicesManager;
+import org.bukkit.plugin.SimplePluginManager;
+import org.bukkit.plugin.SimpleServicesManager;
+import org.bukkit.plugin.java.JavaPluginLoader;
+import org.bukkit.plugin.messaging.Messenger;
+import org.bukkit.plugin.messaging.StandardMessenger;
+import org.bukkit.util.CachedServerIcon;
+import org.bukkit.util.permissions.DefaultPermissions;
+import org.jetbrains.annotations.NonNls;
 import science.atlarge.opencraft.opencraft.advancement.GlowAdvancement;
 import science.atlarge.opencraft.opencraft.advancement.GlowAdvancementDisplay;
 import science.atlarge.opencraft.opencraft.block.BuiltinMaterialValueManager;
@@ -133,6 +193,7 @@ import science.atlarge.opencraft.opencraft.net.GameServer;
 import science.atlarge.opencraft.opencraft.net.GlowSession;
 import science.atlarge.opencraft.opencraft.net.Networking;
 import science.atlarge.opencraft.opencraft.net.SessionRegistry;
+import science.atlarge.opencraft.opencraft.net.handler.status.StatusRequestHandler;
 import science.atlarge.opencraft.opencraft.net.message.play.player.AdvancementsMessage;
 import science.atlarge.opencraft.opencraft.net.message.play.player.PlayerAbilitiesMessage;
 import science.atlarge.opencraft.opencraft.net.message.status.StatusRequestMessage;
@@ -163,67 +224,6 @@ import science.atlarge.opencraft.opencraft.util.library.Library;
 import science.atlarge.opencraft.opencraft.util.library.LibraryKey;
 import science.atlarge.opencraft.opencraft.util.library.LibraryManager;
 import science.atlarge.opencraft.opencraft.util.loot.LootingManager;
-import net.md_5.bungee.api.chat.BaseComponent;
-import org.bukkit.BanEntry;
-import org.bukkit.BanList;
-import org.bukkit.BanList.Type;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Difficulty;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Server;
-import org.bukkit.UnsafeValues;
-import org.bukkit.Warning.WarningState;
-import org.bukkit.World;
-import org.bukkit.World.Environment;
-import org.bukkit.WorldCreator;
-import org.bukkit.WorldType;
-import org.bukkit.advancement.Advancement;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarFlag;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandException;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.SimpleCommandMap;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemorySection;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.server.BroadcastMessageEvent;
-import org.bukkit.generator.ChunkGenerator;
-import org.bukkit.generator.ChunkGenerator.ChunkData;
-import org.bukkit.help.HelpMap;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.InventoryHolder;
-import org.bukkit.inventory.ItemFactory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.Merchant;
-import org.bukkit.inventory.Recipe;
-import org.bukkit.permissions.Permissible;
-import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionDefault;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginLoadOrder;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.ServicesManager;
-import org.bukkit.plugin.SimplePluginManager;
-import org.bukkit.plugin.SimpleServicesManager;
-import org.bukkit.plugin.java.JavaPluginLoader;
-import org.bukkit.plugin.messaging.Messenger;
-import org.bukkit.plugin.messaging.StandardMessenger;
-import org.bukkit.util.CachedServerIcon;
-import org.bukkit.util.permissions.DefaultPermissions;
-import org.jetbrains.annotations.NonNls;
-import science.atlarge.opencraft.opencraft.net.handler.status.StatusRequestHandler;
 
 /**
  * The core class of the Glowstone server.
@@ -2855,6 +2855,27 @@ public class GlowServer implements Server {
      */
     public boolean shouldPreventProxy() {
         return config.getBoolean(Key.PREVENT_PROXY);
+    }
+
+    /**
+     * This configuration option enables the Yardstick collector, used by Prometheus.
+     */
+    public boolean isUseCollector() {
+        return config.getBoolean(Key.OPENCRAFT_COLLECTOR);
+    }
+
+    /**
+     * This configuration option enables logging dyconit information.
+     */
+    public boolean isLogDyconits() {
+        return config.getBoolean(Key.OPENCRAFT_LOGGING_DYCONIT);
+    }
+
+    /**
+     * This configuration option enables logging the number of connected players.
+     */
+    public boolean isLogNumberOfPlayers() {
+        return config.getBoolean(Key.OPENCRAFT_LOGGING_PLAYERS);
     }
 
     /**

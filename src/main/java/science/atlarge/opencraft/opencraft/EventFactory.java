@@ -1,6 +1,9 @@
 package science.atlarge.opencraft.opencraft;
 
 import com.destroystokyo.paper.event.profile.ProfileWhitelistVerifyEvent;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.HashSet;
@@ -9,12 +12,9 @@ import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.Setter;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
-import science.atlarge.opencraft.opencraft.i18n.ConsoleMessages;
-import science.atlarge.opencraft.opencraft.i18n.GlowstoneMessages;
-import science.atlarge.opencraft.opencraft.scheduler.GlowScheduler;
 import org.bukkit.BanList;
 import org.bukkit.BanList.Type;
 import org.bukkit.ChatColor;
@@ -38,6 +38,10 @@ import org.bukkit.event.player.PlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scheduler.BukkitScheduler;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.i18n.ConsoleMessages;
+import science.atlarge.opencraft.opencraft.i18n.GlowstoneMessages;
+import science.atlarge.opencraft.opencraft.scheduler.GlowScheduler;
 
 /**
  * Central class for the calling of events.
@@ -51,6 +55,12 @@ public class EventFactory {
     @Setter
     private static EventFactory instance = new EventFactory();
 
+    /**
+     * Count how many players join and leave.
+     */
+    private static final AtomicInteger numJoins = new AtomicInteger(0);
+    private static final AtomicInteger numLeaves = new AtomicInteger(0);
+
     private EventFactory() {
     }
 
@@ -58,7 +68,7 @@ public class EventFactory {
      * Calls an event through the plugin manager.
      *
      * @param event The event to throw.
-     * @param <T> The type of the event.
+     * @param <T>   The type of the event.
      * @return the called event
      */
     public <T extends Event> T callEvent(T event) {
@@ -71,7 +81,7 @@ public class EventFactory {
             return event;
         } else {
             FutureTask<T> task = new FutureTask<>(
-                () -> server.getPluginManager().callEvent(event), event);
+                    () -> server.getPluginManager().callEvent(event), event);
             BukkitScheduler scheduler = server.getScheduler();
             ((GlowScheduler) scheduler).scheduleInTickExecution(task);
             try {
@@ -95,12 +105,11 @@ public class EventFactory {
     /**
      * Handles pre-hooks for a player login.
      *
-     * @param name the name of the player who is logging in
+     * @param name    the name of the player who is logging in
      * @param address the address of the player who is logging in
-     * @param uuid the UUID of the player who is logging in, provided by Mojang
+     * @param uuid    the UUID of the player who is logging in, provided by Mojang
      * @return an AsyncPlayerPreLoginEvent
      */
-    @SuppressWarnings("deprecation")
     public AsyncPlayerPreLoginEvent onPlayerPreLogin(String name, InetSocketAddress address,
             UUID uuid) {
         // call async event
@@ -129,7 +138,7 @@ public class EventFactory {
      * Handles post-hooks for a player login, including the name and IP banlists, whitelist policy
      * and occupancy limit.
      *
-     * @param player the login
+     * @param player   the login
      * @param hostname the hostname that was used to connect to the server
      * @return the completed event
      */
@@ -138,6 +147,8 @@ public class EventFactory {
         InetAddress address = player.getAddress().getAddress();
         String addressString = address.getHostAddress();
         PlayerLoginEvent event = new PlayerLoginEvent(player, hostname, address);
+
+        logIncrease(player.getServer(), numJoins, "join");
 
         BanList nameBans = server.getBanList(Type.NAME);
         BanList ipBans = server.getBanList(Type.IP);
@@ -159,12 +170,11 @@ public class EventFactory {
     /**
      * Handles an incoming chat message.
      *
-     * @param async This changes the event to a synchronous state.
-     * @param player the sending player
+     * @param async   This changes the event to a synchronous state.
+     * @param player  the sending player
      * @param message the message
      * @return the completed event
      */
-    @SuppressWarnings("deprecation")
     public AsyncPlayerChatEvent onPlayerChat(boolean async, Player player, String message) {
         // call async event
         Set<Player> recipients = new HashSet<>(player.getServer().getOnlinePlayers());
@@ -188,6 +198,20 @@ public class EventFactory {
         return event;
     }
 
+    private void logIncrease(Server server, AtomicInteger counter, String name) {
+        if (server instanceof GlowServer) {
+            GlowServer glowServer = (GlowServer) server;
+            if (glowServer.isLogNumberOfPlayers()) {
+                counter.incrementAndGet();
+                try (PrintWriter writer = new PrintWriter(new FileWriter("players.log", true))) {
+                    writer.println(System.currentTimeMillis() + " " + name + " " + counter);
+                } catch (IOException e) {
+                    GlowServer.logger.warning("Cannot write to players.log");
+                }
+            }
+        }
+    }
+
     public PlayerJoinEvent onPlayerJoin(Player player) {
         return callEvent(new PlayerJoinEvent(player,
                 GlowstoneMessages.Player.JOINED.get(ChatColor.YELLOW, player.getName())));
@@ -198,6 +222,7 @@ public class EventFactory {
     }
 
     public PlayerQuitEvent onPlayerQuit(Player player) {
+        logIncrease(player.getServer(), numLeaves, "leave");
         return callEvent(new PlayerQuitEvent(player,
                 GlowstoneMessages.Player.LEFT.get(ChatColor.YELLOW, player.getName())));
     }
@@ -207,7 +232,7 @@ public class EventFactory {
      *
      * @param player the player
      * @param action the click action
-     * @param hand the active hand
+     * @param hand   the active hand
      * @return the completed event
      */
     public PlayerInteractEvent onPlayerInteract(Player player, Action action,
@@ -218,11 +243,11 @@ public class EventFactory {
     /**
      * Handles a click on a block.
      *
-     * @param player the player
-     * @param action the click action
-     * @param hand the active hand
+     * @param player  the player
+     * @param action  the click action
+     * @param hand    the active hand
      * @param clicked the block clicked
-     * @param face the side of the block clicked
+     * @param face    the side of the block clicked
      * @return the completed event
      */
     public PlayerInteractEvent onPlayerInteract(Player player, Action action,
@@ -237,7 +262,7 @@ public class EventFactory {
      * (for a {@link LivingEntity} only) {@link LivingEntity#setLastDamage(double)}.
      *
      * @param event the event to run
-     * @param <T> the event's type
+     * @param <T>   the event's type
      * @return the completed event
      */
     public <T extends EntityDamageEvent> T onEntityDamage(T event) {
@@ -258,7 +283,7 @@ public class EventFactory {
      * <p>The supplied {@link PlayerLoginEvent} will be disallowed by this method
      * if the player is not whitelisted.
      *
-     * @param player the player joining the server
+     * @param player     the player joining the server
      * @param loginEvent the {@link PlayerLoginEvent} that will follow this check
      * @return true if the player is whitelisted, false otherwise
      */

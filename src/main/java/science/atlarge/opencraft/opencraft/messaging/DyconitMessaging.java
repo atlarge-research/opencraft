@@ -2,11 +2,12 @@ package science.atlarge.opencraft.opencraft.messaging;
 
 import com.flowpowered.network.Message;
 import java.util.function.Consumer;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
 import org.bukkit.entity.Player;
 import science.atlarge.opencraft.dyconits.DyconitSystem;
 import science.atlarge.opencraft.dyconits.Subscriber;
 import science.atlarge.opencraft.dyconits.policies.DyconitPolicy;
+import science.atlarge.opencraft.opencraft.GlowServer;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
 
 public class DyconitMessaging implements Messaging {
 
@@ -14,6 +15,7 @@ public class DyconitMessaging implements Messaging {
 
     public DyconitMessaging(DyconitSystem<Player, Message> system) {
         this.system = system;
+        logPolicy();
     }
 
     @Override
@@ -46,5 +48,10 @@ public class DyconitMessaging implements Messaging {
 
     public void setPolicy(DyconitPolicy<Player, Message> policy) {
         system.setPolicy(policy);
+        logPolicy();
+    }
+
+    private void logPolicy() {
+        GlowServer.logger.info("Dyconit System using policy: " + system.getPolicy().getClass().getSimpleName());
     }
 }
