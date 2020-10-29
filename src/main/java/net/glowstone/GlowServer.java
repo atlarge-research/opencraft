@@ -106,6 +106,7 @@ import net.glowstone.command.minecraft.WeatherCommand;
 import net.glowstone.command.minecraft.WhitelistCommand;
 import net.glowstone.command.minecraft.WorldBorderCommand;
 import net.glowstone.command.minecraft.XpCommand;
+import net.glowstone.command.opencraft.ServerlessGenerationCommand;
 import net.glowstone.constants.GlowEnchantment;
 import net.glowstone.constants.GlowPotionEffect;
 import net.glowstone.entity.EntityIdManager;
@@ -1290,6 +1291,8 @@ public class GlowServer implements Server {
         commandMap.register("minecraft", new SetBlockCommand());
         commandMap.register("minecraft", new CloneCommand());
         commandMap.register("minecraft", new TestForBlocksCommand());
+        // opencraft commands
+        commandMap.register("opencraft", new ServerlessGenerationCommand());
 
         File folder = new File(config.getString(Key.PLUGIN_FOLDER));
         if (!folder.isDirectory() && !folder.mkdirs()) {

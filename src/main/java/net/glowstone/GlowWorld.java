@@ -168,11 +168,19 @@ public class GlowWorld implements World {
     private final String name;
 
     /**
-     * Whether this world is meant to be used for serverless generation.
+     * Whether chunks are generated and populated serverlessly or locally.
+     */
+    @Setter
+    @Getter
+    private int serverlessGenerationLevel = 0;
+
+    /**
+     * Whether this world is on the server or on AWS Lambda.
      */
     @Setter
     @Getter
     private boolean serverless = false;
+
     /**
      * The chunk manager.
      */
@@ -257,6 +265,7 @@ public class GlowWorld implements World {
      */
     @Getter
     @Setter
+    @Expose
     private WorldType worldType;
 
     /**

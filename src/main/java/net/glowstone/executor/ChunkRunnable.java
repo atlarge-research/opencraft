@@ -84,7 +84,7 @@ public final class ChunkRunnable extends PriorityRunnable {
 
         boolean skylight = world.getEnvironment() == World.Environment.NORMAL;
 
-        world.getChunkManager().forcePopulation(x, z, true);
+        world.getChunkManager().forcePopulation(x, z, world.getServerlessGenerationLevel() > 0);
 
         GlowChunk.Key key = GlowChunk.Key.of(x, z);
         player.getChunkLock().acquire(key);
