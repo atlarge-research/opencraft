@@ -1,9 +1,6 @@
 package science.atlarge.opencraft.opencraft;
 
 import com.destroystokyo.paper.event.profile.ProfileWhitelistVerifyEvent;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.HashSet;
@@ -58,8 +55,7 @@ public class EventFactory {
     /**
      * Count how many players join and leave.
      */
-    private static final AtomicInteger numJoins = new AtomicInteger(0);
-    private static final AtomicInteger numLeaves = new AtomicInteger(0);
+    private static final AtomicInteger numPlayers = new AtomicInteger(0);
 
     private EventFactory() {
     }
@@ -148,7 +144,7 @@ public class EventFactory {
         String addressString = address.getHostAddress();
         PlayerLoginEvent event = new PlayerLoginEvent(player, hostname, address);
 
-        logIncrease(player.getServer(), numJoins, "join");
+        logEvent(player.getServer(), "numplayers", numPlayers.incrementAndGet());
 
         BanList nameBans = server.getBanList(Type.NAME);
         BanList ipBans = server.getBanList(Type.IP);
@@ -198,17 +194,10 @@ public class EventFactory {
         return event;
     }
 
-    private void logIncrease(Server server, AtomicInteger counter, String name) {
+    private void logEvent(Server server, String name, int value) {
         if (server instanceof GlowServer) {
             GlowServer glowServer = (GlowServer) server;
-            if (glowServer.isLogNumberOfPlayers()) {
-                counter.incrementAndGet();
-                try (PrintWriter writer = new PrintWriter(new FileWriter("players.log", true))) {
-                    writer.println(System.currentTimeMillis() + " " + name + " " + counter);
-                } catch (IOException e) {
-                    GlowServer.logger.warning("Cannot write to players.log");
-                }
-            }
+            glowServer.eventLogger.log(name, value);
         }
     }
 
@@ -222,7 +211,7 @@ public class EventFactory {
     }
 
     public PlayerQuitEvent onPlayerQuit(Player player) {
-        logIncrease(player.getServer(), numLeaves, "leave");
+        logEvent(player.getServer(), "numplayers", numPlayers.decrementAndGet());
         return callEvent(new PlayerQuitEvent(player,
                 GlowstoneMessages.Player.LEFT.get(ChatColor.YELLOW, player.getName())));
     }

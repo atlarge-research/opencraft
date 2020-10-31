@@ -189,6 +189,9 @@ import science.atlarge.opencraft.opencraft.io.ScoreboardIoService;
 import science.atlarge.opencraft.opencraft.io.WorldStorageProviderFactory;
 import science.atlarge.opencraft.opencraft.io.anvil.AnvilWorldStorageProvider;
 import science.atlarge.opencraft.opencraft.map.GlowMapView;
+import science.atlarge.opencraft.opencraft.measurements.EventFileLogger;
+import science.atlarge.opencraft.opencraft.measurements.EventLogger;
+import science.atlarge.opencraft.opencraft.measurements.EventNoopLogger;
 import science.atlarge.opencraft.opencraft.net.GameServer;
 import science.atlarge.opencraft.opencraft.net.GlowSession;
 import science.atlarge.opencraft.opencraft.net.Networking;
@@ -236,6 +239,11 @@ public class GlowServer implements Server {
      * The logger for this class.
      */
     public static final Logger logger = Logger.getLogger("Minecraft"); // NON-NLS
+
+    /**
+     * Logs performance measurements. Used in experiments.
+     */
+    public EventLogger eventLogger;
 
     /**
      * The game version supported by the server.
@@ -534,6 +542,20 @@ public class GlowServer implements Server {
         ipBans = new GlowBanList(this, Type.IP);
 
         loadConfig();
+        initEventLogging();
+    }
+
+    private void initEventLogging() {
+        if (config.getBoolean(Key.OPENCRAFT_LOGGING_PLAYERS)) {
+            eventLogger = new EventFileLogger(new File("event.log"));
+        } else {
+            eventLogger = new EventNoopLogger();
+        }
+        try {
+            eventLogger.init();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**

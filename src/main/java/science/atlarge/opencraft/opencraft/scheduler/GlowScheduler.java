@@ -209,6 +209,9 @@ public final class GlowScheduler implements BukkitScheduler {
         if (collectorEnabled()) {
             YSCollector.start(key, help);
         }
+        if (server instanceof GlowServer) {
+            ((GlowServer) server).eventLogger.start(key);
+        }
     }
 
     /**
@@ -219,6 +222,9 @@ public final class GlowScheduler implements BukkitScheduler {
     private void stopMeasurement(String key) {
         if (collectorEnabled()) {
             YSCollector.stop(key);
+        }
+        if (server instanceof GlowServer) {
+            ((GlowServer) server).eventLogger.stop(key);
         }
     }
 
