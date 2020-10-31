@@ -547,7 +547,7 @@ public class GlowServer implements Server {
 
     private void initEventLogging() {
         if (config.getBoolean(Key.OPENCRAFT_LOGGING_PLAYERS)) {
-            eventLogger = new EventFileLogger(new File("event.log"));
+            eventLogger = new EventFileLogger(new File("opencraft-events.log"));
         } else {
             eventLogger = new EventNoopLogger();
         }
