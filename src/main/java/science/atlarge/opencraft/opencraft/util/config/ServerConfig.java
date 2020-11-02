@@ -392,7 +392,7 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
 
         // Opencraft - Logging
         OPENCRAFT_LOGGING_DYCONIT("opencraft.logging.dyconit", false, Boolean.class::isInstance),
-        OPENCRAFT_LOGGING_PLAYERS("opencraft.logging.players", false, Boolean.class::isInstance),
+        OPENCRAFT_LOGGING_EVENTS("opencraft.logging.events", false, Boolean.class::isInstance),
 
         // Opencraft - Messaging System
         OPENCRAFT_MESSAGING_TYPE("opencraft.messaging.type", "dyconit", String.class::isInstance),

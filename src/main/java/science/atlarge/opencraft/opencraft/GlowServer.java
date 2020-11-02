@@ -546,7 +546,7 @@ public class GlowServer implements Server {
     }
 
     private void initEventLogging() {
-        if (config.getBoolean(Key.OPENCRAFT_LOGGING_PLAYERS)) {
+        if (config.getBoolean(Key.OPENCRAFT_LOGGING_EVENTS)) {
             eventLogger = new EventFileLogger(new File("opencraft-events.log"));
         } else {
             eventLogger = new EventNoopLogger();
@@ -2894,10 +2894,10 @@ public class GlowServer implements Server {
     }
 
     /**
-     * This configuration option enables logging the number of connected players.
+     * This configuration option enables logging events such as player connections and relative utilization reports.
      */
-    public boolean isLogNumberOfPlayers() {
-        return config.getBoolean(Key.OPENCRAFT_LOGGING_PLAYERS);
+    public boolean isLogEvents() {
+        return config.getBoolean(Key.OPENCRAFT_LOGGING_EVENTS);
     }
 
     /**
