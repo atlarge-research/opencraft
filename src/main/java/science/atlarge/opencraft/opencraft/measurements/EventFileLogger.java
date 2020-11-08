@@ -27,6 +27,7 @@ public class EventFileLogger extends EventLogger {
             this.file.createNewFile();
         }
         this.writer = new PrintWriter(file);
+        this.writer.println("timestamp\tkey\tvalue");
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -50,6 +51,8 @@ public class EventFileLogger extends EventLogger {
                 writer.println(logEntries.take());
             } catch (InterruptedException e) {
                 break;
+            } finally {
+                writer.flush();
             }
         }
     }
