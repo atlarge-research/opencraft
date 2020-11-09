@@ -5,6 +5,7 @@ import java.util.Objects;
 import net.glowstone.GlowWorld;
 import net.glowstone.chunk.AreaOfInterest;
 import net.glowstone.chunk.GlowChunk;
+import net.glowstone.chunk.policy.NaiveServerlessChunkLoadingPolicy;
 import net.glowstone.entity.GlowPlayer;
 import net.glowstone.net.GlowSession;
 import net.glowstone.util.Coordinates;
@@ -84,7 +85,7 @@ public final class ChunkRunnable extends PriorityRunnable {
 
         boolean skylight = world.getEnvironment() == World.Environment.NORMAL;
 
-        world.getChunkManager().forcePopulation(x, z, world.getServerlessGenerationLevel() > 0);
+        world.getChunkManager().forcePopulation(x, z, world.getChunkLoadingPolicy() instanceof NaiveServerlessChunkLoadingPolicy);
 
         GlowChunk.Key key = GlowChunk.Key.of(x, z);
         player.getChunkLock().acquire(key);

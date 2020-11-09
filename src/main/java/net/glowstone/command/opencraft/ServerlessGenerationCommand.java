@@ -1,6 +1,7 @@
 package net.glowstone.command.opencraft;
 
 import net.glowstone.GlowWorld;
+import net.glowstone.chunk.policy.ChunkLoadingPolicy;
 import net.glowstone.command.CommandUtils;
 import net.glowstone.command.minecraft.GlowVanillaCommand;
 import net.glowstone.i18n.LocalizedStringImpl;
@@ -15,12 +16,13 @@ public class ServerlessGenerationCommand extends GlowVanillaCommand {
     protected boolean execute(CommandSender sender, String commandLabel, String[] args, CommandMessages localizedMessages) {
         GlowWorld world = CommandUtils.getWorld(sender);
         if (args.length < 1) {
-            new LocalizedStringImpl("slgen.done", localizedMessages.getResourceBundle()).send(sender, world.getServerlessGenerationLevel());
+            new LocalizedStringImpl("slgen.done", localizedMessages.getResourceBundle())
+                    .send(sender, world.getChunkLoadingPolicy().getPolicyIndex());
             return false;
         }
 
         try {
-            world.setServerlessGenerationLevel(Integer.parseInt(args[0]));
+            world.setChunkLoadingPolicy(ChunkLoadingPolicy.fromInt(world, Integer.parseInt(args[0])));
             new LocalizedStringImpl("slgen.done", localizedMessages.getResourceBundle()).send(sender, args[0]);
             return true;
         } catch (Exception ex) {
