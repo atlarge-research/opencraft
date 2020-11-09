@@ -25,7 +25,7 @@ public class App implements RequestHandler<String, String> {
         world.getChunkManager().setWorld(world);
 
         // set the chunksForLambda field in chunk manager
-        world.getChunkManager().setKnownChunks(deserialized.adjacentChunks);
+        world.getChunkManager().setKnownChunks(deserialized.knownChunks);
 
         // for each chunk set their world field
         for (GlowChunk chunk : world.getChunkManager().getKnownChunks()) {
@@ -35,12 +35,12 @@ public class App implements RequestHandler<String, String> {
         // enable serverless on world
         world.setServerless(true);
 
-        GlowChunk chunk = world.getChunkAt(deserialized.x, deserialized.z);
+        GlowChunk chunkToPopulate = world.getChunkAt(deserialized.x, deserialized.z);
 
         for (BlockPopulator p : world.getGenerator().getDefaultPopulators(world)) {
-            p.populate(world, random, chunk);
+            p.populate(world, random, chunkToPopulate);
         }
 
-        return new PopulateOutput(world).serialize();
+        return new PopulateOutput(world, chunkToPopulate).serialize();
     }
 }

@@ -1,9 +1,8 @@
 package net.glowstone.io.anvil;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.block.ItemTable;
@@ -47,6 +46,14 @@ public final class AnvilChunkIoService implements ChunkIoService {
         cache = new RegionFileCache(dir, ".mca"); // NON-NLS
     }
 
+    public static boolean read(GlowChunk chunk, String b64ChunkData) throws IOException {
+        // trim the input because it's of form {"ChunkData":"..."}
+        byte[] chunkBytes = Base64.getDecoder().decode(b64ChunkData.substring(14, b64ChunkData.length() - 2));
+        ByteArrayInputStream inputStreamBuffer = new ByteArrayInputStream(chunkBytes);
+        DataInputStream inputStream = new DataInputStream(inputStreamBuffer);
+        return AnvilChunkIoService.read(chunk, inputStream);
+    }
+
     @Override
     public boolean read(GlowChunk chunk) throws IOException {
         int x = chunk.getX();
@@ -59,7 +66,10 @@ public final class AnvilChunkIoService implements ChunkIoService {
         }
 
         DataInputStream in = region.getChunkDataInputStream(regionX, regionZ);
+        return read(chunk, in);
+    }
 
+    public static boolean read(GlowChunk chunk, DataInputStream in) throws IOException {
         CompoundTag levelTag;
         try (NbtInputStream nbt = new NbtInputStream(in, false)) {
             CompoundTag root = nbt.readCompound();
@@ -83,7 +93,9 @@ public final class AnvilChunkIoService implements ChunkIoService {
         }
 
         // initialize the chunk
-        chunk.initializeSections(sections);
+        if (!chunk.isLoaded()) {
+            chunk.initializeSections(sections);
+        }
         chunk.setPopulated(levelTag.getBoolean("TerrainPopulated", false)); // NON-NLS
         levelTag.readLong("InhabitedTime", chunk::setInhabitedTime);
 
@@ -164,10 +176,14 @@ public final class AnvilChunkIoService implements ChunkIoService {
     public void write(GlowChunk chunk) throws IOException {
         int x = chunk.getX();
         int z = chunk.getZ();
-        RegionFile region = cache.getRegionFile(x, z);
         int regionX = x & REGION_SIZE - 1;
         int regionZ = z & REGION_SIZE - 1;
+        RegionFile region = cache.getRegionFile(x, z);
 
+        write(chunk, region.getChunkDataOutputStream(regionX, regionZ));
+    }
+
+    public static void write(GlowChunk chunk, DataOutputStream outputStream) throws IOException {
         CompoundTag levelTags = new CompoundTag();
 
         // core properties
@@ -236,19 +252,21 @@ public final class AnvilChunkIoService implements ChunkIoService {
         levelTags.putCompoundList("TileEntities", blockEntities);
 
         List<CompoundTag> tileTicks = new ArrayList<>();
-        for (Location location : chunk.getWorld().getTickMap()) {
-            Chunk locationChunk = location.getChunk();
-            if (locationChunk.getX() == chunk.getX() && locationChunk.getZ() == chunk.getZ()) {
-                int tileX = location.getBlockX();
-                int tileY = location.getBlockY();
-                int tileZ = location.getBlockZ();
-                String type = ItemIds.getName(location.getBlock().getType());
-                CompoundTag tag = new CompoundTag();
-                tag.putInt("x", tileX);
-                tag.putInt("y", tileY);
-                tag.putInt("z", tileZ);
-                tag.putString("i", type);
-                tileTicks.add(tag);
+        if (chunk.getWorld().getTickMap() != null) {
+            for (Location location : chunk.getWorld().getTickMap()) {
+                Chunk locationChunk = location.getChunk();
+                if (locationChunk.getX() == chunk.getX() && locationChunk.getZ() == chunk.getZ()) {
+                    int tileX = location.getBlockX();
+                    int tileY = location.getBlockY();
+                    int tileZ = location.getBlockZ();
+                    String type = ItemIds.getName(location.getBlock().getType());
+                    CompoundTag tag = new CompoundTag();
+                    tag.putInt("x", tileX);
+                    tag.putInt("y", tileY);
+                    tag.putInt("z", tileZ);
+                    tag.putString("i", type);
+                    tileTicks.add(tag);
+                }
             }
         }
         levelTags.putCompoundList("TileTicks", tileTicks);
@@ -256,8 +274,7 @@ public final class AnvilChunkIoService implements ChunkIoService {
         CompoundTag levelOut = new CompoundTag();
         levelOut.putCompound("Level", levelTags);
 
-        try (NbtOutputStream nbt = new NbtOutputStream(
-            region.getChunkDataOutputStream(regionX, regionZ), false)) {
+        try (NbtOutputStream nbt = new NbtOutputStream(outputStream, false)) {
             nbt.writeTag(levelOut);
         }
     }

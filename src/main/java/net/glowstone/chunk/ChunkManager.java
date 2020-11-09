@@ -80,7 +80,7 @@ public class ChunkManager {
     private final ConcurrentMap<Key, GlowChunk> chunks = new ConcurrentHashMap<>();
 
     /**
-     * A list filled with the 3x3 square of the chunk that is being populated; used for serialization
+     * Used by serverless population to keep track of the currently loaded chunks (in order to avoid use of Key)
      */
     @Getter
     @Setter
@@ -301,11 +301,11 @@ public class ChunkManager {
                 }
             }
 
-        // it might have loaded since before, so check again that it's not already populated
-        if (chunk.isPopulated()) {
-            return;
-        }
-        chunk.setPopulated(true);
+            // it might have loaded since before, so check again that it's not already populated
+            if (chunk.isPopulated()) {
+                return;
+            }
+            chunk.setPopulated(true);
         
             Random random = new Random(world.getSeed());
             long xrand = (random.nextLong() / 2 << 1) + 1;
@@ -317,7 +317,6 @@ public class ChunkManager {
             }
 
             EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
-
         } finally {
             lock.unlock();
         }
@@ -327,6 +326,7 @@ public class ChunkManager {
      * Populate a single chunk serverlessly.
      */
     private void populateChunkServerless(int x, int z) {
+        // TODO: lock?
         GlowChunk chunk = getChunk(x, z);
         // cancel out if it's already populated
         if (chunk.isPopulated()) {
@@ -342,28 +342,30 @@ public class ChunkManager {
 
         // invoke the lambda function
         PopulateInfo.PopulateOutput output = PopulationInvoker.invoke(
-                new PopulateInfo.PopulateInput(world, random, getKnownChunks(x, z), x, z)
+                new PopulateInfo.PopulateInput(world, random, new ArrayList<>(), x, z)
         );
 
-        // set the populated chunks back to this world
-        for (GlowChunk ch : output.populatedChunks) {
-            getChunk(ch.getX(), ch.getZ()).setFromChunk(ch);
-        }
-
-        // start pulse tasks
+        // set the populated chunk back to this world; this also deserializes the chunk
+        output.getChunk(chunk);
+        //getChunk(x, z).setFromChunk(populated); <-- old way of deserializing chunk
+        // start pulse tasks; TODO: test what happens without this
         if (output.pulseTasks != null) {
             for (PopulateInfo.PopulateOutput.PulseTaskInfo pti : output.pulseTasks) {
                 pti.getPulseTask(world).startPulseTask();
             }
         }
 
-        // send block change messages to users
+        // send block change messages to players
         if (output.changedBlocks != null) {
             for (BlockChangeMessage message : output.changedBlocks) {
-                world.broadcastBlockChange(message);
+                // todo: check this is correct
+                world.getBlockAt(message.getX(), message.getY(), message.getZ()).setTypeIdAndData(
+                        message.getType() >> 4, (byte) (message.getType() & 15), true
+                );
             }
         }
 
+        // Not sure if this is necessary
         EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
     }
 

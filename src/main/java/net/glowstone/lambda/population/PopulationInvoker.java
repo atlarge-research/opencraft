@@ -33,6 +33,7 @@ public class PopulationInvoker {
     }
 
     public static PopulateOutput invoke(PopulateInput input) {
+        // for async invoke: https://stackoverflow.com/questions/47345365/how-to-invoke-aws-lambda-function-from-another-lambda-function-and-return-withou/47350875
         InvokeRequest req = new InvokeRequest()
                 .withFunctionName("NaivePopulate")
                 .withPayload(input.serialize());

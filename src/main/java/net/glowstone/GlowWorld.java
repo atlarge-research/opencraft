@@ -6,7 +6,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.flowpowered.network.Message;
 import com.flowpowered.network.session.Session;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Sets;
 
 import com.google.gson.annotations.Expose;
 
@@ -59,6 +58,8 @@ import net.glowstone.io.WorldMetadataService.WorldFinalValues;
 import net.glowstone.io.WorldStorageProvider;
 import net.glowstone.io.entity.EntityStorage;
 import net.glowstone.lambda.population.PopulateInfo;
+import net.glowstone.chunk.policy.ChunkLoadingPolicy;
+import net.glowstone.chunk.policy.DefaultChunkLoadingPolicy;
 import net.glowstone.messaging.Brokers;
 import net.glowstone.messaging.codecs.CompositeCodec;
 import net.glowstone.messaging.filters.FeedbackFilter;
@@ -166,13 +167,6 @@ public class GlowWorld implements World {
     @Getter
     @Expose
     private final String name;
-
-    /**
-     * Whether chunks are generated and populated serverlessly or locally.
-     */
-    @Setter
-    @Getter
-    private int serverlessGenerationLevel = 0;
 
     /**
      * Whether this world is on the server or on AWS Lambda.
@@ -425,6 +419,10 @@ public class GlowWorld implements World {
 
     private ImmutableMap<GlowPlayer, AreaOfInterest> previousAreas;
 
+    @Getter
+    @Setter
+    private ChunkLoadingPolicy chunkLoadingPolicy;
+
     /**
      * List that contains BlockChangeMessages generated during serverless population
      */
@@ -485,6 +483,7 @@ public class GlowWorld implements World {
 
         executor = new PriorityExecutor<>();
         previousAreas = ImmutableMap.of();
+        chunkLoadingPolicy = new DefaultChunkLoadingPolicy(this);
 
         // Read in world data
         WorldFinalValues values;
@@ -564,51 +563,12 @@ public class GlowWorld implements World {
     }
 
     /**
-     * Update the subscriptions and load needed chunks for each player according to their area of interest. The areas
-     * of interest will also be updated.
+     * Update the subscriptions and load needed chunks for each player according to their area of interest.
      *
      * @param players the players in the world.
      */
     private void updateAreasOfInterest(Collection<GlowPlayer> players) {
-
-        ImmutableMap.Builder<GlowPlayer, AreaOfInterest> currentAreasBuilder = ImmutableMap.builder();
-        players.forEach(player -> currentAreasBuilder.put(player, player.getAreaOfInterest()));
-        ImmutableMap<GlowPlayer, AreaOfInterest> currentAreas = currentAreasBuilder.build();
-
-        Set<GlowPlayer> currentPlayers = currentAreas.keySet();
-        Set<GlowPlayer> previousPlayers = previousAreas.keySet();
-        Sets.SetView<GlowPlayer> allPlayers = Sets.union(currentPlayers, previousPlayers);
-
-        allPlayers.parallelStream()
-                .forEach(player -> {
-                    Session session = player.getSession();
-                    messagingSystem.update(player, session::send);
-                });
-
-        List<ChunkRunnable> chunksToLoad = allPlayers.parallelStream()
-                .map(player -> {
-                    AreaOfInterest current = currentAreas.get(player);
-                    AreaOfInterest previous = previousAreas.get(player);
-                    return getChunksToLoad(player, current, previous);
-                })
-                .flatMap(List::stream)
-                .collect(Collectors.toList());
-
-        Set<ChunkRunnable> cancelled = executor.executeAndCancel(chunksToLoad, ChunkRunnable::shouldBeCancelled);
-
-        List<ChunkRunnable> chunksToUnload = allPlayers.parallelStream()
-                .map(player -> {
-                    AreaOfInterest current = currentAreas.get(player);
-                    AreaOfInterest previous = previousAreas.get(player);
-                    return getChunksToUnload(player, current, previous);
-                })
-                .flatMap(List::stream)
-                .filter(runnable -> !cancelled.contains(runnable))
-                .collect(Collectors.toList());
-
-        unloadChunks(chunksToUnload);
-
-        previousAreas = currentAreas;
+        chunkLoadingPolicy.update(players, messagingSystem);
     }
 
     /**
@@ -2477,6 +2437,7 @@ public class GlowWorld implements World {
     public void shutdown() {
         executor.shutdown();
         messagingSystem.close();
+        chunkLoadingPolicy.shutdown();
     }
 
     @Override

@@ -2,12 +2,14 @@ package net.glowstone.lambda.population;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.chunk.GlowChunk;
+import net.glowstone.io.anvil.AnvilChunkIoService;
 import net.glowstone.lambda.population.serialization.GlowSerializer;
 import net.glowstone.lambda.population.serialization.json.JsonSerializer;
 import net.glowstone.net.message.play.game.BlockChangeMessage;
@@ -20,14 +22,14 @@ public class PopulateInfo {
     public static class PopulateInput {
         public GlowWorld world;
         public Random random;
-        public ArrayList<GlowChunk> adjacentChunks;
+        public ArrayList<GlowChunk> knownChunks;
         public int x;
         public int z;
 
-        public PopulateInput(GlowWorld world, Random random, ArrayList<GlowChunk> adjacentChunks, int x, int z) {
+        public PopulateInput(GlowWorld world, Random random, ArrayList<GlowChunk> knownChunks, int x, int z) {
             this.world = world;
             this.random = random;
-            this.adjacentChunks = adjacentChunks;
+            this.knownChunks = knownChunks;
             this.x = x;
             this.z = z;
         }
@@ -44,20 +46,32 @@ public class PopulateInfo {
 
     public static class PopulateOutput {
         public List<BlockChangeMessage> changedBlocks;
-        public List<GlowChunk> populatedChunks;
+        public String populatedChunkData;
         public List<PulseTaskInfo> pulseTasks;
 
-        public PopulateOutput(GlowWorld world) {
+        public PopulateOutput(GlowWorld world, GlowChunk populated) {
+            this(world, serializer.serialize(populated));
+        }
+
+        public PopulateOutput(GlowWorld world, String populated) {
             this.changedBlocks = world.getPopulatedBlockMessages();
-            this.populatedChunks = world.getChunkManager().getKnownChunks();
+            this.populatedChunkData = populated;
             this.pulseTasks = world.getPopulatedPulseTasks();
+        }
+
+        public boolean getChunk(GlowChunk chunk) {
+            try {
+                return AnvilChunkIoService.read(chunk, populatedChunkData);
+            } catch (IOException e) {
+                return false;
+            }
         }
 
         public String serialize() {
             return serializer.serialize(this);
         }
 
-        private static void writeToFile(String jsn) {
+        private static void dumpErr(String jsn) {
             try {
                 String fileName = "./logs/lambda-" + System.currentTimeMillis() + ".txt";
                 File f = new File(fileName);
@@ -77,11 +91,11 @@ public class PopulateInfo {
             try {
                 PopulateOutput out = serializer.deserialize(serializer.deserialize(src, String.class), PopulateOutput.class);
                 if (out == null) {
-                    writeToFile(src);
+                    dumpErr(src);
                 }
                 return out;
             } catch (Exception e) {
-                writeToFile(src);
+                dumpErr(src);
                 return null;
             }
         }

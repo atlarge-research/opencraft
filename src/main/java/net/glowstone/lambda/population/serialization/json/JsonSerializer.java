@@ -23,6 +23,7 @@ import net.glowstone.block.entity.MobSpawnerEntity;
 import net.glowstone.block.entity.NoteblockEntity;
 import net.glowstone.block.entity.SignEntity;
 import net.glowstone.block.entity.SkullEntity;
+import net.glowstone.chunk.GlowChunk;
 import net.glowstone.generator.NetherGenerator;
 import net.glowstone.generator.OverworldGenerator;
 import net.glowstone.generator.SuperflatGenerator;
@@ -99,10 +100,7 @@ import net.glowstone.generator.populators.overworld.SunflowerPlainsPopulator;
 import net.glowstone.generator.populators.overworld.SwamplandPopulator;
 import net.glowstone.generator.populators.overworld.TaigaPopulator;
 import net.glowstone.lambda.population.serialization.GlowSerializer;
-import net.glowstone.lambda.population.serialization.json.adapters.IntListDeserializer;
-import net.glowstone.lambda.population.serialization.json.adapters.IntListSerializer;
-import net.glowstone.lambda.population.serialization.json.adapters.TreeDecorationDeserializer;
-import net.glowstone.lambda.population.serialization.json.adapters.TreeDecorationSerializer;
+import net.glowstone.lambda.population.serialization.json.adapters.*;
 import net.glowstone.lambda.population.serialization.json.annotations.ExcludeField;
 import net.glowstone.lambda.population.serialization.json.annotations.ExposeClass;
 import net.glowstone.util.noise.PerlinNoise;
@@ -270,6 +268,7 @@ public class JsonSerializer implements GlowSerializer {
             .registerTypeAdapter(TreeDecorator.TreeDecoration.class, new TreeDecorationDeserializer())
             .registerTypeAdapter(IntList.class, new IntListSerializer())
             .registerTypeAdapter(IntList.class, new IntListDeserializer())
+            .registerTypeAdapter(GlowChunk.class, new ChunkSerializer())
             .enableComplexMapKeySerialization()  // enables Map<ComplexObject, Object>
             //.setPrettyPrinting()
             .create();
