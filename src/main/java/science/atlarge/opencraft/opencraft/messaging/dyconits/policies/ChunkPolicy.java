@@ -2,7 +2,11 @@ package science.atlarge.opencraft.opencraft.messaging.dyconits.policies;
 
 import com.flowpowered.network.Message;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -15,11 +19,15 @@ import science.atlarge.opencraft.dyconits.Subscriber;
 import science.atlarge.opencraft.dyconits.policies.DyconitCommand;
 import science.atlarge.opencraft.dyconits.policies.DyconitPolicy;
 import science.atlarge.opencraft.dyconits.policies.DyconitSubscribeCommand;
+import science.atlarge.opencraft.dyconits.policies.DyconitUnsubscribeCommand;
 
 public class ChunkPolicy implements DyconitPolicy<Player, Message> {
 
-    private final int viewDistance;
     private static final String CATCH_ALL_DYCONIT_NAME = "catch-all";
+
+    private final int viewDistance;
+    private final Map<Player, Location> referenceLocation = new HashMap<>();
+    private final Map<Player, Set<String>> prevSubscriptions = new HashMap<>();
 
     public ChunkPolicy(int viewDistance) {
         this.viewDistance = viewDistance;
@@ -59,20 +67,35 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
     public @NotNull List<DyconitCommand<Player, Message>> update(Subscriber<Player, Message> sub) {
         Player player = sub.getKey();
         Location location = player.getLocation();
-        World world = location.getWorld();
+        List<DyconitCommand<Player, Message>> chunks = new ArrayList<>();
 
+        if (referenceLocation.containsKey(player) && referenceLocation.get(player).distanceSquared(location) < 256) {
+            return chunks;
+        }
+        referenceLocation.put(player, location);
+
+        World world = location.getWorld();
         int centerX = location.getBlockX() >> 4;
         int centerZ = location.getBlockZ() >> 4;
         int radius = Math.min(viewDistance, sub.getKey().getViewDistance());
 
-        List<DyconitCommand<Player, Message>> chunks = new ArrayList<>();
+        Set<String> playerSubscriptions = new HashSet<>();
         chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), Bounds.Companion.getZERO(), CATCH_ALL_DYCONIT_NAME));
         for (int x = centerX - radius; x <= centerX + radius; x++) {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
                 Chunk chunk = world.getChunkAt(x, z);
-                chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(Integer.MAX_VALUE / 2, 2), chunkToName(chunk)));
+                String dyconitName = chunkToName(chunk);
+                chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(Integer.MAX_VALUE / 2, 2), dyconitName));
+                playerSubscriptions.add(dyconitName);
             }
         }
+        Set<String> prevPlayerSubscriptions = prevSubscriptions.computeIfAbsent(player, p -> new HashSet<>());
+        for (String dyconitName : prevPlayerSubscriptions) {
+            if (!playerSubscriptions.contains(dyconitName)) {
+                chunks.add(new DyconitUnsubscribeCommand<>(player, dyconitName));
+            }
+        }
+        prevSubscriptions.put(player, playerSubscriptions);
         return chunks;
     }
 
