@@ -66,10 +66,10 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
         int radius = Math.min(viewDistance, sub.getKey().getViewDistance());
 
         List<DyconitCommand<Player, Message>> chunks = new ArrayList<>();
+        chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), Bounds.Companion.getZERO(), CATCH_ALL_DYCONIT_NAME));
         for (int x = centerX - radius; x <= centerX + radius; x++) {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
                 Chunk chunk = world.getChunkAt(x, z);
-                // FIXME subscribe to the catch-all dyconit?
                 chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(Integer.MAX_VALUE / 2, 2), chunkToName(chunk)));
             }
         }
