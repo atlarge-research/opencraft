@@ -59,7 +59,7 @@
         <dependency>
             <groupId>science.atlarge.opencraft</groupId>
             <artifactId>dyconits</artifactId>
-            <version>1.0.5</version>
+            <version>1.0.6-SNAPSHOT</version>
         </dependency>
         <!-- SLF4J logging -->
         <dependency>
