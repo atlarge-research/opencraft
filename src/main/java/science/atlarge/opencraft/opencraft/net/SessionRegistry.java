@@ -2,6 +2,7 @@ package science.atlarge.opencraft.opencraft.net;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * A list of all the sessions which provides a convenient {@link #pulse()} method to pulse every
@@ -10,6 +11,8 @@ import java.util.concurrent.ConcurrentMap;
  * @author Graham Edgecombe
  */
 public final class SessionRegistry {
+
+    private final LongAdder adder = new LongAdder();
 
     /**
      * A list of the sessions.
@@ -29,6 +32,7 @@ public final class SessionRegistry {
      * @param session The session to add.
      */
     public void add(GlowSession session) {
+        session.setPacketReceivedCounter(adder);
         sessions.put(session, true);
     }
 
@@ -39,6 +43,10 @@ public final class SessionRegistry {
      */
     public void remove(GlowSession session) {
         sessions.remove(session);
+    }
+
+    public long totalReceivedMessages() {
+        return adder.sum();
     }
 
 }

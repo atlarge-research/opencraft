@@ -24,12 +24,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import org.bukkit.Server;
+import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scheduler.BukkitWorker;
 import science.atlarge.opencraft.opencraft.GlowServer;
+import science.atlarge.opencraft.opencraft.GlowWorld;
+import science.atlarge.opencraft.opencraft.messaging.Messaging;
 import science.atlarge.opencraft.opencraft.net.SessionRegistry;
 
 /**
@@ -228,12 +231,30 @@ public final class GlowScheduler implements BukkitScheduler {
         }
     }
 
+    private void log(String key, String value) {
+        if (server instanceof GlowServer) {
+            ((GlowServer) server).eventLogger.log(key, value);
+        }
+    }
+
+    private void logTotalSentMessages() {
+        List<World> worlds = server.getWorlds();
+        if (worlds.size() > 0) {
+            World firstWorld = worlds.get(0);
+            if (firstWorld instanceof GlowWorld) {
+                GlowWorld glowWorld = (GlowWorld) firstWorld;
+                Messaging messagingSystem = glowWorld.getMessagingSystem();
+                log("mcpackets_sent", String.valueOf(messagingSystem.totalMessagesSent()));
+            }
+        }
+    }
+
     /**
      * Adds new tasks and updates existing tasks, removing them if necessary.
      */
     // TODO: Add watchdog system to make sure ticks advance
     private void pulse() {
-
+        logTotalSentMessages();
         startMeasurement("tick", "The duration of a tick.");
         primaryThread = Thread.currentThread();
 
@@ -242,6 +263,7 @@ public final class GlowScheduler implements BukkitScheduler {
                 "The duration of a tick processing the network");
         sessionRegistry.pulse();
         stopMeasurement("tick_network");
+        log("mcpackets_received", String.valueOf(sessionRegistry.totalReceivedMessages()));
 
         // Run the relevant tasks.
         startMeasurement("tick_jobs",
@@ -292,7 +314,6 @@ public final class GlowScheduler implements BukkitScheduler {
             System.err.flush();
         }
         stopMeasurement("tick_worlds");
-
         stopMeasurement("tick");
     }
 

@@ -1,12 +1,12 @@
 package science.atlarge.opencraft.opencraft.measurements;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class EventLogger implements AutoCloseable {
 
-    private final Map<String, Long> timings = new HashMap<>();
+    private final Map<String, Long> timings = new ConcurrentHashMap<>();
 
     abstract public void init() throws IOException;
 

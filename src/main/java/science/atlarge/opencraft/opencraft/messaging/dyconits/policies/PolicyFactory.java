@@ -14,6 +14,8 @@ public class PolicyFactory {
             return new ZeroBoundsPolicy();
         } else if (nameMatches(InfiniteBoundsPolicy.class, policyName)) {
             return new InfiniteBoundsPolicy();
+        } else if (nameMatches(DonnybrookPolicy.class, policyName)) {
+            return new DonnybrookPolicy();
         } else if (nameMatches(SingleDyconitPolicy.class, policyName.split(";")[0])) {
             // TODO support optional options in opencraft.yml that can hold these parameters.
             String[] parts = policyName.split(";");

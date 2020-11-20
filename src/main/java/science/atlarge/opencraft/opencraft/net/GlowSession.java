@@ -19,10 +19,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.logging.Level;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Statistic;
+import org.bukkit.boss.BossBar;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerLoginEvent.Result;
 import science.atlarge.opencraft.opencraft.EventFactory;
 import science.atlarge.opencraft.opencraft.GlowServer;
 import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
@@ -42,12 +49,6 @@ import science.atlarge.opencraft.opencraft.net.protocol.LoginProtocol;
 import science.atlarge.opencraft.opencraft.net.protocol.PlayProtocol;
 import science.atlarge.opencraft.opencraft.net.protocol.ProtocolProvider;
 import science.atlarge.opencraft.opencraft.util.UuidUtils;
-import org.bukkit.Statistic;
-import org.bukkit.boss.BossBar;
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerLoginEvent.Result;
 
 /**
  * A single connection to the server, which may or may not be associated with a player.
@@ -164,6 +165,13 @@ public class GlowSession extends BasicSession {
     private volatile boolean compresssionSent;
 
     /**
+     * Shared counter that keeps track of the total number of packets received across all sessions.
+     * TODO To keep track of packets per session, counter should not be shared.
+     * TODO There should be a packetSentCounter. This is currently not here because the Dyconit Messaging System does not use the GlowSession send method.
+     */
+    private LongAdder packetReceivedCounter;
+
+    /**
      * Creates a new session.
      *
      * @param server            The server this session belongs to.
@@ -172,7 +180,7 @@ public class GlowSession extends BasicSession {
      *                          session.
      */
     public GlowSession(GlowServer server, ProtocolProvider protocolProvider, Channel channel,
-                       ConnectionManager connectionManager) {
+            ConnectionManager connectionManager) {
         super(channel, protocolProvider.handshake);
         this.server = server;
         this.protocolProvider = protocolProvider;
@@ -192,7 +200,7 @@ public class GlowSession extends BasicSession {
         this.proxyData = proxyData;
         address = proxyData.getAddress();
         virtualHost = InetSocketAddress.createUnresolved(
-            proxyData.getHostname(), virtualHost.getPort());
+                proxyData.getHostname(), virtualHost.getPort());
     }
 
     /**
@@ -275,7 +283,7 @@ public class GlowSession extends BasicSession {
 
         // login event
         PlayerLoginEvent event = EventFactory.getInstance()
-            .onPlayerLogin(player, virtualHost.toString());
+                .onPlayerLogin(player, virtualHost.toString());
         if (event.getResult() != Result.ALLOWED) {
             disconnect(event.getKickMessage(), true);
             return;
@@ -289,7 +297,7 @@ public class GlowSession extends BasicSession {
         online = true;
 
         GlowServer.logger.info(player.getName() + " [" + address + "] connected, UUID: "
-            + UuidUtils.toString(player.getUniqueId()));
+                + UuidUtils.toString(player.getUniqueId()));
 
         // message and user list
         String message = EventFactory.getInstance().onPlayerJoin(player).getJoinMessage();
@@ -392,7 +400,7 @@ public class GlowSession extends BasicSession {
 
         // perform the kick, sending a kick message if possible
         if (isActive() && (getProtocol() instanceof LoginProtocol
-            || getProtocol() instanceof PlayProtocol)) {
+                || getProtocol() instanceof PlayProtocol)) {
             // channel is both currently connected and in a protocol state allowing kicks
             ChannelFuture future = sendWithFuture(new KickMessage(reason));
             if (future != null) {
@@ -416,6 +424,7 @@ public class GlowSession extends BasicSession {
                 break;
             }
 
+            incrementMessagesReceived();
             super.messageReceived(message);
         }
 
@@ -468,9 +477,16 @@ public class GlowSession extends BasicSession {
                     continue;
                 }
                 other.getSession().send(new DestroyEntitiesMessage(Collections
-                    .singletonList(player.getEntityId())));
+                        .singletonList(player.getEntityId())));
             }
             player = null; // in case we are disposed twice
+        }
+    }
+
+    private void incrementMessagesReceived() {
+        LongAdder adder = packetReceivedCounter;
+        if (adder != null) {
+            adder.increment();
         }
     }
 
@@ -574,8 +590,8 @@ public class GlowSession extends BasicSession {
         //TODO disconnect on error
         // can be safely logged and the connection maintained
         GlowServer.logger.log(Level.SEVERE,
-            "Error while handling " + message + " (handler: " + handle.getClass()
-                .getSimpleName() + ")", t);
+                "Error while handling " + message + " (handler: " + handle.getClass()
+                        .getSimpleName() + ")", t);
     }
 
     @Override
@@ -585,5 +601,13 @@ public class GlowSession extends BasicSession {
         } else {
             return "[" + address + "]";
         }
+    }
+
+    public LongAdder getPacketReceivedCounter() {
+        return packetReceivedCounter;
+    }
+
+    public void setPacketReceivedCounter(LongAdder packetReceivedCounter) {
+        this.packetReceivedCounter = packetReceivedCounter;
     }
 }

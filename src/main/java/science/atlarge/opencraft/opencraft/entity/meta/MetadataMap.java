@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
-import science.atlarge.opencraft.opencraft.util.DynamicallyTypedMapWithFloats;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BlockVector;
+import science.atlarge.opencraft.opencraft.util.DynamicallyTypedMapWithFloats;
 
 /**
  * A map for entity metadata.
@@ -73,12 +73,12 @@ public class MetadataMap implements DynamicallyTypedMapWithFloats<MetadataIndex>
             }
             if (!index.getType().getDataType().isAssignableFrom(value.getClass())) {
                 throw new IllegalArgumentException(
-                    "Cannot assign " + value + " to " + index + ", expects " + index.getType());
+                        "Cannot assign " + value + " to " + index + ", expects " + index.getType());
             }
             if (!index.appliesTo(entityClass)) {
                 throw new IllegalArgumentException(
-                    "Index " + index + " does not apply to " + entityClass.getSimpleName()
-                        + ", only " + index.getAppliesTo().getSimpleName());
+                        "Index " + index + " does not apply to " + entityClass.getSimpleName()
+                                + ", only " + index.getAppliesTo().getSimpleName());
             }
         }
 
@@ -92,11 +92,10 @@ public class MetadataMap implements DynamicallyTypedMapWithFloats<MetadataIndex>
         return map.get(index);
     }
 
-    @SuppressWarnings("unchecked")
     private <T> T get(MetadataIndex index, MetadataType expected, T def) {
         if (index.getType() != expected) {
             throw new IllegalArgumentException(
-                "Cannot get " + index + ": is " + index.getType() + ", not " + expected);
+                    "Cannot get " + index + ": is " + index.getType() + ", not " + expected);
         }
         T t = (T) map.get(index);
         if (t == null) {
@@ -112,8 +111,8 @@ public class MetadataMap implements DynamicallyTypedMapWithFloats<MetadataIndex>
     /**
      * Sets or clears bits in an integer field.
      *
-     * @param index the field to update
-     * @param bit a mask of the bits to set or clear
+     * @param index  the field to update
+     * @param bit    a mask of the bits to set or clear
      * @param status true to set; false to clear
      */
     public void setBit(MetadataIndex index, int bit, boolean status) {
@@ -138,7 +137,7 @@ public class MetadataMap implements DynamicallyTypedMapWithFloats<MetadataIndex>
         Object o = get(index);
         if (!(o instanceof Number)) {
             throw new IllegalArgumentException(
-                "Index " + index + " is of non-number type " + index.getType());
+                    "Index " + index + " is of non-number type " + index.getType());
         }
         return (Number) o;
     }
@@ -189,13 +188,14 @@ public class MetadataMap implements DynamicallyTypedMapWithFloats<MetadataIndex>
     public List<Entry> getEntryList() {
         List<Entry> result = new ArrayList<>(map.size());
         result.addAll(
-            map.entrySet().stream().map(entry -> new Entry(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList()));
+                map.entrySet().stream().map(entry -> new Entry(entry.getKey(), entry.getValue()))
+                        .collect(Collectors.toList()));
         Collections.sort(result);
         return result;
     }
 
     public List<Entry> getChanges() {
+        // TODO this can lead to concurrent modification exception.
         Collections.sort(changes);
         return ImmutableList.copyOf(changes);
     }

@@ -1,22 +1,19 @@
 package science.atlarge.opencraft.opencraft.command.opencraft;
 
-import com.flowpowered.network.Message;
+import java.util.List;
 import java.util.ResourceBundle;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import science.atlarge.opencraft.dyconits.policies.DyconitPolicy;
 import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.command.minecraft.GlowVanillaCommand;
 import science.atlarge.opencraft.opencraft.i18n.LocalizedStringImpl;
 import science.atlarge.opencraft.opencraft.messaging.DyconitMessaging;
 import science.atlarge.opencraft.opencraft.messaging.Messaging;
-import science.atlarge.opencraft.opencraft.messaging.dyconits.policies.PolicyFactory;
 
-public class DyconitPolicyCommand extends GlowVanillaCommand {
+public class DyconitListCommand extends GlowVanillaCommand {
 
-    public DyconitPolicyCommand() {
+    public DyconitListCommand() {
         // TODO give command a good name
-        super("dcpolicy");
+        super("dclist");
     }
 
     @Override
@@ -24,17 +21,10 @@ public class DyconitPolicyCommand extends GlowVanillaCommand {
         final ResourceBundle resourceBundle = localizedMessages.getResourceBundle();
         Messaging messaging = ((GlowWorld) sender.getServer().getWorlds().get(0)).getMessagingSystem();
 
-
         if (messaging instanceof DyconitMessaging) {
             DyconitMessaging dm = (DyconitMessaging) messaging;
-            if (args.length > 0) {
-                DyconitPolicy<Player, Message> policy = PolicyFactory.policyFromString(args[0], sender.getServer());
-                if (policy == null) {
-                    return false;
-                }
-                dm.setPolicy(policy);
-            }
-            new LocalizedStringImpl("dcpolicy.done", resourceBundle).send(sender, dm.getPolicy().getClass().getSimpleName());
+            List<String> dyconits = dm.getDyconits();
+            new LocalizedStringImpl("dclist.done", resourceBundle).send(sender, String.join("\n", dyconits));
             return true;
         } else {
             // TODO, ERROR

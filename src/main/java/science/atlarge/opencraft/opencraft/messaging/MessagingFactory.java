@@ -15,7 +15,7 @@ public class MessagingFactory {
     public static Messaging fromConfig(GlowWorld world, GlowServer server) {
         String type = server.getConfig().getString(ServerConfig.Key.OPENCRAFT_MESSAGING_TYPE);
         MessagingProvider provider = messagingProviderMap.get(type);
-        if (type == null) {
+        if (provider == null) {
             throw new RuntimeException("Messaging system '" + type + "' does not exist.");
         }
         GlowServer.logger.info("Using " + type + " messaging system");

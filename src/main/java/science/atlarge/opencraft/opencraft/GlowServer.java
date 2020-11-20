@@ -166,6 +166,7 @@ import science.atlarge.opencraft.opencraft.command.minecraft.WeatherCommand;
 import science.atlarge.opencraft.opencraft.command.minecraft.WhitelistCommand;
 import science.atlarge.opencraft.opencraft.command.minecraft.WorldBorderCommand;
 import science.atlarge.opencraft.opencraft.command.minecraft.XpCommand;
+import science.atlarge.opencraft.opencraft.command.opencraft.DyconitListCommand;
 import science.atlarge.opencraft.opencraft.command.opencraft.DyconitPolicyCommand;
 import science.atlarge.opencraft.opencraft.constants.GlowEnchantment;
 import science.atlarge.opencraft.opencraft.constants.GlowPotionEffect;
@@ -1268,6 +1269,7 @@ public class GlowServer implements Server {
         commandMap.clearCommands();
         // opencraft commands
         commandMap.register("opencraft", new DyconitPolicyCommand());
+        commandMap.register("opencraft", new DyconitListCommand());
         // glowstone commands
         commandMap.register("glowstone", new ColorCommand());
         commandMap.register("glowstone", new GlowstoneCommand());
