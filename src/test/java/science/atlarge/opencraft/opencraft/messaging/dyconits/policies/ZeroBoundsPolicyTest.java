@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import science.atlarge.opencraft.dyconits.DyconitSystem;
+import science.atlarge.opencraft.dyconits.MessageListQueue;
 import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
 import science.atlarge.opencraft.opencraft.messaging.DyconitMessaging;
 import science.atlarge.opencraft.opencraft.net.GlowSession;
@@ -37,7 +38,7 @@ class ZeroBoundsPolicyTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        messaging = new DyconitMessaging(new DyconitSystem<>(new ZeroBoundsPolicy(), (player, message) -> true, false));
+        messaging = new DyconitMessaging(new DyconitSystem<>(new ZeroBoundsPolicy(), (player, message) -> true, MessageListQueue::new, false));
         messages = new ArrayList<>();
         Mockito.when(mockPlayer.getSession()).thenReturn(mockSession);
         Mockito.when(mockSession.getChannel()).thenReturn(mockChannel);

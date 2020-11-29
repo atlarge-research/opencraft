@@ -397,6 +397,8 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         // Opencraft - Messaging System
         OPENCRAFT_MESSAGING_TYPE("opencraft.messaging.type", "dyconit", String.class::isInstance),
         OPENCRAFT_POLICY("opencraft.messaging.policy", "chunk", String.class::isInstance),
+        // Opencraft - Messaging System - Dyconit Only
+        OPENCRAFT_MESSAGE_MERGING("opencraft.messaging.merge", false, Boolean.class::isInstance),
         // Opencraft - Messaging System - Pub/Sub Only
         OPENCRAFT_BROKER_TYPE("opencraft.messaging.broker.type", "read-write", String.class::isInstance),
         OPENCRAFT_BROKER_ASYNC("opencraft.messaging.broker.async", true, Boolean.class::isInstance),
