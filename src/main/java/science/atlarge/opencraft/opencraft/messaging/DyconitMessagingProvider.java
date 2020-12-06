@@ -27,7 +27,12 @@ public class DyconitMessagingProvider implements MessagingProvider {
             }
             boolean merge = server.getConfig().getBoolean(ServerConfig.Key.OPENCRAFT_MESSAGE_MERGING);
             MessageQueueFactory<Message> queueFactory = merge ? MergeMessageQueue::new : MessageListQueue::new;
-            dyconitMessagingSystem = new DyconitMessaging(new DyconitSystem<>(policy, new FeedbackFilter(), queueFactory, server.isLogDyconits()));
+            dyconitMessagingSystem = new DyconitMessaging(new DyconitSystem<>(
+                    policy,
+                    new FeedbackFilter(),
+                    queueFactory,
+                    server.getNetworkServer().getWorkerGroup(),
+                    server.isLogDyconits()));
         }
         return dyconitMessagingSystem;
     }

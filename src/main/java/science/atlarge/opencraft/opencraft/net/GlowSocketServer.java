@@ -15,6 +15,7 @@ import science.atlarge.opencraft.opencraft.net.protocol.ProtocolProvider;
 public abstract class GlowSocketServer extends GlowNetworkServer {
 
     protected final EventLoopGroup bossGroup;
+    @Getter
     protected final EventLoopGroup workerGroup;
     protected final ServerBootstrap bootstrap;
     @Getter
@@ -24,21 +25,21 @@ public abstract class GlowSocketServer extends GlowNetworkServer {
      * Creates an instance for the specified server.
      *
      * @param server the associated GlowServer
-     * @param latch The countdown latch used during server startup to wait for network server
-     *         binding.
+     * @param latch  The countdown latch used during server startup to wait for network server
+     *               binding.
      */
     public GlowSocketServer(GlowServer server, ProtocolProvider protocolProvider,
-                            CountDownLatch latch) {
+            CountDownLatch latch) {
         super(server, protocolProvider, latch);
         bossGroup = Networking.createBestEventLoopGroup();
         workerGroup = Networking.createBestEventLoopGroup();
         bootstrap = new ServerBootstrap();
 
         bootstrap
-            .group(bossGroup, workerGroup)
-            .channel(Networking.bestServerSocketChannel())
-            .childOption(ChannelOption.TCP_NODELAY, true)
-            .childOption(ChannelOption.SO_KEEPALIVE, true);
+                .group(bossGroup, workerGroup)
+                .channel(Networking.bestServerSocketChannel())
+                .childOption(ChannelOption.TCP_NODELAY, true)
+                .childOption(ChannelOption.SO_KEEPALIVE, true);
     }
 
     @Override
@@ -65,7 +66,7 @@ public abstract class GlowSocketServer extends GlowNetworkServer {
             bootstrap.config().childGroup().terminationFuture().sync();
         } catch (InterruptedException e) {
             GlowServer.logger.log(Level.SEVERE, "Socket server shutdown process interrupted!",
-                e);
+                    e);
         }
     }
 }
