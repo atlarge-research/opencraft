@@ -20,6 +20,9 @@ public class PolicyFactory {
             // TODO support optional options in opencraft.yml that can hold these parameters.
             String[] parts = policyName.split(";");
             return new SingleDyconitPolicy(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]));
+        } else if (nameMatches(XDyconitsPolicy.class, policyName.split(";")[0])) {
+            String[] parts = policyName.split(";");
+            return new XDyconitsPolicy(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
         }
         return null;
     }
