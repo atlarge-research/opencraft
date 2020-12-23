@@ -31,7 +31,7 @@ public class DyconitMessagingProvider implements MessagingProvider {
                     policy,
                     new FeedbackFilter(),
                     queueFactory,
-                    server.getNetworkServer().getWorkerGroup(),
+                    () -> server.getNetworkServer().getWorkerGroup(),
                     server.isLogDyconits()));
         }
         return dyconitMessagingSystem;
