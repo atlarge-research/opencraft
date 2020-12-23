@@ -5,6 +5,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +39,7 @@ class ZeroBoundsPolicyTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        messaging = new DyconitMessaging(new DyconitSystem<>(new ZeroBoundsPolicy(), (player, message) -> true, MessageListQueue::new, false));
+        messaging = new DyconitMessaging(new DyconitSystem<>(new ZeroBoundsPolicy(), (player, message) -> true, MessageListQueue::new, ForkJoinPool::commonPool, false));
         messages = new ArrayList<>();
         Mockito.when(mockPlayer.getSession()).thenReturn(mockSession);
         Mockito.when(mockSession.getChannel()).thenReturn(mockChannel);
