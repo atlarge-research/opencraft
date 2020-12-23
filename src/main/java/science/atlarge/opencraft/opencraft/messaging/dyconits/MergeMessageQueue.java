@@ -1,10 +1,11 @@
 package science.atlarge.opencraft.opencraft.messaging.dyconits;
 
 import com.flowpowered.network.Message;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
@@ -18,50 +19,50 @@ public class MergeMessageQueue implements MessageQueue<Message> {
 
     private final static int SHIFT = 1 << 12;
 
-    private final ArrayList<Message> messageList = new ArrayList<>();
-    private final Map<Integer, Integer> entityMessageMap = new HashMap<>();
+    private final Queue<Message> messageList = new ConcurrentLinkedQueue<>();
+    private final Map<Integer, EntityPositionRotationUnionMessage> entityMessageMap = new ConcurrentHashMap<>();
 
     @Override
     public void add(Message message) {
         if (message instanceof RelativeEntityPositionRotationMessage) {
             RelativeEntityPositionRotationMessage newMessage = (RelativeEntityPositionRotationMessage) message;
             if (entityMessageMap.containsKey(newMessage.getId())) {
-                int index = entityMessageMap.get(newMessage.getId());
-                EntityPositionRotationUnionMessage unionMessage = (EntityPositionRotationUnionMessage) messageList.get(index);
+                EntityPositionRotationUnionMessage unionMessage = entityMessageMap.get(newMessage.getId());
                 unionMessage.merge(newMessage);
             } else {
-                messageList.add(new EntityPositionRotationUnionMessage(newMessage));
-                entityMessageMap.put(newMessage.getId(), messageList.size() - 1);
+                EntityPositionRotationUnionMessage newUnionMessage = new EntityPositionRotationUnionMessage(newMessage);
+                messageList.add(newUnionMessage);
+                entityMessageMap.put(newMessage.getId(), newUnionMessage);
             }
         } else if (message instanceof RelativeEntityPositionMessage) {
             RelativeEntityPositionMessage newMessage = (RelativeEntityPositionMessage) message;
             if (entityMessageMap.containsKey(newMessage.getId())) {
-                int index = entityMessageMap.get(newMessage.getId());
-                EntityPositionRotationUnionMessage unionMessage = (EntityPositionRotationUnionMessage) messageList.get(index);
+                EntityPositionRotationUnionMessage unionMessage = entityMessageMap.get(newMessage.getId());
                 unionMessage.merge(newMessage);
             } else {
-                messageList.add(new EntityPositionRotationUnionMessage(newMessage));
-                entityMessageMap.put(newMessage.getId(), messageList.size() - 1);
+                EntityPositionRotationUnionMessage newUnionMessage = new EntityPositionRotationUnionMessage(newMessage);
+                messageList.add(newUnionMessage);
+                entityMessageMap.put(newMessage.getId(), newUnionMessage);
             }
         } else if (message instanceof EntityRotationMessage) {
             EntityRotationMessage newMessage = (EntityRotationMessage) message;
             if (entityMessageMap.containsKey(newMessage.getId())) {
-                int index = entityMessageMap.get(newMessage.getId());
-                EntityPositionRotationUnionMessage unionMessage = (EntityPositionRotationUnionMessage) messageList.get(index);
+                EntityPositionRotationUnionMessage unionMessage = entityMessageMap.get(newMessage.getId());
                 unionMessage.merge(newMessage);
             } else {
-                messageList.add(new EntityPositionRotationUnionMessage(newMessage));
-                entityMessageMap.put(newMessage.getId(), messageList.size() - 1);
+                EntityPositionRotationUnionMessage newUnionMessage = new EntityPositionRotationUnionMessage(newMessage);
+                messageList.add(newUnionMessage);
+                entityMessageMap.put(newMessage.getId(), newUnionMessage);
             }
         } else if (message instanceof EntityTeleportMessage) {
             EntityTeleportMessage newMessage = (EntityTeleportMessage) message;
             if (entityMessageMap.containsKey(newMessage.getId())) {
-                int index = entityMessageMap.get(newMessage.getId());
-                EntityPositionRotationUnionMessage unionMessage = (EntityPositionRotationUnionMessage) messageList.get(index);
+                EntityPositionRotationUnionMessage unionMessage = entityMessageMap.get(newMessage.getId());
                 unionMessage.merge(newMessage);
             } else {
-                messageList.add(new EntityPositionRotationUnionMessage(newMessage));
-                entityMessageMap.put(newMessage.getId(), messageList.size() - 1);
+                EntityPositionRotationUnionMessage newUnionMessage = new EntityPositionRotationUnionMessage(newMessage);
+                messageList.add(newUnionMessage);
+                entityMessageMap.put(newMessage.getId(), newUnionMessage);
             }
         } else {
             messageList.add(message);
@@ -71,11 +72,15 @@ public class MergeMessageQueue implements MessageQueue<Message> {
     @NotNull
     @Override
     public Iterator<Message> iterator() {
-        for (int i : entityMessageMap.values()) {
-            EntityPositionRotationUnionMessage unionMessage = (EntityPositionRotationUnionMessage) messageList.get(i);
-            messageList.set(i, unionMessage.toRealMessage());
-        }
-        return messageList.iterator();
+        return messageList.stream()
+                .map(m -> {
+                    if (m instanceof EntityPositionRotationUnionMessage) {
+                        return ((EntityPositionRotationUnionMessage) m).toRealMessage();
+                    } else {
+                        return m;
+                    }
+                })
+                .iterator();
     }
 
     @Data
