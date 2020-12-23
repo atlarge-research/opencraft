@@ -1,8 +1,13 @@
 package science.atlarge.opencraft.opencraft.block;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
+import org.bukkit.TreeSpecies;
 import science.atlarge.opencraft.opencraft.block.blocktype.BlockAnvil;
 import science.atlarge.opencraft.opencraft.block.blocktype.BlockBanner;
 import science.atlarge.opencraft.opencraft.block.blocktype.BlockBeacon;
@@ -143,10 +148,6 @@ import science.atlarge.opencraft.opencraft.block.itemtype.ItemType;
 import science.atlarge.opencraft.opencraft.block.itemtype.ItemWrittenBook;
 import science.atlarge.opencraft.opencraft.entity.objects.GlowMinecart;
 import science.atlarge.opencraft.opencraft.inventory.ToolType;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Sound;
-import org.bukkit.TreeSpecies;
 
 /**
  * The lookup table for block and item types.
@@ -159,7 +160,7 @@ public final class ItemTable {
         INSTANCE.registerBuiltins();
     }
 
-    private final EnumMap<Material, ItemType> materialToType = new EnumMap<>(Material.class);
+    private final Map<Material, ItemType> materialToType = Collections.synchronizedMap(new EnumMap<>(Material.class));
     private final Map<NamespacedKey, ItemType> extraTypes = new HashMap<>();
     private int nextBlockId;
     private int nextItemId;
@@ -505,14 +506,15 @@ public final class ItemTable {
                     "Cannot mismatch item and block: " + material + ", " + type);
         }
 
-        if (materialToType.containsKey(material)) {
-            throw new IllegalArgumentException(
-                    "Cannot use " + type + " for " + material + ", is already " + materialToType
-                            .get(material));
-        }
-
-        materialToType.put(material, type);
         type.setMaterial(material);
+        ItemType currentType = materialToType.get(material);
+        if (type.equals(currentType)) {
+            return;
+        } else if (currentType != null) {
+            throw new IllegalArgumentException(
+                    "Cannot use " + type + " for " + material + ", is already " + currentType);
+        }
+        materialToType.put(material, type);
 
         if (material.isBlock()) {
             nextBlockId = Math.max(nextBlockId, material.getId() + 1);
@@ -550,7 +552,7 @@ public final class ItemTable {
     /**
      * Register a new, non-Vanilla ItemType. It will be assigned an ID automatically.
      *
-     * @param key the namespaced key of the ItemType
+     * @param key  the namespaced key of the ItemType
      * @param type the ItemType to register.
      * @return if the registration was successful
      */

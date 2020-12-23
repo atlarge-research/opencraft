@@ -1,19 +1,20 @@
 package science.atlarge.opencraft.opencraft.block.itemtype;
 
 import com.google.common.base.Preconditions;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import science.atlarge.opencraft.opencraft.block.GlowBlock;
-import science.atlarge.opencraft.opencraft.block.ItemTable;
-import science.atlarge.opencraft.opencraft.block.blocktype.BlockType;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import science.atlarge.opencraft.opencraft.block.GlowBlock;
+import science.atlarge.opencraft.opencraft.block.ItemTable;
+import science.atlarge.opencraft.opencraft.block.blocktype.BlockType;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
 
 /**
  * Base class for specific types of items.
@@ -129,7 +130,7 @@ public class ItemType {
      * Called when a player right-clicks in midair while holding this item. Also called by default
      * if rightClickBlock is not overridden.
      *
-     * @param player The player
+     * @param player  The player
      * @param holding The ItemStack the player was holding
      */
     public void rightClickAir(GlowPlayer player, ItemStack holding) {
@@ -148,15 +149,15 @@ public class ItemType {
     /**
      * Called when a player right-clicks on a block while holding this item.
      *
-     * @param player The player
-     * @param target The block the player right-clicked
-     * @param face The face on which the click occurred
-     * @param holding The ItemStack the player was holding
+     * @param player     The player
+     * @param target     The block the player right-clicked
+     * @param face       The face on which the click occurred
+     * @param holding    The ItemStack the player was holding
      * @param clickedLoc The coordinates at which the click occurred
-     * @param hand The hand slot of this item
+     * @param hand       The hand slot of this item
      */
     public void rightClickBlock(GlowPlayer player, GlowBlock target, BlockFace face,
-        ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
+            ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
         if (placeAs != null) {
             if (placeAs.getContext().isBlockApplicable()) {
                 placeAs.rightClickBlock(player, target, face, holding, clickedLoc, hand);
@@ -170,7 +171,39 @@ public class ItemType {
     @Override
     public final String toString() {
         return getClass().getSimpleName()
-                + "{" + (getMaterial() == null ? getId() : getMaterial())  + "}";
+                + "{" + (getMaterial() == null ? getId() : getMaterial()) + "}";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ItemType itemType = (ItemType) o;
+
+        if (id != itemType.id) {
+            return false;
+        }
+        if (maxStackSize != itemType.maxStackSize) {
+            return false;
+        }
+        if (material != itemType.material) {
+            return false;
+        }
+        return Objects.equals(placeAs, itemType.placeAs);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + (material != null ? material.hashCode() : 0);
+        result = 31 * result + (placeAs != null ? placeAs.hashCode() : 0);
+        result = 31 * result + maxStackSize;
+        return result;
     }
 
     /**
