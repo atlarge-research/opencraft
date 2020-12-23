@@ -43,6 +43,11 @@ public class PubSubMessaging implements Messaging {
     }
 
     @Override
+    public void flush() {
+        // Nothing to do here.
+    }
+
+    @Override
     public void close() {
         this.messageMessagingSystem.close();
     }

@@ -10,6 +10,8 @@ public interface Messaging {
 
     void publish(Object sub, Message message);
 
+    void flush();
+
     void close();
 
     long totalMessagesSent();

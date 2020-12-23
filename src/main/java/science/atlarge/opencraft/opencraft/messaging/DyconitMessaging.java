@@ -53,6 +53,11 @@ public class DyconitMessaging implements Messaging {
     }
 
     @Override
+    public void flush() {
+        system.synchronize();
+    }
+
+    @Override
     public void close() {
         // Nothing to close.
     }
