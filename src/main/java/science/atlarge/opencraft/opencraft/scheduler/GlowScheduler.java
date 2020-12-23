@@ -208,7 +208,7 @@ public final class GlowScheduler implements BukkitScheduler {
      * @param key  the key.
      * @param help the help message.
      */
-    private void startMeasurement(String key, String help) {
+    public void startMeasurement(String key, String help) {
         if (collectorEnabled()) {
             YSCollector.start(key, help);
         }
@@ -222,7 +222,7 @@ public final class GlowScheduler implements BukkitScheduler {
      *
      * @param key the key.
      */
-    private void stopMeasurement(String key) {
+    public void stopMeasurement(String key) {
         if (collectorEnabled()) {
             YSCollector.stop(key);
         }
@@ -259,10 +259,10 @@ public final class GlowScheduler implements BukkitScheduler {
         primaryThread = Thread.currentThread();
 
         // Process player packets
-        startMeasurement("tick_network",
+        startMeasurement("tick_network_rx",
                 "The duration of a tick processing the network");
         sessionRegistry.pulse();
-        stopMeasurement("tick_network");
+        stopMeasurement("tick_network_rx");
         log("mcpackets_received", String.valueOf(sessionRegistry.totalReceivedMessages()));
 
         // Run the relevant tasks.
@@ -314,6 +314,13 @@ public final class GlowScheduler implements BukkitScheduler {
             System.err.flush();
         }
         stopMeasurement("tick_worlds");
+
+        startMeasurement("tick_network_tx", "Amount of time spent sending messages.");
+        // TODO make clean call.
+        worlds.getWorlds().get(0).getMessagingSystem().flush();
+        stopMeasurement("tick_network_tx");
+
+
         stopMeasurement("tick");
     }
 

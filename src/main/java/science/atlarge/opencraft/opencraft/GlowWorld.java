@@ -535,11 +535,14 @@ public class GlowWorld implements World {
         Set<GlowPlayer> previousPlayers = previousAreas.keySet();
         Sets.SetView<GlowPlayer> allPlayers = Sets.union(currentPlayers, previousPlayers);
 
+        if (this.name.equals("world")) {
+            this.server.getScheduler().startMeasurement("dyconit_policy_update", "Time spent updating dyconit subscriptions");
+        }
         allPlayers.parallelStream()
-                .forEach(player -> {
-                    Session session = player.getSession();
-                    messagingSystem.update(player);
-                });
+                .forEach(messagingSystem::update);
+        if (this.name.equals("world")) {
+            this.server.getScheduler().stopMeasurement("dyconit_policy_update");
+        }
 
         List<ChunkRunnable> chunksToLoad = allPlayers.parallelStream()
                 .map(player -> {
