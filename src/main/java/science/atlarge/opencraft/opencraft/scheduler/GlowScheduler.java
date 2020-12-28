@@ -213,7 +213,7 @@ public final class GlowScheduler implements BukkitScheduler {
             YSCollector.start(key, help);
         }
         if (server instanceof GlowServer) {
-            ((GlowServer) server).eventLogger.start(key);
+            GlowServer.eventLogger.start(key);
         }
     }
 
@@ -227,13 +227,13 @@ public final class GlowScheduler implements BukkitScheduler {
             YSCollector.stop(key);
         }
         if (server instanceof GlowServer) {
-            ((GlowServer) server).eventLogger.stop(key);
+            GlowServer.eventLogger.stop(key);
         }
     }
 
     private void log(String key, String value) {
         if (server instanceof GlowServer) {
-            ((GlowServer) server).eventLogger.log(key, value);
+            GlowServer.eventLogger.log(key, value);
         }
     }
 

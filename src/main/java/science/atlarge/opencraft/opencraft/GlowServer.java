@@ -244,7 +244,7 @@ public class GlowServer implements Server {
     /**
      * Logs performance measurements. Used in experiments.
      */
-    public EventLogger eventLogger;
+    public static EventLogger eventLogger;
 
     /**
      * The game version supported by the server.

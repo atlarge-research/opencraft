@@ -196,8 +196,7 @@ public class EventFactory {
 
     private void logEvent(Server server, String name, int value) {
         if (server instanceof GlowServer) {
-            GlowServer glowServer = (GlowServer) server;
-            glowServer.eventLogger.log(name, value);
+            GlowServer.eventLogger.log(name, value);
         }
     }
 

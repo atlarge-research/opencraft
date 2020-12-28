@@ -1,14 +1,12 @@
 package science.atlarge.opencraft.opencraft.messaging.dyconits;
 
 import com.flowpowered.network.Message;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.jetbrains.annotations.NotNull;
 import science.atlarge.opencraft.dyconits.MessageQueue;
 import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityRotationMessage;
 import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityTeleportMessage;
@@ -69,18 +67,20 @@ public class MergeMessageQueue implements MessageQueue<Message> {
         }
     }
 
-    @NotNull
     @Override
-    public Iterator<Message> iterator() {
-        return messageList.stream()
-                .map(m -> {
-                    if (m instanceof EntityPositionRotationUnionMessage) {
-                        return ((EntityPositionRotationUnionMessage) m).toRealMessage();
-                    } else {
-                        return m;
-                    }
-                })
-                .iterator();
+    public boolean isEmpty() {
+        return messageList.isEmpty();
+    }
+
+    @Override
+    public Message remove() {
+        Message msg = messageList.remove();
+        if (msg instanceof EntityPositionRotationUnionMessage) {
+            EntityPositionRotationUnionMessage unionMessage = (EntityPositionRotationUnionMessage) msg;
+            entityMessageMap.remove(unionMessage.getId());
+            return unionMessage.toRealMessage();
+        }
+        return msg;
     }
 
     @Data
@@ -203,11 +203,5 @@ public class MergeMessageQueue implements MessageQueue<Message> {
                 }
             }
         }
-    }
-
-    @Override
-    public void clear() {
-        this.entityMessageMap.clear();
-        this.messageList.clear();
     }
 }

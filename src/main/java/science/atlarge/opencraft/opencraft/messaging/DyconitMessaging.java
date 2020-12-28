@@ -10,11 +10,13 @@ import java.util.stream.Collectors;
 import org.bukkit.entity.Player;
 import science.atlarge.opencraft.dyconits.Dyconit;
 import science.atlarge.opencraft.dyconits.DyconitSystem;
+import science.atlarge.opencraft.dyconits.Error;
 import science.atlarge.opencraft.dyconits.MessageChannel;
 import science.atlarge.opencraft.dyconits.Subscriber;
 import science.atlarge.opencraft.dyconits.policies.DyconitPolicy;
 import science.atlarge.opencraft.opencraft.GlowServer;
 import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.measurements.EventLogger;
 
 public class DyconitMessaging implements Messaging {
 
@@ -54,7 +56,10 @@ public class DyconitMessaging implements Messaging {
 
     @Override
     public void flush() {
-        system.synchronize();
+        Error error = system.synchronize();
+        EventLogger eventLogger = GlowServer.eventLogger;
+        eventLogger.log("dyconit_error_staleness", error.getStaleness().toMillis());
+        eventLogger.log("dyconit_error_numerical", error.getNumerical());
     }
 
     @Override
