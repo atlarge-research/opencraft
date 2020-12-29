@@ -32,8 +32,10 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scheduler.BukkitWorker;
 import science.atlarge.opencraft.opencraft.GlowServer;
 import science.atlarge.opencraft.opencraft.GlowWorld;
+import science.atlarge.opencraft.opencraft.OverloadBreaker;
 import science.atlarge.opencraft.opencraft.messaging.Messaging;
 import science.atlarge.opencraft.opencraft.net.SessionRegistry;
+import science.atlarge.opencraft.opencraft.util.config.ServerConfig;
 
 /**
  * A scheduler for managing server ticks, Bukkit tasks, and other
@@ -100,6 +102,11 @@ public final class GlowScheduler implements BukkitScheduler {
      * The session registry used to pulse all players.
      */
     private final SessionRegistry sessionRegistry;
+
+    /**
+     * Used as a breaker to shut down server on overload. Enable using config.
+     */
+    private final OverloadBreaker breaker = new OverloadBreaker();
 
     /**
      * Creates a new task scheduler.
@@ -255,6 +262,7 @@ public final class GlowScheduler implements BukkitScheduler {
     // TODO: Add watchdog system to make sure ticks advance
     private void pulse() {
         logTotalSentMessages();
+        long tickStart = System.currentTimeMillis();
         startMeasurement("tick", "The duration of a tick.");
         primaryThread = Thread.currentThread();
 
@@ -322,6 +330,13 @@ public final class GlowScheduler implements BukkitScheduler {
 
 
         stopMeasurement("tick");
+        long tickStop = System.currentTimeMillis();
+        GlowServer glowServer = (GlowServer) this.server;
+        if (glowServer.getConfig().getBoolean(ServerConfig.Key.OPENCRAFT_OVERLOAD_BREAKER)) {
+            if (breaker.trigger(tickStop - tickStart)) {
+                glowServer.shutdown("Shutting down. Server overloaded.");
+            }
+        }
     }
 
     @Override
