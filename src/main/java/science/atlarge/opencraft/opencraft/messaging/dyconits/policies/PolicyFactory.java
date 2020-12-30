@@ -23,6 +23,10 @@ public class PolicyFactory {
         } else if (nameMatches(XDyconitsPolicy.class, policyName.split(";")[0])) {
             String[] parts = policyName.split(";");
             return new XDyconitsPolicy(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3]));
+        } else if (nameMatches(NumericalDonnybrookPolicy.class, policyName)) {
+            return new NumericalDonnybrookPolicy();
+        } else if (nameMatches(QuadraticGradientStalenessAoI.class, policyName)) {
+            return new QuadraticGradientStalenessAoI(server.getViewDistance());
         }
         return null;
     }
