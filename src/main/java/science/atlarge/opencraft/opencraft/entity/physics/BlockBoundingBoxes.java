@@ -1,6 +1,5 @@
 package science.atlarge.opencraft.opencraft.entity.physics;
 
-import static science.atlarge.opencraft.opencraft.entity.physics.BoundingBox.Dimensions;
 import static org.bukkit.Material.ACACIA_DOOR;
 import static org.bukkit.Material.ACACIA_FENCE;
 import static org.bukkit.Material.ACACIA_FENCE_GATE;
@@ -71,6 +70,7 @@ import static org.bukkit.Material.WOOD_DOOR;
 import static org.bukkit.Material.WOOD_PLATE;
 import static org.bukkit.Material.WOOD_STAIRS;
 import static org.bukkit.Material.WOOD_STEP;
+import static science.atlarge.opencraft.opencraft.entity.physics.BoundingBox.Dimensions;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -80,7 +80,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import science.atlarge.opencraft.opencraft.block.GlowBlock;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -92,6 +91,7 @@ import org.bukkit.material.Stairs;
 import org.bukkit.material.Step;
 import org.bukkit.material.WoodenStep;
 import org.bukkit.util.Vector;
+import science.atlarge.opencraft.opencraft.block.GlowBlock;
 
 /**
  * This class generates all the boundingboxes for all blocktypes.
@@ -174,32 +174,32 @@ public class BlockBoundingBoxes {
 
         ImmutableMap.Builder<Material, Dimensions> builder = ImmutableMap.builder();
         BOUNDINGBOX_SIZES = builder.put(ENCHANTMENT_TABLE, Dimensions.create(1.0, 3.0 / 4.0))
-                                   .put(CHEST, Dimensions.create(14.0 / 16.0, 7.0 / 8.0))
-                                   .put(ENDER_CHEST, Dimensions.create(14.0 / 16.0, 7.0 / 8.0))
-                                   .put(TRAPPED_CHEST, Dimensions.create(14.0 / 16.0, 7.0 / 8.0))
-                                   .put(CACTUS, Dimensions.create(14.0 / 16.0, 1.0))
-                                   .put(BED_BLOCK,Dimensions.create(1.0, 9.0 / 16.0))
-                                   .put(DAYLIGHT_DETECTOR, Dimensions.create(1.0, 3.0 / 8.0))
-                                   .put(DAYLIGHT_DETECTOR_INVERTED, Dimensions.create(1.0, 3.0 / 8.0))
-                                   .put(FLOWER_POT, Dimensions.create(3.0 / 8.0, 3.0 / 8.0))
-                                   .put(SOUL_SAND, Dimensions.create(1.0, 7.0 / 8.0))
-                                   .put(ENDER_PORTAL_FRAME, Dimensions.create(1.0, 13.0 / 16.0))
-                                   .put(WATER_LILY, Dimensions.create(1.0, 1.0 / 64.0))
-                                   .put(CAKE_BLOCK, Dimensions.create(7.0 / 8.0, 7.0 / 16.0))
-                                   .put(TRAP_DOOR, Dimensions.create(1.0, 1.0 / 8.0))
-                                   .put(IRON_TRAPDOOR, Dimensions.create(1.0, 1.0 / 8.0))
-                                   .put(REDSTONE_COMPARATOR, Dimensions.create(1.0, 1.0 / 8.0))
-                                   .put(REDSTONE_COMPARATOR_OFF, Dimensions.create(1.0, 1.0 / 8.0))
-                                   .put(REDSTONE_COMPARATOR_ON, Dimensions.create(1.0, 1.0 / 8.0))
-                                   .put(CARPET, Dimensions.create(1.0, 1.0 / 16.0))
-                                   .put(GOLD_PLATE, Dimensions.create(14.0 / 16.0, 0.01))
-                                   .put(STONE_PLATE, Dimensions.create(14.0 / 16.0, 0.01))
-                                   .put(IRON_PLATE, Dimensions.create(14.0 / 16.0, 0.01))
-                                   .put(WOOD_PLATE, Dimensions.create(14.0 / 16.0, 0.01))
-                                   .put(CHORUS_PLANT, Dimensions.create(10.0 / 16.0, 3.0 / 4.0))
-                                   .put(SOIL, Dimensions.create(1.0, 15.0 / 16.0))
-                                   .put(END_ROD, Dimensions.create(4.0 / 16.0, 1.0))
-                                   .build();
+                .put(CHEST, Dimensions.create(14.0 / 16.0, 7.0 / 8.0))
+                .put(ENDER_CHEST, Dimensions.create(14.0 / 16.0, 7.0 / 8.0))
+                .put(TRAPPED_CHEST, Dimensions.create(14.0 / 16.0, 7.0 / 8.0))
+                .put(CACTUS, Dimensions.create(14.0 / 16.0, 1.0))
+                .put(BED_BLOCK, Dimensions.create(1.0, 9.0 / 16.0))
+                .put(DAYLIGHT_DETECTOR, Dimensions.create(1.0, 3.0 / 8.0))
+                .put(DAYLIGHT_DETECTOR_INVERTED, Dimensions.create(1.0, 3.0 / 8.0))
+                .put(FLOWER_POT, Dimensions.create(3.0 / 8.0, 3.0 / 8.0))
+                .put(SOUL_SAND, Dimensions.create(1.0, 7.0 / 8.0))
+                .put(ENDER_PORTAL_FRAME, Dimensions.create(1.0, 13.0 / 16.0))
+                .put(WATER_LILY, Dimensions.create(1.0, 1.0 / 64.0))
+                .put(CAKE_BLOCK, Dimensions.create(7.0 / 8.0, 7.0 / 16.0))
+                .put(TRAP_DOOR, Dimensions.create(1.0, 1.0 / 8.0))
+                .put(IRON_TRAPDOOR, Dimensions.create(1.0, 1.0 / 8.0))
+                .put(REDSTONE_COMPARATOR, Dimensions.create(1.0, 1.0 / 8.0))
+                .put(REDSTONE_COMPARATOR_OFF, Dimensions.create(1.0, 1.0 / 8.0))
+                .put(REDSTONE_COMPARATOR_ON, Dimensions.create(1.0, 1.0 / 8.0))
+                .put(CARPET, Dimensions.create(1.0, 1.0 / 16.0))
+                .put(GOLD_PLATE, Dimensions.create(14.0 / 16.0, 0.01))
+                .put(STONE_PLATE, Dimensions.create(14.0 / 16.0, 0.01))
+                .put(IRON_PLATE, Dimensions.create(14.0 / 16.0, 0.01))
+                .put(WOOD_PLATE, Dimensions.create(14.0 / 16.0, 0.01))
+                .put(CHORUS_PLANT, Dimensions.create(10.0 / 16.0, 3.0 / 4.0))
+                .put(SOIL, Dimensions.create(1.0, 15.0 / 16.0))
+                .put(END_ROD, Dimensions.create(4.0 / 16.0, 1.0))
+                .build();
 
     }
 
@@ -207,7 +207,7 @@ public class BlockBoundingBoxes {
      * Generates the correct bounding box for a fence block.
      *
      * @param location The location of the block
-     * @param block The location of the block
+     * @param block    The location of the block
      * @return The correct fence boundingbox
      */
     private static List<BoundingBox> getFenceGateBoundingBoxes(Location location, GlowBlock block) {
@@ -241,7 +241,7 @@ public class BlockBoundingBoxes {
      * Generates the correct bounding box for a fence block.
      *
      * @param location The location of the block
-     * @param block The location of the block
+     * @param block    The location of the block
      * @return The correct fence boundingbox
      */
     private static List<BoundingBox> getDoorBoundingBoxes(Location location, GlowBlock block) {
@@ -283,7 +283,7 @@ public class BlockBoundingBoxes {
      * Generates the correct bounding box for a fence block.
      *
      * @param location The location of the block
-     * @param block The location of the block
+     * @param block    The location of the block
      * @return The correct fence boundingbox
      */
     private static List<BoundingBox> getFenceBoundingBoxes(Location location, GlowBlock block) {
@@ -315,7 +315,7 @@ public class BlockBoundingBoxes {
      * Generates the correct bounding box for a fence block.
      *
      * @param location The location of the block
-     * @param block The location of the block
+     * @param block    The location of the block
      * @return The correct fence boundingbox
      */
     private static List<BoundingBox> getPaneBoundingBoxes(Location location, GlowBlock block) {
@@ -348,7 +348,7 @@ public class BlockBoundingBoxes {
      * Generates the correct bounding box for a fence block.
      *
      * @param location The location of the block
-     * @param block The location of the block
+     * @param block    The location of the block
      * @return The correct fence boundingbox
      */
     private static List<BoundingBox> getWallBoundingBoxes(Location location, GlowBlock block) {
@@ -397,7 +397,7 @@ public class BlockBoundingBoxes {
     /**
      * Returns a boolean indicating the alignment of the fence relative to the block.
      *
-     * @param face The face of the block to be checked as gate.
+     * @param face  The face of the block to be checked as gate.
      * @param block The block that is of type fence.
      * @return True if the gate is aligned parallel to the fence, false if not.
      */
@@ -415,7 +415,7 @@ public class BlockBoundingBoxes {
     /**
      * Returns a boolean specifying whether or not the block is of type fence.
      *
-     * @param face The face of the block that has to be checked
+     * @param face  The face of the block that has to be checked
      * @param block The location of the block
      * @return true if the block is a fence, false otherwise
      */
@@ -435,7 +435,7 @@ public class BlockBoundingBoxes {
     /**
      * Returns a boolean specifying whether or not the block is of type Wall.
      *
-     * @param face The face of the block that has to be checked
+     * @param face  The face of the block that has to be checked
      * @param block The location of the block
      * @return true if the block is a where a wall can connect to, false otherwise
      */
@@ -453,7 +453,7 @@ public class BlockBoundingBoxes {
     /**
      * Returns a boolean specifying whether or not the block is of type fence.
      *
-     * @param face The face of the block that has to be checked
+     * @param face  The face of the block that has to be checked
      * @param block The location of the block
      * @return true if the block is a fence, false otherwise
      */
@@ -469,7 +469,7 @@ public class BlockBoundingBoxes {
      * Builds the skull bounding box which is dependent on position and facing.
      *
      * @param location The location of the skull
-     * @param skull The Skull data
+     * @param skull    The Skull data
      * @return The bounding box for the skull
      */
     private static List<BoundingBox> getSkullBoundingBoxes(Location location, Skull skull) {
@@ -498,7 +498,7 @@ public class BlockBoundingBoxes {
      * Returns the bounding box for the stair by checking the stair data and its surroundings.
      *
      * @param location The location of the stair
-     * @param stairs The stair data
+     * @param stairs   The stair data
      * @return The bounding box of the stair
      */
     private static List<BoundingBox> getStairsBoundingBoxes(Location location, Stairs stairs) {
@@ -544,7 +544,7 @@ public class BlockBoundingBoxes {
     /**
      * Returns the cauldron bounding box.
      *
-     * @param location The location of the cauldron
+     * @param location       The location of the cauldron
      * @param internalHeight The height of the inside of the cauldron
      * @return Returns the bounding boxes necessary to construct the cauldron collision
      */
@@ -575,7 +575,7 @@ public class BlockBoundingBoxes {
      * Returns the appropriate slab bounding box.
      *
      * @param location The location of the block
-     * @param block The location of the block
+     * @param block    The location of the block
      * @return The List of boundingboxes for the block
      */
     private static List<BoundingBox> getSlabBoundingBoxes(Location location, GlowBlock block) {
@@ -585,8 +585,11 @@ public class BlockBoundingBoxes {
 
         if (data instanceof Step) {
             inverted = ((Step) data).isInverted();
-        } else {
+        } else if (data instanceof WoodenStep) {
             inverted = ((WoodenStep) data).isInverted();
+        } else {
+            // TODO support other kinds of steps.
+            inverted = false;
         }
 
         if (inverted) {
@@ -600,7 +603,7 @@ public class BlockBoundingBoxes {
     /**
      * Returns a boundingboxList with one boundingbox that is centered on the location.
      *
-     * @param location The location of the boundingbox
+     * @param location   The location of the boundingbox
      * @param dimensions The dimensions of the block
      * @return A boundingboxList with the specified boundingbox
      */
@@ -628,8 +631,9 @@ public class BlockBoundingBoxes {
 
     /**
      * Returns the boundingbox that corresponds to the correct snowheight.
+     *
      * @param location The location of the boundingbox
-     * @param block The block of the boundingbox
+     * @param block    The block of the boundingbox
      * @return A full width boundingbox with a height corresponding to the amount of snow
      */
     private static List<BoundingBox> getSnowBlockBoundingBox(Location location, GlowBlock block) {
@@ -642,7 +646,7 @@ public class BlockBoundingBoxes {
      * Returns all the bounding boxes that are not edge cases or require special functions.
      *
      * @param location The location of the bounding box
-     * @param block The corresponding block
+     * @param block    The corresponding block
      * @return The List of boundingboxes that corresponds to the block
      */
     private static List<BoundingBox> getBoundingBoxesRemainingBlocks(Location location, GlowBlock block) {
