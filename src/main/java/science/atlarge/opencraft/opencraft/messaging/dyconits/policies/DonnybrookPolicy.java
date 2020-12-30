@@ -75,13 +75,16 @@ public class DonnybrookPolicy implements DyconitPolicy<Player, Message> {
                 // We randomly select which players to add and remove from the interest set.
                 // This is different from Donnybrook's approach, which calculates an attention score.
                 // Because we think the difference in bandwidth usage is negligible, we use our own, simpler, approach.
-                if (playerSubscriberSet.size() >= INTEREST_SET_SIZE && candidates.size() > 0) {
-                    Player removed = playerSubscriberSet.remove(random.nextInt(playerSubscriberSet.size()));
-                    commands.add(new DyconitSubscribeCommand<>(thisPlayer, thisCallback, oneSecondBound, entityToName(removed)));
+                if (candidates.size() > 0) {
+                    if (playerSubscriberSet.size() >= INTEREST_SET_SIZE) {
+                        Player removed = playerSubscriberSet.remove(random.nextInt(playerSubscriberSet.size()));
+                        commands.add(new DyconitSubscribeCommand<>(thisPlayer, thisCallback, oneSecondBound, entityToName(removed)));
+                    }
+
+                    Player added = candidates.get(random.nextInt(candidates.size()));
+                    commands.add(new DyconitSubscribeCommand<>(thisPlayer, thisCallback, Bounds.Companion.getZERO(), entityToName(added)));
+                    playerSubscriberSet.add(added);
                 }
-                Player added = candidates.get(random.nextInt(candidates.size()));
-                commands.add(new DyconitSubscribeCommand<>(thisPlayer, thisCallback, Bounds.Companion.getZERO(), entityToName(added)));
-                playerSubscriberSet.add(added);
                 // We set zero bounds for players in our interest set (send immediately).
                 // For all other players, we send updates once per second.
 //                playerSubscriberSet
