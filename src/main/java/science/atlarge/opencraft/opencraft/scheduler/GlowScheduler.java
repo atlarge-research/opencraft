@@ -106,7 +106,7 @@ public final class GlowScheduler implements BukkitScheduler {
     /**
      * Used as a breaker to shut down server on overload. Enable using config.
      */
-    private final OverloadBreaker breaker = new OverloadBreaker();
+    private final OverloadBreaker breaker;
 
     /**
      * Creates a new task scheduler.
@@ -135,6 +135,7 @@ public final class GlowScheduler implements BukkitScheduler {
         inTickTaskCondition = worlds.getAdvanceCondition();
         tickEndRun = this.worlds::doTickEnd;
         primaryThread = Thread.currentThread();
+        breaker = new OverloadBreaker(server);
     }
 
     /**
