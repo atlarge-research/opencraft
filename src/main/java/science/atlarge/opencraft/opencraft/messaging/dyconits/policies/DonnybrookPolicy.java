@@ -4,6 +4,7 @@ import com.flowpowered.network.Message;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +21,9 @@ import science.atlarge.opencraft.dyconits.Subscriber;
 import science.atlarge.opencraft.dyconits.policies.DyconitCommand;
 import science.atlarge.opencraft.dyconits.policies.DyconitPolicy;
 import science.atlarge.opencraft.dyconits.policies.DyconitSubscribeCommand;
+import science.atlarge.opencraft.opencraft.GlowServer;
+import science.atlarge.opencraft.opencraft.messaging.dyconits.policies.weights.DistanceMoved;
+import science.atlarge.opencraft.opencraft.messaging.dyconits.policies.weights.WeighMessage;
 
 public class DonnybrookPolicy implements DyconitPolicy<Player, Message> {
 
@@ -36,6 +40,12 @@ public class DonnybrookPolicy implements DyconitPolicy<Player, Message> {
     private final Map<Subscriber<Player, Message>, List<Player>> interestSet = new HashMap<>();
     private final Bounds oneSecondBound = new Bounds(1000, -1);
     private final Random random = new Random(System.currentTimeMillis());
+
+    private final WeighMessage weighMessage;
+
+    public DonnybrookPolicy(GlowServer server) {
+        weighMessage = new DistanceMoved(server, new Bounds(-1, 5));
+    }
 
     @NotNull
     @Override
@@ -100,6 +110,12 @@ public class DonnybrookPolicy implements DyconitPolicy<Player, Message> {
 
     @Override
     public int weigh(Message message) {
-        return 1;
+        return weighMessage.weigh(message);
+    }
+
+    @NotNull
+    @Override
+    public List<DyconitCommand<Player, Message>> globalUpdate() {
+        return Collections.emptyList();
     }
 }

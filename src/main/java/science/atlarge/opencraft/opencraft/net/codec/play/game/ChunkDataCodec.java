@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import science.atlarge.opencraft.opencraft.net.GlowBufUtils;
 import science.atlarge.opencraft.opencraft.net.message.play.game.ChunkDataMessage;
+import science.atlarge.opencraft.opencraft.util.config.ServerConfig;
 import science.atlarge.opencraft.opencraft.util.nbt.CompoundTag;
 
 public final class ChunkDataCodec implements Codec<ChunkDataMessage> {
@@ -44,9 +45,11 @@ public final class ChunkDataCodec implements Codec<ChunkDataMessage> {
         ByteBuf data = message.getData();
         try {
             ByteBufUtils.writeVarInt(buffer, data.writerIndex());
-            buffer.writeBytes(data);
+            buffer.writeBytes(data, 0, data.readableBytes());
         } finally {
-            data.release();
+            if (!ServerConfig.getInstance().getBoolean(ServerConfig.Key.OPENCRAFT_KLUDGE_CHUNKCACHE)) {
+                data.release();
+            }
         }
 
         ByteBufUtils.writeVarInt(buffer, message.getBlockEntities().size());

@@ -5,8 +5,10 @@ import io.netty.channel.Channel;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import org.bukkit.entity.Player;
 import science.atlarge.opencraft.dyconits.Dyconit;
 import science.atlarge.opencraft.dyconits.DyconitSystem;
@@ -24,10 +26,17 @@ public class DyconitMessaging implements Messaging {
     private final Map<GlowPlayer, Subscriber<Player, Message>> subscriberMap = new HashMap<>();
 
     private final LongAdder adder = new LongAdder();
+    @Getter
+    private final ConcurrentHashMap<String, LongAdder> messageCount = new ConcurrentHashMap<>(); // FIXME remove this debug variable.
 
     public DyconitMessaging(DyconitSystem<Player, Message> system) {
         this.system = system;
         logPolicy();
+    }
+
+    @Override
+    public void globalUpdate() {
+        system.globalUpdate();
     }
 
     @Override
@@ -51,6 +60,7 @@ public class DyconitMessaging implements Messaging {
 
     @Override
     public void publish(Object sub, Message message) {
+        messageCount.computeIfAbsent(message.getClass().getSimpleName(), t -> new LongAdder()).increment();
         system.publish(sub, message);
     }
 

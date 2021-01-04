@@ -987,6 +987,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
             // Add entities that have become visible
             AreaOfInterest area = getAreaOfInterest();
             area.forEach(chunk -> {
+                // TODO rawEntities can give errors in worlds that contain tile entities.
                 chunk.getRawEntities().stream()
                         .filter(entity -> this != entity
                                 && isWithinDistance(entity)
@@ -1003,7 +1004,6 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                             entity.createSpawnMessage().forEach(session::send);
                         });
             });
-
         } finally {
             worldLock.writeLock().unlock();
         }

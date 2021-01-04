@@ -1907,6 +1907,15 @@ public class GlowServer implements Server {
         return null;
     }
 
+    public Entity getEntity(int id) {
+        return worlds.getWorlds().stream()
+                .map(GlowWorld::getEntityManager)
+                .map(m -> m.getEntity(id))
+                .filter(Objects::nonNull)
+                .findAny()
+                .orElse(null);
+    }
+
     @Override
     public boolean reloadCommandAliases() {
         commandMap.registerServerAliases();

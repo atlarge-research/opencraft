@@ -2,13 +2,13 @@ package science.atlarge.opencraft.opencraft.executor;
 
 import com.flowpowered.network.Message;
 import java.util.Objects;
+import org.bukkit.World;
 import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.chunk.AreaOfInterest;
 import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
 import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
 import science.atlarge.opencraft.opencraft.net.GlowSession;
 import science.atlarge.opencraft.opencraft.util.Coordinates;
-import org.bukkit.World;
 
 /**
  * This class is class responsible for generating chunks and sending the chunk data to a player. This class has a
@@ -25,7 +25,7 @@ public final class ChunkRunnable extends PriorityRunnable {
      * Construct a ChunkRunnable for a chunk that the given player needs to receive the data for.
      *
      * @param player The player to which the chunk data will be sent to.
-     * @param chunk The chunk for which the data needs to be sent to the player.
+     * @param chunk  The chunk for which the data needs to be sent to the player.
      */
     public ChunkRunnable(GlowPlayer player, GlowChunk chunk) {
         this.player = player;
@@ -90,6 +90,7 @@ public final class ChunkRunnable extends PriorityRunnable {
         player.getChunkLock().acquire(key);
 
         Message message = chunk.toMessage(skylight);
+        // TODO (all) messages should be sent via the messaging system.
         session.send(message);
 
         chunk.getRawBlockEntities().forEach(entity -> entity.update(player));

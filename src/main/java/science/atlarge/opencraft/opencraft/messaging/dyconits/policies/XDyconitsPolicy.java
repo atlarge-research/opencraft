@@ -1,6 +1,7 @@
 package science.atlarge.opencraft.opencraft.messaging.dyconits.policies;
 
 import com.flowpowered.network.Message;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -43,5 +44,11 @@ public class XDyconitsPolicy implements DyconitPolicy<Player, Message> {
     @Override
     public int weigh(Message message) {
         return 1;
+    }
+
+    @NotNull
+    @Override
+    public List<DyconitCommand<Player, Message>> globalUpdate() {
+        return Collections.emptyList();
     }
 }

@@ -25,6 +25,11 @@ public class PubSubMessaging implements Messaging {
     }
 
     @Override
+    public void globalUpdate() {
+        // Nothing to do here.
+    }
+
+    @Override
     public void update(GlowPlayer sub) {
         this.messageMessagingSystem.update(sub, callbackMap.computeIfAbsent(sub, glowPlayer -> msg -> {
             adder.increment();

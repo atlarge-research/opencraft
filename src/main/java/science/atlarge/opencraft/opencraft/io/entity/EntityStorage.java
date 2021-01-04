@@ -2,6 +2,11 @@ package science.atlarge.opencraft.opencraft.io.entity;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.entity.EntityType;
+import org.jetbrains.annotations.NonNls;
 import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.entity.GlowEntity;
 import science.atlarge.opencraft.opencraft.entity.monster.GlowBlaze;
@@ -39,10 +44,6 @@ import science.atlarge.opencraft.opencraft.entity.projectile.GlowTippedArrow;
 import science.atlarge.opencraft.opencraft.entity.projectile.GlowWitherSkull;
 import science.atlarge.opencraft.opencraft.io.nbt.NbtSerialization;
 import science.atlarge.opencraft.opencraft.util.nbt.CompoundTag;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.entity.EntityType;
-import org.jetbrains.annotations.NonNls;
 
 /**
  * The class responsible for mapping entity types to their storage methods and reading and writing
@@ -168,11 +169,10 @@ public final class EntityStorage {
     /**
      * Creates an entity of the given Glowstone class, by deserializing an empty tag.
      *
-     * @param clazz the type of entity
-     * @param <T>   the type of entity
+     * @param clazz    the type of entity
+     * @param <T>      the type of entity
      * @param location the entity's initial location
      */
-    @SuppressWarnings("unchecked")
     public static <T extends GlowEntity> T create(Class<T> clazz, Location location) {
         return (T) find(clazz, clazz.getSimpleName()).createEntity(location, EMPTY_TAG);
     }
@@ -232,9 +232,15 @@ public final class EntityStorage {
      */
     private static <T extends GlowEntity> T createEntity(EntityStore<T> store, Location location,
             CompoundTag compound) {
-        T entity = store.createEntity(location, compound);
-        store.load(entity, compound);
-        return entity;
+        Lock lock = ((GlowWorld) location.getWorld()).getEntityManager().getLock().writeLock();
+        lock.lock();
+        try {
+            T entity = store.createEntity(location, compound);
+            store.load(entity, compound);
+            return entity;
+        } finally {
+            lock.unlock();
+        }
     }
 
     /**
@@ -252,7 +258,6 @@ public final class EntityStorage {
     /**
      * Unsafe-cast an unknown EntityStore to the base type.
      */
-    @SuppressWarnings("unchecked")
     private static EntityStore<GlowEntity> getBaseStore(EntityStore<?> store) {
         return (EntityStore<GlowEntity>) store;
     }

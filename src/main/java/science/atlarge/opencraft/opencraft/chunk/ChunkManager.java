@@ -220,6 +220,11 @@ public class ChunkManager {
      * Populate a single chunk if needed.
      */
     private void populateChunk(int x, int z, boolean force) {
+        // If we do not generate chunks, neither should we populate them.
+        if (world.getServer().isGenerationDisabled()) {
+            return;
+        }
+
         lock.lock();
         try {
 

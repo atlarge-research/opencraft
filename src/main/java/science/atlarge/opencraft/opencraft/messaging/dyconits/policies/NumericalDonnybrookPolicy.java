@@ -4,6 +4,7 @@ import com.flowpowered.network.Message;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,10 +21,9 @@ import science.atlarge.opencraft.dyconits.Subscriber;
 import science.atlarge.opencraft.dyconits.policies.DyconitCommand;
 import science.atlarge.opencraft.dyconits.policies.DyconitPolicy;
 import science.atlarge.opencraft.dyconits.policies.DyconitSubscribeCommand;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityRotationMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityTeleportMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.RelativeEntityPositionMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.RelativeEntityPositionRotationMessage;
+import science.atlarge.opencraft.opencraft.GlowServer;
+import science.atlarge.opencraft.opencraft.messaging.dyconits.policies.weights.DistanceMoved;
+import science.atlarge.opencraft.opencraft.messaging.dyconits.policies.weights.WeighMessage;
 
 public class NumericalDonnybrookPolicy implements DyconitPolicy<Player, Message> {
 
@@ -36,17 +36,20 @@ public class NumericalDonnybrookPolicy implements DyconitPolicy<Player, Message>
      */
     private final Duration turnoverTime = Duration.ofNanos(294117647);
 
+    private final GlowServer server;
+
     private final Map<Subscriber<Player, Message>, Instant> lastChangedMap = new HashMap<>();
     private final Map<Subscriber<Player, Message>, List<Player>> interestSet = new HashMap<>();
-    private final Bounds numericalBound;
+    private final Bounds numericalBound = new Bounds(-1, 5);
 
-    {
-        int boundInMeters = 5;
-        int boundShifted = boundInMeters * 128;
-        numericalBound = new Bounds(-1, boundShifted * boundShifted);
-    }
+    private final WeighMessage weighMessage;
 
     private final Random random = new Random(System.currentTimeMillis());
+
+    public NumericalDonnybrookPolicy(GlowServer server) {
+        this.server = server;
+        this.weighMessage = new DistanceMoved(server, numericalBound);
+    }
 
     @NotNull
     @Override
@@ -111,24 +114,12 @@ public class NumericalDonnybrookPolicy implements DyconitPolicy<Player, Message>
 
     @Override
     public int weigh(Message message) {
-        if (message instanceof RelativeEntityPositionMessage) {
-            RelativeEntityPositionMessage msg = (RelativeEntityPositionMessage) message;
-            int x = msg.getDeltaX();
-            int y = msg.getDeltaY();
-            int z = msg.getDeltaZ();
-            return x * x + y * y + z * z;
-        } else if (message instanceof RelativeEntityPositionRotationMessage) {
-            RelativeEntityPositionRotationMessage msg = (RelativeEntityPositionRotationMessage) message;
-            int x = msg.getDeltaX();
-            int y = msg.getDeltaY();
-            int z = msg.getDeltaZ();
-            return x * x + y * y + z * z;
-        } else if (message instanceof EntityRotationMessage) {
-            return 0;
-        } else if (message instanceof EntityTeleportMessage) {
-            return numericalBound.getNumerical();
-        } else {
-            return 1;
-        }
+        return weighMessage.weigh(message);
+    }
+
+    @NotNull
+    @Override
+    public List<DyconitCommand<Player, Message>> globalUpdate() {
+        return Collections.emptyList();
     }
 }

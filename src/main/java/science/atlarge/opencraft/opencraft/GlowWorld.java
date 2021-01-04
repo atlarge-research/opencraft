@@ -104,6 +104,7 @@ import science.atlarge.opencraft.opencraft.generator.structures.GlowStructure;
 import science.atlarge.opencraft.opencraft.io.WorldMetadataService;
 import science.atlarge.opencraft.opencraft.io.WorldStorageProvider;
 import science.atlarge.opencraft.opencraft.io.entity.EntityStorage;
+import science.atlarge.opencraft.opencraft.measurements.EventLogger;
 import science.atlarge.opencraft.opencraft.messaging.Messaging;
 import science.atlarge.opencraft.opencraft.messaging.MessagingFactory;
 import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityStatusMessage;
@@ -117,6 +118,7 @@ import science.atlarge.opencraft.opencraft.util.RayUtil;
 import science.atlarge.opencraft.opencraft.util.TickUtil;
 import science.atlarge.opencraft.opencraft.util.Vectors;
 import science.atlarge.opencraft.opencraft.util.collection.ConcurrentSet;
+import science.atlarge.opencraft.opencraft.util.config.ServerConfig;
 import science.atlarge.opencraft.opencraft.util.config.WorldConfig;
 import science.atlarge.opencraft.opencraft.util.nbt.CompoundTag;
 
@@ -136,7 +138,7 @@ public class GlowWorld implements World {
     /**
      * The length in ticks between autosaves (5 minutes).
      */
-    private static final int AUTOSAVE_TIME = TickUtil.minutesToTicks(5);
+    private static final int AUTOSAVE_TIME = TickUtil.minutesToTicks(1);
 
     /**
      * The maximum height of ocean water.
@@ -329,7 +331,7 @@ public class GlowWorld implements World {
      */
     @Getter
     @Setter
-    private boolean autoSave = true;
+    private boolean autoSave = ServerConfig.getInstance().getBoolean(ServerConfig.Key.AUTOSAVE);
 
     /**
      * The world's gameplay difficulty.
@@ -491,32 +493,58 @@ public class GlowWorld implements World {
      * Updates all the entities within this world.
      */
     public void pulse() {
-
+        // FIXME SEE WHAT TAKES SO LONG HERE. 40ms for 300 players? WUT?
+        EventLogger logger = GlowServer.eventLogger;
+        logger.start("pulse_" + name);
         List<GlowPlayer> players = entityManager.getPlayers();
 
+        logger.start("update_aoi_" + name);
         updateAreasOfInterest(players);
+        logger.stop("update_aoi_" + name);
 
+        logger.start("tick_map_" + name);
+        logger.start("tick_map_requested_" + name);
         pulseTickMap();
-        Set<GlowChunk> activeChunks = findActiveChunks(players);
-        updateBlocksInChunks(activeChunks);
+        logger.stop("tick_map_requested_" + name);
+        logger.start("tick_map_find_" + name);
+        GlowChunk[] activeChunks = chunkManager.getLoadedChunks();
+//        Set<GlowChunk> activeChunks = findActiveChunks(players);
+        logger.stop("tick_map_find_" + name);
+        logger.start("tick_map_update_" + name);
+        if (players.size() > 0) {
+            updateBlocksInChunks(activeChunks);
+        }
+        logger.stop("tick_map_update_" + name);
+        logger.stop("tick_map_" + name);
 
+        logger.start("update_entities_" + name);
         List<GlowEntity> entities = entityManager.getAll();
-
+        logger.start("update_entities_send_" + name);
         broadcastEntityUpdates(entities);
+        logger.stop("update_entities_send_" + name);
 
         players.parallelStream().forEach(GlowPlayer::spawnEntities);
 
         entities.parallelStream().forEach(GlowEntity::reset);
+        logger.stop("update_entities_" + name);
 
+        logger.start("pulse_border_" + name);
         worldBorder.pulse();
+        logger.stop("pulse_border_" + name);
 
+        logger.start("misc_" + name);
         updateWorldTime();
         informPlayersOfTime();
         updateOverworldWeather();
 
         handleSleepAndWake(players);
+        logger.stop("misc_" + name);
 
+        logger.start("save_world_" + name);
         saveWorld();
+        logger.stop("save_world_" + name);
+
+        logger.stop("pulse_" + name);
     }
 
     /**
@@ -538,6 +566,7 @@ public class GlowWorld implements World {
         if (this.name.equals("world")) {
             this.server.getScheduler().startMeasurement("dyconit_policy_update", "Time spent updating dyconit subscriptions");
         }
+        messagingSystem.globalUpdate();
         allPlayers.parallelStream()
                 .forEach(messagingSystem::update);
         if (this.name.equals("world")) {
@@ -668,8 +697,17 @@ public class GlowWorld implements World {
      *
      * @param chunks the chunks which contain the blocks to be updated.
      */
-    private void updateBlocksInChunks(Set<GlowChunk> chunks) {
-        chunks.parallelStream().filter(this::isChunkLoaded).forEach(chunk -> {
+//    private void updateBlocksInChunks(Set<GlowChunk> chunks) {
+//        GlowServer.eventLogger.log("loadedchunks", chunks.size());
+//        chunks.stream().filter(GlowChunk::isLoaded).forEach(chunk -> {
+    private void updateBlocksInChunks(GlowChunk[] chunks) {
+        int counter = 0;
+        GlowServer.eventLogger.log("loadedchunks", chunks.length);
+        for (GlowChunk chunk : chunks) {
+            if (!chunk.isLoaded()) {
+                continue;
+            }
+            counter++;
 
             int x = chunk.getX();
             int z = chunk.getZ();
@@ -681,7 +719,9 @@ public class GlowWorld implements World {
             for (int index = 0; index < sections.length; index++) {
                 updateBlocksInSection(chunk, sections[index], index);
             }
-        });
+        }
+        GlowServer.eventLogger.log("loadedchunks", counter);
+//        });
     }
 
     /**

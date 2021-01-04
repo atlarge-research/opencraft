@@ -23,6 +23,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
+import lombok.Getter;
 import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
@@ -33,6 +34,7 @@ import org.bukkit.scheduler.BukkitWorker;
 import science.atlarge.opencraft.opencraft.GlowServer;
 import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.OverloadBreaker;
+import science.atlarge.opencraft.opencraft.messaging.DyconitMessaging;
 import science.atlarge.opencraft.opencraft.messaging.Messaging;
 import science.atlarge.opencraft.opencraft.net.SessionRegistry;
 import science.atlarge.opencraft.opencraft.util.config.ServerConfig;
@@ -106,6 +108,7 @@ public final class GlowScheduler implements BukkitScheduler {
     /**
      * Used as a breaker to shut down server on overload. Enable using config.
      */
+    @Getter
     private final OverloadBreaker breaker;
 
     /**
@@ -253,6 +256,9 @@ public final class GlowScheduler implements BukkitScheduler {
                 GlowWorld glowWorld = (GlowWorld) firstWorld;
                 Messaging messagingSystem = glowWorld.getMessagingSystem();
                 log("mcpackets_sent", String.valueOf(messagingSystem.totalMessagesSent()));
+                ((DyconitMessaging) messagingSystem)
+                        .getMessageCount()
+                        .forEach((key, value) -> log("mcpackets_sent_" + key, String.valueOf(value.sum())));
             }
         }
     }
@@ -333,10 +339,9 @@ public final class GlowScheduler implements BukkitScheduler {
         stopMeasurement("tick");
         long tickStop = System.currentTimeMillis();
         GlowServer glowServer = (GlowServer) this.server;
-        if (glowServer.getConfig().getBoolean(ServerConfig.Key.OPENCRAFT_OVERLOAD_BREAKER)) {
-            if (breaker.trigger(tickStop - tickStart)) {
-                glowServer.shutdown("Shutting down. Server overloaded.");
-            }
+        if (breaker.trigger(tickStop - tickStart)
+                && glowServer.getConfig().getBoolean(ServerConfig.Key.OPENCRAFT_OVERLOAD_BREAKER)) {
+            glowServer.shutdown("Shutting down. Server overloaded.");
         }
     }
 

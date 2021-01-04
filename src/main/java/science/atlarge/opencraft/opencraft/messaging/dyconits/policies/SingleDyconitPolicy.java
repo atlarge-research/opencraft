@@ -10,6 +10,9 @@ import science.atlarge.opencraft.dyconits.Subscriber;
 import science.atlarge.opencraft.dyconits.policies.DyconitCommand;
 import science.atlarge.opencraft.dyconits.policies.DyconitPolicy;
 import science.atlarge.opencraft.dyconits.policies.DyconitSubscribeCommand;
+import science.atlarge.opencraft.opencraft.GlowServer;
+import science.atlarge.opencraft.opencraft.messaging.dyconits.policies.weights.DistanceMoved;
+import science.atlarge.opencraft.opencraft.messaging.dyconits.policies.weights.WeighMessage;
 
 public class SingleDyconitPolicy implements DyconitPolicy<Player, Message> {
 
@@ -17,9 +20,12 @@ public class SingleDyconitPolicy implements DyconitPolicy<Player, Message> {
     private final int numerical;
     private final static String DYCONIT_NAME = "single";
 
-    public SingleDyconitPolicy(int staleness, int numerical) {
+    private final WeighMessage weighMessage;
+
+    public SingleDyconitPolicy(int staleness, int numerical, GlowServer server) {
         this.staleness = staleness;
         this.numerical = numerical;
+        this.weighMessage = new DistanceMoved(server, new Bounds(-1, 5));
     }
 
     @NotNull
@@ -36,6 +42,12 @@ public class SingleDyconitPolicy implements DyconitPolicy<Player, Message> {
 
     @Override
     public int weigh(Message message) {
-        return 1;
+        return weighMessage.weigh(message);
+    }
+
+    @NotNull
+    @Override
+    public List<DyconitCommand<Player, Message>> globalUpdate() {
+        return Collections.emptyList();
     }
 }

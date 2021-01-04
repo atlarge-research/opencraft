@@ -2,6 +2,7 @@ package science.atlarge.opencraft.opencraft.messaging.dyconits.policies;
 
 import com.flowpowered.network.Message;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -105,5 +106,11 @@ public class QuadraticGradientStalenessAoI implements DyconitPolicy<Player, Mess
     @Override
     public int weigh(Message message) {
         return 1;
+    }
+
+    @NotNull
+    @Override
+    public List<DyconitCommand<Player, Message>> globalUpdate() {
+        return Collections.emptyList();
     }
 }

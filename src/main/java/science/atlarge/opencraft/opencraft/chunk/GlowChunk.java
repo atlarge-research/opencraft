@@ -16,6 +16,12 @@ import java.util.logging.Level;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Chunk;
+import org.bukkit.Difficulty;
+import org.bukkit.Material;
+import org.bukkit.World.Environment;
+import org.bukkit.entity.Entity;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import science.atlarge.opencraft.opencraft.EventFactory;
 import science.atlarge.opencraft.opencraft.GlowServer;
 import science.atlarge.opencraft.opencraft.GlowWorld;
@@ -28,13 +34,8 @@ import science.atlarge.opencraft.opencraft.entity.GlowEntity;
 import science.atlarge.opencraft.opencraft.net.message.play.game.ChunkDataMessage;
 import science.atlarge.opencraft.opencraft.util.Coordinates;
 import science.atlarge.opencraft.opencraft.util.TickUtil;
+import science.atlarge.opencraft.opencraft.util.config.ServerConfig;
 import science.atlarge.opencraft.opencraft.util.nbt.CompoundTag;
-import org.bukkit.Chunk;
-import org.bukkit.Difficulty;
-import org.bukkit.Material;
-import org.bukkit.World.Environment;
-import org.bukkit.entity.Entity;
-import org.bukkit.event.world.ChunkUnloadEvent;
 
 /**
  * Represents a chunk of the map.
@@ -67,6 +68,13 @@ public class GlowChunk implements Chunk {
      * The number of chunk sections in a single chunk column.
      */
     public static final int SEC_COUNT = DEPTH / SEC_DEPTH;
+
+    /**
+     * Used in a kludge to prevent repeated serialization of chunk messages.
+     * This cache saves chunk messages, which can be useful for chunks that need to be sent multiple times,
+     * such as those around spawn. Using this cache breaks world modifiability.
+     */
+    private static final Map<Integer, Map<Integer, ChunkDataMessage>> chunkCache = new ConcurrentHashMap<>();
 
     /**
      * The world of this chunk.
@@ -199,10 +207,10 @@ public class GlowChunk implements Chunk {
     public boolean isSlimeChunk() {
         if (isSlimeChunk == -1) {
             boolean isSlimeChunk = new Random(this.world.getSeed()
-                + (long) (this.x * this.x * 0x4c1906)
-                + (long) (this.x * 0x5ac0db)
-                + (long) (this.z * this.z) * 0x4307a7L
-                + (long) (this.z * 0x5f24f) ^ 0x3ad8025f).nextInt(10) == 0;
+                    + (long) (this.x * this.x * 0x4c1906)
+                    + (long) (this.x * 0x5ac0db)
+                    + (long) (this.z * this.z) * 0x4307a7L
+                    + (long) (this.z * 0x5f24f) ^ 0x3ad8025f).nextInt(10) == 0;
 
             this.isSlimeChunk = (isSlimeChunk ? 1 : 0);
         }
@@ -217,10 +225,10 @@ public class GlowChunk implements Chunk {
 
     @Override
     public GlowChunkSnapshot getChunkSnapshot(boolean includeMaxBlockY, boolean includeBiome,
-                                              boolean includeBiomeTempRain) {
+            boolean includeBiomeTempRain) {
         return new GlowChunkSnapshot(x, z, world, sections,
-            includeMaxBlockY ? heightMap.clone() : null, includeBiome ? biomes.clone() : null,
-            includeBiomeTempRain, isSlimeChunk());
+                includeMaxBlockY ? heightMap.clone() : null, includeBiome ? biomes.clone() : null,
+                includeBiomeTempRain, isSlimeChunk());
     }
 
     @Override
@@ -263,7 +271,7 @@ public class GlowChunk implements Chunk {
         }
 
         if (EventFactory.getInstance()
-            .callEvent(new ChunkUnloadEvent(this)).isCancelled()) {
+                .callEvent(new ChunkUnloadEvent(this)).isCancelled()) {
             return false;
         }
 
@@ -291,15 +299,15 @@ public class GlowChunk implements Chunk {
     public void initializeSections(ChunkSection[] initSections) {
         if (isLoaded()) {
             GlowServer.logger.log(Level.SEVERE,
-                "Tried to initialize already loaded chunk (" + x + "," + z + ")",
-                new Throwable());
+                    "Tried to initialize already loaded chunk (" + x + "," + z + ")",
+                    new Throwable());
             return;
         }
         if (initSections.length != SEC_COUNT) {
             GlowServer.logger.log(Level.WARNING,
-                "Got an unexpected section length - wanted " + SEC_COUNT + ", but length was "
-                    + initSections.length,
-                new Throwable());
+                    "Got an unexpected section length - wanted " + SEC_COUNT + ", but length was "
+                            + initSections.length,
+                    new Throwable());
         }
         //GlowServer.logger.log(Level.INFO, "Initializing chunk ({0},{1})", new Object[]{x, z});
 
@@ -394,7 +402,7 @@ public class GlowChunk implements Chunk {
                     return entity;
                 } catch (Exception ex) {
                     GlowServer.logger
-                        .log(Level.SEVERE, "Unable to initialize block entity for " + type, ex);
+                            .log(Level.SEVERE, "Unable to initialize block entity for " + type, ex);
                     return null;
                 }
             default:
@@ -674,6 +682,7 @@ public class GlowChunk implements Chunk {
     /**
      * Computes the regional difficulty.
      * Not used at the moment.
+     *
      * @return regional difficulty.
      */
     public double getRegionalDifficulty() {
@@ -687,7 +696,7 @@ public class GlowChunk implements Chunk {
         } else if (worldTime < TickUtil.TICKS_PER_HOUR) {
             totalTimeFactor = 0;
         } else {
-            totalTimeFactor =  (worldTime - TickUtil.TICKS_PER_HOUR) / 5760000d;
+            totalTimeFactor = (worldTime - TickUtil.TICKS_PER_HOUR) / 5760000d;
         }
 
         double chunkFactor;
@@ -726,6 +735,7 @@ public class GlowChunk implements Chunk {
     /**
      * Compute the normalized regional difficulty.
      * Not used at the moment.
+     *
      * @return normalized regional difficulty.
      */
     public double getClampedRegionalDifficulty() {
@@ -789,7 +799,7 @@ public class GlowChunk implements Chunk {
     private int coordinateToIndex(int x, int z, int y) {
         if (x < 0 || z < 0 || y < 0 || x >= WIDTH || z >= HEIGHT || y >= DEPTH) {
             throw new IndexOutOfBoundsException(
-                "Coords (x=" + x + ",y=" + y + ",z=" + z + ") invalid");
+                    "Coords (x=" + x + ",y=" + y + ",z=" + z + ") invalid");
         }
 
         return (y * HEIGHT + z) * WIDTH + x;
@@ -827,6 +837,13 @@ public class GlowChunk implements Chunk {
      * @return The {@link ChunkDataMessage}.
      */
     public ChunkDataMessage toMessage(boolean skylight, boolean entireChunk) {
+        if (ServerConfig.getInstance().getBoolean(ServerConfig.Key.OPENCRAFT_KLUDGE_CHUNKCACHE)) {
+            ChunkDataMessage cachedMessage = chunkCache.computeIfAbsent(this.x, x -> new ConcurrentHashMap<>()).get(this.z);
+            if (cachedMessage != null) {
+                return cachedMessage;
+            }
+        }
+
         load();
         int sectionBitmask = 0;
 
@@ -869,7 +886,11 @@ public class GlowChunk implements Chunk {
             blockEntities.add(tag);
         }
 
-        return new ChunkDataMessage(x, z, entireChunk, sectionBitmask, buf, blockEntities);
+        ChunkDataMessage result = new ChunkDataMessage(x, z, entireChunk, sectionBitmask, buf, blockEntities);
+        if (ServerConfig.getInstance().getBoolean(ServerConfig.Key.OPENCRAFT_KLUDGE_CHUNKCACHE)) {
+            chunkCache.computeIfAbsent(x, x -> new ConcurrentHashMap<>()).put(z, result);
+        }
+        return result;
     }
 
     public void addTick() {

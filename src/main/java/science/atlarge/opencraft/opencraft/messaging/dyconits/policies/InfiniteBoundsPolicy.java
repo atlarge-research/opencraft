@@ -31,4 +31,10 @@ public class InfiniteBoundsPolicy implements DyconitPolicy<Player, Message> {
     public int weigh(Message message) {
         return 1;
     }
+
+    @NotNull
+    @Override
+    public List<DyconitCommand<Player, Message>> globalUpdate() {
+        return Collections.emptyList();
+    }
 }

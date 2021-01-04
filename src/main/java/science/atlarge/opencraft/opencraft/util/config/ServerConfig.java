@@ -40,6 +40,12 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
 
     public static final int DEFAULT_PORT = 25565;
 
+    private static ServerConfig instance;
+
+    public static ServerConfig getInstance() {
+        return instance;
+    }
+
     /**
      * The directory configurations are stored in.
      */
@@ -86,6 +92,8 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
                 "opencraft.yml is the main configuration file for a Opencraft server\n"
                         + "It contains everything from server.properties and bukkit.yml in a\n"
                         + "normal CraftBukkit installation.\n");
+
+        instance = this;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -397,6 +405,12 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         // Opencraft - Breaker
         OPENCRAFT_OVERLOAD_BREAKER("opencraft.overload-breaker", false, Boolean.class::isInstance),
 
+        // Opencraft - Kludge to cache all ChunkMessages. Format them once, cache them forever.
+        // Breaks game when players modify world.
+        // Hopefully reduces overhead of players joining the server
+        // (bc. new players require a lot of ChunkMessages around spawn).
+        OPENCRAFT_KLUDGE_CHUNKCACHE("opencraft.kludge.cache-chunks", false, Boolean.class::isInstance),
+
         // Opencraft - Messaging System
         OPENCRAFT_MESSAGING_TYPE("opencraft.messaging.type", "dyconit", String.class::isInstance),
         OPENCRAFT_POLICY("opencraft.messaging.policy", "chunk", String.class::isInstance),
@@ -434,6 +448,7 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         ALLOW_CLIENT_MODS("server.allow-client-mods", true, Boolean.class::isInstance),
         DNS_OVERRIDES("server.dns", new ArrayList<>()),
         LOG_LEVEL_FILE("server.log-level", "INFO", String.class::isInstance),
+        AUTOSAVE("server.autosave", true, Boolean.class::isInstance),
 
         // console
         USE_JLINE("console.use-jline", true, Boolean.class::isInstance),
