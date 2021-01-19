@@ -11,6 +11,13 @@ import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityTelepor
 import science.atlarge.opencraft.opencraft.net.message.play.entity.RelativeEntityPositionMessage;
 import science.atlarge.opencraft.opencraft.net.message.play.entity.RelativeEntityPositionRotationMessage;
 
+/**
+ * This class weighs messages based on entity displacement.
+ * <p>
+ * Note that the weights are scaled. Moving one unit in the game receives a message weight of 32.
+ * This is useful because packet weights are integers. Using a weight of 1 for a 1 meter avatar displacement effectively
+ * prevents using bounds smaller than 1 meter.
+ */
 public class DistanceMoved implements WeighMessage {
 
     private final GlowServer server;
