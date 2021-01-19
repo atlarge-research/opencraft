@@ -2,8 +2,6 @@ package science.atlarge.opencraft.opencraft;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.bukkit.Server;
 
 public class OverloadBreaker {
@@ -31,17 +29,23 @@ public class OverloadBreaker {
                 && rollingAverage.stream().filter(e -> e.duration > 50).count() > rollingAverage.size() / 2;
     }
 
-    public List<Double> load(long periodMillis) {
+    public Double load(long periodMillis) {
         long start = System.currentTimeMillis() - periodMillis;
+        // https://stackoverflow.com/a/49215170
+        int size = rollingAverage.size();
         return rollingAverage.stream()
                 .filter(e -> e.timestamp >= start)
                 .mapToDouble(e -> e.duration)
-                .boxed()
-                .collect(Collectors.toList());
+                .sorted()
+                .skip((size - 1) / 2)
+                .limit(2 - size % 2)
+                .average()
+                .orElse(Double.NaN);
     }
 
     public boolean overloaded(long periodMillis, double load) {
-        if (System.currentTimeMillis() - serverStart < 10_000) {
+        // Prevent returning true while server is starting.
+        if (System.currentTimeMillis() - serverStart < 10_000 || server.getOnlinePlayers().size() < 10) {
             return false;
         }
         long start = System.currentTimeMillis() - periodMillis;
