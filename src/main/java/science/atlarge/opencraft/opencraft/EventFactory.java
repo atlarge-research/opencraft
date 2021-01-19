@@ -55,6 +55,7 @@ public class EventFactory {
     /**
      * Count how many players join and leave.
      */
+    @Getter
     private static final AtomicInteger numPlayers = new AtomicInteger(0);
 
     private EventFactory() {
