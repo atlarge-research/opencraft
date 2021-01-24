@@ -19,18 +19,14 @@ public class App implements RequestHandler<String, String> {
         PopulateInput deserialized = PopulateInput.deserialize(input);
 
         GlowWorld world = deserialized.world;
-        Random random = deserialized.random;
+
+        Random random = new Random(world.getSeed());
+        long xrand = (random.nextLong() / 2 << 1) + 1;
+        long zrand = (random.nextLong() / 2 << 1) + 1;
+        random.setSeed(deserialized.x * xrand + deserialized.z * zrand ^ world.getSeed());
 
         // set the world field of the chunk manager
         world.getChunkManager().setWorld(world);
-
-        // set the chunksForLambda field in chunk manager
-        world.getChunkManager().setKnownChunks(deserialized.knownChunks);
-
-        // for each chunk set their world field
-        for (GlowChunk chunk : world.getChunkManager().getKnownChunks()) {
-            chunk.setWorld(world);
-        }
 
         // enable serverless on world
         world.setServerless(true);

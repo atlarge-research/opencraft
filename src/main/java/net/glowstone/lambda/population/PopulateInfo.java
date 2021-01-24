@@ -3,9 +3,7 @@ package net.glowstone.lambda.population;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import net.glowstone.GlowWorld;
 import net.glowstone.block.GlowBlock;
 import net.glowstone.chunk.GlowChunk;
@@ -21,26 +19,33 @@ public class PopulateInfo {
 
     public static class PopulateInput {
         public GlowWorld world;
-        public Random random;
-        public ArrayList<GlowChunk> knownChunks;
         public int x;
         public int z;
 
-        public PopulateInput(GlowWorld world, Random random, ArrayList<GlowChunk> knownChunks, int x, int z) {
+        public PopulateInput(GlowWorld world, int x, int z) {
             this.world = world;
-            this.random = random;
-            this.knownChunks = knownChunks;
             this.x = x;
             this.z = z;
         }
 
         public String serialize() {
-            // do it twice to bypass AWS Lambda auto deserialization
-            return serializer.serialize(serializer.serialize(this));
+            // serialize twice to bypass AWS Lambda auto deserialization
+            if (world.getSerializedCache().equals("")) {
+                world.setSerializedCache(serializer.serialize(world));
+            }
+            String worldCache = world.getSerializedCache();
+            String inp = String.format("%d,%d,%s", x, z, worldCache);
+            return serializer.serialize(inp);
         }
 
         public static PopulateInput deserialize(String src) {
-            return serializer.deserialize(src, PopulateInput.class);
+            String[] deserialized = src.split(",", 3);
+            return new PopulateInput(
+                    serializer.deserialize(deserialized[2], GlowWorld.class),
+                    Integer.parseInt(deserialized[0]),
+                    Integer.parseInt(deserialized[1])
+            );
+            //return serializer.deserialize(src, PopulateInput.class);
         }
     }
 

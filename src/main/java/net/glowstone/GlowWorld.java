@@ -231,6 +231,7 @@ public class GlowWorld implements World {
      * The world seed.
      */
     @Getter
+    @Expose
     private final long seed;
 
     /**
@@ -417,8 +418,6 @@ public class GlowWorld implements World {
 
     private final PriorityExecutor<ChunkRunnable> executor;
 
-    private ImmutableMap<GlowPlayer, AreaOfInterest> previousAreas;
-
     @Getter
     @Setter
     private ChunkLoadingPolicy chunkLoadingPolicy;
@@ -434,6 +433,10 @@ public class GlowWorld implements World {
      */
     @Getter
     private List<PopulateInfo.PopulateOutput.PulseTaskInfo> populatedPulseTasks;
+
+    @Getter
+    @Setter
+    private String serializedCache = "";
 
     /**
      * Creates a new world from the options in the given WorldCreator.
@@ -482,7 +485,6 @@ public class GlowWorld implements World {
         messagingSystem = new MessagingSystem<>(policy, broker, filter);
 
         executor = new PriorityExecutor<>();
-        previousAreas = ImmutableMap.of();
         chunkLoadingPolicy = new DefaultChunkLoadingPolicy(this);
 
         // Read in world data

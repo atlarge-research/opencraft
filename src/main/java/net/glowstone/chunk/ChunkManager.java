@@ -83,7 +83,6 @@ public class ChunkManager {
      * Used by serverless population to keep track of the currently loaded chunks (in order to avoid use of Key)
      */
     @Getter
-    @Setter
     private ArrayList<GlowChunk> knownChunks = new ArrayList<>();
 
     /**
@@ -118,6 +117,9 @@ public class ChunkManager {
     public GlowChunk getChunk(int x, int z) {
         if (world.isServerless()) {
             GlowChunk res = null;
+            if (knownChunks == null) {
+                knownChunks = new ArrayList<>();
+            }
             for (GlowChunk chunk : knownChunks) {
                 if (chunk.getX() == x && chunk.getZ() == z) {
                     res = chunk;
@@ -335,14 +337,9 @@ public class ChunkManager {
 
         chunk.setPopulated(true);
 
-        Random random = new Random(world.getSeed());
-        long xrand = (random.nextLong() / 2 << 1) + 1;
-        long zrand = (random.nextLong() / 2 << 1) + 1;
-        random.setSeed(x * xrand + z * zrand ^ world.getSeed());
-
         // invoke the lambda function
         PopulateInfo.PopulateOutput output = PopulationInvoker.invoke(
-                new PopulateInfo.PopulateInput(world, random, new ArrayList<>(), x, z)
+                new PopulateInfo.PopulateInput(world, x, z)
         );
 
         // set the populated chunk back to this world; this also deserializes the chunk
