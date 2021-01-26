@@ -525,7 +525,7 @@ public abstract class GlowHumanEntity extends GlowLivingEntity implements HumanE
             tlr.nextDouble(randOffset) - randOffset / 2,
             tlr.nextDouble(0.12),
             tlr.nextDouble(randOffset) - randOffset / 2));
-            
+
         dropItem.setVelocity(vel);
         return dropItem;
     }

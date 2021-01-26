@@ -9,17 +9,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-import science.atlarge.opencraft.opencraft.EventFactory;
-import science.atlarge.opencraft.opencraft.block.ItemTable;
-import science.atlarge.opencraft.opencraft.block.blocktype.BlockFence;
-import science.atlarge.opencraft.opencraft.block.blocktype.BlockType;
-import science.atlarge.opencraft.opencraft.entity.GlowEntity;
-import science.atlarge.opencraft.opencraft.entity.GlowHangingEntity;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityMetadataMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.SpawnObjectMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage.Action;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,6 +21,16 @@ import org.bukkit.event.entity.PlayerLeashEntityEvent;
 import org.bukkit.event.player.PlayerUnleashEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import science.atlarge.opencraft.opencraft.EventFactory;
+import science.atlarge.opencraft.opencraft.block.ItemTable;
+import science.atlarge.opencraft.opencraft.block.blocktype.BlockFence;
+import science.atlarge.opencraft.opencraft.block.blocktype.BlockType;
+import science.atlarge.opencraft.opencraft.entity.GlowEntity;
+import science.atlarge.opencraft.opencraft.entity.GlowHangingEntity;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityMetadataMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.SpawnObjectMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
 
 public class GlowLeashHitch extends GlowHangingEntity implements LeashHitch {
 
@@ -42,9 +41,9 @@ public class GlowLeashHitch extends GlowHangingEntity implements LeashHitch {
     /**
      * Creates a leash hitch entity, for when a leash is hitched to a block such as a fencepost.
      *
-     * @param location the location
+     * @param location    the location
      * @param clickedface the side of the block that was clicked
-     *         (TODO: what difference does this make?)
+     *                    (TODO: what difference does this make?)
      */
     public GlowLeashHitch(Location location, BlockFace clickedface) {
         super(location, clickedface);
@@ -62,11 +61,11 @@ public class GlowLeashHitch extends GlowHangingEntity implements LeashHitch {
         Location location = block.getLocation().add(0.5, 0.5, 0.5);
 
         Collection<Entity> nearbyEntities = block.getWorld()
-            .getNearbyEntities(location, 0.49, 0.49, 0.49);
+                .getNearbyEntities(location, 0.49, 0.49, 0.49);
 
         return nearbyEntities.stream()
-            .filter(e -> e instanceof LeashHitch)
-            .map(e -> (LeashHitch) e);
+                .filter(e -> e instanceof LeashHitch)
+                .map(e -> (LeashHitch) e);
     }
 
     /**
@@ -80,13 +79,13 @@ public class GlowLeashHitch extends GlowHangingEntity implements LeashHitch {
         // Use the oldest leash entity as leash holder
         // If none found, create a new leash hitch
         Stream<LeashHitch> sorted = GlowLeashHitch.getExistingLeashHitches(block).sorted(
-            comparingInt(Entity::getTicksLived)
-                .reversed()
+                comparingInt(Entity::getTicksLived)
+                        .reversed()
         );
 
         Optional<LeashHitch> first = sorted.findFirst();
         return first.orElseGet(
-            () -> first.orElse(block.getWorld().spawn(block.getLocation(), LeashHitch.class)));
+                () -> first.orElse(block.getWorld().spawn(block.getLocation(), LeashHitch.class)));
     }
 
     /**
@@ -97,7 +96,7 @@ public class GlowLeashHitch extends GlowHangingEntity implements LeashHitch {
      */
     public static boolean isAllowedLeashHolder(EntityType type) {
         return !(EntityType.ENDER_DRAGON.equals(type) || EntityType.WITHER.equals(type)
-            || EntityType.PLAYER.equals(type) || EntityType.BAT.equals(type));
+                || EntityType.PLAYER.equals(type) || EntityType.BAT.equals(type));
     }
 
     @Override
@@ -107,9 +106,9 @@ public class GlowLeashHitch extends GlowHangingEntity implements LeashHitch {
         int z = location.getBlockZ();
 
         return Lists.newArrayList(
-            new SpawnObjectMessage(
-                    entityId, getUniqueId(), SpawnObjectMessage.LEASH_HITCH, x, y, z, 0, 0),
-            new EntityMetadataMessage(entityId, metadata.getEntryList())
+                new SpawnObjectMessage(
+                        entityId, getUniqueId(), SpawnObjectMessage.LEASH_HITCH, x, y, z, 0, 0),
+                new EntityMetadataMessage(entityId, metadata.getEntryList())
         );
     }
 
@@ -157,20 +156,20 @@ public class GlowLeashHitch extends GlowHangingEntity implements LeashHitch {
 
     @Override
     public boolean entityInteract(GlowPlayer player, InteractEntityMessage message) {
-        if ((message.getAction() == Action.ATTACK.ordinal())
-            && message.getHandSlot() == EquipmentSlot.HAND) {
+        if ((message.getAction() == InteractEntityMessage.Action.ATTACK.ordinal())
+                && message.getHandSlot() == EquipmentSlot.HAND) {
             remove();
         }
 
-        if ((message.getAction() == Action.INTERACT.ordinal())
+        if ((message.getAction() == InteractEntityMessage.Action.INTERACT.ordinal())
                 && message.getHandSlot() == EquipmentSlot.HAND) {
             EventFactory eventFactory = EventFactory.getInstance();
             if (player.getLeashedEntities().isEmpty()) {
                 List<GlowEntity> entities = ImmutableList.copyOf(getLeashedEntities());
                 for (GlowEntity leashedEntity : entities) {
                     if (eventFactory.callEvent(
-                        eventFactory.callEvent(new PlayerUnleashEntityEvent(leashedEntity, player)))
-                        .isCancelled()) {
+                            eventFactory.callEvent(new PlayerUnleashEntityEvent(leashedEntity, player)))
+                            .isCancelled()) {
                         continue;
                     }
                     if (player.getGameMode() != GameMode.CREATIVE) {
@@ -185,8 +184,8 @@ public class GlowLeashHitch extends GlowHangingEntity implements LeashHitch {
                 List<GlowEntity> entities = ImmutableList.copyOf(player.getLeashedEntities());
                 for (GlowEntity leashedEntity : entities) {
                     if (eventFactory.callEvent(eventFactory
-                        .callEvent(new PlayerLeashEntityEvent(leashedEntity, this, player)))
-                        .isCancelled()) {
+                            .callEvent(new PlayerLeashEntityEvent(leashedEntity, this, player)))
+                            .isCancelled()) {
                         continue;
                     }
                     leashedEntity.setLeashHolder(this);

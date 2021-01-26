@@ -45,7 +45,7 @@ public class BlockFlowerPot extends BlockType {
 
     @Override
     public boolean blockInteract(GlowPlayer player, GlowBlock block, BlockFace face,
-        Vector clickedLoc) {
+                                 Vector clickedLoc) {
         GlowBlockState state = block.getState();
         MaterialData data = state.getData();
 

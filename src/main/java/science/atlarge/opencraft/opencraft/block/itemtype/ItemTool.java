@@ -12,7 +12,7 @@ public class ItemTool extends ItemType {
 
     @Override
     public final void rightClickBlock(GlowPlayer player, GlowBlock target, BlockFace face,
-        ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
+                                      ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
         if (onToolRightClick(player, target, face, holding, clickedLoc, hand)) {
             player.getInventory().setItem(hand, InventoryUtil.damageItem(player, holding));
         }

@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.util.Vector;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -60,7 +61,7 @@ public class EntityBoundingBoxTest {
         Vector expectedMin = new Vector(-1.5, -1, -1.5);
         Vector expectedMax = new Vector(0.5, 1, 0.5);
 
-        assertTrue(Vectors.equals(expectedMin, broadBox.minCorner));
+        Assertions.assertTrue(Vectors.equals(expectedMin, broadBox.minCorner));
         assertTrue(Vectors.equals(expectedMax, broadBox.maxCorner));
     }
 
@@ -131,7 +132,7 @@ public class EntityBoundingBoxTest {
 
     @Test
     public void bigEntityGroundCollisionTest(){
-        
+
         EntityBoundingBox spiderBox = new EntityBoundingBox(1.4, 0.9);
         spiderBox.setCenter(0.5,1,0.5);
 

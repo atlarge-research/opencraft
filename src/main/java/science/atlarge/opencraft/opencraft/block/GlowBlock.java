@@ -1,7 +1,6 @@
 package science.atlarge.opencraft.opencraft.block;
 
 import com.google.gson.annotations.Expose;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -9,20 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
-
 import lombok.Getter;
 import lombok.Setter;
-import science.atlarge.opencraft.opencraft.GlowServer;
-import science.atlarge.opencraft.opencraft.GlowWorld;
-import science.atlarge.opencraft.opencraft.ServerProvider;
-import science.atlarge.opencraft.opencraft.block.MaterialValueManager.ValueCollection;
-import science.atlarge.opencraft.opencraft.block.blocktype.BlockRedstone;
-import science.atlarge.opencraft.opencraft.block.blocktype.BlockRedstoneTorch;
-import science.atlarge.opencraft.opencraft.block.blocktype.BlockType;
-import science.atlarge.opencraft.opencraft.block.entity.BlockEntity;
-import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
-import science.atlarge.opencraft.opencraft.population.serialization.json.annotations.ExposeClass;
-import science.atlarge.opencraft.opencraft.net.message.play.game.BlockChangeMessage;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
@@ -37,6 +24,17 @@ import org.bukkit.metadata.MetadataStore;
 import org.bukkit.metadata.MetadataStoreBase;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
+import science.atlarge.opencraft.opencraft.GlowServer;
+import science.atlarge.opencraft.opencraft.GlowWorld;
+import science.atlarge.opencraft.opencraft.ServerProvider;
+import science.atlarge.opencraft.opencraft.block.MaterialValueManager.ValueCollection;
+import science.atlarge.opencraft.opencraft.block.blocktype.BlockRedstone;
+import science.atlarge.opencraft.opencraft.block.blocktype.BlockRedstoneTorch;
+import science.atlarge.opencraft.opencraft.block.blocktype.BlockType;
+import science.atlarge.opencraft.opencraft.block.entity.BlockEntity;
+import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
+import science.atlarge.opencraft.opencraft.net.message.play.game.BlockChangeMessage;
+import science.atlarge.opencraft.opencraft.population.serialization.json.annotations.ExposeClass;
 
 /**
  * Represents a single block in a world.
@@ -47,16 +45,16 @@ public class GlowBlock implements Block {
     /**
      * The BlockFaces of a single-layer 3x3 area.
      */
-    private static final BlockFace[] LAYER = new BlockFace[]{
-        BlockFace.NORTH_WEST, BlockFace.NORTH, BlockFace.NORTH_EAST, BlockFace.EAST, BlockFace.SELF,
-        BlockFace.WEST, BlockFace.SOUTH_WEST, BlockFace.SOUTH, BlockFace.SOUTH_EAST};
+    private static final BlockFace[] LAYER = new BlockFace[] {
+            BlockFace.NORTH_WEST, BlockFace.NORTH, BlockFace.NORTH_EAST, BlockFace.EAST, BlockFace.SELF,
+            BlockFace.WEST, BlockFace.SOUTH_WEST, BlockFace.SOUTH, BlockFace.SOUTH_EAST};
 
     /**
      * The BlockFaces of all directly adjacent.
      */
-    private static final BlockFace[] ADJACENT = new BlockFace[]{
-        BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP,
-        BlockFace.DOWN};
+    private static final BlockFace[] ADJACENT = new BlockFace[] {
+            BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST, BlockFace.UP,
+            BlockFace.DOWN};
 
     /**
      * The metadata store for blocks.
@@ -81,9 +79,9 @@ public class GlowBlock implements Block {
      * Creates an object to refer to a block.
      *
      * @param chunk the chunk
-     * @param x the X coordinate
-     * @param y the Y coordinate
-     * @param z the Z coordinate
+     * @param x     the X coordinate
+     * @param y     the Y coordinate
+     * @param z     the Z coordinate
      */
     public GlowBlock(GlowChunk chunk, int x, int y, int z) {
         world = chunk.getWorld();
@@ -219,8 +217,8 @@ public class GlowBlock implements Block {
     /**
      * Set the Material type of a block with data and optionally apply physics.
      *
-     * @param type The type to set the block to.
-     * @param data The raw data to set the block to.
+     * @param type         The type to set the block to.
+     * @param data         The raw data to set the block to.
      * @param applyPhysics notify this block and surrounding blocks to update physics
      */
     public void setType(Material type, byte data, boolean applyPhysics) {
@@ -559,10 +557,10 @@ public class GlowBlock implements Block {
     /**
      * Notify this block and its surrounding blocks that this block has changed type and data.
      *
-     * @param oldType the old block type
+     * @param oldType   the old block type
      * @param newTypeId the new block type
-     * @param oldData the old data
-     * @param newData the new data
+     * @param oldData   the old data
+     * @param newData   the new data
      */
     public void applyPhysics(Material oldType, int newTypeId, byte oldData, byte newData) {
         if (!world.isInitialized()) {

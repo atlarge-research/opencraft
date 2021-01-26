@@ -3,18 +3,6 @@ package science.atlarge.opencraft.opencraft.entity.objects;
 import com.flowpowered.network.Message;
 import java.util.Arrays;
 import java.util.List;
-import science.atlarge.opencraft.opencraft.EventFactory;
-import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
-import science.atlarge.opencraft.opencraft.chunk.GlowChunk.Key;
-import science.atlarge.opencraft.opencraft.entity.GlowHangingEntity;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
-import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityMetadataMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityTeleportMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.SpawnObjectMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage.Action;
-import science.atlarge.opencraft.opencraft.util.InventoryUtil;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -29,6 +17,17 @@ import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingBreakEvent.RemoveCause;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import science.atlarge.opencraft.opencraft.EventFactory;
+import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
+import science.atlarge.opencraft.opencraft.chunk.GlowChunk.Key;
+import science.atlarge.opencraft.opencraft.entity.GlowHangingEntity;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityMetadataMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityTeleportMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.SpawnObjectMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
+import science.atlarge.opencraft.opencraft.util.InventoryUtil;
 
 
 public class GlowItemFrame extends GlowHangingEntity implements ItemFrame {
@@ -36,10 +35,10 @@ public class GlowItemFrame extends GlowHangingEntity implements ItemFrame {
     /**
      * Creates an item frame entity, and consumes the item frame item if a player is hanging it.
      *
-     * @param player the player who is hanging this item frame if it was an item before, or null if
-     *         it wasn't (e.g. it's from the saved world or a /summon command)
+     * @param player   the player who is hanging this item frame if it was an item before, or null if
+     *                 it wasn't (e.g. it's from the saved world or a /summon command)
      * @param location the item frame's location
-     * @param facing the direction this item frame is facing
+     * @param facing   the direction this item frame is facing
      */
     public GlowItemFrame(GlowPlayer player, Location location, BlockFace facing) {
 
@@ -65,8 +64,8 @@ public class GlowItemFrame extends GlowHangingEntity implements ItemFrame {
 
     @Override
     public boolean entityInteract(GlowPlayer player, InteractEntityMessage message) {
-        if (message.getAction() == Action.INTERACT.ordinal()
-            && message.getHandSlot() == EquipmentSlot.HAND) {
+        if (message.getAction() == InteractEntityMessage.Action.INTERACT.ordinal()
+                && message.getHandSlot() == EquipmentSlot.HAND) {
             if (InventoryUtil.isEmpty(getItem())) {
                 ItemStack isInHand = player.getItemInHand();
                 if (isInHand != null) {
@@ -85,7 +84,7 @@ public class GlowItemFrame extends GlowHangingEntity implements ItemFrame {
                 setRotation(Rotation.values()[rot]);
             }
         }
-        if (message.getAction() == Action.ATTACK.ordinal()) {
+        if (message.getAction() == InteractEntityMessage.Action.ATTACK.ordinal()) {
             if (isEmpty()) {
                 if (EventFactory.getInstance()
                         .callEvent(new HangingBreakByEntityEvent(this, player)).isCancelled()) {
@@ -140,10 +139,10 @@ public class GlowItemFrame extends GlowHangingEntity implements ItemFrame {
         int yaw = getYaw();
 
         return Arrays.asList(
-            new SpawnObjectMessage(entityId, getUniqueId(), SpawnObjectMessage.ITEM_FRAME,
-                location.getBlockX(), location.getBlockY(), location.getBlockZ(), 0, yaw,
-                HangingFace.getByBlockFace(getFacing()).ordinal()),
-            new EntityMetadataMessage(entityId, metadata.getEntryList())
+                new SpawnObjectMessage(entityId, getUniqueId(), SpawnObjectMessage.ITEM_FRAME,
+                        location.getBlockX(), location.getBlockY(), location.getBlockZ(), 0, yaw,
+                        HangingFace.getByBlockFace(getFacing()).ordinal()),
+                new EntityMetadataMessage(entityId, metadata.getEntryList())
         );
     }
 
@@ -181,7 +180,7 @@ public class GlowItemFrame extends GlowHangingEntity implements ItemFrame {
                 double y = location.getY();
                 double z = location.getZ();
                 player.getSession()
-                    .send(new EntityTeleportMessage(entityId, x + xoffset, y, z + zoffset, yaw, 0));
+                        .send(new EntityTeleportMessage(entityId, x + xoffset, y, z + zoffset, yaw, 0));
             }
         }
     }

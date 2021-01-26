@@ -4,6 +4,10 @@ import java.util.Iterator;
 import java.util.ResourceBundle;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.block.GlowBlock;
 import science.atlarge.opencraft.opencraft.block.entity.BlockEntity;
@@ -11,12 +15,7 @@ import science.atlarge.opencraft.opencraft.command.CommandUtils;
 import science.atlarge.opencraft.opencraft.constants.ItemIds;
 import science.atlarge.opencraft.opencraft.i18n.LocalizedStringImpl;
 import science.atlarge.opencraft.opencraft.util.RectangularRegion;
-import science.atlarge.opencraft.opencraft.util.RectangularRegion.IterationDirection;
 import science.atlarge.opencraft.opencraft.util.nbt.CompoundTag;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
 
 public class CloneCommand extends GlowVanillaCommand {
     @RequiredArgsConstructor
@@ -162,7 +161,7 @@ public class CloneCommand extends GlowVanillaCommand {
 
         RectangularRegion fromRegion = new RectangularRegion(parsedFrom1, parsedFrom2);
         RectangularRegion toRegion = fromRegion.moveTo(to);
-        
+
         Location lowCorner = fromRegion.getLowCorner();
         Location highCorner = fromRegion.getHighCorner();
 
@@ -177,12 +176,12 @@ public class CloneCommand extends GlowVanillaCommand {
 
         int blocksCloned = 0;
 
-        IterationDirection directionX = to.getBlockX() < lowCorner.getBlockX()
-                ? IterationDirection.FORWARDS : IterationDirection.BACKWARDS;
-        IterationDirection directionY = to.getBlockY() < lowCorner.getBlockY()
-                ? IterationDirection.FORWARDS : IterationDirection.BACKWARDS;
-        IterationDirection directionZ = to.getBlockZ() < lowCorner.getBlockZ()
-                ? IterationDirection.FORWARDS : IterationDirection.BACKWARDS;
+        RectangularRegion.IterationDirection directionX = to.getBlockX() < lowCorner.getBlockX()
+                ? RectangularRegion.IterationDirection.FORWARDS : RectangularRegion.IterationDirection.BACKWARDS;
+        RectangularRegion.IterationDirection directionY = to.getBlockY() < lowCorner.getBlockY()
+                ? RectangularRegion.IterationDirection.FORWARDS : RectangularRegion.IterationDirection.BACKWARDS;
+        RectangularRegion.IterationDirection directionZ = to.getBlockZ() < lowCorner.getBlockZ()
+                ? RectangularRegion.IterationDirection.FORWARDS : RectangularRegion.IterationDirection.BACKWARDS;
 
         Iterator<Location> fromIterator = fromRegion
                 .blockLocations(directionX, directionY, directionZ).iterator();

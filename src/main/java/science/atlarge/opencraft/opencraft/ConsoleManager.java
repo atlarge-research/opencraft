@@ -48,9 +48,12 @@ import org.jetbrains.annotations.NonNls;
 public final class ConsoleManager {
 
     private static final Logger logger = Logger.getLogger("");
-    @NonNls private static String CONSOLE_DATE = "HH:mm:ss";
-    @NonNls private static String FILE_DATE = "yyyy/MM/dd HH:mm:ss";
-    @NonNls private static String CONSOLE_PROMPT = ">";
+    @NonNls
+    private static String CONSOLE_DATE = "HH:mm:ss";
+    @NonNls
+    private static String FILE_DATE = "yyyy/MM/dd HH:mm:ss";
+    @NonNls
+    private static String CONSOLE_PROMPT = ">";
     private final GlowServer server;
     private final Map<ChatColor, String> replacements = new EnumMap<>(ChatColor.class);
     private final ChatColor[] colors = ChatColor.values();
@@ -76,12 +79,16 @@ public final class ConsoleManager {
     public ConsoleManager(GlowServer server) {
         this.server = server;
 
+        logger.setLevel(Level.ALL);
+
         for (Handler h : logger.getHandlers()) {
             logger.removeHandler(h);
         }
 
         // add log handler which writes to console
-        logger.addHandler(new FancyConsoleHandler());
+        ConsoleHandler handler = new FancyConsoleHandler();
+        handler.setLevel(Level.ALL);
+        logger.addHandler(handler);
 
         // reader must be initialized before standard streams are changed
         try {
@@ -92,8 +99,8 @@ public final class ConsoleManager {
         reader.addCompleter(new CommandCompleter());
 
         // set system output streams
-        System.setOut(new PrintStream(new LoggerOutputStream(Level.INFO), false));
-        System.setErr(new PrintStream(new LoggerOutputStream(Level.WARNING), false));
+        System.setOut(new PrintStream(new LoggerOutputStream(Level.FINE), false));
+        System.setErr(new PrintStream(new LoggerOutputStream(Level.FINE), false));
     }
 
     /**
@@ -101,7 +108,7 @@ public final class ConsoleManager {
      *
      * @param jline whether the console should use JLine
      */
-    public void startConsole(boolean jline) {
+    public void startConsole(boolean jline, String loglevel) {
         this.jline = jline;
 
         if (jline) {
@@ -112,6 +119,7 @@ public final class ConsoleManager {
         CONSOLE_DATE = server.getConsoleDateFormat();
         for (Handler handler : logger.getHandlers()) {
             if (handler.getClass() == FancyConsoleHandler.class) {
+                handler.setLevel(Level.parse(loglevel.toUpperCase()));
                 handler.setFormatter(new DateOutputFormatter(CONSOLE_DATE, true));
             }
         }
@@ -128,45 +136,45 @@ public final class ConsoleManager {
 
         // set up colorization replacements
         replacements.put(ChatColor.BLACK,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.BLACK).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.BLACK).boldOff().toString());
         replacements.put(ChatColor.DARK_BLUE,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.BLUE).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.BLUE).boldOff().toString());
         replacements.put(ChatColor.DARK_GREEN,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.GREEN).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.GREEN).boldOff().toString());
         replacements.put(ChatColor.DARK_AQUA,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.CYAN).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.CYAN).boldOff().toString());
         replacements.put(ChatColor.DARK_RED,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.RED).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.RED).boldOff().toString());
         replacements.put(ChatColor.DARK_PURPLE,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.MAGENTA).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.MAGENTA).boldOff().toString());
         replacements.put(ChatColor.GOLD,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.YELLOW).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.YELLOW).boldOff().toString());
         replacements.put(ChatColor.GRAY,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.WHITE).boldOff().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.WHITE).boldOff().toString());
         replacements.put(ChatColor.DARK_GRAY,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.BLACK).bold().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.BLACK).bold().toString());
         replacements
-            .put(ChatColor.BLUE, Ansi.ansi().a(Attribute.RESET).fg(Color.BLUE).bold()
-                .toString());
+                .put(ChatColor.BLUE, Ansi.ansi().a(Attribute.RESET).fg(Color.BLUE).bold()
+                        .toString());
         replacements
-            .put(ChatColor.GREEN, Ansi.ansi().a(Attribute.RESET).fg(Color.GREEN).bold()
-                .toString());
+                .put(ChatColor.GREEN, Ansi.ansi().a(Attribute.RESET).fg(Color.GREEN).bold()
+                        .toString());
         replacements
-            .put(ChatColor.AQUA, Ansi.ansi().a(Attribute.RESET).fg(Color.CYAN).bold()
-                .toString());
+                .put(ChatColor.AQUA, Ansi.ansi().a(Attribute.RESET).fg(Color.CYAN).bold()
+                        .toString());
         replacements
-            .put(ChatColor.RED, Ansi.ansi().a(Attribute.RESET).fg(Color.RED).bold().toString());
+                .put(ChatColor.RED, Ansi.ansi().a(Attribute.RESET).fg(Color.RED).bold().toString());
         replacements.put(ChatColor.LIGHT_PURPLE,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.MAGENTA).bold().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.MAGENTA).bold().toString());
         replacements.put(ChatColor.YELLOW,
-            Ansi.ansi().a(Attribute.RESET).fg(Color.YELLOW).bold().toString());
+                Ansi.ansi().a(Attribute.RESET).fg(Color.YELLOW).bold().toString());
         replacements
-            .put(ChatColor.WHITE, Ansi.ansi().a(Attribute.RESET).fg(Color.WHITE).bold()
-                .toString());
+                .put(ChatColor.WHITE, Ansi.ansi().a(Attribute.RESET).fg(Color.WHITE).bold()
+                        .toString());
         replacements.put(ChatColor.MAGIC, Ansi.ansi().a(Attribute.BLINK_SLOW).toString());
         replacements.put(ChatColor.BOLD, Ansi.ansi().a(Attribute.UNDERLINE_DOUBLE).toString());
         replacements
-            .put(ChatColor.STRIKETHROUGH, Ansi.ansi().a(Attribute.STRIKETHROUGH_ON).toString());
+                .put(ChatColor.STRIKETHROUGH, Ansi.ansi().a(Attribute.STRIKETHROUGH_ON).toString());
         replacements.put(ChatColor.UNDERLINE, Ansi.ansi().a(Attribute.UNDERLINE).toString());
         replacements.put(ChatColor.ITALIC, Ansi.ansi().a(Attribute.ITALIC).toString());
         replacements.put(ChatColor.RESET, Ansi.ansi().a(Attribute.RESET).toString());
@@ -177,13 +185,14 @@ public final class ConsoleManager {
      *
      * @param logfile the file path
      */
-    public void startFile(String logfile) {
+    public void startFile(String logfile, String loglevel) {
         File parent = new File(logfile).getParentFile();
         if (!parent.isDirectory() && !parent.mkdirs()) {
             logger.warning("Could not create log folder: " + parent);
         }
         Handler fileHandler = new RotatingFileHandler(logfile);
         FILE_DATE = server.getConsoleLogDateFormat();
+        fileHandler.setLevel(Level.parse(loglevel.toUpperCase()));
         fileHandler.setFormatter(new DateOutputFormatter(FILE_DATE, false));
         logger.addHandler(fileHandler);
     }
@@ -551,7 +560,6 @@ public final class ConsoleManager {
         }
 
         @Override
-        @SuppressWarnings("ThrowableResultOfMethodCallIgnored")
         public String format(LogRecord record) {
             StringBuilder builder = new StringBuilder();
 
@@ -568,7 +576,6 @@ public final class ConsoleManager {
 
             if (record.getThrown() != null) {
                 // StringWriter's close() is trivial
-                @SuppressWarnings("resource")
                 StringWriter writer = new StringWriter();
                 record.getThrown().printStackTrace(new PrintWriter(writer));
                 builder.append(writer);

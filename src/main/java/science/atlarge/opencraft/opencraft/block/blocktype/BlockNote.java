@@ -22,7 +22,7 @@ public class BlockNote extends BlockType {
 
     @Override
     public boolean blockInteract(GlowPlayer player, GlowBlock block, BlockFace face,
-        Vector clickedLoc) {
+                                 Vector clickedLoc) {
         NoteBlock noteBlock = (NoteBlock) block.getState();
         Note note = noteBlock.getNote();
         noteBlock.setNote(new Note(note.getId() == 24 ? 0 : note.getId() + 1));

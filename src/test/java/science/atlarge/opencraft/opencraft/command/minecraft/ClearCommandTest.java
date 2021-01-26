@@ -1,7 +1,6 @@
 package science.atlarge.opencraft.opencraft.command.minecraft;
 
-import static net.glowstone.TestUtils.checkInventory;
-import static net.glowstone.TestUtils.itemTypeMatcher;
+import static science.atlarge.opencraft.opencraft.TestUtils.itemTypeMatcher;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.powermock.api.mockito.PowerMockito.when;
@@ -15,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import science.atlarge.opencraft.opencraft.TestUtils;
 
 public class ClearCommandTest extends CommandTestWithFakePlayers<ClearCommand> {
     private GlowPlayerInventory inventory;
@@ -40,7 +40,7 @@ public class ClearCommandTest extends CommandTestWithFakePlayers<ClearCommand> {
     @Test
     public void testClearAll() {
         assertTrue(command.execute(opSender, "label", new String[]{"ChuckNorris"}));
-        checkInventory(inventory, 0, item -> true); // should be empty
+        TestUtils.checkInventory(inventory, 0, item -> true); // should be empty
     }
 
     @Test
@@ -49,38 +49,38 @@ public class ClearCommandTest extends CommandTestWithFakePlayers<ClearCommand> {
                 new String[]{"ChuckNorris", "minecraft:diamond_axe", "-1", "0"}));
         Mockito.verify(opSender)
                 .sendMessage(eq("ChuckNorris has 2 items that match the criteria."));
-        checkInventory(inventory, 96, itemTypeMatcher(Material.DIRT));
-        checkInventory(inventory, 2, itemTypeMatcher(Material.DIAMOND_AXE));
-        checkInventory(inventory, 1, itemTypeMatcher(Material.DIAMOND));
+        TestUtils.checkInventory(inventory, 96, TestUtils.itemTypeMatcher(Material.DIRT));
+        TestUtils.checkInventory(inventory, 2, TestUtils.itemTypeMatcher(Material.DIAMOND_AXE));
+        TestUtils.checkInventory(inventory, 1, TestUtils.itemTypeMatcher(Material.DIAMOND));
     }
 
     @Test
     public void testClearSpecificItemAll() {
         assertTrue(command.execute(opSender, "label",
                 new String[]{"ChuckNorris", "minecraft:diamond_axe", "-1", "-1"}));
-        checkInventory(inventory, 96, itemTypeMatcher(Material.DIRT));
-        checkInventory(inventory, 0, itemTypeMatcher(Material.DIAMOND_AXE));
-        checkInventory(inventory, 1, itemTypeMatcher(Material.DIAMOND));
+        TestUtils.checkInventory(inventory, 96, TestUtils.itemTypeMatcher(Material.DIRT));
+        TestUtils.checkInventory(inventory, 0, TestUtils.itemTypeMatcher(Material.DIAMOND_AXE));
+        TestUtils.checkInventory(inventory, 1, TestUtils.itemTypeMatcher(Material.DIAMOND));
     }
 
     @Test
     public void testClearSpecificItemLimited() {
         assertTrue(command.execute(opSender, "label",
                 new String[]{"ChuckNorris", "minecraft:dirt", "-1", "50"}));
-        checkInventory(inventory, 46, itemTypeMatcher(Material.DIRT));
-        checkInventory(inventory, 2, itemTypeMatcher(Material.DIAMOND_AXE));
-        checkInventory(inventory, 1, itemTypeMatcher(Material.DIAMOND));
+        TestUtils.checkInventory(inventory, 46, TestUtils.itemTypeMatcher(Material.DIRT));
+        TestUtils.checkInventory(inventory, 2, TestUtils.itemTypeMatcher(Material.DIAMOND_AXE));
+        TestUtils.checkInventory(inventory, 1, TestUtils.itemTypeMatcher(Material.DIAMOND));
     }
 
     @Test
     public void testClearSpecificItemSpecificData() {
         assertTrue(command.execute(opSender, "label",
                 new String[]{"ChuckNorris", "minecraft:diamond_axe", "30", "-1"}));
-        checkInventory(inventory, 96, itemTypeMatcher(Material.DIRT));
-        checkInventory(inventory, 0,
-                itemTypeMatcher(Material.DIAMOND_AXE).and(item -> item.getDurability() == 30));
-        checkInventory(inventory, 1,
-                itemTypeMatcher(Material.DIAMOND_AXE).and(item -> item.getDurability() == 0));
-        checkInventory(inventory, 1, itemTypeMatcher(Material.DIAMOND));
+        TestUtils.checkInventory(inventory, 96, TestUtils.itemTypeMatcher(Material.DIRT));
+        TestUtils.checkInventory(inventory, 0,
+                TestUtils.itemTypeMatcher(Material.DIAMOND_AXE).and(item -> item.getDurability() == 30));
+        TestUtils.checkInventory(inventory, 1,
+                TestUtils.itemTypeMatcher(Material.DIAMOND_AXE).and(item -> item.getDurability() == 0));
+        TestUtils.checkInventory(inventory, 1, TestUtils.itemTypeMatcher(Material.DIAMOND));
     }
 }

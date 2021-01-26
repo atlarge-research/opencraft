@@ -58,6 +58,11 @@ import java.util.Map;
 import java.util.Random;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.WorldType;
+import org.bukkit.block.Biome;
+import org.bukkit.util.noise.OctaveGenerator;
 import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.constants.GlowBiome;
 import science.atlarge.opencraft.opencraft.generator.ground.DirtAndStonePatchGroundGenerator;
@@ -65,7 +70,6 @@ import science.atlarge.opencraft.opencraft.generator.ground.DirtPatchGroundGener
 import science.atlarge.opencraft.opencraft.generator.ground.GravelPatchGroundGenerator;
 import science.atlarge.opencraft.opencraft.generator.ground.GroundGenerator;
 import science.atlarge.opencraft.opencraft.generator.ground.MesaGroundGenerator;
-import science.atlarge.opencraft.opencraft.generator.ground.MesaGroundGenerator.MesaType;
 import science.atlarge.opencraft.opencraft.generator.ground.MycelGroundGenerator;
 import science.atlarge.opencraft.opencraft.generator.ground.RockyGroundGenerator;
 import science.atlarge.opencraft.opencraft.generator.ground.SandyGroundGenerator;
@@ -76,11 +80,6 @@ import science.atlarge.opencraft.opencraft.generator.populators.StructurePopulat
 import science.atlarge.opencraft.opencraft.generator.populators.overworld.SnowPopulator;
 import science.atlarge.opencraft.opencraft.util.noise.PerlinOctaveGenerator;
 import science.atlarge.opencraft.opencraft.util.noise.SimplexOctaveGenerator;
-import org.bukkit.Material;
-import org.bukkit.World;
-import org.bukkit.WorldType;
-import org.bukkit.block.Biome;
-import org.bukkit.util.noise.OctaveGenerator;
 
 public class OverworldGenerator extends GlowChunkGenerator {
 
@@ -116,8 +115,8 @@ public class OverworldGenerator extends GlowChunkGenerator {
         setBiomeSpecificGround(new DirtPatchGroundGenerator(), REDWOOD_TAIGA, REDWOOD_TAIGA_HILLS,
                 MUTATED_REDWOOD_TAIGA, MUTATED_REDWOOD_TAIGA_HILLS);
         setBiomeSpecificGround(new MesaGroundGenerator(), MESA, MESA_CLEAR_ROCK, MESA_ROCK);
-        setBiomeSpecificGround(new MesaGroundGenerator(MesaType.BRYCE), MUTATED_MESA);
-        setBiomeSpecificGround(new MesaGroundGenerator(MesaType.FOREST), MESA_ROCK,
+        setBiomeSpecificGround(new MesaGroundGenerator(MesaGroundGenerator.MesaType.BRYCE), MUTATED_MESA);
+        setBiomeSpecificGround(new MesaGroundGenerator(MesaGroundGenerator.MesaType.FOREST), MESA_ROCK,
                 MUTATED_MESA_ROCK);
 
         setBiomeHeight(BiomeHeight.OCEAN, OCEAN, FROZEN_OCEAN);
@@ -484,8 +483,8 @@ public class OverworldGenerator extends GlowChunkGenerator {
 
     @RequiredArgsConstructor
     private static class BiomeHeight {
-        public static final BiomeHeight DEFAULT = new BiomeHeight(0.1,0.2);
-        public static final BiomeHeight FLAT_SHORE = new BiomeHeight(0D,0.025);
+        public static final BiomeHeight DEFAULT = new BiomeHeight(0.1, 0.2);
+        public static final BiomeHeight FLAT_SHORE = new BiomeHeight(0D, 0.025);
         public static final BiomeHeight HIGH_PLATEAU = new BiomeHeight(1.5, 0.025);
         public static final BiomeHeight FLATLANDS = new BiomeHeight(0.125, 0.05);
         public static final BiomeHeight SWAMPLAND = new BiomeHeight(-0.2, 0.1);
@@ -506,7 +505,7 @@ public class OverworldGenerator extends GlowChunkGenerator {
         public static final BiomeHeight RIVER = new BiomeHeight(-0.5, 0D);
         public static final BiomeHeight OCEAN = new BiomeHeight(-1D, 0.1);
         public static final BiomeHeight DEEP_OCEAN = new BiomeHeight(-1.8, 0.1);
-        
+
         @Getter
         private final double height;
         @Getter

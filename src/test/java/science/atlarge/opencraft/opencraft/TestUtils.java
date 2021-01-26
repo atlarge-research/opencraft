@@ -1,4 +1,4 @@
-package net.glowstone;
+package science.atlarge.opencraft.opencraft;
 
 import static org.junit.Assert.assertEquals;
 

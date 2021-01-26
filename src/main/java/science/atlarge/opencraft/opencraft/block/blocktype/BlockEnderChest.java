@@ -20,7 +20,7 @@ public class BlockEnderChest extends BlockNeedsTool {
 
     @Override
     public boolean blockInteract(GlowPlayer player, GlowBlock block, BlockFace face,
-        Vector clickedLoc) {
+                                 Vector clickedLoc) {
         // todo: animation?
         player.openInventory(player.getEnderChest());
         return true;

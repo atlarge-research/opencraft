@@ -1,13 +1,12 @@
 package science.atlarge.opencraft.opencraft.block.entity;
 
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import science.atlarge.opencraft.opencraft.block.GlowBlock;
 import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
-import science.atlarge.opencraft.opencraft.chunk.GlowChunk.Key;
 import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
 import science.atlarge.opencraft.opencraft.util.nbt.CompoundTag;
-import org.jetbrains.annotations.NonNls;
 
 /**
  * Base class for block entities (blocks with NBT data) in the world. Most access to block entities
@@ -40,9 +39,9 @@ public abstract class BlockEntity {
      * Update this BlockEntity's visible state to all players in range.
      */
     public final void updateInRange() {
-        Key key = GlowChunk.Key.of(block.getX() >> 4, block.getZ() >> 4);
+        GlowChunk.Key key = GlowChunk.Key.of(block.getX() >> 4, block.getZ() >> 4);
         block.getWorld().getRawPlayers().stream().filter(player -> player.canSeeChunk(key))
-            .forEach(this::update);
+                .forEach(this::update);
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -71,7 +70,7 @@ public abstract class BlockEntity {
         if (saveId != null) {
             if (!tag.isString("id") || !tag.getString("id").equals(saveId)) {
                 throw new IllegalArgumentException(
-                    "Expected block entity id of " + saveId + ", got " + tag.getString("id"));
+                        "Expected block entity id of " + saveId + ", got " + tag.getString("id"));
             }
         }
 
@@ -85,8 +84,8 @@ public abstract class BlockEntity {
             int rz = block.getZ();
             if (x != rx || y != ry || z != rz) {
                 throw new IllegalArgumentException(
-                    "Tried to load block entity with coords (" + x + "," + y + "," + z + ") into ("
-                        + rx + "," + ry + "," + rz + ")");
+                        "Tried to load block entity with coords (" + x + "," + y + "," + z + ") into ("
+                                + rx + "," + ry + "," + rz + ")");
             }
         }
     }

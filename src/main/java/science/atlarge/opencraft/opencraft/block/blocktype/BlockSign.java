@@ -26,7 +26,7 @@ public class BlockSign extends BlockNeedsAttached {
 
     @Override
     public void placeBlock(GlowPlayer player, GlowBlockState state, BlockFace face,
-        ItemStack holding, Vector clickedLoc) {
+                           ItemStack holding, Vector clickedLoc) {
         state.setType(getMaterial());
         if (!(state.getData() instanceof Sign)) {
             warnMaterialData(Sign.class, state.getData());
@@ -47,6 +47,6 @@ public class BlockSign extends BlockNeedsAttached {
         Material targetMat = ItemTable.instance().getBlock(
             block.getRelative(against.getOppositeFace()).getType()).getMaterial();
         return canAttachTo(block, against) || targetMat == Material.SIGN_POST
-            || targetMat == Material.WALL_SIGN; 
+            || targetMat == Material.WALL_SIGN;
     }
 }

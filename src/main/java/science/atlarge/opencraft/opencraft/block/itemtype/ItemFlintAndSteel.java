@@ -28,7 +28,7 @@ public class ItemFlintAndSteel extends ItemTool {
 
     @Override
     public boolean onToolRightClick(GlowPlayer player, GlowBlock target, BlockFace face,
-        ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
+                                    ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
         if (target.getType() == Material.OBSIDIAN) {
             fireNetherPortal(target, face, player);
             return true;

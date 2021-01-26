@@ -3,7 +3,7 @@ package science.atlarge.opencraft.opencraft.inventory;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import net.glowstone.testutils.ServerShim;
+import science.atlarge.opencraft.opencraft.testutils.ServerShim;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryType;

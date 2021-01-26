@@ -1,11 +1,5 @@
 package science.atlarge.opencraft.opencraft.map;
 
-import static science.atlarge.opencraft.opencraft.map.GlowMapCanvas.MAP_SIZE;
-
-import science.atlarge.opencraft.opencraft.GlowServer;
-import science.atlarge.opencraft.opencraft.ServerProvider;
-import science.atlarge.opencraft.opencraft.block.GlowBlock;
-import science.atlarge.opencraft.opencraft.block.MaterialValueManager.ValueCollection;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -13,6 +7,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
+import science.atlarge.opencraft.opencraft.GlowServer;
+import science.atlarge.opencraft.opencraft.ServerProvider;
+import science.atlarge.opencraft.opencraft.block.GlowBlock;
+import science.atlarge.opencraft.opencraft.block.MaterialValueManager.ValueCollection;
 
 /**
  * Glowstone's built-in map renderer.
@@ -34,10 +32,10 @@ public final class GlowMapRenderer extends MapRenderer {
         Location playerLoc = player.getLocation();
         int playerX = playerLoc.getBlockX();
         int playerZ = playerLoc.getBlockZ();
-        int cornerX = map.getCenterX() - ((MAP_SIZE / 2) << scaleShift);
-        int cornerZ = map.getCenterZ() - ((MAP_SIZE / 2) << scaleShift);
-        for (int pixelX = 0; pixelX < MAP_SIZE; pixelX++) {
-            for (int pixelY = 0; pixelY < MAP_SIZE; pixelY++) {
+        int cornerX = map.getCenterX() - ((GlowMapCanvas.MAP_SIZE / 2) << scaleShift);
+        int cornerZ = map.getCenterZ() - ((GlowMapCanvas.MAP_SIZE / 2) << scaleShift);
+        for (int pixelX = 0; pixelX < GlowMapCanvas.MAP_SIZE; pixelX++) {
+            for (int pixelY = 0; pixelY < GlowMapCanvas.MAP_SIZE; pixelY++) {
                 int worldX = cornerX + (pixelX << scaleShift);
                 int worldZ = cornerZ + (pixelY << scaleShift);
                 if (((worldX - playerX) * (worldX - playerX)
@@ -45,7 +43,7 @@ public final class GlowMapRenderer extends MapRenderer {
                     // TODO: Should the highest block be skipped over if it's e.g. a flower or a
                     // technical block?
                     byte blockColor =
-                        colorFor(world.getHighestBlockAt(worldX, worldZ), worldX, worldZ);
+                            colorFor(world.getHighestBlockAt(worldX, worldZ), worldX, worldZ);
                     canvas.setPixel(pixelX, pixelY, blockColor);
                 }
             }
@@ -60,14 +58,14 @@ public final class GlowMapRenderer extends MapRenderer {
     private static byte pseudoRandomShade(int worldX, int worldZ) {
         return (byte) ((
                 ((worldX * worldX * 0x4c1906) + (worldX * 0x5ac0db) + ((worldZ * worldZ) * 0x4307a7)
-                + (worldZ * 0x5f24f))) % 4);
+                        + (worldZ * 0x5f24f))) % 4);
     }
 
     private static byte colorFor(Block block, int worldX, int worldZ) {
         // TODO: Some blocks vary in map color based on block states (e.g. wood species)
         ValueCollection materialValues;
         materialValues = block instanceof GlowBlock ? ((GlowBlock) block).getMaterialValues()
-            : ((GlowServer) ServerProvider.getServer()).getMaterialValueManager()
+                : ((GlowServer) ServerProvider.getServer()).getMaterialValueManager()
                 .getValues(block.getType());
         byte baseColor = materialValues.getBaseMapColor();
         return (byte) (baseColor | pseudoRandomShade(worldX, worldZ));

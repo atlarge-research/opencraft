@@ -8,9 +8,6 @@ import java.io.IOException;
 import java.util.UUID;
 import science.atlarge.opencraft.opencraft.net.GlowBufUtils;
 import science.atlarge.opencraft.opencraft.net.message.play.player.BossBarMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.BossBarMessage.Action;
-import science.atlarge.opencraft.opencraft.net.message.play.player.BossBarMessage.Color;
-import science.atlarge.opencraft.opencraft.net.message.play.player.BossBarMessage.Division;
 import science.atlarge.opencraft.opencraft.util.TextMessage;
 
 public class BossBarCodec implements Codec<BossBarMessage> {
@@ -19,14 +16,14 @@ public class BossBarCodec implements Codec<BossBarMessage> {
     public BossBarMessage decode(ByteBuf buffer) throws IOException {
 
         UUID uuid = GlowBufUtils.readUuid(buffer);
-        Action action = Action.fromInt(ByteBufUtils.readVarInt(buffer));
+        BossBarMessage.Action action = BossBarMessage.Action.fromInt(ByteBufUtils.readVarInt(buffer));
 
         switch (action) {
             case ADD:
                 TextMessage title = GlowBufUtils.readChat(buffer);
                 float health = buffer.readFloat();
-                Color color = Color.fromInt(ByteBufUtils.readVarInt(buffer));
-                Division division = Division.fromInt(ByteBufUtils.readVarInt(buffer));
+                BossBarMessage.Color color = BossBarMessage.Color.fromInt(ByteBufUtils.readVarInt(buffer));
+                BossBarMessage.Division division = BossBarMessage.Division.fromInt(ByteBufUtils.readVarInt(buffer));
                 byte flags = buffer.readByte();
                 return new BossBarMessage(uuid, action, title, health, color, division, flags);
             case REMOVE:
@@ -38,8 +35,8 @@ public class BossBarCodec implements Codec<BossBarMessage> {
                 title = GlowBufUtils.readChat(buffer);
                 return new BossBarMessage(uuid, action, title);
             case UPDATE_STYLE:
-                color = Color.fromInt(ByteBufUtils.readVarInt(buffer));
-                division = Division.fromInt(ByteBufUtils.readVarInt(buffer));
+                color = BossBarMessage.Color.fromInt(ByteBufUtils.readVarInt(buffer));
+                division = BossBarMessage.Division.fromInt(ByteBufUtils.readVarInt(buffer));
                 return new BossBarMessage(uuid, action, color, division);
             case UPDATE_FLAGS:
                 flags = buffer.readByte();

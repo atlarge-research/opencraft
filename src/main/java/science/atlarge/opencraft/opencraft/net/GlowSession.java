@@ -23,6 +23,12 @@ import java.util.logging.Level;
 import javax.crypto.SecretKey;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Statistic;
+import org.bukkit.boss.BossBar;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerLoginEvent.Result;
 import science.atlarge.opencraft.opencraft.EventFactory;
 import science.atlarge.opencraft.opencraft.GlowServer;
 import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
@@ -34,8 +40,6 @@ import science.atlarge.opencraft.opencraft.net.message.login.LoginSuccessMessage
 import science.atlarge.opencraft.opencraft.net.message.play.entity.DestroyEntitiesMessage;
 import science.atlarge.opencraft.opencraft.net.message.play.game.PingMessage;
 import science.atlarge.opencraft.opencraft.net.message.play.game.UserListItemMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.game.UserListItemMessage.Action;
-import science.atlarge.opencraft.opencraft.net.message.play.game.UserListItemMessage.Entry;
 import science.atlarge.opencraft.opencraft.net.pipeline.CodecsHandler;
 import science.atlarge.opencraft.opencraft.net.pipeline.CompressionHandler;
 import science.atlarge.opencraft.opencraft.net.pipeline.EncryptionHandler;
@@ -44,12 +48,6 @@ import science.atlarge.opencraft.opencraft.net.protocol.LoginProtocol;
 import science.atlarge.opencraft.opencraft.net.protocol.PlayProtocol;
 import science.atlarge.opencraft.opencraft.net.protocol.ProtocolProvider;
 import science.atlarge.opencraft.opencraft.util.UuidUtils;
-import org.bukkit.Statistic;
-import org.bukkit.boss.BossBar;
-import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerLoginEvent.Result;
 
 /**
  * A single connection to the server, which may or may not be associated with a player.
@@ -157,6 +155,7 @@ public class GlowSession extends BasicSession {
     /**
      * If the connection has been disconnected.
      */
+    @Getter
     private volatile boolean disconnected;
 
     /**
@@ -167,10 +166,10 @@ public class GlowSession extends BasicSession {
     /**
      * Creates a new session.
      *
-     * @param server The server this session belongs to.
-     * @param channel The channel associated with this session.
+     * @param server            The server this session belongs to.
+     * @param channel           The channel associated with this session.
      * @param connectionManager The connection manager to manage connections for this
-     *         session.
+     *                          session.
      */
     public GlowSession(GlowServer server, ProtocolProvider protocolProvider, Channel channel,
                        ConnectionManager connectionManager) {
@@ -193,7 +192,7 @@ public class GlowSession extends BasicSession {
         this.proxyData = proxyData;
         address = proxyData.getAddress();
         virtualHost = InetSocketAddress.createUnresolved(
-                proxyData.getHostname(), virtualHost.getPort());
+            proxyData.getHostname(), virtualHost.getPort());
     }
 
     /**
@@ -240,7 +239,7 @@ public class GlowSession extends BasicSession {
      *
      * @param profile The player's profile with name and UUID information.
      * @throws IllegalStateException if there is already a player associated with this
-     *         session.
+     *                               session.
      */
     public void setPlayer(GlowPlayerProfile profile) {
         if (player != null) {
@@ -276,7 +275,7 @@ public class GlowSession extends BasicSession {
 
         // login event
         PlayerLoginEvent event = EventFactory.getInstance()
-                .onPlayerLogin(player, virtualHost.toString());
+            .onPlayerLogin(player, virtualHost.toString());
         if (event.getResult() != Result.ALLOWED) {
             disconnect(event.getKickMessage(), true);
             return;
@@ -290,7 +289,7 @@ public class GlowSession extends BasicSession {
         online = true;
 
         GlowServer.logger.info(player.getName() + " [" + address + "] connected, UUID: "
-                + UuidUtils.toString(player.getUniqueId()));
+            + UuidUtils.toString(player.getUniqueId()));
 
         // message and user list
         String message = EventFactory.getInstance().onPlayerJoin(player).getJoinMessage();
@@ -298,8 +297,8 @@ public class GlowSession extends BasicSession {
             server.broadcastMessage(message);
         }
 
-        Message addMessage = new UserListItemMessage(Action.ADD_PLAYER, player.getUserListEntry());
-        List<Entry> entries = new ArrayList<>();
+        Message addMessage = new UserListItemMessage(UserListItemMessage.Action.ADD_PLAYER, player.getUserListEntry());
+        List<UserListItemMessage.Entry> entries = new ArrayList<>();
         for (GlowPlayer other : server.getRawOnlinePlayers()) {
             if (other != player && other.canSee(player)) {
                 other.getSession().send(addMessage);
@@ -308,7 +307,7 @@ public class GlowSession extends BasicSession {
                 entries.add(other.getUserListEntry());
             }
         }
-        send(new UserListItemMessage(Action.ADD_PLAYER, entries));
+        send(new UserListItemMessage(UserListItemMessage.Action.ADD_PLAYER, entries));
         send(server.createAdvancementsMessage(false, Collections.emptyList(), player));
     }
 
@@ -325,7 +324,7 @@ public class GlowSession extends BasicSession {
      * Send the message and release the specified byte buffer after it is sent.
      *
      * @param message The message.
-     * @param buf The byte buffer.
+     * @param buf     The byte buffer.
      */
     public void sendAndRelease(Message message, ByteBuf buf) {
         sendWithFuture(message).addListener(f -> buf.release());
@@ -335,7 +334,7 @@ public class GlowSession extends BasicSession {
      * Send the message and release the specified byte buffers after it is sent.
      *
      * @param message The message.
-     * @param bufs The byte buffers.
+     * @param bufs    The byte buffers.
      */
     public void sendAndRelease(Message message, ByteBuf... bufs) {
         sendWithFuture(message).addListener(f -> {
@@ -367,7 +366,7 @@ public class GlowSession extends BasicSession {
      *
      * <p>This causes a KickMessage to be sent. When it has been delivered, the channel is closed.
      *
-     * @param reason The reason for disconnection.
+     * @param reason       The reason for disconnection.
      * @param overrideKick Whether to skip the kick event.
      */
     public void disconnect(String reason, boolean overrideKick) {
@@ -393,7 +392,7 @@ public class GlowSession extends BasicSession {
 
         // perform the kick, sending a kick message if possible
         if (isActive() && (getProtocol() instanceof LoginProtocol
-                || getProtocol() instanceof PlayProtocol)) {
+            || getProtocol() instanceof PlayProtocol)) {
             // channel is both currently connected and in a protocol state allowing kicks
             ChannelFuture future = sendWithFuture(new KickMessage(reason));
             if (future != null) {
@@ -469,7 +468,7 @@ public class GlowSession extends BasicSession {
                     continue;
                 }
                 other.getSession().send(new DestroyEntitiesMessage(Collections
-                        .singletonList(player.getEntityId())));
+                    .singletonList(player.getEntityId())));
             }
             player = null; // in case we are disposed twice
         }
@@ -499,7 +498,7 @@ public class GlowSession extends BasicSession {
     public void setProtocol(AbstractProtocol proto) {
         getChannel().flush();
 
-        updatePipeline("codecs", new CodecsHandler((GlowProtocol)proto));
+        updatePipeline("codecs", new CodecsHandler((GlowProtocol) proto));
         super.setProtocol(proto);
     }
 
@@ -575,8 +574,8 @@ public class GlowSession extends BasicSession {
         //TODO disconnect on error
         // can be safely logged and the connection maintained
         GlowServer.logger.log(Level.SEVERE,
-                "Error while handling " + message + " (handler: " + handle.getClass()
-                        .getSimpleName() + ")", t);
+            "Error while handling " + message + " (handler: " + handle.getClass()
+                .getSimpleName() + ")", t);
     }
 
     @Override

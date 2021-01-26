@@ -12,6 +12,7 @@ public class PlayerUpdateMessage implements Message {
 
     private final boolean onGround;
 
+    // TODO make this method abstract
     public void update(Location location) {
         // do nothing
     }

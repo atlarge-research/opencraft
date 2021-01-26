@@ -178,13 +178,14 @@ public class WorldScheduler {
                     tickBegin.arriveAndAwaitAdvance();
                     if (ServerConfig.Key.OPENCRAFT_COLLECTOR.equals(true)) {
                         YSCollector.start("world_" + world.getName() + "_tick",
-                                "World thread: Duration processing tick.");
+                            "World thread: Duration processing tick.");
                     }
                     try {
                         world.pulse();
-                    } catch (Exception e) {
+                    } catch (Throwable t) {
                         GlowServer.logger.log(Level.SEVERE,
-                            "Error occurred while pulsing world " + world.getName(), e);
+                            "Error occurred while pulsing world " + world.getName(), t);
+                        throw t;
                     } finally {
                         tickEnd.arriveAndAwaitAdvance();
                     }

@@ -21,37 +21,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
-import science.atlarge.opencraft.opencraft.EventFactory;
-import science.atlarge.opencraft.opencraft.GlowWorld;
-import science.atlarge.opencraft.opencraft.block.GlowBlock;
-import science.atlarge.opencraft.opencraft.block.ItemTable;
-import science.atlarge.opencraft.opencraft.block.blocktype.BlockType;
-import science.atlarge.opencraft.opencraft.constants.GameRules;
-import science.atlarge.opencraft.opencraft.constants.GlowPotionEffect;
-import science.atlarge.opencraft.opencraft.entity.AttributeManager.Key;
-import science.atlarge.opencraft.opencraft.entity.ai.MobState;
-import science.atlarge.opencraft.opencraft.entity.ai.TaskManager;
-import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex;
-import science.atlarge.opencraft.opencraft.entity.monster.GlowSlime;
-import science.atlarge.opencraft.opencraft.entity.objects.GlowExperienceOrb;
-import science.atlarge.opencraft.opencraft.entity.objects.GlowLeashHitch;
-import science.atlarge.opencraft.opencraft.entity.passive.GlowWolf;
-import science.atlarge.opencraft.opencraft.entity.projectile.GlowProjectile;
-import science.atlarge.opencraft.opencraft.inventory.EquipmentMonitor;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.AnimateEntityMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityEffectMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityEquipmentMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityHeadRotationMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityRemoveEffectMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage.Action;
-import science.atlarge.opencraft.opencraft.util.ExperienceSplitter;
-import science.atlarge.opencraft.opencraft.util.InventoryUtil;
-import science.atlarge.opencraft.opencraft.util.Position;
-import science.atlarge.opencraft.opencraft.util.RayUtil;
-import science.atlarge.opencraft.opencraft.util.SoundUtil;
-import science.atlarge.opencraft.opencraft.util.loot.LootData;
-import science.atlarge.opencraft.opencraft.util.loot.LootingManager;
 import org.bukkit.EntityAnimation;
 import org.bukkit.EntityEffect;
 import org.bukkit.GameMode;
@@ -92,6 +61,35 @@ import org.bukkit.scoreboard.Criterias;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
+import science.atlarge.opencraft.opencraft.EventFactory;
+import science.atlarge.opencraft.opencraft.GlowWorld;
+import science.atlarge.opencraft.opencraft.block.GlowBlock;
+import science.atlarge.opencraft.opencraft.block.ItemTable;
+import science.atlarge.opencraft.opencraft.block.blocktype.BlockType;
+import science.atlarge.opencraft.opencraft.constants.GameRules;
+import science.atlarge.opencraft.opencraft.constants.GlowPotionEffect;
+import science.atlarge.opencraft.opencraft.entity.ai.MobState;
+import science.atlarge.opencraft.opencraft.entity.ai.TaskManager;
+import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex;
+import science.atlarge.opencraft.opencraft.entity.monster.GlowSlime;
+import science.atlarge.opencraft.opencraft.entity.objects.GlowExperienceOrb;
+import science.atlarge.opencraft.opencraft.entity.objects.GlowLeashHitch;
+import science.atlarge.opencraft.opencraft.entity.passive.GlowWolf;
+import science.atlarge.opencraft.opencraft.entity.projectile.GlowProjectile;
+import science.atlarge.opencraft.opencraft.inventory.EquipmentMonitor;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.AnimateEntityMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityEffectMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityEquipmentMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityHeadRotationMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityRemoveEffectMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
+import science.atlarge.opencraft.opencraft.util.ExperienceSplitter;
+import science.atlarge.opencraft.opencraft.util.InventoryUtil;
+import science.atlarge.opencraft.opencraft.util.Position;
+import science.atlarge.opencraft.opencraft.util.RayUtil;
+import science.atlarge.opencraft.opencraft.util.SoundUtil;
+import science.atlarge.opencraft.opencraft.util.loot.LootData;
+import science.atlarge.opencraft.opencraft.util.loot.LootingManager;
 
 /**
  * A GlowLivingEntity is a {@link Player} or {@link Monster}.
@@ -307,7 +305,7 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
         super(location);
         attributeManager = new AttributeManager(this);
         this.maxHealth = maxHealth;
-        attributeManager.setProperty(Key.KEY_MAX_HEALTH, maxHealth);
+        attributeManager.setProperty(AttributeManager.Key.KEY_MAX_HEALTH, maxHealth);
         health = maxHealth;
         taskManager = new TaskManager(this);
     }
@@ -996,8 +994,8 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
 
         // armor damage protection
         // formula source: http://minecraft.gamepedia.com/Armor#Damage_Protection
-        double defensePoints = getAttributeManager().getPropertyValue(Key.KEY_ARMOR);
-        double toughness = getAttributeManager().getPropertyValue(Key.KEY_ARMOR_TOUGHNESS);
+        double defensePoints = getAttributeManager().getPropertyValue(AttributeManager.Key.KEY_ARMOR);
+        double toughness = getAttributeManager().getPropertyValue(AttributeManager.Key.KEY_ARMOR_TOUGHNESS);
         amount = amount * (1 - Math.min(20.0,
                 Math.max(defensePoints / 5.0,
                         defensePoints - amount / (2.0 + toughness / 4.0))) / 25);
@@ -1107,12 +1105,12 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
 
     @Override
     public double getMaxHealth() {
-        return attributeManager.getPropertyValue(Key.KEY_MAX_HEALTH);
+        return attributeManager.getPropertyValue(AttributeManager.Key.KEY_MAX_HEALTH);
     }
 
     @Override
     public void setMaxHealth(double health) {
-        attributeManager.setProperty(Key.KEY_MAX_HEALTH, health);
+        attributeManager.setProperty(AttributeManager.Key.KEY_MAX_HEALTH, health);
     }
 
     @Override
@@ -1314,14 +1312,14 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
 
     @Override
     public AttributeInstance getAttribute(Attribute attribute) {
-        return getAttributeManager().getProperty(Key.fromAttribute(attribute));
+        return getAttributeManager().getProperty(AttributeManager.Key.fromAttribute(attribute));
     }
 
     @Override
     public boolean entityInteract(GlowPlayer player, InteractEntityMessage message) {
         super.entityInteract(player, message);
 
-        if (message.getAction() != Action.INTERACT.ordinal()) {
+        if (message.getAction() != InteractEntityMessage.Action.INTERACT.ordinal()) {
             return false;
         }
 
@@ -1342,7 +1340,7 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
         } else if (!InventoryUtil.isEmpty(handItem) && handItem.getType() == Material.LEASH) {
             if (!GlowLeashHitch.isAllowedLeashHolder(this.getType()) || this.isLeashed()
                     || EventFactory.getInstance().callEvent(
-                            new PlayerLeashEntityEvent(this, player, player))
+                    new PlayerLeashEntityEvent(this, player, player))
                     .isCancelled()) {
                 return false;
             }
@@ -1365,6 +1363,7 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
 
     /**
      * Use "Totem of Undying" if equipped.
+     *
      * @return result of totem use.
      */
     public boolean tryUseTotem() {

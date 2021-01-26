@@ -2,7 +2,7 @@ package science.atlarge.opencraft.opencraft.constants;
 
 import static org.junit.Assert.assertEquals;
 
-import net.glowstone.testutils.ServerShim;
+import science.atlarge.opencraft.opencraft.testutils.ServerShim;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.entity.EntityType;

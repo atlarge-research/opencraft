@@ -4,18 +4,19 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
-import science.atlarge.opencraft.opencraft.generator.objects.OreType;
-import science.atlarge.opencraft.opencraft.generator.objects.OreVein;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.material.Stone;
 import org.bukkit.material.types.StoneType;
+import science.atlarge.opencraft.opencraft.generator.decorators.overworld.EmeraldOreDecorator;
+import science.atlarge.opencraft.opencraft.generator.objects.OreType;
+import science.atlarge.opencraft.opencraft.generator.objects.OreVein;
 
 /**
  * Populates the world with ores. To get the complete set, we must also use
- * {@link science.atlarge.opencraft.opencraft.generator.decorators.overworld.EmeraldOreDecorator}.
+ * {@link EmeraldOreDecorator}.
  */
 public class OrePopulator extends BlockPopulator {
 

@@ -179,7 +179,7 @@ public abstract class GlowAgeableTest<T extends GlowAgeable> extends GlowLivingE
     @Test
     public void testEntityInteractGrowsBaby() {
         entity.setBaby();
-        T mockedEntity = spy(entity);
+        T mockedEntity = Mockito.spy(entity);
         inventory.setItemInMainHand(new ItemStack(Material.RAW_FISH, 60));
         InteractEntityMessage message = new InteractEntityMessage(0, InteractEntityMessage.Action.INTERACT.ordinal(), 0);
 

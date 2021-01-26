@@ -16,7 +16,7 @@ public class BlockOpenable extends BlockType {
 
     @Override
     public boolean blockInteract(GlowPlayer player, GlowBlock block, BlockFace face,
-        Vector clickedLoc) {
+                                 Vector clickedLoc) {
         GlowBlockState blockState = block.getState();
         MaterialData materialData = blockState.getData();
         if (materialData instanceof Openable) {

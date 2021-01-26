@@ -1,22 +1,20 @@
 package science.atlarge.opencraft.opencraft.command.minecraft;
 
-import static science.atlarge.opencraft.opencraft.util.RectangularRegion.IterationDirection.FORWARDS;
-
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.block.GlowBlock;
 import science.atlarge.opencraft.opencraft.command.CommandUtils;
 import science.atlarge.opencraft.opencraft.i18n.LocalizedStringImpl;
 import science.atlarge.opencraft.opencraft.util.RectangularRegion;
 import science.atlarge.opencraft.opencraft.util.nbt.CompoundTag;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
 
 public class TestForBlocksCommand extends GlowVanillaCommand {
     @RequiredArgsConstructor
@@ -137,9 +135,9 @@ public class TestForBlocksCommand extends GlowVanillaCommand {
         RectangularRegion toRegion = fromRegion.moveTo(to);
 
         Iterator<Location> fromIterator = fromRegion
-                .blockLocations(FORWARDS, FORWARDS, FORWARDS).iterator();
+                .blockLocations(RectangularRegion.IterationDirection.FORWARDS, RectangularRegion.IterationDirection.FORWARDS, RectangularRegion.IterationDirection.FORWARDS).iterator();
         Iterator<Location> toIterator = toRegion
-                .blockLocations(FORWARDS, FORWARDS, FORWARDS).iterator();
+                .blockLocations(RectangularRegion.IterationDirection.FORWARDS, RectangularRegion.IterationDirection.FORWARDS, RectangularRegion.IterationDirection.FORWARDS).iterator();
 
         int blocksMatched = 0;
 

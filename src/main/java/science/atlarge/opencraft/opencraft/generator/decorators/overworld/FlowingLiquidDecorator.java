@@ -1,23 +1,22 @@
 package science.atlarge.opencraft.opencraft.generator.decorators.overworld;
 
 import java.util.Random;
-
-import science.atlarge.opencraft.opencraft.GlowWorld;
-import science.atlarge.opencraft.opencraft.block.GlowBlock;
-import science.atlarge.opencraft.opencraft.generator.decorators.BlockDecorator;
-import science.atlarge.opencraft.opencraft.population.PopulateInfo;
-import science.atlarge.opencraft.opencraft.scheduler.PulseTask;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import science.atlarge.opencraft.opencraft.GlowWorld;
+import science.atlarge.opencraft.opencraft.block.GlowBlock;
+import science.atlarge.opencraft.opencraft.generator.decorators.BlockDecorator;
+import science.atlarge.opencraft.opencraft.population.PopulateInfo;
+import science.atlarge.opencraft.opencraft.scheduler.PulseTask;
 
 public class FlowingLiquidDecorator extends BlockDecorator {
 
-    private static final BlockFace[] SIDES = new BlockFace[]{BlockFace.NORTH, BlockFace.EAST,
-        BlockFace.SOUTH, BlockFace.WEST};
+    private static final BlockFace[] SIDES = new BlockFace[] {BlockFace.NORTH, BlockFace.EAST,
+            BlockFace.SOUTH, BlockFace.WEST};
     private final Material type;
 
     /**
@@ -37,12 +36,12 @@ public class FlowingLiquidDecorator extends BlockDecorator {
         int sourceX = (source.getX() << 4) + random.nextInt(16);
         int sourceZ = (source.getZ() << 4) + random.nextInt(16);
         int sourceY = random
-            .nextInt(random.nextInt(type == Material.LAVA ? random.nextInt(240) + 8 : 248) + 8);
+                .nextInt(random.nextInt(type == Material.LAVA ? random.nextInt(240) + 8 : 248) + 8);
 
         Block block = world.getBlockAt(sourceX, sourceY, sourceZ);
         if ((block.getType() == Material.STONE || block.getType() == Material.AIR)
-            && block.getRelative(BlockFace.DOWN).getType() == Material.STONE
-            && block.getRelative(BlockFace.UP).getType() == Material.STONE) {
+                && block.getRelative(BlockFace.DOWN).getType() == Material.STONE
+                && block.getRelative(BlockFace.UP).getType() == Material.STONE) {
             int stoneBlockCount = 0;
             for (BlockFace face : SIDES) {
                 if (block.getRelative(face).getType() == Material.STONE) {

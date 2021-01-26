@@ -7,14 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
-import science.atlarge.opencraft.opencraft.EventFactory;
-import science.atlarge.opencraft.opencraft.entity.GlowHangingEntity;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
-import science.atlarge.opencraft.opencraft.entity.physics.EntityBoundingBox;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.DestroyEntitiesMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.SpawnPaintingMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage.Action;
 import org.bukkit.Art;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -29,6 +21,13 @@ import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
 import org.bukkit.event.hanging.HangingBreakEvent.RemoveCause;
 import org.bukkit.inventory.ItemStack;
+import science.atlarge.opencraft.opencraft.EventFactory;
+import science.atlarge.opencraft.opencraft.entity.GlowHangingEntity;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.entity.physics.EntityBoundingBox;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.DestroyEntitiesMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.SpawnPaintingMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
 
 public class GlowPainting extends GlowHangingEntity implements Painting {
 
@@ -104,9 +103,9 @@ public class GlowPainting extends GlowHangingEntity implements Painting {
 
     @Override
     public boolean entityInteract(GlowPlayer player, InteractEntityMessage message) {
-        if (message.getAction() == Action.ATTACK.ordinal()) {
+        if (message.getAction() == InteractEntityMessage.Action.ATTACK.ordinal()) {
             if (EventFactory.getInstance().callEvent(new HangingBreakByEntityEvent(this, player))
-                .isCancelled()) {
+                    .isCancelled()) {
                 return false;
             }
             if (player.getGameMode() != GameMode.CREATIVE) {
@@ -125,8 +124,8 @@ public class GlowPainting extends GlowHangingEntity implements Painting {
         String title = getArtTitle();
 
         return Collections.singletonList(
-            new SpawnPaintingMessage(this.getEntityId(), this.getUniqueId(), title, x, y, z,
-                facing.ordinal())
+                new SpawnPaintingMessage(this.getEntityId(), this.getUniqueId(), title, x, y, z,
+                        facing.ordinal())
         );
     }
 
@@ -162,15 +161,15 @@ public class GlowPainting extends GlowHangingEntity implements Painting {
      */
     public void refresh() {
         DestroyEntitiesMessage destroyMessage = new DestroyEntitiesMessage(
-            Collections.singletonList(this.getEntityId()));
+                Collections.singletonList(this.getEntityId()));
         List<Message> spawnMessages = this.createSpawnMessage();
-        Message[] messages = new Message[]{destroyMessage, spawnMessages.get(0)};
+        Message[] messages = new Message[] {destroyMessage, spawnMessages.get(0)};
 
         getWorld()
-            .getRawPlayers()
-            .stream()
-            .filter(p -> p.canSeeEntity(this))
-            .forEach(p -> p.getSession().sendAll(messages));
+                .getRawPlayers()
+                .stream()
+                .filter(p -> p.canSeeEntity(this))
+                .forEach(p -> p.getSession().sendAll(messages));
     }
 
     /**
@@ -287,11 +286,11 @@ public class GlowPainting extends GlowHangingEntity implements Painting {
 
             // reset x and z
             current.subtract(right.getModX() * art.getBlockWidth(), 0,
-                right.getModZ() * art.getBlockWidth());
+                    right.getModZ() * art.getBlockWidth());
         }
 
         List<Entity> entitiesInside = this.world.getEntityManager()
-            .getEntitiesInside(this.boundingBox, this);
+                .getEntitiesInside(this.boundingBox, this);
         return entitiesInside.stream().anyMatch(e -> e instanceof Hanging);
     }
 

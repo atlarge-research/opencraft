@@ -19,7 +19,7 @@ public class BlockRedstoneRepeater extends BlockNeedsAttached {
 
     @Override
     public boolean blockInteract(GlowPlayer player, GlowBlock block, BlockFace face,
-        Vector clickedLoc) {
+                                 Vector clickedLoc) {
         Diode diode = (Diode) block.getState().getData();
         diode.setDelay(diode.getDelay() == 4 ? 1 : diode.getDelay() + 1);
         block.setData(diode.getData());

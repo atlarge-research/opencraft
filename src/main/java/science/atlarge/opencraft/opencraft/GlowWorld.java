@@ -5,9 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.flowpowered.network.Message;
 import com.flowpowered.network.session.Session;
-
 import com.google.gson.annotations.Expose;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,59 +22,6 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import science.atlarge.opencraft.opencraft.block.GlowBlock;
-import science.atlarge.opencraft.opencraft.block.ItemTable;
-import science.atlarge.opencraft.opencraft.block.blocktype.BlockType;
-import science.atlarge.opencraft.opencraft.chunk.AreaOfInterest;
-import science.atlarge.opencraft.opencraft.chunk.ChunkManager;
-import science.atlarge.opencraft.opencraft.chunk.ChunkManager.ChunkLock;
-import science.atlarge.opencraft.opencraft.chunk.ChunkSection;
-import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
-import science.atlarge.opencraft.opencraft.chunk.GlowChunkSnapshot.EmptySnapshot;
-import science.atlarge.opencraft.opencraft.constants.GameRules;
-import science.atlarge.opencraft.opencraft.constants.GlowBiome;
-import science.atlarge.opencraft.opencraft.constants.GlowBiomeClimate;
-import science.atlarge.opencraft.opencraft.constants.GlowBlockEntity;
-import science.atlarge.opencraft.opencraft.constants.GlowEffect;
-import science.atlarge.opencraft.opencraft.constants.GlowParticle;
-import science.atlarge.opencraft.opencraft.constants.GlowSound;
-import science.atlarge.opencraft.opencraft.constants.GlowTree;
-import science.atlarge.opencraft.opencraft.data.CommandFunction;
-import science.atlarge.opencraft.opencraft.entity.EntityManager;
-import science.atlarge.opencraft.opencraft.entity.EntityRegistry;
-import science.atlarge.opencraft.opencraft.entity.GlowEntity;
-import science.atlarge.opencraft.opencraft.entity.GlowLightningStrike;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
-import science.atlarge.opencraft.opencraft.entity.objects.GlowFallingBlock;
-import science.atlarge.opencraft.opencraft.entity.objects.GlowItem;
-import science.atlarge.opencraft.opencraft.entity.physics.BoundingBox;
-import science.atlarge.opencraft.opencraft.executor.ChunkRunnable;
-import science.atlarge.opencraft.opencraft.executor.PriorityExecutor;
-import science.atlarge.opencraft.opencraft.generator.structures.GlowStructure;
-import science.atlarge.opencraft.opencraft.io.WorldMetadataService.WorldFinalValues;
-import science.atlarge.opencraft.opencraft.io.WorldStorageProvider;
-import science.atlarge.opencraft.opencraft.io.entity.EntityStorage;
-import science.atlarge.opencraft.opencraft.population.PopulateInfo;
-import science.atlarge.opencraft.opencraft.chunk.policy.ChunkLoadingPolicy;
-import science.atlarge.opencraft.opencraft.chunk.policy.DefaultChunkLoadingPolicy;
-import science.atlarge.opencraft.opencraft.messaging.Brokers;
-import science.atlarge.opencraft.opencraft.messaging.codecs.CompositeCodec;
-import science.atlarge.opencraft.opencraft.messaging.filters.FeedbackFilter;
-import science.atlarge.opencraft.opencraft.messaging.policies.ChunkPolicy;
-import science.atlarge.opencraft.opencraft.population.serialization.json.annotations.ExposeClass;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityStatusMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.game.BlockChangeMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.game.UnloadChunkMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.game.UpdateBlockEntityMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.ServerDifficultyMessage;
-import science.atlarge.opencraft.opencraft.util.BlockStateDelegate;
-import science.atlarge.opencraft.opencraft.util.GameRuleManager;
-import science.atlarge.opencraft.opencraft.util.RayUtil;
-import science.atlarge.opencraft.opencraft.util.TickUtil;
-import science.atlarge.opencraft.opencraft.util.Vectors;
-import science.atlarge.opencraft.opencraft.util.collection.ConcurrentSet;
-import science.atlarge.opencraft.opencraft.util.config.WorldConfig;
-import science.atlarge.opencraft.opencraft.util.nbt.CompoundTag;
 import org.bukkit.BlockChangeDelegate;
 import org.bukkit.Chunk;
 import org.bukkit.ChunkSnapshot;
@@ -126,9 +71,57 @@ import org.bukkit.plugin.messaging.StandardMessenger;
 import org.bukkit.util.Consumer;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NonNls;
-import science.atlarge.opencraft.messaging.Broker;
-import science.atlarge.opencraft.messaging.Filter;
-import science.atlarge.opencraft.messaging.MessagingSystem;
+import science.atlarge.opencraft.opencraft.block.GlowBlock;
+import science.atlarge.opencraft.opencraft.block.ItemTable;
+import science.atlarge.opencraft.opencraft.block.blocktype.BlockType;
+import science.atlarge.opencraft.opencraft.chunk.AreaOfInterest;
+import science.atlarge.opencraft.opencraft.chunk.ChunkManager;
+import science.atlarge.opencraft.opencraft.chunk.ChunkManager.ChunkLock;
+import science.atlarge.opencraft.opencraft.chunk.ChunkSection;
+import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
+import science.atlarge.opencraft.opencraft.chunk.GlowChunkSnapshot.EmptySnapshot;
+import science.atlarge.opencraft.opencraft.chunk.policy.ChunkLoadingPolicy;
+import science.atlarge.opencraft.opencraft.chunk.policy.DefaultChunkLoadingPolicy;
+import science.atlarge.opencraft.opencraft.constants.GameRules;
+import science.atlarge.opencraft.opencraft.constants.GlowBiome;
+import science.atlarge.opencraft.opencraft.constants.GlowBiomeClimate;
+import science.atlarge.opencraft.opencraft.constants.GlowBlockEntity;
+import science.atlarge.opencraft.opencraft.constants.GlowEffect;
+import science.atlarge.opencraft.opencraft.constants.GlowParticle;
+import science.atlarge.opencraft.opencraft.constants.GlowSound;
+import science.atlarge.opencraft.opencraft.constants.GlowTree;
+import science.atlarge.opencraft.opencraft.data.CommandFunction;
+import science.atlarge.opencraft.opencraft.entity.EntityManager;
+import science.atlarge.opencraft.opencraft.entity.EntityRegistry;
+import science.atlarge.opencraft.opencraft.entity.GlowEntity;
+import science.atlarge.opencraft.opencraft.entity.GlowLightningStrike;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.entity.objects.GlowFallingBlock;
+import science.atlarge.opencraft.opencraft.entity.objects.GlowItem;
+import science.atlarge.opencraft.opencraft.entity.physics.BoundingBox;
+import science.atlarge.opencraft.opencraft.executor.ChunkRunnable;
+import science.atlarge.opencraft.opencraft.executor.PriorityExecutor;
+import science.atlarge.opencraft.opencraft.generator.structures.GlowStructure;
+import science.atlarge.opencraft.opencraft.io.WorldMetadataService;
+import science.atlarge.opencraft.opencraft.io.WorldStorageProvider;
+import science.atlarge.opencraft.opencraft.io.entity.EntityStorage;
+import science.atlarge.opencraft.opencraft.messaging.Messaging;
+import science.atlarge.opencraft.opencraft.messaging.MessagingFactory;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityStatusMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.game.BlockChangeMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.game.UnloadChunkMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.game.UpdateBlockEntityMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.player.ServerDifficultyMessage;
+import science.atlarge.opencraft.opencraft.population.PopulateInfo;
+import science.atlarge.opencraft.opencraft.population.serialization.json.annotations.ExposeClass;
+import science.atlarge.opencraft.opencraft.util.BlockStateDelegate;
+import science.atlarge.opencraft.opencraft.util.GameRuleManager;
+import science.atlarge.opencraft.opencraft.util.RayUtil;
+import science.atlarge.opencraft.opencraft.util.TickUtil;
+import science.atlarge.opencraft.opencraft.util.Vectors;
+import science.atlarge.opencraft.opencraft.util.collection.ConcurrentSet;
+import science.atlarge.opencraft.opencraft.util.config.WorldConfig;
+import science.atlarge.opencraft.opencraft.util.nbt.CompoundTag;
 
 /**
  * A class which represents the in-game world.
@@ -413,7 +406,7 @@ public class GlowWorld implements World {
     @Getter
     private final boolean initialized;
 
-    private final MessagingSystem<Chunk, Object, Player, Message> messagingSystem;
+    private final Messaging messagingSystem;
 
     private final PriorityExecutor<ChunkRunnable> executor;
 
@@ -440,8 +433,8 @@ public class GlowWorld implements World {
     /**
      * Creates a new world from the options in the given WorldCreator.
      *
-     * @param server The server for the world.
-     * @param creator The WorldCreator to use.
+     * @param server               The server for the world.
+     * @param creator              The WorldCreator to use.
      * @param worldStorageProvider The storage provider to use.
      */
     public GlowWorld(GlowServer server, WorldCreator creator, WorldStorageProvider worldStorageProvider) {
@@ -478,16 +471,13 @@ public class GlowWorld implements World {
         worldBorder = new GlowWorldBorder(this);
 
         // Set up messaging system
-        ChunkPolicy policy = new ChunkPolicy(this, server.getViewDistance());
-        Broker<Chunk, Player, Message> broker = Brokers.newBroker(server.getBrokerConfig(), CompositeCodec::new);
-        Filter<Player, Message> filter = new FeedbackFilter();
-        messagingSystem = new MessagingSystem<>(policy, broker, filter);
+        messagingSystem = MessagingFactory.fromConfig(this, server);
 
         executor = new PriorityExecutor<>();
         chunkLoadingPolicy = new DefaultChunkLoadingPolicy(this);
 
         // Read in world data
-        WorldFinalValues values;
+        WorldMetadataService.WorldFinalValues values;
         values = storage.getMetadataService().readWorldData();
         if (values != null) {
             if (values.getSeed() == 0L) {
@@ -504,7 +494,7 @@ public class GlowWorld implements World {
         chunkManager = new ChunkManager(this, storage.getChunkIoService(), generator);
         structures = storage.getStructureDataService().readStructuresData();
         functions = storage.getFunctionIoService().readFunctions().stream()
-            .collect(Collectors.toMap(CommandFunction::getFullName, function -> function));
+                .collect(Collectors.toMap(CommandFunction::getFullName, function -> function));
         server.addWorld(this);
         server.getLogger().info("Preparing spawn for " + name + "...");
         EventFactory.getInstance().callEvent(new WorldInitEvent(this));
@@ -575,7 +565,7 @@ public class GlowWorld implements World {
     /**
      * List chunks that are in the current area of interest, but not in the previous.
      *
-     * @param current the current area of interest.
+     * @param current  the current area of interest.
      * @param previous the previous area of interest.
      * @return the list of chunks.
      */
@@ -586,7 +576,7 @@ public class GlowWorld implements World {
     /**
      * Find chunks that are in the previous area of interest, but not in the current.
      *
-     * @param current the current area of interest.
+     * @param current  the current area of interest.
      * @param previous the previous area of interest.
      * @return the list of chunks.
      */
@@ -597,7 +587,7 @@ public class GlowWorld implements World {
     /**
      * Find the chunks that are in the first area of interest, but not in the second.
      *
-     * @param first the first area of interest.
+     * @param first  the first area of interest.
      * @param second the second area of interest.
      * @return the list of chunks.
      */
@@ -689,9 +679,9 @@ public class GlowWorld implements World {
     /**
      * Randomly update 3 blocks in the provided section.
      *
-     * @param chunk the chunk in which to update the blocks.
+     * @param chunk   the chunk in which to update the blocks.
      * @param section the section in which to update the blocks.
-     * @param index the index of the section within the chunk.
+     * @param index   the index of the section within the chunk.
      */
     private void updateBlocksInSection(GlowChunk chunk, ChunkSection section, int index) {
         if (section != null) {
@@ -716,7 +706,7 @@ public class GlowWorld implements World {
      *
      * @param location The location of the material that has to be changed.
      * @param material The affected material.
-     * @param data Necessary data for the change.
+     * @param data     Necessary data for the change.
      */
     public void sendBlockChange(Location location, Material material, byte data) {
         int materialId = material.getId();
@@ -734,8 +724,8 @@ public class GlowWorld implements World {
      * Send a block entity change to the given location.
      *
      * @param location The location of the block entity.
-     * @param type The type of block entity being sent.
-     * @param nbt The NBT structure to send to the client.
+     * @param type     The type of block entity being sent.
+     * @param nbt      The NBT structure to send to the client.
      */
     public void sendBlockEntityChange(Location location, GlowBlockEntity type, CompoundTag nbt) {
 
@@ -766,7 +756,7 @@ public class GlowWorld implements World {
             populatedBlockMessages.add(message);
         } else {
             GlowBlock block = getBlockAt(message.getX(), message.getY(), message.getZ());
-            messagingSystem.broadcast(block, message);
+            messagingSystem.publish(block, message);
         }
     }
 
@@ -774,10 +764,10 @@ public class GlowWorld implements World {
      * Add a message to the list of after block change messages.
      *
      * @param location The location of the block change.
-     * @param message The message to be stored.
+     * @param message  The message to be stored.
      */
     public void broadcastAfterBlockChange(Location location, Message message) {
-        messagingSystem.broadcast(location, message);
+        messagingSystem.publish(location, message);
     }
 
     /**
@@ -791,7 +781,7 @@ public class GlowWorld implements World {
             entity.pulse();
 
             List<Message> messages = entity.createUpdateMessage();
-            messages.forEach(message -> messagingSystem.broadcast(entity, message));
+            messages.forEach(message -> messagingSystem.publish(entity, message));
         });
     }
 
@@ -850,7 +840,7 @@ public class GlowWorld implements World {
                 // no need to send them the time - handle that normally
             } else { // otherwise check whether everyone is asleep
                 boolean skipNight = gameRuleMap.getBoolean(GameRules.DO_DAYLIGHT_CYCLE)
-                    && areAllPlayersSleeping(players);
+                        && areAllPlayersSleeping(players);
                 // check gamerule before iterating players (micro-optimization)
                 if (skipNight) {
                     skipRestOfNight(players);
@@ -886,7 +876,7 @@ public class GlowWorld implements World {
     private boolean areAllPlayersSleeping(List<GlowPlayer> players) {
         for (GlowPlayer player : players) {
             if (!(player.isSleeping() && player.getSleepTicks() >= 100) && !player
-                .isSleepingIgnored()) {
+                    .isSleepingIgnored()) {
                 return false;
             }
         }
@@ -912,7 +902,7 @@ public class GlowWorld implements World {
         // below the
         // target block up to the world height
         BoundingBox searchBox = BoundingBox
-            .fromPositionAndSize(new Vector(x, y, z), new Vector(0, 0, 0));
+                .fromPositionAndSize(new Vector(x, y, z), new Vector(0, 0, 0));
         Vector vec = new Vector(3, 3, 3);
         Vector vec2 = new Vector(0, getMaxHeight(), 0);
         searchBox.minCorner.subtract(vec);
@@ -920,20 +910,20 @@ public class GlowWorld implements World {
         List<LivingEntity> livingEntities = new LinkedList<>();
         // make sure entity can see sky
         getEntityManager().getEntitiesInside(searchBox, null).stream()
-            .filter(entity -> entity instanceof LivingEntity && !entity.isDead())
-            .forEach(entity -> {
-                Vector pos = entity.getLocation().toVector();
-                int minY = getHighestBlockYAt(pos.getBlockX(), pos.getBlockZ());
-                if (pos.getBlockY() >= minY) {
-                    livingEntities.add((LivingEntity) entity);
-                }
-            });
+                .filter(entity -> entity instanceof LivingEntity && !entity.isDead())
+                .forEach(entity -> {
+                    Vector pos = entity.getLocation().toVector();
+                    int minY = getHighestBlockYAt(pos.getBlockX(), pos.getBlockZ());
+                    if (pos.getBlockY() >= minY) {
+                        livingEntities.add((LivingEntity) entity);
+                    }
+                });
 
         // re-target lightning if required
         if (!livingEntities.isEmpty()) {
             // randomly choose an entity
             LivingEntity entity = livingEntities
-                .get(ThreadLocalRandom.current().nextInt(livingEntities.size()));
+                    .get(ThreadLocalRandom.current().nextInt(livingEntities.size()));
             // re-target lightning on this living entity
             Vector newTarget = entity.getLocation().toVector();
             x = newTarget.getBlockX();
@@ -969,6 +959,7 @@ public class GlowWorld implements World {
 
     /**
      * Gets the value of the moon phase.
+     *
      * @return moon phase value.
      */
     public double getMoonPhase() {
@@ -1030,7 +1021,6 @@ public class GlowWorld implements World {
 
     @Override
     @Deprecated
-    @SuppressWarnings("unchecked")
     public <T extends Entity> Collection<T> getEntitiesByClass(Class<T>... classes) {
         return (Collection<T>) entityManager.getEntitiesByClasses(classes);
     }
@@ -1116,7 +1106,7 @@ public class GlowWorld implements World {
                 int spawnX = ThreadLocalRandom.current().nextInt(256) - 128;
                 int spawnZ = ThreadLocalRandom.current().nextInt(256) - 128;
                 getChunkAt(spawnX >> 4, spawnZ >> 4)
-                    .load(true);  // I'm not sure there's a sane way around this
+                        .load(true);  // I'm not sure there's a sane way around this
 
                 for (int tries = 0; tries < 1000 && !generator.canSpawn(this, spawnX, spawnZ);
                      ++tries) {
@@ -1149,7 +1139,7 @@ public class GlowWorld implements World {
 
         if (needSpawn) {
             setSpawnLocation(spawnLocation.getBlockX(), getHighestBlockYAt(spawnLocation
-                .getBlockX(), spawnLocation.getBlockZ()), spawnLocation.getBlockZ(), false);
+                    .getBlockX(), spawnLocation.getBlockZ()), spawnLocation.getBlockZ(), false);
         }
     }
 
@@ -1299,17 +1289,17 @@ public class GlowWorld implements World {
     public boolean generateTree(Location loc, TreeType type, BlockChangeDelegate delegate) {
         BlockStateDelegate blockStateDelegate = new BlockStateDelegate();
         if (GlowTree.newInstance(type, ThreadLocalRandom.current(), blockStateDelegate)
-            .generate(loc)) {
+                .generate(loc)) {
             List<BlockState> blockStates = new ArrayList<>(blockStateDelegate.getBlockStates());
             StructureGrowEvent growEvent
-                = new StructureGrowEvent(loc, type, false, null, blockStates);
+                    = new StructureGrowEvent(loc, type, false, null, blockStates);
             EventFactory.getInstance().callEvent(growEvent);
             if (!growEvent.isCancelled()) {
                 for (BlockState state : blockStates) {
                     state.update(true);
                     if (delegate != null) {
                         delegate.setTypeIdAndData(state.getX(), state.getY(), state.getZ(), state
-                            .getTypeId(), state.getRawData());
+                                .getTypeId(), state.getRawData());
                     }
                 }
                 return true;
@@ -1475,7 +1465,7 @@ public class GlowWorld implements World {
     @Override
     public void getChunkAtAsync(int x, int z, ChunkLoadCallback cb) {
         ServerProvider.getServer().getScheduler()
-            .runTaskAsynchronously(null, () -> cb.onLoad(chunkManager.getChunk(x, z)));
+                .runTaskAsynchronously(null, () -> cb.onLoad(chunkManager.getChunk(x, z)));
     }
 
     @Override
@@ -1612,8 +1602,8 @@ public class GlowWorld implements World {
     @Override
     public void setBiome(int x, int z, Biome bio) {
         getChunkAtAsync(
-            x >> 4, z >> 4, chunk -> ((GlowChunk) chunk)
-                .setBiome(x & 0xF, z & 0xF, GlowBiome.getId(bio)));
+                x >> 4, z >> 4, chunk -> ((GlowChunk) chunk)
+                        .setBiome(x & 0xF, z & 0xF, GlowBiome.getId(bio)));
     }
 
     @Override
@@ -1630,7 +1620,6 @@ public class GlowWorld implements World {
     // Entity spawning
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T extends Entity> T spawn(Location location, Class<T> type) throws IllegalArgumentException {
         return (T) spawn(location, EntityRegistry.getEntity(type), SpawnReason.CUSTOM);
     }
@@ -1649,8 +1638,8 @@ public class GlowWorld implements World {
      * Spawns an entity.
      *
      * @param location The {@link Location} to spawn the entity at.
-     * @param type The class of the {@link Entity} to spawn.
-     * @param reason The reason for the spawning of the entity.
+     * @param type     The class of the {@link Entity} to spawn.
+     * @param reason   The reason for the spawning of the entity.
      * @return an instance of the spawned {@link Entity}.
      * @throws IllegalArgumentException whenever the location or type is null.
      */
@@ -1764,7 +1753,7 @@ public class GlowWorld implements World {
     public Arrow spawnArrow(Location location, Vector velocity, float speed, float spread) {
         // Transformative magic
         Vector randVec = new Vector(ThreadLocalRandom.current().nextGaussian(), ThreadLocalRandom
-            .current().nextGaussian(), ThreadLocalRandom.current().nextGaussian());
+                .current().nextGaussian(), ThreadLocalRandom.current().nextGaussian());
         randVec.multiply(0.0075 * spread);
 
         velocity.normalize();
@@ -1781,20 +1770,20 @@ public class GlowWorld implements World {
 
     @Override
     public <T extends Arrow> T spawnArrow(Location location, Vector direction, float speed,
-                                          float spread, Class<T> clazz) {
+            float spread, Class<T> clazz) {
         return null;
     }
 
     @Override
     public FallingBlock spawnFallingBlock(Location location,
-                                          MaterialData data) throws IllegalArgumentException {
+            MaterialData data) throws IllegalArgumentException {
         checkNotNull(data);
         return spawnFallingBlock(location, data.getItemType(), data.getData());
     }
 
     @Override
     public FallingBlock spawnFallingBlock(Location location, Material material,
-                                          byte data) throws IllegalArgumentException {
+            byte data) throws IllegalArgumentException {
         checkNotNull(location);
         checkNotNull(material, "Unknown material type.");
         checkArgument(data >= 0, "Block data may not be negative.");
@@ -1804,7 +1793,7 @@ public class GlowWorld implements World {
 
     @Override
     public FallingBlock spawnFallingBlock(Location location, int blockId,
-                                          byte blockData) throws IllegalArgumentException {
+            byte blockData) throws IllegalArgumentException {
         Material material = Material.getMaterial(blockId);
         return spawnFallingBlock(location, material, blockData);
     }
@@ -1842,7 +1831,7 @@ public class GlowWorld implements World {
     @Override
     public void setTime(long time) {
         this.time = (time % TickUtil.TICKS_PER_DAY + TickUtil.TICKS_PER_DAY)
-            % TickUtil.TICKS_PER_DAY;
+                % TickUtil.TICKS_PER_DAY;
 
         getRawPlayers().forEach(GlowPlayer::sendTime);
     }
@@ -1870,10 +1859,10 @@ public class GlowWorld implements World {
         // Numbers borrowed from CraftBukkit.
         if (currentlyRaining) {
             setWeatherDuration(ThreadLocalRandom.current().nextInt(TickUtil.TICKS_PER_HALF_DAY)
-                + TickUtil.TICKS_PER_HALF_DAY);
+                    + TickUtil.TICKS_PER_HALF_DAY);
         } else {
             setWeatherDuration(ThreadLocalRandom.current().nextInt(TickUtil.TICKS_PER_WEEK)
-                + TickUtil.TICKS_PER_HALF_DAY);
+                    + TickUtil.TICKS_PER_HALF_DAY);
         }
 
         // update players
@@ -1896,10 +1885,10 @@ public class GlowWorld implements World {
         // Numbers borrowed from CraftBukkit.
         if (this.thundering) {
             setThunderDuration(ThreadLocalRandom.current().nextInt(TickUtil.TICKS_PER_HALF_DAY)
-                + TickUtil.minutesToTicks(3));
+                    + TickUtil.minutesToTicks(3));
         } else {
             setThunderDuration(ThreadLocalRandom.current().nextInt(TickUtil.TICKS_PER_WEEK)
-                + TickUtil.TICKS_PER_WEEK);
+                    + TickUtil.TICKS_PER_WEEK);
         }
     }
 
@@ -1936,9 +1925,9 @@ public class GlowWorld implements World {
 
     @Override
     public boolean createExplosion(Entity source, Location loc, float power, boolean setFire,
-                                   boolean breakBlocks) {
+            boolean breakBlocks) {
         return createExplosion(source, loc.getX(), loc.getY(), loc.getZ(), power, setFire,
-            breakBlocks);
+                breakBlocks);
     }
 
     @Override
@@ -1953,7 +1942,7 @@ public class GlowWorld implements World {
 
     @Override
     public boolean createExplosion(double x, double y, double z, float power, boolean setFire,
-                                   boolean breakBlocks) {
+            boolean breakBlocks) {
         return createExplosion(null, x, y, z, power, setFire, breakBlocks);
     }
 
@@ -1970,7 +1959,7 @@ public class GlowWorld implements World {
      * @return false if explosion was canceled, otherwise true
      */
     public boolean createExplosion(Entity source, double x, double y, double z, float power,
-                                   boolean incendiary, boolean breakBlocks) {
+            boolean incendiary, boolean breakBlocks) {
         Explosion explosion = new Explosion(source, this, x, y, z, power, incendiary, breakBlocks);
         return explosion.explodeWithEvent();
     }
@@ -1989,8 +1978,8 @@ public class GlowWorld implements World {
         checkNotNull(effect);
         int radiusSquared = radius * radius;
         getRawPlayers().stream()
-            .filter(player -> player.getLocation().distanceSquared(location) <= radiusSquared)
-            .forEach(player -> player.playEffect(location, effect, data));
+                .filter(player -> player.getLocation().distanceSquared(location) <= radiusSquared)
+                .forEach(player -> player.playEffect(location, effect, data));
     }
 
     @Override
@@ -2014,21 +2003,21 @@ public class GlowWorld implements World {
      * @param exclude  the player who won't see the effect
      */
     public void playEffectExceptTo(Location location, Effect effect, int data, int radius,
-                                   Player exclude) {
+            Player exclude) {
         checkNotNull(location);
         checkNotNull(effect);
         checkNotNull(exclude);
         int radiusSquared = radius * radius;
         getRawPlayers().stream().filter(player -> !player.equals(exclude)
-            && player.getLocation().distanceSquared(location) <= radiusSquared)
-            .forEach(player -> player.playEffect(location, effect, data));
+                && player.getLocation().distanceSquared(location) <= radiusSquared)
+                .forEach(player -> player.playEffect(location, effect, data));
     }
 
     @Override
     public void playSound(Location location, Sound sound, float volume, float pitch) {
         checkNotNull(sound);
         playSound(location, sound, GlowSound
-            .getSoundCategory(GlowSound.getVanillaId(sound)), volume, pitch);
+                .getSoundCategory(GlowSound.getVanillaId(sound)), volume, pitch);
     }
 
     @Override
@@ -2038,19 +2027,19 @@ public class GlowWorld implements World {
 
     @Override
     public void playSound(Location location, Sound sound, SoundCategory category, float volume,
-                          float pitch) {
+            float pitch) {
         checkNotNull(location);
         checkNotNull(sound);
 
         double radiusSquared = Math.pow(volume * 16, 2);
         getRawPlayers().stream()
-            .filter(player -> player.getLocation().distanceSquared(location) <= radiusSquared)
-            .forEach(player -> player.playSound(location, sound, category, volume, pitch));
+                .filter(player -> player.getLocation().distanceSquared(location) <= radiusSquared)
+                .forEach(player -> player.playSound(location, sound, category, volume, pitch));
     }
 
     @Override
     public void playSound(Location location, String sound, SoundCategory category, float volume,
-                          float pitch) {
+            float pitch) {
         checkNotNull(sound);
         playSound(location, GlowSound.getVanillaSound(sound), category, volume, pitch);
     }
@@ -2073,7 +2062,7 @@ public class GlowWorld implements World {
      */
     //@Override
     public void showParticle(Location loc, Effect particle, float offsetX, float offsetY,
-                             float offsetZ, float speed, int amount) {
+            float offsetZ, float speed, int amount) {
         checkNotNull(loc);
         checkNotNull(particle);
         int radius;
@@ -2084,7 +2073,7 @@ public class GlowWorld implements World {
         }
 
         showParticle(loc, particle, particle
-            .getId(), 0, offsetX, offsetY, offsetZ, speed, amount, radius);
+                .getId(), 0, offsetX, offsetY, offsetZ, speed, amount, radius);
     }
 
     /**
@@ -2103,17 +2092,17 @@ public class GlowWorld implements World {
      */
     //@Override
     public void showParticle(Location loc, Effect particle, int id, int data, float offsetX,
-                             float offsetY, float offsetZ, float speed, int amount, int radius) {
+            float offsetY, float offsetZ, float speed, int amount, int radius) {
         checkNotNull(loc);
         checkNotNull(particle);
 
         double radiusSquared = radius * radius;
 
         getRawPlayers().stream()
-            .filter(player -> player.getLocation().distanceSquared(loc) <= radiusSquared)
-            .forEach(player -> player.spigot()
-                .playEffect(loc, particle, id, data, offsetX, offsetY, offsetZ, speed,
-                    amount, radius));
+                .filter(player -> player.getLocation().distanceSquared(loc) <= radiusSquared)
+                .forEach(player -> player.spigot()
+                        .playEffect(loc, particle, id, data, offsetX, offsetY, offsetZ, speed,
+                                amount, radius));
     }
 
     /**
@@ -2244,60 +2233,60 @@ public class GlowWorld implements World {
 
     @Override
     public <T> void spawnParticle(Particle particle, double x, double y, double z, int count,
-                                  T data) {
+            T data) {
         spawnParticle(particle, x, y, z, count, 0, 0, 0, data);
     }
 
     @Override
     public void spawnParticle(Particle particle, Location location, int count, double offsetX,
-                              double offsetY, double offsetZ) {
+            double offsetY, double offsetZ) {
         spawnParticle(particle, location.getX(), location.getY(), location
-            .getZ(), count, offsetX, offsetY, offsetZ);
+                .getZ(), count, offsetX, offsetY, offsetZ);
     }
 
     @Override
     public void spawnParticle(Particle particle, double x, double y, double z, int count,
-                              double offsetX, double offsetY, double offsetZ) {
+            double offsetX, double offsetY, double offsetZ) {
         spawnParticle(particle, x, y, z, count, offsetX, offsetY, offsetZ, null);
     }
 
     @Override
     public <T> void spawnParticle(Particle particle, Location location, int count,
-                                  double offsetX,
-                                  double offsetY, double offsetZ, T data) {
+            double offsetX,
+            double offsetY, double offsetZ, T data) {
         checkNotNull(location);
         spawnParticle(particle, location.getX(), location.getY(), location
-            .getZ(), count, offsetX, offsetY, offsetZ, data);
+                .getZ(), count, offsetX, offsetY, offsetZ, data);
     }
 
     @Override
     public <T> void spawnParticle(Particle particle, double x, double y, double z, int count,
-                                  double offsetX, double offsetY, double offsetZ, T data) {
+            double offsetX, double offsetY, double offsetZ, T data) {
         spawnParticle(particle, x, y, z, count, offsetX, offsetY, offsetZ, 1, data);
     }
 
     @Override
     public void spawnParticle(Particle particle, Location location, int count, double offsetX,
-                              double offsetY, double offsetZ, double extra) {
+            double offsetY, double offsetZ, double extra) {
         spawnParticle(particle, location.getX(), location.getY(), location
-            .getZ(), count, offsetX, offsetY, offsetZ, extra);
+                .getZ(), count, offsetX, offsetY, offsetZ, extra);
     }
 
     @Override
     public void spawnParticle(Particle particle, double x, double y, double z, int count,
-                              double offsetX, double offsetY, double offsetZ, double extra) {
+            double offsetX, double offsetY, double offsetZ, double extra) {
         spawnParticle(particle, x, y, z, count, offsetX, offsetY, offsetZ, extra, null);
     }
 
     @Override
     public <T> void spawnParticle(Particle particle, Location location, int count,
-                                  double offsetX,
-                                  double offsetY, double offsetZ, double extra, T data) {
+            double offsetX,
+            double offsetY, double offsetZ, double extra, T data) {
         checkNotNull(particle);
         checkNotNull(location);
         if (data != null && !particle.getDataType().isInstance(data)) {
             throw new IllegalArgumentException(
-                "wrong data type " + data.getClass() + " should be " + particle.getDataType());
+                    "wrong data type " + data.getClass() + " should be " + particle.getDataType());
         }
 
         for (GlowPlayer player : getRawPlayers()) {
@@ -2310,15 +2299,15 @@ public class GlowWorld implements World {
 
     @Override
     public <T> void spawnParticle(Particle particle, double x, double y, double z, int count,
-                                  double offsetX, double offsetY, double offsetZ, double extra, T data) {
+            double offsetX, double offsetY, double offsetZ, double extra, T data) {
         spawnParticle(particle, new Location(this, x, y, z), count, offsetX, offsetY, offsetZ,
-            extra, data);
+                extra, data);
     }
 
     @Override
     public <T> void spawnParticle(Particle particle, List<Player> receivers, Player source,
-                                  double x, double y, double z, int count, double offsetX, double offsetY,
-                                  double offsetZ, double extra, T data) {
+            double x, double y, double z, int count, double offsetX, double offsetY,
+            double offsetZ, double extra, T data) {
         if (receivers == null) {
             receivers = getPlayers();
         }
@@ -2326,7 +2315,7 @@ public class GlowWorld implements World {
         for (Player player : receivers) {
             if (player.canSee(source) && ((GlowPlayer) player).canSeeEntity((GlowPlayer) source)) {
                 player.spawnParticle(particle, x, y, z, count, offsetX, offsetY, offsetZ, extra,
-                    data);
+                        data);
             }
         }
     }
@@ -2455,11 +2444,15 @@ public class GlowWorld implements World {
      * The metadata store class for worlds.
      */
     private static final class WorldMetadataStore extends MetadataStoreBase<World>
-        implements MetadataStore<World> {
+            implements MetadataStore<World> {
 
         @Override
         protected String disambiguate(World subject, String metadataKey) {
             return subject.getName() + ":" + metadataKey;
         }
+    }
+
+    public Messaging getMessagingSystem() {
+        return messagingSystem;
     }
 }

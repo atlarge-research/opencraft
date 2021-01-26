@@ -4,14 +4,6 @@ import com.flowpowered.network.Message;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
-import science.atlarge.opencraft.opencraft.EventFactory;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
-import science.atlarge.opencraft.opencraft.entity.GlowVehicle;
-import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityMetadataMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.SpawnObjectMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage.Action;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,6 +16,13 @@ import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleDestroyEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import science.atlarge.opencraft.opencraft.EventFactory;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.entity.GlowVehicle;
+import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityMetadataMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.SpawnObjectMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
 
 public class GlowBoat extends GlowVehicle implements Boat {
     private static final double VERTICAL_GRAVITY_ACCEL = -0.04;
@@ -53,8 +52,8 @@ public class GlowBoat extends GlowVehicle implements Boat {
     @Override
     public List<Message> createSpawnMessage() {
         return Arrays.asList(
-            new SpawnObjectMessage(entityId, getUniqueId(), SpawnObjectMessage.BOAT, location),
-            new EntityMetadataMessage(entityId, metadata.getEntryList())
+                new SpawnObjectMessage(entityId, getUniqueId(), SpawnObjectMessage.BOAT, location),
+                new EntityMetadataMessage(entityId, metadata.getEntryList())
         );
     }
 
@@ -72,11 +71,11 @@ public class GlowBoat extends GlowVehicle implements Boat {
 
     @Override
     public boolean entityInteract(GlowPlayer player, InteractEntityMessage message) {
-        if (message.getAction() == Action.ATTACK.ordinal()) {
+        if (message.getAction() == InteractEntityMessage.Action.ATTACK.ordinal()) {
             damage(player);
             return true;
         }
-        if (message.getAction() != Action.INTERACT.ordinal()) {
+        if (message.getAction() != InteractEntityMessage.Action.INTERACT.ordinal()) {
             return false;
         }
         if (player.isSneaking()) {

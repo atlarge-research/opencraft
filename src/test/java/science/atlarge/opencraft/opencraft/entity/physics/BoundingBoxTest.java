@@ -4,6 +4,7 @@ import science.atlarge.opencraft.opencraft.util.Vectors;
 import org.bukkit.util.Vector;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 
 import static science.atlarge.opencraft.opencraft.entity.physics.BoundingBox.intersects;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -47,7 +48,7 @@ public class BoundingBoxTest {
         Vector size = new Vector(1, 1, 1);
 
         BoundingBox otherBox = BoundingBox.fromPositionAndSize(origin, size);
-        assertTrue(Vectors.equals(otherBox.minCorner, origin));
+        Assertions.assertTrue(Vectors.equals(otherBox.minCorner, origin));
         assertTrue(Vectors.equals(otherBox.maxCorner, size));
     }
 

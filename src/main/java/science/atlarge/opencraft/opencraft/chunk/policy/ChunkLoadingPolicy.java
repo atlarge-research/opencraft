@@ -3,6 +3,9 @@ package science.atlarge.opencraft.opencraft.chunk.policy;
 import com.flowpowered.network.Message;
 import com.flowpowered.network.session.Session;
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.chunk.AreaOfInterest;
 import science.atlarge.opencraft.opencraft.chunk.ChunkManager;
@@ -10,14 +13,8 @@ import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
 import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
 import science.atlarge.opencraft.opencraft.executor.ChunkRunnable;
 import science.atlarge.opencraft.opencraft.executor.PriorityExecutor;
+import science.atlarge.opencraft.opencraft.messaging.Messaging;
 import science.atlarge.opencraft.opencraft.net.message.play.game.UnloadChunkMessage;
-import org.bukkit.Chunk;
-import org.bukkit.entity.Player;
-import science.atlarge.opencraft.messaging.MessagingSystem;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 public abstract class ChunkLoadingPolicy {
 
@@ -47,7 +44,7 @@ public abstract class ChunkLoadingPolicy {
      *
      * @param players player list
      */
-    public abstract void update(Collection<GlowPlayer> players, MessagingSystem<Chunk, Object, Player, Message> messagingSystem);
+    public abstract void update(Collection<GlowPlayer> players, Messaging messagingSystem);
 
     /**
      * Called on world shutdown
@@ -59,7 +56,7 @@ public abstract class ChunkLoadingPolicy {
     /**
      * Find the chunks that are in the first area of interest, but not in the second.
      *
-     * @param first the first area of interest.
+     * @param first  the first area of interest.
      * @param second the second area of interest.
      * @return the list of chunks.
      */

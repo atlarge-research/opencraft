@@ -21,7 +21,7 @@ public class BlockContainer extends BlockType {
 
     @Override
     public boolean blockInteract(GlowPlayer player, GlowBlock block, BlockFace face,
-        Vector clickedLoc) {
+                                 Vector clickedLoc) {
         BlockEntity te = block.getBlockEntity();
         if (te instanceof ContainerEntity) {
             switch (((ContainerEntity) te).getInventory().getType()) {

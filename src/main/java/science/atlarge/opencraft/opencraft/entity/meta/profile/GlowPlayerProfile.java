@@ -218,7 +218,7 @@ public class GlowPlayerProfile implements PlayerProfile {
         }
         return profileTag;
     }
-    
+
     private void checkOwnerCriteria(String name, UUID id) {
         if (id == null && (name == null || name.isEmpty())) {
             throw new IllegalArgumentException("Either name or uuid must be present in profile");

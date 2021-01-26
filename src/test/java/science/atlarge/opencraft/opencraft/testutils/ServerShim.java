@@ -1,4 +1,4 @@
-package net.glowstone.testutils;
+package science.atlarge.opencraft.opencraft.testutils;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import java.awt.image.BufferedImage;

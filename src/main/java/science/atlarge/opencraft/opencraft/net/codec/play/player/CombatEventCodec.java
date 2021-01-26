@@ -6,7 +6,6 @@ import io.netty.buffer.ByteBuf;
 import java.io.IOException;
 import science.atlarge.opencraft.opencraft.net.GlowBufUtils;
 import science.atlarge.opencraft.opencraft.net.message.play.player.CombatEventMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.CombatEventMessage.Event;
 import science.atlarge.opencraft.opencraft.util.TextMessage;
 
 public final class CombatEventCodec implements Codec<CombatEventMessage> {
@@ -14,7 +13,7 @@ public final class CombatEventCodec implements Codec<CombatEventMessage> {
     @Override
     public CombatEventMessage decode(ByteBuf buffer) throws IOException {
         int eventId = ByteBufUtils.readVarInt(buffer);
-        Event event = Event.getAction(eventId);
+        CombatEventMessage.Event event = CombatEventMessage.Event.getAction(eventId);
         switch (event) {
             case END_COMBAT: {
                 int duration = ByteBufUtils.readVarInt(buffer);
@@ -34,10 +33,10 @@ public final class CombatEventCodec implements Codec<CombatEventMessage> {
     @Override
     public ByteBuf encode(ByteBuf buffer, CombatEventMessage message) throws IOException {
         ByteBufUtils.writeVarInt(buffer, message.getEvent().ordinal());
-        if (message.getEvent() == Event.END_COMBAT) {
+        if (message.getEvent() == CombatEventMessage.Event.END_COMBAT) {
             ByteBufUtils.writeVarInt(buffer, message.getDuration());
             buffer.writeInt(message.getEntityId());
-        } else if (message.getEvent() == Event.ENTITY_DEAD) {
+        } else if (message.getEvent() == CombatEventMessage.Event.ENTITY_DEAD) {
             ByteBufUtils.writeVarInt(buffer, message.getPlayerId());
             buffer.writeInt(message.getEntityId());
             GlowBufUtils.writeChat(buffer, message.getMessage());

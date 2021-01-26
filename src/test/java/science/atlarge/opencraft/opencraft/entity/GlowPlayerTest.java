@@ -20,22 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
-import science.atlarge.opencraft.opencraft.EventFactory;
-import science.atlarge.opencraft.opencraft.block.BuiltinMaterialValueManager;
-import science.atlarge.opencraft.opencraft.block.GlowBlock;
-import science.atlarge.opencraft.opencraft.block.MaterialValueManager;
-import science.atlarge.opencraft.opencraft.chunk.ChunkManager;
-import science.atlarge.opencraft.opencraft.chunk.ChunkManager.ChunkLock;
-import science.atlarge.opencraft.opencraft.entity.meta.profile.GlowPlayerProfile;
-import science.atlarge.opencraft.opencraft.entity.passive.GlowFishingHook;
-import science.atlarge.opencraft.opencraft.io.PlayerDataService.PlayerReader;
-import science.atlarge.opencraft.opencraft.io.PlayerStatisticIoService;
-import science.atlarge.opencraft.opencraft.net.GlowSession;
-import science.atlarge.opencraft.opencraft.net.SessionRegistry;
-import science.atlarge.opencraft.opencraft.scheduler.GlowScheduler;
-import science.atlarge.opencraft.opencraft.scheduler.WorldScheduler;
-import science.atlarge.opencraft.opencraft.util.InventoryUtil;
-import science.atlarge.opencraft.opencraft.util.bans.UuidListFile;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -59,10 +43,26 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import science.atlarge.opencraft.opencraft.EventFactory;
+import science.atlarge.opencraft.opencraft.block.BuiltinMaterialValueManager;
+import science.atlarge.opencraft.opencraft.block.GlowBlock;
+import science.atlarge.opencraft.opencraft.block.MaterialValueManager;
+import science.atlarge.opencraft.opencraft.chunk.ChunkManager;
+import science.atlarge.opencraft.opencraft.chunk.ChunkManager.ChunkLock;
+import science.atlarge.opencraft.opencraft.entity.meta.profile.GlowPlayerProfile;
+import science.atlarge.opencraft.opencraft.entity.passive.GlowFishingHook;
+import science.atlarge.opencraft.opencraft.io.PlayerDataService;
+import science.atlarge.opencraft.opencraft.io.PlayerStatisticIoService;
+import science.atlarge.opencraft.opencraft.net.GlowSession;
+import science.atlarge.opencraft.opencraft.net.SessionRegistry;
+import science.atlarge.opencraft.opencraft.scheduler.GlowScheduler;
+import science.atlarge.opencraft.opencraft.scheduler.WorldScheduler;
+import science.atlarge.opencraft.opencraft.util.InventoryUtil;
+import science.atlarge.opencraft.opencraft.util.bans.UuidListFile;
 
-@PrepareForTest({Bukkit.class, ChunkManager.class})
+@PrepareForTest( {Bukkit.class, ChunkManager.class})
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore({ "javax.net.ssl.*" })
+@PowerMockIgnore( {"javax.net.ssl.*"})
 public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
 
     /**
@@ -88,7 +88,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
     @Mock(answer = RETURNS_SMART_NULLS)
     private static GlowSession session;
     @Mock(answer = RETURNS_SMART_NULLS)
-    private static PlayerReader reader;
+    private static PlayerDataService.PlayerReader reader;
     @Mock(answer = RETURNS_SMART_NULLS)
     private GlowBlock block;
     @Mock(answer = RETURNS_SMART_NULLS)
@@ -408,7 +408,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
     @Test
     public void testIncrementStatisticCancelled() {
         when(eventFactory.callEvent(any(Event.class)))
-                .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
+            .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
 
         entity.incrementStatistic(Statistic.ANIMALS_BRED);
         verify(eventFactory).callEvent(argThat(input -> {
@@ -443,7 +443,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
     @Test
     public void testIncrementStatisticWithValueCancelled() {
         when(eventFactory.callEvent(any(Event.class)))
-                .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
+            .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
 
         entity.incrementStatistic(Statistic.ANIMALS_BRED, 12);
         verify(eventFactory).callEvent(argThat(input -> {
@@ -479,7 +479,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
     @Test
     public void testIncrementStatisticMaterialCancelled() {
         when(eventFactory.callEvent(any(Event.class)))
-                .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
+            .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
 
         entity.incrementStatistic(Statistic.MINE_BLOCK, Material.DIRT);
         verify(eventFactory).callEvent(argThat(input -> {
@@ -516,7 +516,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
     @Test
     public void testIncrementStatisticMaterialWithValueCancelled() {
         when(eventFactory.callEvent(any(Event.class)))
-                .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
+            .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
 
         entity.incrementStatistic(Statistic.MINE_BLOCK, Material.DIRT, 13);
         verify(eventFactory).callEvent(argThat(input -> {
@@ -553,7 +553,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
     @Test
     public void testIncrementStatisticEntityTypeCancelled() {
         when(eventFactory.callEvent(any(Event.class)))
-                .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
+            .thenAnswer(cancelIfInstance(PlayerStatisticIncrementEvent.class));
 
         entity.incrementStatistic(Statistic.KILL_ENTITY, EntityType.CAVE_SPIDER);
         verify(eventFactory).callEvent(argThat(input -> {
@@ -590,7 +590,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
     @Test
     public void testIncrementStatisticEntityTypeWithValueCancelled() {
         when(eventFactory.callEvent(any(Event.class))).thenAnswer(
-                cancelIfInstance(PlayerStatisticIncrementEvent.class));
+            cancelIfInstance(PlayerStatisticIncrementEvent.class));
         entity.incrementStatistic(Statistic.KILL_ENTITY, EntityType.CAVE_SPIDER, 14);
         verify(eventFactory).callEvent(argThat(input -> {
             PlayerStatisticIncrementEvent event = (PlayerStatisticIncrementEvent) input;
@@ -615,7 +615,7 @@ public class GlowPlayerTest extends GlowHumanEntityTest<GlowPlayer> {
      * @return an Answer that returns the possibly-cancelled first argument
      */
     protected static Answer<Event> cancelIfInstance(
-            final Class<? extends Cancellable> typeToCancel) {
+        final Class<? extends Cancellable> typeToCancel) {
         return invocation -> {
             Event event = invocation.getArgument(0);
             if (typeToCancel.isInstance(event)) {

@@ -3,12 +3,6 @@ package science.atlarge.opencraft.opencraft.block.entity.state;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import lombok.Getter;
-import science.atlarge.opencraft.opencraft.EventFactory;
-import science.atlarge.opencraft.opencraft.block.GlowBlock;
-import science.atlarge.opencraft.opencraft.block.GlowBlockState;
-import science.atlarge.opencraft.opencraft.block.entity.NoteblockEntity;
-import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
-import science.atlarge.opencraft.opencraft.chunk.GlowChunk.Key;
 import org.bukkit.Instrument;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,6 +10,11 @@ import org.bukkit.Note;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.NoteBlock;
 import org.bukkit.event.block.NotePlayEvent;
+import science.atlarge.opencraft.opencraft.EventFactory;
+import science.atlarge.opencraft.opencraft.block.GlowBlock;
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
+import science.atlarge.opencraft.opencraft.block.entity.NoteblockEntity;
+import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
 
 public class GlowNoteBlock extends GlowBlockState implements NoteBlock {
 
@@ -31,7 +30,7 @@ public class GlowNoteBlock extends GlowBlockState implements NoteBlock {
         super(block);
         if (block.getType() != Material.NOTE_BLOCK) {
             throw new IllegalArgumentException(
-                "GlowNoteBlock: expected NOTE_BLOCK, got " + block.getType());
+                    "GlowNoteBlock: expected NOTE_BLOCK, got " + block.getType());
         }
 
         note = getBlockEntity().getNote();
@@ -194,16 +193,16 @@ public class GlowNoteBlock extends GlowBlockState implements NoteBlock {
             return false;
         }
         NotePlayEvent event = EventFactory.getInstance()
-            .callEvent(new NotePlayEvent(getBlock(), instrument, note));
+                .callEvent(new NotePlayEvent(getBlock(), instrument, note));
         if (event.isCancelled()) {
             return false;
         }
 
         Location location = getBlock().getLocation();
 
-        Key key = GlowChunk.Key.of(getX() >> 4, getZ() >> 4);
+        GlowChunk.Key key = GlowChunk.Key.of(getX() >> 4, getZ() >> 4);
         getWorld().getRawPlayers().stream().filter(player -> player.canSeeChunk(key))
-            .forEach(player -> player.playNote(location, instrument, note));
+                .forEach(player -> player.playNote(location, instrument, note));
 
         return true;
     }

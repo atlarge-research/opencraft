@@ -9,13 +9,9 @@ import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.Getter;
 import lombok.Setter;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
-import science.atlarge.opencraft.opencraft.i18n.ConsoleMessages;
-import science.atlarge.opencraft.opencraft.i18n.GlowstoneMessages;
-import science.atlarge.opencraft.opencraft.i18n.GlowstoneMessages.Kick;
-import science.atlarge.opencraft.opencraft.scheduler.GlowScheduler;
 import org.bukkit.BanList;
 import org.bukkit.BanList.Type;
 import org.bukkit.ChatColor;
@@ -39,6 +35,10 @@ import org.bukkit.event.player.PlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.scheduler.BukkitScheduler;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.i18n.ConsoleMessages;
+import science.atlarge.opencraft.opencraft.i18n.GlowstoneMessages;
+import science.atlarge.opencraft.opencraft.scheduler.GlowScheduler;
 
 /**
  * Central class for the calling of events.
@@ -52,6 +52,11 @@ public class EventFactory {
     @Setter
     private static EventFactory instance = new EventFactory();
 
+    /**
+     * Count how many players join and leave.
+     */
+    private static final AtomicInteger numPlayers = new AtomicInteger(0);
+
     private EventFactory() {
     }
 
@@ -59,7 +64,7 @@ public class EventFactory {
      * Calls an event through the plugin manager.
      *
      * @param event The event to throw.
-     * @param <T> The type of the event.
+     * @param <T>   The type of the event.
      * @return the called event
      */
     public <T extends Event> T callEvent(T event) {
@@ -79,7 +84,7 @@ public class EventFactory {
                 return task.get();
             } catch (InterruptedException e) {
                 ConsoleMessages.Warn.Event.INTERRUPTED.log(e,
-                        event.getClass().getSimpleName());
+                    event.getClass().getSimpleName());
                 return event;
             } catch (CancellationException e) {
                 ConsoleMessages.Warn.Event.SHUTDOWN.log(event.getClass().getSimpleName());
@@ -96,24 +101,23 @@ public class EventFactory {
     /**
      * Handles pre-hooks for a player login.
      *
-     * @param name the name of the player who is logging in
+     * @param name    the name of the player who is logging in
      * @param address the address of the player who is logging in
-     * @param uuid the UUID of the player who is logging in, provided by Mojang
+     * @param uuid    the UUID of the player who is logging in, provided by Mojang
      * @return an AsyncPlayerPreLoginEvent
      */
-    @SuppressWarnings("deprecation")
     public AsyncPlayerPreLoginEvent onPlayerPreLogin(String name, InetSocketAddress address,
-            UUID uuid) {
+                                                     UUID uuid) {
         // call async event
         AsyncPlayerPreLoginEvent event = new AsyncPlayerPreLoginEvent(name, address
-                .getAddress(), uuid);
+            .getAddress(), uuid);
         callEvent(event);
 
         // call sync event only if needed
         if (PlayerPreLoginEvent.getHandlerList().getRegisteredListeners().length > 0) {
             // initialize event to match current state from async event
             PlayerPreLoginEvent syncEvent = new PlayerPreLoginEvent(name, address
-                    .getAddress(), uuid);
+                .getAddress(), uuid);
             if (event.getLoginResult() != AsyncPlayerPreLoginEvent.Result.ALLOWED) {
                 syncEvent.disallow(event.getResult(), event.getKickMessage());
             }
@@ -130,7 +134,7 @@ public class EventFactory {
      * Handles post-hooks for a player login, including the name and IP banlists, whitelist policy
      * and occupancy limit.
      *
-     * @param player the login
+     * @param player   the login
      * @param hostname the hostname that was used to connect to the server
      * @return the completed event
      */
@@ -140,18 +144,20 @@ public class EventFactory {
         String addressString = address.getHostAddress();
         PlayerLoginEvent event = new PlayerLoginEvent(player, hostname, address);
 
+        logEvent(player.getServer(), "numplayers", numPlayers.incrementAndGet());
+
         BanList nameBans = server.getBanList(Type.NAME);
         BanList ipBans = server.getBanList(Type.IP);
 
         if (nameBans.isBanned(player.getName())) {
             event.disallow(Result.KICK_BANNED,
-                    Kick.BANNED.get(nameBans.getBanEntry(player.getName()).getReason()));
+                GlowstoneMessages.Kick.BANNED.get(nameBans.getBanEntry(player.getName()).getReason()));
         } else if (ipBans.isBanned(addressString)) {
             event.disallow(Result.KICK_BANNED,
-                    Kick.BANNED.get(ipBans.getBanEntry(addressString).getReason()));
+                GlowstoneMessages.Kick.BANNED.get(ipBans.getBanEntry(addressString).getReason()));
         } else if (checkWhitelisted(player, event)
-                && server.getOnlinePlayers().size() >= server.getMaxPlayers()) {
-            event.disallow(Result.KICK_FULL, Kick.FULL.get(server.getMaxPlayers()));
+            && server.getOnlinePlayers().size() >= server.getMaxPlayers()) {
+            event.disallow(Result.KICK_FULL, GlowstoneMessages.Kick.FULL.get(server.getMaxPlayers()));
         }
 
         return callEvent(event);
@@ -160,12 +166,11 @@ public class EventFactory {
     /**
      * Handles an incoming chat message.
      *
-     * @param async This changes the event to a synchronous state.
-     * @param player the sending player
+     * @param async   This changes the event to a synchronous state.
+     * @param player  the sending player
      * @param message the message
      * @return the completed event
      */
-    @SuppressWarnings("deprecation")
     public AsyncPlayerChatEvent onPlayerChat(boolean async, Player player, String message) {
         // call async event
         Set<Player> recipients = new HashSet<>(player.getServer().getOnlinePlayers());
@@ -176,7 +181,7 @@ public class EventFactory {
         if (PlayerChatEvent.getHandlerList().getRegisteredListeners().length > 0) {
             // initialize event to match current state from async event
             PlayerChatEvent syncEvent = new PlayerChatEvent(player, event.getMessage(), event
-                    .getFormat(), recipients);
+                .getFormat(), recipients);
             syncEvent.setCancelled(event.isCancelled());
 
             // call event synchronously and copy data back to original event
@@ -189,9 +194,16 @@ public class EventFactory {
         return event;
     }
 
+    private void logEvent(Server server, String name, int value) {
+        if (server instanceof GlowServer) {
+            GlowServer glowServer = (GlowServer) server;
+            glowServer.eventLogger.log(name, value);
+        }
+    }
+
     public PlayerJoinEvent onPlayerJoin(Player player) {
         return callEvent(new PlayerJoinEvent(player,
-                GlowstoneMessages.Player.JOINED.get(ChatColor.YELLOW, player.getName())));
+            GlowstoneMessages.Player.JOINED.get(ChatColor.YELLOW, player.getName())));
     }
 
     public PlayerKickEvent onPlayerKick(Player player, String reason) {
@@ -199,8 +211,9 @@ public class EventFactory {
     }
 
     public PlayerQuitEvent onPlayerQuit(Player player) {
+        logEvent(player.getServer(), "numplayers", numPlayers.decrementAndGet());
         return callEvent(new PlayerQuitEvent(player,
-                GlowstoneMessages.Player.LEFT.get(ChatColor.YELLOW, player.getName())));
+            GlowstoneMessages.Player.LEFT.get(ChatColor.YELLOW, player.getName())));
     }
 
     /**
@@ -208,29 +221,29 @@ public class EventFactory {
      *
      * @param player the player
      * @param action the click action
-     * @param hand the active hand
+     * @param hand   the active hand
      * @return the completed event
      */
     public PlayerInteractEvent onPlayerInteract(Player player, Action action,
-            EquipmentSlot hand) {
+                                                EquipmentSlot hand) {
         return onPlayerInteract(player, action, hand, null, BlockFace.SELF);
     }
 
     /**
      * Handles a click on a block.
      *
-     * @param player the player
-     * @param action the click action
-     * @param hand the active hand
+     * @param player  the player
+     * @param action  the click action
+     * @param hand    the active hand
      * @param clicked the block clicked
-     * @param face the side of the block clicked
+     * @param face    the side of the block clicked
      * @return the completed event
      */
     public PlayerInteractEvent onPlayerInteract(Player player, Action action,
-            EquipmentSlot hand, Block clicked, BlockFace face) {
+                                                EquipmentSlot hand, Block clicked, BlockFace face) {
         return callEvent(new PlayerInteractEvent(player, action,
-                hand == EquipmentSlot.OFF_HAND ? player.getInventory().getItemInOffHand()
-                        : player.getInventory().getItemInMainHand(), clicked, face, hand));
+            hand == EquipmentSlot.OFF_HAND ? player.getInventory().getItemInOffHand()
+                : player.getInventory().getItemInMainHand(), clicked, face, hand));
     }
 
     /**
@@ -238,7 +251,7 @@ public class EventFactory {
      * (for a {@link LivingEntity} only) {@link LivingEntity#setLastDamage(double)}.
      *
      * @param event the event to run
-     * @param <T> the event's type
+     * @param <T>   the event's type
      * @return the completed event
      */
     public <T extends EntityDamageEvent> T onEntityDamage(T event) {
@@ -259,22 +272,22 @@ public class EventFactory {
      * <p>The supplied {@link PlayerLoginEvent} will be disallowed by this method
      * if the player is not whitelisted.
      *
-     * @param player the player joining the server
+     * @param player     the player joining the server
      * @param loginEvent the {@link PlayerLoginEvent} that will follow this check
      * @return true if the player is whitelisted, false otherwise
      */
     private boolean checkWhitelisted(GlowPlayer player, PlayerLoginEvent loginEvent) {
         // check whether the player is whitelisted (explicitly or implicitly)
         boolean whitelisted = player.isOp()
-                || !player.getServer().hasWhitelist()
-                || player.isWhitelisted();
+            || !player.getServer().hasWhitelist()
+            || player.isWhitelisted();
         // fire the event to allow plugins to change this behavior
         ProfileWhitelistVerifyEvent event = callEvent(new ProfileWhitelistVerifyEvent(
-                player.getProfile(),
-                player.getServer().hasWhitelist(),
-                whitelisted,
-                player.isOp(),
-                Kick.WHITELIST.get()
+            player.getProfile(),
+            player.getServer().hasWhitelist(),
+            whitelisted,
+            player.isOp(),
+            GlowstoneMessages.Kick.WHITELIST.get()
         ));
         if (event.isWhitelisted()) {
             return true;

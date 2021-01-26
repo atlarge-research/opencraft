@@ -1,6 +1,5 @@
 package science.atlarge.opencraft.opencraft.block.itemtype;
 
-import static net.glowstone.TestUtils.checkInventory;
 import static org.bukkit.Material.ARROW;
 import static org.bukkit.Material.BOW;
 import static org.bukkit.Material.SPECTRAL_ARROW;
@@ -21,12 +20,6 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableSortedSet;
 import java.util.Set;
 import java.util.function.Predicate;
-import net.glowstone.TestUtils;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
-import science.atlarge.opencraft.opencraft.entity.projectile.GlowArrow;
-import science.atlarge.opencraft.opencraft.entity.projectile.GlowSpectralArrow;
-import science.atlarge.opencraft.opencraft.entity.projectile.GlowTippedArrow;
-import science.atlarge.opencraft.opencraft.inventory.GlowMetaPotion;
 import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -45,17 +38,23 @@ import org.bukkit.util.Vector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import science.atlarge.opencraft.opencraft.TestUtils;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.entity.projectile.GlowArrow;
+import science.atlarge.opencraft.opencraft.entity.projectile.GlowSpectralArrow;
+import science.atlarge.opencraft.opencraft.entity.projectile.GlowTippedArrow;
+import science.atlarge.opencraft.opencraft.inventory.GlowMetaPotion;
 
 public class ItemBowTest extends ItemTypeTest {
     public static final Vector POSITIVE_X_DIRECTION = new Vector(1, 0, 0);
     private static final Set<Material> ARROW_TYPES = ImmutableSortedSet.of(
-            ARROW, TIPPED_ARROW, SPECTRAL_ARROW);
+        ARROW, TIPPED_ARROW, SPECTRAL_ARROW);
     private static final Predicate<ItemStack> ARROW_MATCHER
-            = TestUtils.itemTypeMatcher(ARROW_TYPES);
+        = TestUtils.itemTypeMatcher(ARROW_TYPES);
     private static final Predicate<ItemStack> BOW_WITH_DAMAGE_1
-            = TestUtils.itemTypeMatcher(BOW).and(item -> item.getDurability() == 1);
+        = TestUtils.itemTypeMatcher(BOW).and(item -> item.getDurability() == 1);
     private static final Predicate<ItemStack> BOW_WITH_DAMAGE_NOT_1
-            = TestUtils.itemTypeMatcher(BOW).and(item -> item.getDurability() != 1);
+        = TestUtils.itemTypeMatcher(BOW).and(item -> item.getDurability() != 1);
     private ItemBow bow;
     private ItemStack bowItemStack;
     private GlowArrow launchedArrow;
@@ -73,14 +72,14 @@ public class ItemBowTest extends ItemTypeTest {
         launchedArrow = mock(GlowArrow.class, RETURNS_SMART_NULLS);
         launchedSpectralArrow = mock(GlowSpectralArrow.class, RETURNS_SMART_NULLS);
         launchedTippedArrow = mock(GlowTippedArrow.class, RETURNS_SMART_NULLS);
-        for (Arrow arrow : new Arrow[]{launchedArrow, launchedSpectralArrow, launchedTippedArrow}) {
+        for (Arrow arrow : new Arrow[] {launchedArrow, launchedSpectralArrow, launchedTippedArrow}) {
             Arrow.Spigot spigot = mock(Arrow.Spigot.class, RETURNS_SMART_NULLS);
             when(arrow.getLocation()).thenReturn(location);
             when(arrow.getVelocity()).thenReturn(POSITIVE_X_DIRECTION);
             when(arrow.spigot()).thenReturn(spigot);
         }
         when(player.getEyeLocation()).thenReturn(
-                location.clone().setDirection(POSITIVE_X_DIRECTION));
+            location.clone().setDirection(POSITIVE_X_DIRECTION));
         doCallRealMethod().when(launchedTippedArrow).copyFrom(any(PotionMeta.class));
         when(player.launchProjectile(Arrow.class)).thenReturn(launchedArrow);
         when(player.launchProjectile(SpectralArrow.class)).thenReturn(launchedSpectralArrow);
@@ -109,20 +108,20 @@ public class ItemBowTest extends ItemTypeTest {
         verify(player, times(1)).launchProjectile(Arrow.class);
         verify(player, times(1)).setUsageItem(null);
         verify(player, times(1)).setUsageTime(0);
-        checkInventory(inventory, 1, BOW_WITH_DAMAGE_1);
-        checkInventory(inventory, 0,
-                BOW_WITH_DAMAGE_NOT_1);
-        checkInventory(inventory, 1,
-                item -> ARROW_TYPES.contains(item.getType()));
+        TestUtils.checkInventory(inventory, 1, BOW_WITH_DAMAGE_1);
+        TestUtils.checkInventory(inventory, 0,
+            BOW_WITH_DAMAGE_NOT_1);
+        TestUtils.checkInventory(inventory, 1,
+            item -> ARROW_TYPES.contains(item.getType()));
 
         // Shooting a second time should consume the last arrow
         bow.startUse(player, bowItemStack);
         bow.endUse(player, bowItemStack);
-        checkInventory(inventory, 1,
-                item -> item.getType() == BOW && item.getDurability() == 2);
-        checkInventory(inventory, 0,
-                item -> item.getType() == BOW && item.getDurability() != 2);
-        checkInventory(inventory, 0, ARROW_MATCHER);
+        TestUtils.checkInventory(inventory, 1,
+            item -> item.getType() == BOW && item.getDurability() == 2);
+        TestUtils.checkInventory(inventory, 0,
+            item -> item.getType() == BOW && item.getDurability() != 2);
+        TestUtils.checkInventory(inventory, 0, ARROW_MATCHER);
     }
 
     @Test
@@ -141,12 +140,12 @@ public class ItemBowTest extends ItemTypeTest {
         verify(player, times(1)).launchProjectile(SpectralArrow.class);
         verify(player, times(1)).setUsageItem(null);
         verify(player, times(1)).setUsageTime(0);
-        checkInventory(inventory, 1,
-                BOW_WITH_DAMAGE_1);
-        checkInventory(inventory, 0,
-                BOW_WITH_DAMAGE_NOT_1);
-        checkInventory(inventory, 0,
-                item -> ARROW_TYPES.contains(item.getType()));
+        TestUtils.checkInventory(inventory, 1,
+            BOW_WITH_DAMAGE_1);
+        TestUtils.checkInventory(inventory, 0,
+            BOW_WITH_DAMAGE_NOT_1);
+        TestUtils.checkInventory(inventory, 0,
+            item -> ARROW_TYPES.contains(item.getType()));
     }
 
     @Test
@@ -175,12 +174,12 @@ public class ItemBowTest extends ItemTypeTest {
         verify(launchedTippedArrow, times(1)).addCustomEffect(eq(effect), anyBoolean());
         verify(player, times(1)).setUsageItem(null);
         verify(player, times(1)).setUsageTime(0);
-        checkInventory(inventory, 1,
-                BOW_WITH_DAMAGE_1);
-        checkInventory(inventory, 0,
-                BOW_WITH_DAMAGE_NOT_1);
-        checkInventory(inventory, 0,
-                item -> ARROW_TYPES.contains(item.getType()));
+        TestUtils.checkInventory(inventory, 1,
+            BOW_WITH_DAMAGE_1);
+        TestUtils.checkInventory(inventory, 0,
+            BOW_WITH_DAMAGE_NOT_1);
+        TestUtils.checkInventory(inventory, 0,
+            item -> ARROW_TYPES.contains(item.getType()));
     }
 
     @Test
@@ -215,9 +214,9 @@ public class ItemBowTest extends ItemTypeTest {
         bowItemStack.setDurability(BOW.getMaxDurability());
         bow.startUse(player, bowItemStack);
         bow.endUse(player, bowItemStack);
-        checkInventory(inventory, 0, item -> BOW == item.getType());
-        checkInventory(inventory, 0,
-                item -> ARROW_TYPES.contains(item.getType()));
+        TestUtils.checkInventory(inventory, 0, item -> BOW == item.getType());
+        TestUtils.checkInventory(inventory, 0,
+            item -> ARROW_TYPES.contains(item.getType()));
     }
 
     @Test
@@ -229,9 +228,9 @@ public class ItemBowTest extends ItemTypeTest {
         bowItemStack.setItemMeta(meta);
         bow.startUse(player, bowItemStack);
         bow.endUse(player, bowItemStack);
-        checkInventory(inventory, 1, BOW_WITH_DAMAGE_1);
-        checkInventory(inventory, 0, BOW_WITH_DAMAGE_NOT_1);
-        checkInventory(inventory, 1,
-                item -> ARROW_TYPES.contains(item.getType()));
+        TestUtils.checkInventory(inventory, 1, BOW_WITH_DAMAGE_1);
+        TestUtils.checkInventory(inventory, 0, BOW_WITH_DAMAGE_NOT_1);
+        TestUtils.checkInventory(inventory, 1,
+            item -> ARROW_TYPES.contains(item.getType()));
     }
 }

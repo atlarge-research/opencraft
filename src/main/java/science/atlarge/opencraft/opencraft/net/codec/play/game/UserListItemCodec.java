@@ -11,8 +11,6 @@ import java.util.UUID;
 import science.atlarge.opencraft.opencraft.entity.meta.profile.GlowPlayerProfile;
 import science.atlarge.opencraft.opencraft.net.GlowBufUtils;
 import science.atlarge.opencraft.opencraft.net.message.play.game.UserListItemMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.game.UserListItemMessage.Action;
-import science.atlarge.opencraft.opencraft.net.message.play.game.UserListItemMessage.Entry;
 import science.atlarge.opencraft.opencraft.util.TextMessage;
 
 public final class UserListItemCodec implements Codec<UserListItemMessage> {
@@ -21,10 +19,10 @@ public final class UserListItemCodec implements Codec<UserListItemMessage> {
     public UserListItemMessage decode(ByteBuf buffer) throws IOException {
 
         int actionIndex = ByteBufUtils.readVarInt(buffer);
-        Action action = Action.values()[actionIndex];
+        UserListItemMessage.Action action = UserListItemMessage.Action.values()[actionIndex];
 
         int entryCount = ByteBufUtils.readVarInt(buffer);
-        List<Entry> entries = new ArrayList<>(entryCount);
+        List<UserListItemMessage.Entry> entries = new ArrayList<>(entryCount);
         for (int entryIndex = 0; entryIndex < entryCount; entryIndex++) {
 
             UUID uuid = GlowBufUtils.readUuid(buffer);
@@ -86,7 +84,7 @@ public final class UserListItemCodec implements Codec<UserListItemMessage> {
                     throw new UnsupportedOperationException("unknown action: " + action);
             }
 
-            Entry entry = new Entry(uuid, profile, gameMode, ping, displayName, action);
+            UserListItemMessage.Entry entry = new UserListItemMessage.Entry(uuid, profile, gameMode, ping, displayName, action);
             entries.add(entry);
         }
 
@@ -96,12 +94,12 @@ public final class UserListItemCodec implements Codec<UserListItemMessage> {
     @Override
     public ByteBuf encode(ByteBuf buffer, UserListItemMessage message) throws IOException {
 
-        Action action = message.getAction();
+        UserListItemMessage.Action action = message.getAction();
         ByteBufUtils.writeVarInt(buffer, message.getAction().ordinal());
 
-        List<Entry> entries = message.getEntries();
+        List<UserListItemMessage.Entry> entries = message.getEntries();
         ByteBufUtils.writeVarInt(buffer, entries.size());
-        for (Entry entry : entries) {
+        for (UserListItemMessage.Entry entry : entries) {
             GlowBufUtils.writeUuid(buffer, entry.uuid);
             // TODO: implement remaining actions
             switch (action) {

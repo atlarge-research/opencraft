@@ -3,15 +3,6 @@ package science.atlarge.opencraft.opencraft.entity.objects;
 import com.flowpowered.network.Message;
 import java.util.Arrays;
 import java.util.List;
-import science.atlarge.opencraft.opencraft.EventFactory;
-import science.atlarge.opencraft.opencraft.Explosion;
-import science.atlarge.opencraft.opencraft.entity.GlowEntity;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
-import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityMetadataMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.SpawnObjectMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage.Action;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World.Environment;
@@ -23,6 +14,14 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.ExplosionPrimeEvent;
 import org.bukkit.util.BlockVector;
+import science.atlarge.opencraft.opencraft.EventFactory;
+import science.atlarge.opencraft.opencraft.Explosion;
+import science.atlarge.opencraft.opencraft.entity.GlowEntity;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityMetadataMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.SpawnObjectMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
 
 public class GlowEnderCrystal extends GlowEntity implements EnderCrystal {
 
@@ -46,9 +45,9 @@ public class GlowEnderCrystal extends GlowEntity implements EnderCrystal {
     @Override
     public List<Message> createSpawnMessage() {
         return Arrays.asList(
-            new SpawnObjectMessage(entityId,
-                    getUniqueId(), SpawnObjectMessage.ENDER_CRYSTAL, location),
-            new EntityMetadataMessage(entityId, metadata.getEntryList())
+                new SpawnObjectMessage(entityId,
+                        getUniqueId(), SpawnObjectMessage.ENDER_CRYSTAL, location),
+                new EntityMetadataMessage(entityId, metadata.getEntryList())
         );
     }
 
@@ -67,7 +66,7 @@ public class GlowEnderCrystal extends GlowEntity implements EnderCrystal {
 
     @Override
     public boolean entityInteract(GlowPlayer player, InteractEntityMessage message) {
-        if (message.getAction() != Action.ATTACK.ordinal()) {
+        if (message.getAction() != InteractEntityMessage.Action.ATTACK.ordinal()) {
             return false;
         }
 
@@ -84,7 +83,7 @@ public class GlowEnderCrystal extends GlowEntity implements EnderCrystal {
 
         if (cause != DamageCause.ENTITY_EXPLOSION) {
             ExplosionPrimeEvent event = EventFactory.getInstance()
-                .callEvent(new ExplosionPrimeEvent(this, Explosion.POWER_ENDER_CRYSTAL, true));
+                    .callEvent(new ExplosionPrimeEvent(this, Explosion.POWER_ENDER_CRYSTAL, true));
 
             if (!event.isCancelled()) {
                 Location location = getLocation();
@@ -122,10 +121,10 @@ public class GlowEnderCrystal extends GlowEntity implements EnderCrystal {
             metadata.set(MetadataIndex.ENDERCRYSTAL_BEAM_TARGET, (BlockVector) null);
         } else if (!location.getWorld().equals(getWorld())) {
             throw new IllegalArgumentException(
-                "Cannot set beam target location to different world");
+                    "Cannot set beam target location to different world");
         } else {
             metadata.set(MetadataIndex.ENDERCRYSTAL_BEAM_TARGET,
-                new BlockVector(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
+                    new BlockVector(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
         }
     }
 }

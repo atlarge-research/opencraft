@@ -72,7 +72,7 @@ public class GlowBossBar implements BossBar {
         this.title = title;
         if (isVisible()) {
             sendUpdate(new BossBarMessage(getUniqueId(), BossBarMessage.Action.UPDATE_TITLE, new
-                    TextMessage(title)));
+                TextMessage(title)));
         }
     }
 

@@ -13,11 +13,11 @@ import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.junit.jupiter.api.Test;
 import science.atlarge.opencraft.opencraft.net.message.play.inv.HeldItemMessage;
 import science.atlarge.opencraft.opencraft.net.protocol.GlowProtocol;
 import science.atlarge.opencraft.opencraft.net.protocol.PlayProtocol;
-import net.glowstone.testutils.ServerShim;
-import org.junit.jupiter.api.Test;
+import science.atlarge.opencraft.opencraft.testutils.ServerShim;
 
 /**
  * Base tests for each {@link GlowProtocol}.
@@ -44,7 +44,6 @@ public abstract class BaseProtocolTest {
         ServerShim.install();
     }
 
-    @SuppressWarnings("unchecked")
     private static <T> T getField(Object object, Class<?> clazz, String name)
         throws ReflectiveOperationException {
         Field field = clazz.getDeclaredField(name);

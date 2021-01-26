@@ -19,7 +19,7 @@ public class ItemFirework extends ItemType {
 
     @Override
     public void rightClickBlock(GlowPlayer player, GlowBlock target, BlockFace face,
-        ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
+                                ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
         spawnFirework(player, holding, target.getLocation().add(clickedLoc), player.getUniqueId(),
             null);
     }

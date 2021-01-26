@@ -1,8 +1,6 @@
 package science.atlarge.opencraft.opencraft.generator.biomegrid;
 
 import java.util.Random;
-import science.atlarge.opencraft.opencraft.generator.biomegrid.WhittakerMapLayer.ClimateType;
-import science.atlarge.opencraft.opencraft.generator.biomegrid.ZoomMapLayer.ZoomType;
 import org.bukkit.World.Environment;
 import org.bukkit.WorldType;
 import org.bukkit.block.Biome;
@@ -18,18 +16,19 @@ public abstract class MapLayer {
 
     /**
      * Creates the instances for the given map.
-     * @param seed the world seed
+     *
+     * @param seed        the world seed
      * @param environment the type of dimension
-     * @param worldType the world generator
+     * @param worldType   the world generator
      * @return an array of all map layers this dimension needs
      */
     public static MapLayer[] initialize(long seed, Environment environment, WorldType worldType) {
         if (environment == Environment.NORMAL && worldType == WorldType.FLAT) {
-            return new MapLayer[]{new ConstantBiomeMapLayer(seed, Biome.PLAINS), null};
+            return new MapLayer[] {new ConstantBiomeMapLayer(seed, Biome.PLAINS), null};
         } else if (environment == Environment.NETHER) {
-            return new MapLayer[]{new ConstantBiomeMapLayer(seed, Biome.HELL), null};
+            return new MapLayer[] {new ConstantBiomeMapLayer(seed, Biome.HELL), null};
         } else if (environment == Environment.THE_END) {
-            return new MapLayer[]{new ConstantBiomeMapLayer(seed, Biome.SKY), null};
+            return new MapLayer[] {new ConstantBiomeMapLayer(seed, Biome.SKY), null};
         }
 
         int zoom = 2;
@@ -38,11 +37,11 @@ public abstract class MapLayer {
         }
 
         MapLayer layer = new NoiseMapLayer(seed); // this is initial land spread layer
-        layer = new WhittakerMapLayer(seed + 1, layer, ClimateType.WARM_WET);
-        layer = new WhittakerMapLayer(seed + 1, layer, ClimateType.COLD_DRY);
-        layer = new WhittakerMapLayer(seed + 2, layer, ClimateType.LARGER_BIOMES);
+        layer = new WhittakerMapLayer(seed + 1, layer, WhittakerMapLayer.ClimateType.WARM_WET);
+        layer = new WhittakerMapLayer(seed + 1, layer, WhittakerMapLayer.ClimateType.COLD_DRY);
+        layer = new WhittakerMapLayer(seed + 2, layer, WhittakerMapLayer.ClimateType.LARGER_BIOMES);
         for (int i = 0; i < 2; i++) {
-            layer = new ZoomMapLayer(seed + 100 + i, layer, ZoomType.BLURRY);
+            layer = new ZoomMapLayer(seed + 100 + i, layer, ZoomMapLayer.ZoomType.BLURRY);
         }
         for (int i = 0; i < 2; i++) {
             layer = new ErosionMapLayer(seed + 3 + i, layer);
@@ -86,7 +85,7 @@ public abstract class MapLayer {
 
         layer = new SmoothMapLayer(seed + 1001, layer);
 
-        return new MapLayer[]{layer, layerLowerRes};
+        return new MapLayer[] {layer, layerLowerRes};
     }
 
     public void setCoordsSeed(int x, int z) {

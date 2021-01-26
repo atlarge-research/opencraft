@@ -1,15 +1,14 @@
 package science.atlarge.opencraft.opencraft.inventory;
 
-import static science.atlarge.opencraft.opencraft.util.Position.copyPosition;
-
 import lombok.Getter;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.inventory.EnchantingInventory;
 import org.bukkit.inventory.ItemStack;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.util.Position;
 
 public class GlowEnchantingInventory extends GlowInventory implements EnchantingInventory {
 
@@ -24,7 +23,7 @@ public class GlowEnchantingInventory extends GlowInventory implements Enchanting
      * Creates an instance for an enchanting table.
      *
      * @param location the enchanting table's location
-     * @param player the enchanting player
+     * @param player   the enchanting player
      */
     public GlowEnchantingInventory(Location location, GlowPlayer player) {
         super(player, InventoryType.ENCHANTING);
@@ -59,7 +58,7 @@ public class GlowEnchantingInventory extends GlowInventory implements Enchanting
                     if (z == 0 && x == 0) {
                         continue;
                     }
-                    copyPosition(location, loc);
+                    Position.copyPosition(location, loc);
                     loc.add(x, 0, z);
                     if (!loc.getBlock().isEmpty()) {
                         continue;
@@ -68,7 +67,7 @@ public class GlowEnchantingInventory extends GlowInventory implements Enchanting
                     if (!loc.getBlock().isEmpty()) {
                         continue;
                     }
-                    copyPosition(location, loc);
+                    Position.copyPosition(location, loc);
 
                     //diagonal and straight
                     loc.add(x << 1, y, z << 1);
@@ -80,13 +79,13 @@ public class GlowEnchantingInventory extends GlowInventory implements Enchanting
                         continue;
                     }
                     //one block diagonal and one straight
-                    copyPosition(location, loc);
+                    Position.copyPosition(location, loc);
                     loc.add(x << 1, y, z);
                     if (loc.getBlock().getType() == Material.BOOKSHELF) {
                         ++count;
                     }
 
-                    copyPosition(location, loc);
+                    Position.copyPosition(location, loc);
                     loc.add(x, y, z << 1);
                     if (loc.getBlock().getType() == Material.BOOKSHELF) {
                         ++count;

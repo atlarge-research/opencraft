@@ -4,13 +4,13 @@ import java.awt.Image;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import science.atlarge.opencraft.opencraft.net.message.play.game.MapDataMessage.Section;
 import org.bukkit.entity.Player;
 import org.bukkit.map.MapCanvas;
 import org.bukkit.map.MapCursorCollection;
 import org.bukkit.map.MapFont;
 import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
+import science.atlarge.opencraft.opencraft.net.message.play.game.MapDataMessage;
 
 /**
  * Represents a canvas for drawing to a map. Each canvas is associated with a specific
@@ -33,7 +33,7 @@ public final class GlowMapCanvas implements MapCanvas {
      * given player.
      *
      * @param mapView The {@link MapView} to associate with this canvas and render
-     * @param player The player to pass to {@link MapRenderer#render(MapView, MapCanvas, Player)}
+     * @param player  The player to pass to {@link MapRenderer#render(MapView, MapCanvas, Player)}
      * @return a new, rendered GlowMapCanvas
      */
     public static GlowMapCanvas createAndRender(MapView mapView, Player player) {
@@ -100,12 +100,12 @@ public final class GlowMapCanvas implements MapCanvas {
     }
 
     /**
-     * Converts a snapshot of this canvas to a {@link Section} for transmission to the client.
+     * Converts a snapshot of this canvas to a {@link MapDataMessage.Section} for transmission to the client.
      *
-     * @return a {@link Section} holding a copy of this canvas's contents
+     * @return a {@link MapDataMessage.Section} holding a copy of this canvas's contents
      */
-    public Section toSection() {
-        return new Section(
+    public MapDataMessage.Section toSection() {
+        return new MapDataMessage.Section(
                 MAP_SIZE, MAP_SIZE, mapView.getCenterX(), mapView.getCenterZ(), buffer.clone());
     }
 }

@@ -6,9 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import science.atlarge.opencraft.opencraft.GlowWorld;
-import science.atlarge.opencraft.opencraft.command.CommandTest;
-import net.glowstone.testutils.InMemoryBlockStorage;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,6 +13,9 @@ import org.bukkit.entity.Player;
 import org.junit.Before;
 import org.junit.Test;
 import org.powermock.api.mockito.PowerMockito;
+import science.atlarge.opencraft.opencraft.GlowWorld;
+import science.atlarge.opencraft.opencraft.command.CommandTest;
+import science.atlarge.opencraft.opencraft.testutils.InMemoryBlockStorage;
 
 public class TestForBlocksCommandTest extends CommandTest<TestForBlocksCommand> {
     private InMemoryBlockStorage blockStorage;

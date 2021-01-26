@@ -31,7 +31,7 @@ public class BlockCauldron extends BlockNeedsTool {
 
     @Override
     public boolean blockInteract(GlowPlayer player, GlowBlock block, BlockFace face,
-        Vector clickedLoc) {
+                                 Vector clickedLoc) {
         if (player.getItemInHand() == null) {
             return super.blockInteract(player, block, face, clickedLoc);
         }

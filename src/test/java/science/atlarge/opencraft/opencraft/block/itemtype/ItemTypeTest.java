@@ -4,14 +4,14 @@ import static org.mockito.Mockito.RETURNS_SMART_NULLS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
-import science.atlarge.opencraft.opencraft.inventory.GlowPlayerInventory;
-import net.glowstone.testutils.ServerShim;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.inventory.GlowPlayerInventory;
+import science.atlarge.opencraft.opencraft.testutils.ServerShim;
 
 /**
  * Superclass for tests of {@link ItemType} subclasses. Provides a mock player with a real inventory
@@ -26,6 +26,7 @@ public abstract class ItemTypeTest {
     /**
      * Override this to work around https://github.com/mockito/mockito/issues/357 by removing
      * RETURNS_SMART_NULLS.
+     *
      * @return a mock GlowPlayer
      */
     protected GlowPlayer mockPlayer() {

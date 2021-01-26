@@ -1,4 +1,4 @@
-package net.glowstone.testutils;
+package science.atlarge.opencraft.opencraft.testutils;
 
 import java.util.ArrayList;
 import java.util.Collection;

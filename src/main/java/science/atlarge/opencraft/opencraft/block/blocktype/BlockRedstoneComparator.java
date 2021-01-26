@@ -17,7 +17,7 @@ public class BlockRedstoneComparator extends BlockNeedsAttached {
 
     @Override
     public boolean blockInteract(GlowPlayer player, GlowBlock block, BlockFace face,
-        Vector clickedLoc) {
+                                 Vector clickedLoc) {
         Comparator comparator = (Comparator) block.getState().getData();
         comparator.setSubtractionMode(!comparator.isSubtractionMode());
         block.setData(comparator.getData());

@@ -52,117 +52,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import lombok.Getter;
-import science.atlarge.opencraft.opencraft.advancement.GlowAdvancement;
-import science.atlarge.opencraft.opencraft.advancement.GlowAdvancementDisplay;
-import science.atlarge.opencraft.opencraft.block.BuiltinMaterialValueManager;
-import science.atlarge.opencraft.opencraft.block.MaterialValueManager;
-import science.atlarge.opencraft.opencraft.block.entity.state.GlowDispenser;
-import science.atlarge.opencraft.opencraft.boss.GlowBossBar;
-import science.atlarge.opencraft.opencraft.command.glowstone.ColorCommand;
-import science.atlarge.opencraft.opencraft.command.glowstone.GlowstoneCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.BanCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.BanIpCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.BanListCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.ClearCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.CloneCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.DefaultGameModeCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.DeopCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.DifficultyCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.EffectCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.EnchantCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.FunctionCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.GameModeCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.GameRuleCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.GiveCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.KickCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.KillCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.ListCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.MeCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.OpCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.PardonCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.PardonIpCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.PlaySoundCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.SaveAllCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.SaveToggleCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.SayCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.SeedCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.SetBlockCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.SetIdleTimeoutCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.SetWorldSpawnCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.SpawnPointCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.StopCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.SummonCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.TeleportCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.TellCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.TellrawCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.TestForBlockCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.TestForBlocksCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.TestForCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.TimeCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.TitleCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.ToggleDownfallCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.TpCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.WeatherCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.WhitelistCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.WorldBorderCommand;
-import science.atlarge.opencraft.opencraft.command.minecraft.XpCommand;
-import science.atlarge.opencraft.opencraft.command.opencraft.ServerlessGenerationCommand;
-import science.atlarge.opencraft.opencraft.constants.GlowEnchantment;
-import science.atlarge.opencraft.opencraft.constants.GlowPotionEffect;
-import science.atlarge.opencraft.opencraft.entity.EntityIdManager;
-import science.atlarge.opencraft.opencraft.entity.FishingRewardManager;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
-import science.atlarge.opencraft.opencraft.entity.meta.profile.GlowPlayerProfile;
-import science.atlarge.opencraft.opencraft.generator.GlowChunkData;
-import science.atlarge.opencraft.opencraft.generator.NetherGenerator;
-import science.atlarge.opencraft.opencraft.generator.OverworldGenerator;
-import science.atlarge.opencraft.opencraft.generator.SuperflatGenerator;
-import science.atlarge.opencraft.opencraft.generator.TheEndGenerator;
-import science.atlarge.opencraft.opencraft.i18n.ConsoleMessages;
-import science.atlarge.opencraft.opencraft.i18n.GlowstoneMessages;
-import science.atlarge.opencraft.opencraft.inventory.GlowInventory;
-import science.atlarge.opencraft.opencraft.inventory.GlowItemFactory;
-import science.atlarge.opencraft.opencraft.inventory.crafting.CraftingManager;
-import science.atlarge.opencraft.opencraft.io.PlayerDataService;
-import science.atlarge.opencraft.opencraft.io.PlayerStatisticIoService;
-import science.atlarge.opencraft.opencraft.io.ScoreboardIoService;
-import science.atlarge.opencraft.opencraft.io.WorldStorageProviderFactory;
-import science.atlarge.opencraft.opencraft.io.anvil.AnvilWorldStorageProvider;
-import science.atlarge.opencraft.opencraft.map.GlowMapView;
-import science.atlarge.opencraft.opencraft.net.GameServer;
-import science.atlarge.opencraft.opencraft.net.GlowSession;
-import science.atlarge.opencraft.opencraft.net.Networking;
-import science.atlarge.opencraft.opencraft.net.SessionRegistry;
-import science.atlarge.opencraft.opencraft.net.message.play.player.AdvancementsMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.PlayerAbilitiesMessage;
-import science.atlarge.opencraft.opencraft.net.message.status.StatusRequestMessage;
-import science.atlarge.opencraft.opencraft.net.protocol.ProtocolProvider;
-import science.atlarge.opencraft.opencraft.net.query.QueryServer;
-import science.atlarge.opencraft.opencraft.net.rcon.RconServer;
-import science.atlarge.opencraft.opencraft.scheduler.GlowScheduler;
-import science.atlarge.opencraft.opencraft.scheduler.WorldScheduler;
-import science.atlarge.opencraft.opencraft.scoreboard.GlowScoreboardManager;
-import science.atlarge.opencraft.opencraft.util.CompatibilityBundle;
-import science.atlarge.opencraft.opencraft.util.GlowHelpMap;
-import science.atlarge.opencraft.opencraft.util.GlowServerIcon;
-import science.atlarge.opencraft.opencraft.util.GlowUnsafeValues;
-import science.atlarge.opencraft.opencraft.util.NoInline;
-import science.atlarge.opencraft.opencraft.util.OpenCompute;
-import science.atlarge.opencraft.opencraft.util.SecurityUtils;
-import science.atlarge.opencraft.opencraft.util.ShutdownMonitorThread;
-import science.atlarge.opencraft.opencraft.util.TextMessage;
-import science.atlarge.opencraft.opencraft.util.bans.GlowBanList;
-import science.atlarge.opencraft.opencraft.util.bans.UuidListFile;
-import science.atlarge.opencraft.opencraft.util.config.BrokerConfig;
-import science.atlarge.opencraft.opencraft.util.config.BrokerType;
-import science.atlarge.opencraft.opencraft.util.config.ChannelType;
-import science.atlarge.opencraft.opencraft.util.config.ServerConfig;
-import science.atlarge.opencraft.opencraft.util.config.ServerConfig.Key;
-import science.atlarge.opencraft.opencraft.util.config.WorldConfig;
-import science.atlarge.opencraft.opencraft.util.library.Library;
-import science.atlarge.opencraft.opencraft.util.library.LibraryKey;
-import science.atlarge.opencraft.opencraft.util.library.LibraryManager;
-import science.atlarge.opencraft.opencraft.util.loot.LootingManager;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.BanEntry;
 import org.bukkit.BanList;
@@ -223,6 +112,120 @@ import org.bukkit.plugin.messaging.StandardMessenger;
 import org.bukkit.util.CachedServerIcon;
 import org.bukkit.util.permissions.DefaultPermissions;
 import org.jetbrains.annotations.NonNls;
+import science.atlarge.opencraft.opencraft.advancement.GlowAdvancement;
+import science.atlarge.opencraft.opencraft.advancement.GlowAdvancementDisplay;
+import science.atlarge.opencraft.opencraft.block.BuiltinMaterialValueManager;
+import science.atlarge.opencraft.opencraft.block.MaterialValueManager;
+import science.atlarge.opencraft.opencraft.block.entity.state.GlowDispenser;
+import science.atlarge.opencraft.opencraft.boss.GlowBossBar;
+import science.atlarge.opencraft.opencraft.command.glowstone.ColorCommand;
+import science.atlarge.opencraft.opencraft.command.glowstone.GlowstoneCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.BanCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.BanIpCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.BanListCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.ClearCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.CloneCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.DefaultGameModeCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.DeopCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.DifficultyCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.EffectCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.EnchantCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.FunctionCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.GameModeCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.GameRuleCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.GiveCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.KickCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.KillCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.ListCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.MeCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.OpCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.PardonCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.PardonIpCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.PlaySoundCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.SaveAllCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.SaveToggleCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.SayCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.SeedCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.SetBlockCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.SetIdleTimeoutCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.SetWorldSpawnCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.SpawnPointCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.StopCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.SummonCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.TeleportCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.TellCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.TellrawCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.TestForBlockCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.TestForBlocksCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.TestForCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.TimeCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.TitleCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.ToggleDownfallCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.TpCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.WeatherCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.WhitelistCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.WorldBorderCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.XpCommand;
+import science.atlarge.opencraft.opencraft.command.opencraft.DyconitPolicyCommand;
+import science.atlarge.opencraft.opencraft.command.opencraft.ServerlessGenerationCommand;
+import science.atlarge.opencraft.opencraft.constants.GlowEnchantment;
+import science.atlarge.opencraft.opencraft.constants.GlowPotionEffect;
+import science.atlarge.opencraft.opencraft.entity.EntityIdManager;
+import science.atlarge.opencraft.opencraft.entity.FishingRewardManager;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.entity.meta.profile.GlowPlayerProfile;
+import science.atlarge.opencraft.opencraft.generator.GlowChunkData;
+import science.atlarge.opencraft.opencraft.generator.NetherGenerator;
+import science.atlarge.opencraft.opencraft.generator.OverworldGenerator;
+import science.atlarge.opencraft.opencraft.generator.SuperflatGenerator;
+import science.atlarge.opencraft.opencraft.generator.TheEndGenerator;
+import science.atlarge.opencraft.opencraft.i18n.ConsoleMessages;
+import science.atlarge.opencraft.opencraft.i18n.GlowstoneMessages;
+import science.atlarge.opencraft.opencraft.inventory.GlowInventory;
+import science.atlarge.opencraft.opencraft.inventory.GlowItemFactory;
+import science.atlarge.opencraft.opencraft.inventory.crafting.CraftingManager;
+import science.atlarge.opencraft.opencraft.io.PlayerDataService;
+import science.atlarge.opencraft.opencraft.io.PlayerStatisticIoService;
+import science.atlarge.opencraft.opencraft.io.ScoreboardIoService;
+import science.atlarge.opencraft.opencraft.io.WorldStorageProviderFactory;
+import science.atlarge.opencraft.opencraft.io.anvil.AnvilWorldStorageProvider;
+import science.atlarge.opencraft.opencraft.map.GlowMapView;
+import science.atlarge.opencraft.opencraft.measurements.EventFileLogger;
+import science.atlarge.opencraft.opencraft.measurements.EventLogger;
+import science.atlarge.opencraft.opencraft.measurements.EventNoopLogger;
+import science.atlarge.opencraft.opencraft.net.GameServer;
+import science.atlarge.opencraft.opencraft.net.GlowSession;
+import science.atlarge.opencraft.opencraft.net.Networking;
+import science.atlarge.opencraft.opencraft.net.SessionRegistry;
+import science.atlarge.opencraft.opencraft.net.message.play.player.AdvancementsMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.player.PlayerAbilitiesMessage;
+import science.atlarge.opencraft.opencraft.net.protocol.ProtocolProvider;
+import science.atlarge.opencraft.opencraft.net.query.QueryServer;
+import science.atlarge.opencraft.opencraft.net.rcon.RconServer;
+import science.atlarge.opencraft.opencraft.scheduler.GlowScheduler;
+import science.atlarge.opencraft.opencraft.scheduler.WorldScheduler;
+import science.atlarge.opencraft.opencraft.scoreboard.GlowScoreboardManager;
+import science.atlarge.opencraft.opencraft.util.CompatibilityBundle;
+import science.atlarge.opencraft.opencraft.util.GlowHelpMap;
+import science.atlarge.opencraft.opencraft.util.GlowServerIcon;
+import science.atlarge.opencraft.opencraft.util.GlowUnsafeValues;
+import science.atlarge.opencraft.opencraft.util.NoInline;
+import science.atlarge.opencraft.opencraft.util.OpenCompute;
+import science.atlarge.opencraft.opencraft.util.SecurityUtils;
+import science.atlarge.opencraft.opencraft.util.ShutdownMonitorThread;
+import science.atlarge.opencraft.opencraft.util.TextMessage;
+import science.atlarge.opencraft.opencraft.util.bans.GlowBanList;
+import science.atlarge.opencraft.opencraft.util.bans.UuidListFile;
+import science.atlarge.opencraft.opencraft.util.config.BrokerConfig;
+import science.atlarge.opencraft.opencraft.util.config.BrokerType;
+import science.atlarge.opencraft.opencraft.util.config.ChannelType;
+import science.atlarge.opencraft.opencraft.util.config.ServerConfig;
+import science.atlarge.opencraft.opencraft.util.config.ServerConfig.Key;
+import science.atlarge.opencraft.opencraft.util.config.WorldConfig;
+import science.atlarge.opencraft.opencraft.util.library.Library;
+import science.atlarge.opencraft.opencraft.util.library.LibraryKey;
+import science.atlarge.opencraft.opencraft.util.library.LibraryManager;
+import science.atlarge.opencraft.opencraft.util.loot.LootingManager;
 
 /**
  * The core class of the Glowstone server.
@@ -237,6 +240,11 @@ public class GlowServer implements Server {
     public static final Logger logger = Logger.getLogger("Minecraft"); // NON-NLS
 
     /**
+     * Logs performance measurements. Used in experiments.
+     */
+    public EventLogger eventLogger;
+
+    /**
      * The game version supported by the server.
      */
     public static final String GAME_VERSION = NoInline.of("1.12.2");
@@ -247,7 +255,7 @@ public class GlowServer implements Server {
     public static final int PROTOCOL_VERSION = NoInline.of(340);
 
     /**
-     * A list of all the active {@link science.atlarge.opencraft.opencraft.net.GlowSession}s.
+     * A list of all the active {@link GlowSession}s.
      */
     private final SessionRegistry sessions = new SessionRegistry();
 
@@ -451,6 +459,7 @@ public class GlowServer implements Server {
      * Additional Spigot APIs for the server.
      */
     private Spigot spigot = new Spigot() {
+        @Override
         public org.bukkit.configuration.file.YamlConfiguration getConfig() {
             return config.getConfig();
         }
@@ -484,7 +493,7 @@ public class GlowServer implements Server {
      * dependencies.
      */
     private static final Set<LibraryKey> blacklistedRuntimeLibs = ImmutableSet.of(
-            new LibraryKey("it.unimi.dsi", "fastutil")
+        new LibraryKey("it.unimi.dsi", "fastutil")
     );
 
     /**
@@ -492,6 +501,7 @@ public class GlowServer implements Server {
      * This can be enabled by using the --generate-config launch argument.
      *
      * <p>Getter for this value.</p>
+     *
      * @return boolean getGenerateConfigOnly.
      */
     public static boolean getGenerateConfigOnly() {
@@ -504,6 +514,8 @@ public class GlowServer implements Server {
      * @param config This server's config.
      */
     public GlowServer(ServerConfig config) {
+        logger.setLevel(Level.ALL);
+
         Bukkit.setServer(this);
 
         materialValueManager = new BuiltinMaterialValueManager();
@@ -511,14 +523,14 @@ public class GlowServer implements Server {
         advancements = new HashMap<>();
         // test advancement
         GlowAdvancement advancement
-                = new GlowAdvancement(NamespacedKey.minecraft("test"), null); // NON-NLS
+            = new GlowAdvancement(NamespacedKey.minecraft("test"), null); // NON-NLS
         advancement.addCriterion("minecraft:test/criterion"); // NON-NLS
         advancement.setDisplay(new GlowAdvancementDisplay(
-                new TextMessage(GlowstoneMessages.Advancement.TITLE.get()),
-                new TextMessage("=)"),
-                new ItemStack(Material.GLOWSTONE),
-                GlowAdvancementDisplay.FrameType.GOAL,
-                -10F, 0));
+            new TextMessage(GlowstoneMessages.Advancement.TITLE.get()),
+            new TextMessage("=)"),
+            new ItemStack(Material.GLOWSTONE),
+            GlowAdvancementDisplay.FrameType.GOAL,
+            -10F, 0));
         addAdvancement(advancement);
 
         this.config = config;
@@ -529,6 +541,20 @@ public class GlowServer implements Server {
         ipBans = new GlowBanList(this, Type.IP);
 
         loadConfig();
+        initEventLogging();
+    }
+
+    private void initEventLogging() {
+        if (config.getBoolean(Key.OPENCRAFT_LOGGING_EVENTS)) {
+            eventLogger = new EventFileLogger(new File("opencraft-events.log"));
+        } else {
+            eventLogger = new EventNoopLogger();
+        }
+        try {
+            eventLogger.init();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -545,16 +571,16 @@ public class GlowServer implements Server {
         ChannelType channelType = ChannelType.parse(channelName);
 
         return new BrokerConfig(
-                brokerType,
-                config.getBoolean(Key.OPENCRAFT_BROKER_ASYNC),
-                config.getInt(Key.OPENCRAFT_BROKER_THREADS),
-                config.getInt(Key.OPENCRAFT_BROKER_CAPACITY),
-                channelType,
-                config.getString(Key.OPENCRAFT_BROKER_HOST),
-                config.getInt(Key.OPENCRAFT_BROKER_PORT),
-                config.getString(Key.OPENCRAFT_BROKER_USERNAME),
-                config.getString(Key.OPENCRAFT_BROKER_PASSWORD),
-                config.getString(Key.OPENCRAFT_BROKER_VIRTUAL_HOST)
+            brokerType,
+            config.getBoolean(Key.OPENCRAFT_BROKER_ASYNC),
+            config.getInt(Key.OPENCRAFT_BROKER_THREADS),
+            config.getInt(Key.OPENCRAFT_BROKER_CAPACITY),
+            channelType,
+            config.getString(Key.OPENCRAFT_BROKER_HOST),
+            config.getInt(Key.OPENCRAFT_BROKER_PORT),
+            config.getString(Key.OPENCRAFT_BROKER_USERNAME),
+            config.getString(Key.OPENCRAFT_BROKER_PASSWORD),
+            config.getString(Key.OPENCRAFT_BROKER_VIRTUAL_HOST)
         );
     }
 
@@ -581,7 +607,7 @@ public class GlowServer implements Server {
     }
 
     private static ServerConfig parseArguments(String... args) {
-        
+
         Map<Key, Object> parameters = new EnumMap<>(Key.class);
         @NonNls String configDirName = "config";
         @NonNls String configFileName = "opencraft.yml";
@@ -695,8 +721,8 @@ public class GlowServer implements Server {
      */
     public void start() {
         // Determine console mode and start reading input
-        consoleManager.startConsole(config.getBoolean(Key.USE_JLINE));
-        consoleManager.startFile(config.getString(Key.LOG_FILE));
+        consoleManager.startConsole(config.getBoolean(Key.USE_JLINE), config.getString(Key.LOG_LEVEL_CONSOLE));
+        consoleManager.startFile(config.getString(Key.LOG_FILE), config.getString(Key.LOG_LEVEL_FILE));
 
         if (getProxySupport()) {
             if (getOnlineMode()) {
@@ -721,7 +747,7 @@ public class GlowServer implements Server {
             // gets the max flops device across platforms on the computer
             for (CLPlatform platform : CLPlatform.listCLPlatforms()) {
                 if (platform.isAtLeast(openClMajor, openClMinor) && platform
-                        .isExtensionAvailable("cl_khr_fp64")) { // NON-NLS
+                    .isExtensionAvailable("cl_khr_fp64")) { // NON-NLS
                     for (CLDevice device : platform.listCLDevices()) {
                         if (device.getType() == CLDevice.Type.GPU) {
                             int flops = device.getMaxComputeUnits() * device.getMaxClockFrequency();
@@ -735,7 +761,7 @@ public class GlowServer implements Server {
                                     bestIntelPlatform = platform;
                                 } else if (flops == maxIntelFlops) {
                                     if (bestIntelPlatform != null && bestIntelPlatform.getVersion()
-                                            .compareTo(platform.getVersion()) < 0) {
+                                        .compareTo(platform.getVersion()) < 0) {
                                         maxIntelFlops = flops;
                                         ConsoleMessages.Info.Opencl
                                             .BEST_VERSION_TIEBREAKER.log(platform);
@@ -749,7 +775,7 @@ public class GlowServer implements Server {
                                     bestPlatform = platform;
                                 } else if (flops == maxGpuFlops) {
                                     if (bestPlatform != null && bestPlatform.getVersion()
-                                            .compareTo(platform.getVersion()) < 0) {
+                                        .compareTo(platform.getVersion()) < 0) {
                                         maxGpuFlops = flops;
                                         ConsoleMessages.Info.Opencl
                                             .BEST_VERSION_TIEBREAKER.log(platform);
@@ -766,7 +792,7 @@ public class GlowServer implements Server {
                                 bestCpuPlatform = platform;
                             } else if (flops == maxCpuFlops) {
                                 if (bestCpuPlatform != null && bestCpuPlatform.getVersion()
-                                        .compareTo(platform.getVersion()) < 0) {
+                                    .compareTo(platform.getVersion()) < 0) {
                                     maxCpuFlops = flops;
                                     ConsoleMessages.Info.Opencl.BEST_VERSION_TIEBREAKER
                                         .log(platform);
@@ -828,8 +854,8 @@ public class GlowServer implements Server {
         String libraryFolder = config.getString(Key.LIBRARIES_FOLDER);
         Set<Library> libraries = aggregateLibraries(repository, libraryFolder);
         new LibraryManager(repository, libraryFolder,
-                config.getBoolean(Key.LIBRARY_CHECKSUM_VALIDATION),
-                config.getInt(Key.LIBRARY_DOWNLOAD_ATTEMPTS), libraries).run();
+            config.getBoolean(Key.LIBRARY_CHECKSUM_VALIDATION),
+            config.getInt(Key.LIBRARY_DOWNLOAD_ATTEMPTS), libraries).run();
         loadPlugins();
         enablePlugins(PluginLoadOrder.STARTUP);
 
@@ -854,28 +880,28 @@ public class GlowServer implements Server {
 
         if (storageProviderFactory == null) {
             storageProviderFactory
-                    = (worldName) -> new AnvilWorldStorageProvider(new File(getWorldContainer(),
-                    worldName));
+                = (worldName) -> new AnvilWorldStorageProvider(new File(getWorldContainer(),
+                worldName));
         }
         String name = config.getString(Key.LEVEL_NAME);
         boolean structs = getGenerateStructures();
         createWorld(WorldCreator.name(name).environment(Environment.NORMAL).seed(seed).type(type)
-                .generateStructures(structs));
+            .generateStructures(structs));
         if (getAllowNether()) {
             checkTransfer(name, "_nether", Environment.NETHER);
             createWorld(WorldCreator.name(name + "_nether") // NON-NLS
-                    .environment(Environment.NETHER)
-                    .seed(seed)
-                    .type(type)
-                    .generateStructures(structs));
+                .environment(Environment.NETHER)
+                .seed(seed)
+                .type(type)
+                .generateStructures(structs));
         }
         if (getAllowEnd()) {
             checkTransfer(name, "_the_end", Environment.THE_END);
             createWorld(WorldCreator.name(name + "_the_end") // NON-NLS
-                    .environment(Environment.THE_END)
-                    .seed(seed)
-                    .type(type)
-                    .generateStructures(structs));
+                .environment(Environment.THE_END)
+                .seed(seed)
+                .type(type)
+                .generateStructures(structs));
         }
 
         // Finish loading plugins
@@ -887,7 +913,7 @@ public class GlowServer implements Server {
     private void checkTransfer(String name, @NonNls String suffix, Environment environment) {
         // todo: import things like per-dimension villages.dat when those are implemented
         Path srcPath = new File(new File(getWorldContainer(), name), "DIM" + environment.getId())
-                .toPath();
+            .toPath();
         Path destPath = new File(getWorldContainer(), name + suffix).toPath();
         if (Files.exists(srcPath) && !Files.exists(destPath)) {
             ConsoleMessages.Info.IMPORT.log(destPath, srcPath);
@@ -895,7 +921,7 @@ public class GlowServer implements Server {
                 Files.walkFileTree(srcPath, new FileVisitor<Path>() {
                     @Override
                     public FileVisitResult preVisitDirectory(Path dir,
-                            BasicFileAttributes attrs) throws IOException {
+                                                             BasicFileAttributes attrs) throws IOException {
                         Path target = destPath.resolve(srcPath.relativize(dir));
                         if (!Files.exists(target)) {
                             Files.createDirectory(target);
@@ -905,15 +931,15 @@ public class GlowServer implements Server {
 
                     @Override
                     public FileVisitResult visitFile(Path file,
-                            BasicFileAttributes attrs) throws IOException {
+                                                     BasicFileAttributes attrs) throws IOException {
                         Files.copy(file, destPath.resolve(srcPath
-                                .relativize(file)), StandardCopyOption.COPY_ATTRIBUTES);
+                            .relativize(file)), StandardCopyOption.COPY_ATTRIBUTES);
                         return FileVisitResult.CONTINUE;
                     }
 
                     @Override
                     public FileVisitResult visitFileFailed(Path file,
-                            IOException exc) throws IOException {
+                                                           IOException exc) throws IOException {
                         ConsoleMessages.Error.Import.WITH_MESSAGE.log(
                             exc, srcPath.relativize(file)
                         );
@@ -922,12 +948,12 @@ public class GlowServer implements Server {
 
                     @Override
                     public FileVisitResult postVisitDirectory(Path dir,
-                            IOException exc) throws IOException {
+                                                              IOException exc) throws IOException {
                         return FileVisitResult.CONTINUE;
                     }
                 });
                 Files.copy(
-                        srcPath.resolve("../level.dat"), destPath.resolve("level.dat")); // NON-NLS
+                    srcPath.resolve("../level.dat"), destPath.resolve("level.dat")); // NON-NLS
             } catch (IOException e) {
                 ConsoleMessages.Error.Import.NO_MESSAGE.log(e, srcPath);
             }
@@ -1087,11 +1113,11 @@ public class GlowServer implements Server {
 
     private boolean serverContainsLibrary(Library library) {
         return this.getClass().getResource(
-                String.format(
-                        "/META-INF/maven/%s/%s/pom.xml", // NON-NLS
-                        library.getGroupId(),
-                        library.getArtifactId()
-                )
+            String.format(
+                "/META-INF/maven/%s/%s/pom.xml", // NON-NLS
+                library.getGroupId(),
+                library.getArtifactId()
+            )
         ) != null;
     }
 
@@ -1102,11 +1128,11 @@ public class GlowServer implements Server {
         try {
             // Must overwrite the collection here in order to remove Maven Central from it.
             naether.setRemoteRepositories(Sets.newHashSet(
-                    RepoBuilder.remoteRepositoryFromUrl(repository)
+                RepoBuilder.remoteRepositoryFromUrl(repository)
             ));
         } catch (MalformedURLException e) {
             logger.log(Level.WARNING, "Unable to resolve library dependencies. Falling back to "
-                    + "explicitly defined dependencies only.", e);
+                + "explicitly defined dependencies only.", e);
             return null;
         }
 
@@ -1195,33 +1221,33 @@ public class GlowServer implements Server {
         }
 
         Map<LibraryKey, Library> dependencyLibs = clients.entrySet().stream()
-                .filter(Objects::nonNull)
-                .flatMap(entry -> {
-                    try {
-                        entry.getValue().resolveDependencies(false);
-                        return entry.getValue().getDependenciesNotation().stream()
-                            .map(dependency -> {
-                                // same format as above, {groupId}:{artifactId}:jar:{version}
-                                String[] expanded = dependency.split(":");
-                                // TODO: populate the checksum fields if possible
-                                return new Library(expanded[0], expanded[1], expanded[3],
-                                    entry.getKey());
-                            });
-                    } catch (NaetherException e) {
-                        logger.log(Level.WARNING, "Unable to resolve library dependencies. Falling"
-                                + " back to explicitly defined dependencies only.", e);
-                        return Stream.empty();
-                    }
-                })
-                .filter(library -> !configLibs.containsKey(library.getLibraryKey())
-                        && !serverContainsLibrary(library)
-                        && !blacklistedRuntimeLibs.contains(library.getLibraryKey()))
-                .collect(Collectors.toMap(
-                    Library::getLibraryKey,
-                    Function.identity(),
-                    (library1, library2) -> library1.compareTo(library2) > 0
-                        ? library1 : library2
-                ));
+            .filter(Objects::nonNull)
+            .flatMap(entry -> {
+                try {
+                    entry.getValue().resolveDependencies(false);
+                    return entry.getValue().getDependenciesNotation().stream()
+                        .map(dependency -> {
+                            // same format as above, {groupId}:{artifactId}:jar:{version}
+                            String[] expanded = dependency.split(":");
+                            // TODO: populate the checksum fields if possible
+                            return new Library(expanded[0], expanded[1], expanded[3],
+                                entry.getKey());
+                        });
+                } catch (NaetherException e) {
+                    logger.log(Level.WARNING, "Unable to resolve library dependencies. Falling"
+                        + " back to explicitly defined dependencies only.", e);
+                    return Stream.empty();
+                }
+            })
+            .filter(library -> !configLibs.containsKey(library.getLibraryKey())
+                && !serverContainsLibrary(library)
+                && !blacklistedRuntimeLibs.contains(library.getLibraryKey()))
+            .collect(Collectors.toMap(
+                Library::getLibraryKey,
+                Function.identity(),
+                (library1, library2) -> library1.compareTo(library2) > 0
+                    ? library1 : library2
+            ));
 
         Set<Library> libraries = new HashSet<>(
             bundleLibs.size() + configLibs.size() + dependencyLibs.size()
@@ -1236,10 +1262,11 @@ public class GlowServer implements Server {
     /**
      * Loads all plugins, calling onLoad, &c.
      */
-    @SuppressWarnings("HardCodedStringLiteral")
     private void loadPlugins() {
         // clear the map
         commandMap.clearCommands();
+        // opencraft commands
+        commandMap.register("opencraft", new DyconitPolicyCommand());
         // glowstone commands
         commandMap.register("glowstone", new ColorCommand());
         commandMap.register("glowstone", new GlowstoneCommand());
@@ -1307,8 +1334,8 @@ public class GlowServer implements Server {
         pluginManager.clearPlugins();
         pluginManager.registerInterface(JavaPluginLoader.class);
         Plugin[] plugins = pluginManager
-                .loadPlugins(folder.getPath(), pluginTypeDetector.bukkitPlugins
-                        .toArray(new File[pluginTypeDetector.bukkitPlugins.size()]));
+            .loadPlugins(folder.getPath(), pluginTypeDetector.bukkitPlugins
+                .toArray(new File[pluginTypeDetector.bukkitPlugins.size()]));
 
         // call onLoad methods
         for (Plugin plugin : plugins) {
@@ -1326,7 +1353,7 @@ public class GlowServer implements Server {
             for (Plugin plugin : plugins) {
                 if (plugin.getName().equals("Bukkit2Sponge")) {
                     hasSponge
-                            = true; // TODO: better detection method, plugin description file
+                        = true; // TODO: better detection method, plugin description file
                     // annotation APIs?
                     break;
                 }
@@ -1349,8 +1376,8 @@ public class GlowServer implements Server {
         }
 
         if (!pluginTypeDetector.canaryPlugins.isEmpty() || !pluginTypeDetector.forgefPlugins
-                .isEmpty() || !pluginTypeDetector.forgenPlugins.isEmpty()
-                || !pluginTypeDetector.unrecognizedPlugins.isEmpty()) {
+            .isEmpty() || !pluginTypeDetector.forgenPlugins.isEmpty()
+            || !pluginTypeDetector.unrecognizedPlugins.isEmpty()) {
             ConsoleMessages.Warn.Plugin.UNSUPPORTED.log();
 
             for (File file : pluginTypeDetector.canaryPlugins) {
@@ -1423,14 +1450,14 @@ public class GlowServer implements Server {
             DefaultPermissions.registerCorePermissions();
             // Default permissions
             this.permissionRoot = DefaultPermissions
-                    .registerPermission("minecraft", "Gives the user the ability to use all "
-                            + "Minecraft utilities and commands");
+                .registerPermission("minecraft", "Gives the user the ability to use all "
+                    + "Minecraft utilities and commands");
             this.permissionRootCommand = DefaultPermissions
-                    .registerPermission("minecraft.command", "Gives the user the ability to use "
-                            + "all Minecraft commands", permissionRoot);
+                .registerPermission("minecraft.command", "Gives the user the ability to use "
+                    + "all Minecraft commands", permissionRoot);
             DefaultPermissions
-                    .registerPermission("minecraft.command.tell", "Allows the user to send a "
-                            + "private message", PermissionDefault.TRUE, permissionRootCommand);
+                .registerPermission("minecraft.command.tell", "Allows the user to send a "
+                    + "private message", PermissionDefault.TRUE, permissionRootCommand);
             permissionRootCommand.recalculatePermissibles();
             permissionRoot.recalculatePermissibles();
             helpMap.initializeCommands();
@@ -1442,12 +1469,12 @@ public class GlowServer implements Server {
             Map<String, Map<String, Object>> data = new HashMap<>();
 
             permConfig.getValues(false).forEach((key, value) -> data
-                    .put(key, ((MemorySection) value).getValues(false)));
+                .put(key, ((MemorySection) value).getValues(false)));
 
             List<Permission> perms = Permission
-                    .loadPermissions(data,
-                            ConsoleMessages.Error.Permission.INVALID.get(),
-                            PermissionDefault.OP);
+                .loadPermissions(data,
+                    ConsoleMessages.Error.Permission.INVALID.get(),
+                    PermissionDefault.OP);
 
             for (Permission perm : perms) {
                 try {
@@ -1494,7 +1521,7 @@ public class GlowServer implements Server {
     @Override
     public String toString() {
         return "GlowServer{name=" + getName() + ",version=" + getVersion() + ",minecraftVersion="
-                + GAME_VERSION + "}";
+            + GAME_VERSION + "}";
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -1505,6 +1532,7 @@ public class GlowServer implements Server {
      *
      * @return The {@link SimpleCommandMap}.
      */
+    @Override
     public SimpleCommandMap getCommandMap() {
         return commandMap;
     }
@@ -1541,7 +1569,7 @@ public class GlowServer implements Server {
      * @return a resulting {@link AdvancementsMessage} packet
      */
     public AdvancementsMessage createAdvancementsMessage(boolean clear, List<NamespacedKey> remove,
-            Player player) {
+                                                         Player player) {
         return createAdvancementsMessage(advancements, clear, remove, player);
     }
 
@@ -1559,8 +1587,8 @@ public class GlowServer implements Server {
      * @return a resulting {@link AdvancementsMessage} packet
      */
     public AdvancementsMessage createAdvancementsMessage(
-            Map<NamespacedKey, Advancement> advancements, boolean clear, List<NamespacedKey> remove,
-            Player player) {
+        Map<NamespacedKey, Advancement> advancements, boolean clear, List<NamespacedKey> remove,
+        Player player) {
         return new AdvancementsMessage(clear, advancements, remove);
     }
 
@@ -1794,7 +1822,7 @@ public class GlowServer implements Server {
     @Override
     public String getVersion() {
         return GlowServer.class.getPackage().getImplementationVersion()
-                + " (MC: " + GAME_VERSION + ")"; // NON-NLS
+            + " (MC: " + GAME_VERSION + ")"; // NON-NLS
     }
 
     @Override
@@ -1908,8 +1936,8 @@ public class GlowServer implements Server {
     /**
      * Creates a player profile.
      *
-     * @param name The player's name.
-     * @param uuid The player's UUID; may be null.
+     * @param name        The player's name.
+     * @param uuid        The player's UUID; may be null.
      * @param asyncLookup If true and {@code uuid} is null, the UUID is looked up asynchronously.
      * @return The player's profile.
      */
@@ -1951,7 +1979,7 @@ public class GlowServer implements Server {
     public Map<String, String[]> getCommandAliases() {
         Map<String, String[]> aliases = new HashMap<>();
         ConfigurationSection section = config.getConfigFile(Key.COMMANDS_FILE)
-                .getConfigurationSection("aliases");
+            .getConfigurationSection("aliases");
         if (section == null) {
             return aliases;
         }
@@ -1964,7 +1992,7 @@ public class GlowServer implements Server {
 
     @Override
     public boolean dispatchCommand(CommandSender sender,
-            String commandLine) throws CommandException {
+                                   String commandLine) throws CommandException {
         if (commandMap.dispatch(sender, commandLine)) {
             return true;
         }
@@ -1975,14 +2003,14 @@ public class GlowServer implements Server {
         }
 
         GlowstoneMessages.Command.Error.UNKNOWN_COMMAND.send(
-                sender, ChatColor.GRAY, firstword);
+            sender, ChatColor.GRAY, firstword);
         return false;
     }
 
     @Override
     public Set<OfflinePlayer> getOperators() {
         return opsList.getProfiles().stream().map(this::getOfflinePlayer)
-                .collect(Collectors.toSet());
+            .collect(Collectors.toSet());
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -2025,12 +2053,12 @@ public class GlowServer implements Server {
         }
 
         return getPlayerDataService().getOfflinePlayers()
-                .thenAcceptAsync(offlinePlayers -> offlinePlayers.stream()
-                        .filter(offline -> !uuids.contains(offline.getUniqueId()))
-                        .forEach(offline -> {
-                            result.add(offline);
-                            uuids.add(offline.getUniqueId());
-                        })).thenApply((v) -> result.toArray(new OfflinePlayer[result.size()]));
+            .thenAcceptAsync(offlinePlayers -> offlinePlayers.stream()
+                .filter(offline -> !uuids.contains(offline.getUniqueId()))
+                .forEach(offline -> {
+                    result.add(offline);
+                    uuids.add(offline.getUniqueId());
+                })).thenApply((v) -> result.toArray(new OfflinePlayer[result.size()]));
     }
 
     @Override
@@ -2173,12 +2201,12 @@ public class GlowServer implements Server {
         }
 
         return GlowOfflinePlayer.getOfflinePlayer(this, uuid)
-                .thenApply((player) -> (OfflinePlayer) player);
+            .thenApply((player) -> (OfflinePlayer) player);
     }
 
     private OfflinePlayer getOfflinePlayerFallback(String name) {
         return getOfflinePlayer(new GlowPlayerProfile(name, UUID
-                .nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes()), false));
+            .nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes()), false));
     }
 
     @Override
@@ -2236,7 +2264,7 @@ public class GlowServer implements Server {
     @Override
     public Set<OfflinePlayer> getWhitelistedPlayers() {
         return whitelist.getProfiles().stream().map(this::getOfflinePlayer)
-                .collect(Collectors.toSet());
+            .collect(Collectors.toSet());
     }
 
     @Override
@@ -2262,7 +2290,7 @@ public class GlowServer implements Server {
     @Override
     public Set<OfflinePlayer> getBannedPlayers() {
         return nameBans.getBanEntries().stream().map(entry -> getOfflinePlayer(entry.getTarget()))
-                .collect(Collectors.toSet());
+            .collect(Collectors.toSet());
     }
 
     /**
@@ -2274,10 +2302,10 @@ public class GlowServer implements Server {
     public void sendPlayerAbilities(GlowPlayer player) {
         boolean creative = player.getGameMode() == GameMode.CREATIVE;
         int flags = (creative ? 8 : 0) | (player.getAllowFlight() ? 4 : 0)
-                | (player.isFlying() ? 2 : 0) | (creative ? 1 : 0);
+            | (player.isFlying() ? 2 : 0) | (creative ? 1 : 0);
         // division is conversion from Bukkit to MC units
         player.getSession().send(new PlayerAbilitiesMessage(flags,
-                player.getFlySpeed() / 2F, player.getWalkSpeed() / 2F));
+            player.getFlySpeed() / 2F, player.getWalkSpeed() / 2F));
     }
 
     @Override
@@ -2299,7 +2327,6 @@ public class GlowServer implements Server {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<World> getWorlds() {
         // Shenanigans needed to cast List<GlowWorld> to List<World>
         return (List) worlds.getWorlds();
@@ -2316,7 +2343,7 @@ public class GlowServer implements Server {
         if (worlds != null) {
             String genName = worlds.getString(name + ".generator", null); // NON-NLS
             ChunkGenerator generator = WorldCreator
-                    .getGeneratorForName(name, genName, getConsoleSender());
+                .getGeneratorForName(name, genName, getConsoleSender());
             if (generator != null) {
                 return generator;
             }
@@ -2352,7 +2379,7 @@ public class GlowServer implements Server {
 
         // GlowWorld's constructor calls addWorld below.
         return new GlowWorld(this, creator, storageProviderFactory
-                .createWorldStorageProvider(creator.name()));
+            .createWorldStorageProvider(creator.name()));
     }
 
     /**
@@ -2546,7 +2573,7 @@ public class GlowServer implements Server {
 
     @Override
     public double[] getTPS() {
-        return new double[]{20, 20, 20}; // TODO: show TPS
+        return new double[] {20, 20, 20}; // TODO: show TPS
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -2792,7 +2819,7 @@ public class GlowServer implements Server {
     /**
      * Gets the server type (e.g. VANILLA, BUKKIT, FML). The server type is meant to be read by mods
      * and thus is not localized server-side. It is output to clients by {@link
-     * science.atlarge.opencraft.opencraft.net.handler.status.StatusRequestHandler#handle(GlowSession,
+     * StatusRequestHandler#handle(GlowSession,
      * StatusRequestMessage)}, but should be ignored by vanilla clients and localized client-side by
      * modded clients aware of it.
      *
@@ -2838,7 +2865,7 @@ public class GlowServer implements Server {
      * Gets whether the server is OpenCL-capable and allowed to use graphics compute functionality.
      *
      * @return true if the server is capable and allowed to use graphics compute functionality,
-     *     false otherwise.
+     * false otherwise.
      */
     public boolean doesUseGraphicsCompute() {
         return isGraphicsComputeAvailable && config.getBoolean(Key.GRAPHICS_COMPUTE);
@@ -2851,6 +2878,27 @@ public class GlowServer implements Server {
      */
     public boolean shouldPreventProxy() {
         return config.getBoolean(Key.PREVENT_PROXY);
+    }
+
+    /**
+     * This configuration option enables the Yardstick collector, used by Prometheus.
+     */
+    public boolean isUseCollector() {
+        return config.getBoolean(Key.OPENCRAFT_COLLECTOR);
+    }
+
+    /**
+     * This configuration option enables logging dyconit information.
+     */
+    public boolean isLogDyconits() {
+        return config.getBoolean(Key.OPENCRAFT_LOGGING_DYCONIT);
+    }
+
+    /**
+     * This configuration option enables logging events such as player connections and relative utilization reports.
+     */
+    public boolean isLogEvents() {
+        return config.getBoolean(Key.OPENCRAFT_LOGGING_EVENTS);
     }
 
     /**
@@ -2875,7 +2923,7 @@ public class GlowServer implements Server {
     public void setStorageProvider(WorldStorageProviderFactory storageProviderFactory) {
         if (this.storageProviderFactory != null) {
             throw new IllegalStateException("Duplicate storage provider attempting to be set. "
-                    + "Only one custom storage provider may be provided.");
+                + "Only one custom storage provider may be provided.");
         }
         this.storageProviderFactory = storageProviderFactory;
     }

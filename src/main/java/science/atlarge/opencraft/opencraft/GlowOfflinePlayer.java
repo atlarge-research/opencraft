@@ -7,16 +7,16 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import lombok.Getter;
-import science.atlarge.opencraft.opencraft.entity.meta.profile.GlowPlayerProfile;
-import science.atlarge.opencraft.opencraft.entity.meta.profile.ProfileCache;
-import science.atlarge.opencraft.opencraft.io.PlayerDataService.PlayerReader;
-import science.atlarge.opencraft.opencraft.util.UuidUtils;
 import org.bukkit.BanList.Type;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
 import org.bukkit.configuration.serialization.SerializableAs;
 import org.bukkit.entity.Player;
+import science.atlarge.opencraft.opencraft.entity.meta.profile.GlowPlayerProfile;
+import science.atlarge.opencraft.opencraft.entity.meta.profile.ProfileCache;
+import science.atlarge.opencraft.opencraft.io.PlayerDataService;
+import science.atlarge.opencraft.opencraft.util.UuidUtils;
 
 /**
  * Represents a player which is not connected to the server.
@@ -40,7 +40,7 @@ public final class GlowOfflinePlayer implements OfflinePlayer {
      * Create a new offline player for the given name. If possible, the player's data will be
      * loaded.
      *
-     * @param server The server of the offline player. Must not be null.
+     * @param server  The server of the offline player. Must not be null.
      * @param profile The profile associated with the player. Must not be null.
      */
     public GlowOfflinePlayer(GlowServer server, GlowPlayerProfile profile) {
@@ -56,15 +56,15 @@ public final class GlowOfflinePlayer implements OfflinePlayer {
      * name) will be loaded based on the UUID.
      *
      * @param server The server of the offline player. Must not be null.
-     * @param uuid The UUID of the player. Must not be null.
+     * @param uuid   The UUID of the player. Must not be null.
      * @return A {@link GlowOfflinePlayer} future.
      */
     public static CompletableFuture<GlowOfflinePlayer> getOfflinePlayer(GlowServer server,
-            UUID uuid) {
+                                                                        UUID uuid) {
         checkNotNull(server, "server must not be null"); // NON-NLS
         checkNotNull(uuid, "UUID must not be null"); // NON-NLS
         return ProfileCache.getProfile(uuid)
-                .thenApplyAsync((profile) -> new GlowOfflinePlayer(server, profile));
+            .thenApplyAsync((profile) -> new GlowOfflinePlayer(server, profile));
     }
 
     /**
@@ -74,7 +74,6 @@ public final class GlowOfflinePlayer implements OfflinePlayer {
      * @return deserialized player record
      * @see org.bukkit.configuration.serialization.ConfigurationSerializable
      */
-    @SuppressWarnings("UnusedDeclaration")
     public static OfflinePlayer deserialize(Map<String, Object> val) {
         Server server = ServerProvider.getServer();
         if (val.get("name") != null) { // NON-NLS
@@ -83,7 +82,7 @@ public final class GlowOfflinePlayer implements OfflinePlayer {
         } else {
             // use UUID
             return server.getOfflinePlayer(
-                    UuidUtils.fromString(val.get("UUID").toString())); // NON-NLS
+                UuidUtils.fromString(val.get("UUID").toString())); // NON-NLS
         }
     }
 
@@ -92,7 +91,7 @@ public final class GlowOfflinePlayer implements OfflinePlayer {
 
     private void loadData() {
         profile.completeCached();
-        try (PlayerReader reader = server.getPlayerDataService().beginReadingData(getUniqueId())) {
+        try (PlayerDataService.PlayerReader reader = server.getPlayerDataService().beginReadingData(getUniqueId())) {
             hasPlayed = reader.hasPlayedBefore();
             if (hasPlayed) {
                 firstPlayed = reader.getFirstPlayed();
@@ -205,6 +204,7 @@ public final class GlowOfflinePlayer implements OfflinePlayer {
         return profile.equals(that.profile);
     }
 
+    @Override
     public int hashCode() {
         return getUniqueId() != null ? getUniqueId().hashCode() : 0;
     }
@@ -212,6 +212,6 @@ public final class GlowOfflinePlayer implements OfflinePlayer {
     @Override
     public String toString() {
         return "GlowOfflinePlayer{" + "name='" + getName() + '\'' + ", uuid="
-                + UuidUtils.toString(getUniqueId()) + '}';
+            + UuidUtils.toString(getUniqueId()) + '}';
     }
 }

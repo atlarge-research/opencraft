@@ -14,7 +14,7 @@ public class GlowWitherSkull extends GlowFireball implements WitherSkull {
     public GlowWitherSkull(Location location) {
         super(location);
     }
-    
+
     @Override
     protected int getObjectId() {
         return SpawnObjectMessage.WITHER_SKULL;

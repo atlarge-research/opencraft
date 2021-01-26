@@ -22,34 +22,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.Setter;
-import science.atlarge.opencraft.opencraft.EventFactory;
-import science.atlarge.opencraft.opencraft.GlowServer;
-import science.atlarge.opencraft.opencraft.GlowWorld;
-import science.atlarge.opencraft.opencraft.block.GlowBlock;
-import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
-import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex;
-import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex.StatusFlags;
-import science.atlarge.opencraft.opencraft.entity.meta.MetadataMap;
-import science.atlarge.opencraft.opencraft.entity.meta.MetadataMap.Entry;
-import science.atlarge.opencraft.opencraft.entity.objects.GlowItemFrame;
-import science.atlarge.opencraft.opencraft.entity.objects.GlowLeashHitch;
-import science.atlarge.opencraft.opencraft.entity.objects.GlowPainting;
-import science.atlarge.opencraft.opencraft.entity.physics.BlockBoundingBoxes;
-import science.atlarge.opencraft.opencraft.entity.physics.BoundingBox;
-import science.atlarge.opencraft.opencraft.entity.physics.EntityBoundingBox;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityMetadataMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityRotationMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityStatusMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityTeleportMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityVelocityMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.RelativeEntityPositionMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.RelativeEntityPositionRotationMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.SetPassengerMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
-import science.atlarge.opencraft.opencraft.util.Coordinates;
-import science.atlarge.opencraft.opencraft.util.Position;
-import science.atlarge.opencraft.opencraft.util.UuidUtils;
-import science.atlarge.opencraft.opencraft.util.Vectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Chunk;
 import org.bukkit.EntityEffect;
@@ -91,6 +63,32 @@ import org.bukkit.util.Vector;
 import org.spigotmc.event.entity.EntityDismountEvent;
 import org.spigotmc.event.entity.EntityMountEvent;
 import org.spigotmc.event.player.PlayerSpawnLocationEvent;
+import science.atlarge.opencraft.opencraft.EventFactory;
+import science.atlarge.opencraft.opencraft.GlowServer;
+import science.atlarge.opencraft.opencraft.GlowWorld;
+import science.atlarge.opencraft.opencraft.block.GlowBlock;
+import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
+import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex;
+import science.atlarge.opencraft.opencraft.entity.meta.MetadataMap;
+import science.atlarge.opencraft.opencraft.entity.objects.GlowItemFrame;
+import science.atlarge.opencraft.opencraft.entity.objects.GlowLeashHitch;
+import science.atlarge.opencraft.opencraft.entity.objects.GlowPainting;
+import science.atlarge.opencraft.opencraft.entity.physics.BlockBoundingBoxes;
+import science.atlarge.opencraft.opencraft.entity.physics.BoundingBox;
+import science.atlarge.opencraft.opencraft.entity.physics.EntityBoundingBox;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityMetadataMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityRotationMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityStatusMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityTeleportMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityVelocityMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.RelativeEntityPositionMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.RelativeEntityPositionRotationMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.SetPassengerMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
+import science.atlarge.opencraft.opencraft.util.Coordinates;
+import science.atlarge.opencraft.opencraft.util.Position;
+import science.atlarge.opencraft.opencraft.util.UuidUtils;
+import science.atlarge.opencraft.opencraft.util.Vectors;
 
 /**
  * Represents some entity in the world such as an item on the floor or a player.
@@ -146,7 +144,7 @@ public abstract class GlowEntity implements Entity {
     protected final Location previousLocation;
 
     /**
-         * The entity's velocity, applied each tick.
+     * The entity's velocity, applied each tick.
      */
     protected final Vector velocity = new Vector();
 
@@ -368,13 +366,13 @@ public abstract class GlowEntity implements Entity {
         if (this instanceof GlowPlayer) {
             // initial spawn event, first
             location = EventFactory.getInstance()
-                .callEvent(new PlayerInitialSpawnEvent((Player) this, location))
-                .getSpawnLocation();
+                    .callEvent(new PlayerInitialSpawnEvent((Player) this, location))
+                    .getSpawnLocation();
 
             // then, spawn location event (with location updated from initial spawn event)
             location = EventFactory.getInstance()
-                .callEvent(new PlayerSpawnLocationEvent((Player) this, location))
-                .getSpawnLocation();
+                    .callEvent(new PlayerSpawnLocationEvent((Player) this, location))
+                    .getSpawnLocation();
 
             // Update from modifications done on events.
             Position.copyLocation(location, this.origin);
@@ -437,7 +435,7 @@ public abstract class GlowEntity implements Entity {
             // silently allow setting the same UUID, since
             // it can't be checked with getUniqueId()
             throw new IllegalStateException("UUID of " + this + " is already "
-                + UuidUtils.toString(this.uuid));
+                    + UuidUtils.toString(this.uuid));
         }
     }
 
@@ -532,7 +530,7 @@ public abstract class GlowEntity implements Entity {
         if (!(this instanceof GlowPlayer)) {
             // TODO: Properly test when Enderman teleportation is implemented.
             EntityTeleportEvent event = EventFactory.getInstance().callEvent(
-                new EntityTeleportEvent(this, getLocation(), location));
+                    new EntityTeleportEvent(this, getLocation(), location));
             if (event.isCancelled()) {
                 return false;
             }
@@ -579,10 +577,10 @@ public abstract class GlowEntity implements Entity {
     public boolean isWithinDistance(GlowEntity other) {
         if (other instanceof GlowLivingEntity) {
             return ((GlowLivingEntity) other).getDeathTicks() <= 20
-                && isWithinDistance(other.location);
+                    && isWithinDistance(other.location);
         } else {
             return !other.isDead() && (isWithinDistance(other.location)
-                || other instanceof GlowLightningStrike);
+                    || other instanceof GlowLightningStrike);
         }
     }
 
@@ -596,7 +594,7 @@ public abstract class GlowEntity implements Entity {
         double dx = Math.abs(location.getX() - loc.getX());
         double dz = Math.abs(location.getZ() - loc.getZ());
         return loc.getWorld() == getWorld() && dx <= server.getViewDistance() * GlowChunk.WIDTH
-            && dz <= server.getViewDistance() * GlowChunk.HEIGHT;
+                && dz <= server.getViewDistance() * GlowChunk.HEIGHT;
     }
 
     /**
@@ -621,7 +619,7 @@ public abstract class GlowEntity implements Entity {
         if (fireTicks > 0) {
             --fireTicks;
         }
-        metadata.setBit(MetadataIndex.STATUS, StatusFlags.ON_FIRE, fireTicks > 0);
+        metadata.setBit(MetadataIndex.STATUS, MetadataIndex.StatusFlags.ON_FIRE, fireTicks > 0);
 
         // resend position if it's been a while, causes ItemFrames to disappear and GlowPaintings
         // to dislocate.
@@ -632,7 +630,7 @@ public abstract class GlowEntity implements Entity {
         }
 
         if (this instanceof GlowLivingEntity && !isDead() && ((GlowLivingEntity) this).hasAI()
-            && this.getLocation().getChunk().isLoaded()) {
+                && this.getLocation().getChunk().isLoaded()) {
             GlowLivingEntity entity = (GlowLivingEntity) this;
             entity.getTaskManager().pulse();
         }
@@ -663,7 +661,7 @@ public abstract class GlowEntity implements Entity {
 
         if (leashHolderUniqueId != null && ticksLived < 2) {
             Optional<GlowEntity> any = world.getEntityManager().getAll().stream()
-                .filter(e -> leashHolderUniqueId.equals(e.getUniqueId())).findAny();
+                    .filter(e -> leashHolderUniqueId.equals(e.getUniqueId())).findAny();
             if (!any.isPresent()) {
                 world.dropItemNaturally(location, new ItemStack(Material.LEASH));
             }
@@ -675,6 +673,7 @@ public abstract class GlowEntity implements Entity {
     /**
      * Fire when a entity interacts with a portal. Checks if the entity is allowed to teleport to another world and
      * handles transporting of entity.
+     *
      * @param portal The block the entity interacts with.
      */
     private void interactWithPortal(Block portal) {
@@ -739,7 +738,7 @@ public abstract class GlowEntity implements Entity {
             // break leashitch, if the entity is the only one left attached
             // will also destroy all remaining leashes
             if (EntityType.LEASH_HITCH.equals(leashHolder.getType())
-                && leashHolder.leashedEntities.size() == 1) {
+                    && leashHolder.leashedEntities.size() == 1) {
                 leashHolder.remove();
             } else {
                 // break leash
@@ -783,8 +782,8 @@ public abstract class GlowEntity implements Entity {
     public void setRawLocation(Location location, boolean fall) {
         if (location.getWorld() != world) {
             throw new IllegalArgumentException(
-                "Cannot setRawLocation to a different world (got " + location.getWorld()
-                    + ", expected " + world + ")");
+                    "Cannot setRawLocation to a different world (got " + location.getWorld()
+                            + ", expected " + world + ")");
         }
 
         if (Objects.equals(location, previousLocation)) {
@@ -805,10 +804,10 @@ public abstract class GlowEntity implements Entity {
 
         if (hasMoved()) {
             if (!fall || type == Material.LADDER // todo: horses are not affected
-                || type == Material.VINE // todo: horses are not affected
-                || type == Material.WATER || type == Material.STATIONARY_WATER
-                || type == Material.WEB || type == Material.TRAP_DOOR
-                || type == Material.IRON_TRAPDOOR || onGround) {
+                    || type == Material.VINE // todo: horses are not affected
+                    || type == Material.WATER || type == Material.STATIONARY_WATER
+                    || type == Material.WEB || type == Material.TRAP_DOOR
+                    || type == Material.IRON_TRAPDOOR || onGround) {
                 setFallDistance(0);
             } else if (location.getY() < previousLocation.getY() && !isInsideVehicle()) {
                 setFallDistance((float) (fallDistance + previousLocation.getY() - location.getY()));
@@ -909,7 +908,7 @@ public abstract class GlowEntity implements Entity {
         }
 
         // send changed metadata
-        List<Entry> changes = metadata.getChanges();
+        List<MetadataMap.Entry> changes = metadata.getChanges();
         if (!changes.isEmpty()) {
             result.add(new EntityMetadataMessage(entityId, changes));
         }
@@ -963,7 +962,7 @@ public abstract class GlowEntity implements Entity {
         Location target = server.getWorlds().get(0).getSpawnLocation();
 
         EntityPortalEvent event = EventFactory.getInstance()
-            .callEvent(new EntityPortalEvent(this, location.clone(), target, null));
+                .callEvent(new EntityPortalEvent(this, location.clone(), target, null));
         if (event.isCancelled()) {
             return false;
         }
@@ -997,7 +996,7 @@ public abstract class GlowEntity implements Entity {
         }
 
         EntityPortalEvent event = EventFactory.getInstance()
-            .callEvent(new EntityPortalEvent(this, location.clone(), target, null));
+                .callEvent(new EntityPortalEvent(this, location.clone(), target, null));
         if (event.isCancelled()) {
             return false;
         }
@@ -1407,12 +1406,12 @@ public abstract class GlowEntity implements Entity {
 
     @Override
     public boolean isGlowing() {
-        return metadata.getBit(MetadataIndex.STATUS, StatusFlags.GLOWING);
+        return metadata.getBit(MetadataIndex.STATUS, MetadataIndex.StatusFlags.GLOWING);
     }
 
     @Override
     public void setGlowing(boolean glowing) {
-        metadata.setBit(MetadataIndex.STATUS, StatusFlags.GLOWING, glowing);
+        metadata.setBit(MetadataIndex.STATUS, MetadataIndex.StatusFlags.GLOWING, glowing);
     }
 
     @Override
@@ -1692,6 +1691,7 @@ public abstract class GlowEntity implements Entity {
         return false;
     }
 
+    @Override
     public Spigot spigot() {
         return spigot;
     }
@@ -1800,7 +1800,7 @@ public abstract class GlowEntity implements Entity {
      * The metadata store class for entities.
      */
     private static class EntityMetadataStore extends MetadataStoreBase<Entity>
-        implements MetadataStore<Entity> {
+            implements MetadataStore<Entity> {
 
         @Override
         protected String disambiguate(Entity subject, String metadataKey) {

@@ -6,14 +6,13 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import java.io.IOException;
 import science.atlarge.opencraft.opencraft.net.message.play.game.WorldBorderMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.game.WorldBorderMessage.Action;
 
 public final class WorldBorderCodec implements Codec<WorldBorderMessage> {
 
     @Override
     public WorldBorderMessage decode(ByteBuf buffer) throws IOException {
         int actionId = ByteBufUtils.readVarInt(buffer);
-        Action action = Action.getAction(actionId);
+        WorldBorderMessage.Action action = WorldBorderMessage.Action.getAction(actionId);
         switch (action) {
             case SET_SIZE:
                 double radius = buffer.readDouble();
@@ -37,14 +36,14 @@ public final class WorldBorderCodec implements Codec<WorldBorderMessage> {
                 int warningTime = ByteBufUtils.readVarInt(buffer);
                 int warningBlocks = ByteBufUtils.readVarInt(buffer);
                 return new WorldBorderMessage(action, x, z, oldRadius, newRadius, speed,
-                    portalTeleportBoundary, warningTime, warningBlocks);
+                        portalTeleportBoundary, warningTime, warningBlocks);
             case SET_WARNING_TIME:
             case SET_WARNING_BLOCKS:
                 warningTime = ByteBufUtils.readVarInt(buffer);
                 return new WorldBorderMessage(action, warningTime);
             default:
                 throw new DecoderException(
-                    "Invalid WorldBorderMessage action " + actionId + "/" + action);
+                        "Invalid WorldBorderMessage action " + actionId + "/" + action);
         }
     }
 

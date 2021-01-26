@@ -7,10 +7,9 @@ import io.netty.handler.codec.DecoderException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import science.atlarge.opencraft.opencraft.net.message.play.scoreboard.ScoreboardTeamMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.scoreboard.ScoreboardTeamMessage.Action;
 import org.bukkit.ChatColor;
 import org.bukkit.scoreboard.Team;
+import science.atlarge.opencraft.opencraft.net.message.play.scoreboard.ScoreboardTeamMessage;
 
 public final class ScoreboardTeamCodec implements Codec<ScoreboardTeamMessage> {
 
@@ -20,7 +19,7 @@ public final class ScoreboardTeamCodec implements Codec<ScoreboardTeamMessage> {
         String teamName = ByteBufUtils.readUTF8(buffer);
 
         byte actionIndex = buffer.readByte();
-        Action action = Action.values()[actionIndex];
+        ScoreboardTeamMessage.Action action = ScoreboardTeamMessage.Action.values()[actionIndex];
 
         String displayName = null;
         String prefix = null;
@@ -32,7 +31,7 @@ public final class ScoreboardTeamCodec implements Codec<ScoreboardTeamMessage> {
         ChatColor color = ChatColor.RESET;
         List<String> players = null;
 
-        if (action == Action.CREATE || action == Action.UPDATE) {
+        if (action == ScoreboardTeamMessage.Action.CREATE || action == ScoreboardTeamMessage.Action.UPDATE) {
 
             displayName = ByteBufUtils.readUTF8(buffer);
             prefix = ByteBufUtils.readUTF8(buffer);
@@ -55,7 +54,7 @@ public final class ScoreboardTeamCodec implements Codec<ScoreboardTeamMessage> {
             }
         }
 
-        if (action == Action.CREATE || action == Action.ADD_PLAYERS || action == Action.REMOVE_PLAYERS) {
+        if (action == ScoreboardTeamMessage.Action.CREATE || action == ScoreboardTeamMessage.Action.ADD_PLAYERS || action == ScoreboardTeamMessage.Action.REMOVE_PLAYERS) {
             int playerCount = ByteBufUtils.readVarInt(buffer);
             players = new ArrayList<>(playerCount);
             for (int playerIndex = 0; playerIndex < playerCount; playerIndex++) {
@@ -68,29 +67,29 @@ public final class ScoreboardTeamCodec implements Codec<ScoreboardTeamMessage> {
 
             case CREATE:
                 return ScoreboardTeamMessage.create(
-                        teamName,
-                        displayName,
-                        prefix,
-                        suffix,
-                        friendlyFire,
-                        seeInvisible,
-                        nameTagVisibility,
-                        collisionRule,
-                        color,
-                        players
+                    teamName,
+                    displayName,
+                    prefix,
+                    suffix,
+                    friendlyFire,
+                    seeInvisible,
+                    nameTagVisibility,
+                    collisionRule,
+                    color,
+                    players
                 );
 
             case UPDATE:
                 return ScoreboardTeamMessage.update(
-                        teamName,
-                        displayName,
-                        prefix,
-                        suffix,
-                        friendlyFire,
-                        seeInvisible,
-                        nameTagVisibility,
-                        collisionRule,
-                        color
+                    teamName,
+                    displayName,
+                    prefix,
+                    suffix,
+                    friendlyFire,
+                    seeInvisible,
+                    nameTagVisibility,
+                    collisionRule,
+                    color
                 );
 
             case ADD_PLAYERS:
@@ -112,11 +111,11 @@ public final class ScoreboardTeamCodec implements Codec<ScoreboardTeamMessage> {
 
         ByteBufUtils.writeUTF8(buffer, message.getTeamName());
 
-        Action action = message.getAction();
+        ScoreboardTeamMessage.Action action = message.getAction();
         buffer.writeByte(action.ordinal());
 
         // CREATE and UPDATE
-        if (action == Action.CREATE || action == Action.UPDATE) {
+        if (action == ScoreboardTeamMessage.Action.CREATE || action == ScoreboardTeamMessage.Action.UPDATE) {
             ByteBufUtils.writeUTF8(buffer, message.getDisplayName());
             ByteBufUtils.writeUTF8(buffer, message.getPrefix());
             ByteBufUtils.writeUTF8(buffer, message.getSuffix());
@@ -127,7 +126,7 @@ public final class ScoreboardTeamCodec implements Codec<ScoreboardTeamMessage> {
         }
 
         // CREATE, ADD_, and REMOVE_PLAYERS
-        if (action == Action.CREATE || action == Action.ADD_PLAYERS || action == Action.REMOVE_PLAYERS) {
+        if (action == ScoreboardTeamMessage.Action.CREATE || action == ScoreboardTeamMessage.Action.ADD_PLAYERS || action == ScoreboardTeamMessage.Action.REMOVE_PLAYERS) {
             List<String> players = message.getEntries();
             ByteBufUtils.writeVarInt(buffer, players.size());
             for (String entry : players) {

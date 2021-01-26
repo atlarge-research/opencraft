@@ -15,6 +15,7 @@ import org.bukkit.material.Step;
 import org.bukkit.util.Vector;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -40,7 +41,7 @@ public class BlockBoundingBoxesTest {
         List<BoundingBox> boxes = BlockBoundingBoxes.getBoundingBoxes(block);
         assertEquals(boxes.size(), 1);
         BoundingBox box = boxes.get(0);
-        assertTrue(Vectors.equals(box.minCorner, new Vector(0, 0.5, 0)));
+        Assertions.assertTrue(Vectors.equals(box.minCorner, new Vector(0, 0.5, 0)));
         assertTrue(Vectors.equals(box.maxCorner, new Vector(1, 1, 1)));
     }
 

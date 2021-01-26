@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import science.atlarge.opencraft.opencraft.net.message.play.game.ExplosionMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.game.ExplosionMessage.Record;
 
 public class ExplosionCodec implements Codec<ExplosionMessage> {
 
@@ -19,12 +18,12 @@ public class ExplosionCodec implements Codec<ExplosionMessage> {
         float radius = buffer.readFloat();
 
         int size = buffer.readInt();
-        Collection<Record> records = new ArrayList<>(size);
+        Collection<ExplosionMessage.Record> records = new ArrayList<>(size);
         for (int index = 0; index < size; index++) {
             byte recordX = buffer.readByte();
             byte recordY = buffer.readByte();
             byte recordZ = buffer.readByte();
-            Record record = new Record(recordX, recordY, recordZ);
+            ExplosionMessage.Record record = new ExplosionMessage.Record(recordX, recordY, recordZ);
             records.add(record);
         }
 
@@ -43,9 +42,9 @@ public class ExplosionCodec implements Codec<ExplosionMessage> {
         buffer.writeFloat(message.getZ());
         buffer.writeFloat(message.getRadius());
 
-        Collection<Record> records = message.getRecords();
+        Collection<ExplosionMessage.Record> records = message.getRecords();
         buffer.writeInt(records.size());
-        for (Record record : records) {
+        for (ExplosionMessage.Record record : records) {
             buffer.writeByte(record.getX());
             buffer.writeByte(record.getY());
             buffer.writeByte(record.getZ());

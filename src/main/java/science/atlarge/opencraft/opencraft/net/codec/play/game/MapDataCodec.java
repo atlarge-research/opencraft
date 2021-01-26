@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import science.atlarge.opencraft.opencraft.net.message.play.game.MapDataMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.game.MapDataMessage.Icon;
-import science.atlarge.opencraft.opencraft.net.message.play.game.MapDataMessage.Section;
 
 public final class MapDataCodec implements Codec<MapDataMessage> {
 
@@ -19,14 +17,14 @@ public final class MapDataCodec implements Codec<MapDataMessage> {
         byte scale = buffer.readByte();
 
         int size = ByteBufUtils.readVarInt(buffer);
-        List<Icon> icons = new ArrayList<>(size);
+        List<MapDataMessage.Icon> icons = new ArrayList<>(size);
         for (int index = 0; index < size; index++) {
             int typeAndFacing = buffer.readByte();
             int type = (byte) (typeAndFacing & 0x0F);
             int facing = (byte) (typeAndFacing >> 4);
             int x = buffer.readByte();
             int y = buffer.readByte();
-            Icon icon = new Icon(type, facing, x, y);
+            MapDataMessage.Icon icon = new MapDataMessage.Icon(type, facing, x, y);
             icons.add(icon);
         }
 
@@ -40,7 +38,7 @@ public final class MapDataCodec implements Codec<MapDataMessage> {
         int sectionDataLength = ByteBufUtils.readVarInt(buffer);
         byte[] sectionData = new byte[sectionDataLength];
         buffer.readBytes(sectionData);
-        Section section = new Section(sectionWidth, sectionHeight, sectionX, sectionY, sectionData);
+        MapDataMessage.Section section = new MapDataMessage.Section(sectionWidth, sectionHeight, sectionX, sectionY, sectionData);
 
         return new MapDataMessage(id, scale, icons, section);
     }
@@ -48,18 +46,18 @@ public final class MapDataCodec implements Codec<MapDataMessage> {
     @Override
     public ByteBuf encode(ByteBuf buffer, MapDataMessage message) {
 
-        List<Icon> icons = message.getIcons();
+        List<MapDataMessage.Icon> icons = message.getIcons();
 
         ByteBufUtils.writeVarInt(buffer, message.getId());
         buffer.writeByte(message.getScale());
 
         ByteBufUtils.writeVarInt(buffer, icons.size());
-        for (Icon icon : icons) {
+        for (MapDataMessage.Icon icon : icons) {
             buffer.writeByte(icon.facing << 4 | icon.type);
             buffer.writeByte(icon.x);
             buffer.writeByte(icon.y);
         }
-        Section section = message.getSection();
+        MapDataMessage.Section section = message.getSection();
         if (section == null) {
             buffer.writeByte(0);
         } else {

@@ -20,7 +20,7 @@ public class BlockEnderPortalFrame extends BlockDropless {
 
     @Override
     public void placeBlock(GlowPlayer player, GlowBlockState state, BlockFace face,
-        ItemStack holding, Vector clickedLoc) {
+                           ItemStack holding, Vector clickedLoc) {
         state.setType(Material.ENDER_PORTAL_FRAME);
         switch (getOppositeBlockFace(player.getLocation(), false).getOppositeFace()) {
             case NORTH:

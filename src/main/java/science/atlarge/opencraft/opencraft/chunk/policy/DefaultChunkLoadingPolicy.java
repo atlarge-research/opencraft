@@ -1,21 +1,17 @@
 package science.atlarge.opencraft.opencraft.chunk.policy;
 
-import com.flowpowered.network.Message;
 import com.flowpowered.network.session.Session;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
-import science.atlarge.opencraft.opencraft.GlowWorld;
-import science.atlarge.opencraft.opencraft.chunk.AreaOfInterest;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
-import science.atlarge.opencraft.opencraft.executor.ChunkRunnable;
-import org.bukkit.Chunk;
-import org.bukkit.entity.Player;
-import science.atlarge.opencraft.messaging.MessagingSystem;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import science.atlarge.opencraft.opencraft.GlowWorld;
+import science.atlarge.opencraft.opencraft.chunk.AreaOfInterest;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.executor.ChunkRunnable;
+import science.atlarge.opencraft.opencraft.messaging.Messaging;
 
 public class DefaultChunkLoadingPolicy extends ChunkLoadingPolicy {
 
@@ -29,7 +25,7 @@ public class DefaultChunkLoadingPolicy extends ChunkLoadingPolicy {
     }
 
     @Override
-    public void update(Collection<GlowPlayer> players, MessagingSystem<Chunk, Object, Player, Message> messagingSystem) {
+    public void update(Collection<GlowPlayer> players, Messaging messagingSystem) {
         ImmutableMap.Builder<GlowPlayer, AreaOfInterest> currentAreasBuilder = ImmutableMap.builder();
         players.forEach(player -> currentAreasBuilder.put(player, player.getAreaOfInterest()));
         ImmutableMap<GlowPlayer, AreaOfInterest> currentAreas = currentAreasBuilder.build();
@@ -73,7 +69,7 @@ public class DefaultChunkLoadingPolicy extends ChunkLoadingPolicy {
     /**
      * List chunks that are in the current area of interest, but not in the previous.
      *
-     * @param current the current area of interest.
+     * @param current  the current area of interest.
      * @param previous the previous area of interest.
      * @return the list of chunks.
      */
@@ -84,7 +80,7 @@ public class DefaultChunkLoadingPolicy extends ChunkLoadingPolicy {
     /**
      * Find chunks that are in the previous area of interest, but not in the current.
      *
-     * @param current the current area of interest.
+     * @param current  the current area of interest.
      * @param previous the previous area of interest.
      * @return the list of chunks.
      */

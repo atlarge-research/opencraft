@@ -2,15 +2,14 @@ package science.atlarge.opencraft.opencraft.generator;
 
 import java.util.Map;
 import java.util.Random;
-//import net.glowstone.GlowServer;
-import science.atlarge.opencraft.opencraft.generator.populators.NetherPopulator;
-import science.atlarge.opencraft.opencraft.util.noise.PerlinOctaveGenerator;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.util.noise.OctaveGenerator;
+import science.atlarge.opencraft.opencraft.generator.populators.NetherPopulator;
+import science.atlarge.opencraft.opencraft.util.noise.PerlinOctaveGenerator;
 
 public class NetherGenerator extends GlowChunkGenerator {
 
@@ -245,14 +244,14 @@ public class NetherGenerator extends GlowChunkGenerator {
     /**
      * Generates a terrain column.
      *
-     * @param chunkData the chunk in which to generate
-     * @param world the world
-     * @param random the PRNG
-     * @param x the column x coordinate
-     * @param z the column z coordinate
-     * @param surfaceNoise amplitude of surface-height variation
+     * @param chunkData     the chunk in which to generate
+     * @param world         the world
+     * @param random        the PRNG
+     * @param x             the column x coordinate
+     * @param z             the column z coordinate
+     * @param surfaceNoise  amplitude of surface-height variation
      * @param soulsandNoise determines the chance of a soul sand patch
-     * @param gravelNoise determines the chance of a gravel patch
+     * @param gravelNoise   determines the chance of a gravel patch
      */
     public void generateTerrainColumn(ChunkData chunkData, World world, Random random, int x, int z,
             double surfaceNoise, double soulsandNoise, double gravelNoise) {

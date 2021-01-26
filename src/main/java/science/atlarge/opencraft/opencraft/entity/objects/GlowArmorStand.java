@@ -5,22 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import science.atlarge.opencraft.opencraft.EventFactory;
-import science.atlarge.opencraft.opencraft.GlowWorld;
-import science.atlarge.opencraft.opencraft.entity.GlowLivingEntity;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
-import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex;
-import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex.ArmorStandFlags;
-import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex.StatusFlags;
-import science.atlarge.opencraft.opencraft.inventory.ClothType;
-import science.atlarge.opencraft.opencraft.inventory.GlowEntityEquipment;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.DestroyEntitiesMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityEquipmentMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityMetadataMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.entity.SpawnObjectMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage.Action;
-import science.atlarge.opencraft.opencraft.util.InventoryUtil;
 import org.bukkit.Effect;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -42,6 +26,21 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.Criterias;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.util.EulerAngle;
+import science.atlarge.opencraft.opencraft.EventFactory;
+import science.atlarge.opencraft.opencraft.GlowWorld;
+import science.atlarge.opencraft.opencraft.entity.GlowLivingEntity;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex;
+import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex.ArmorStandFlags;
+import science.atlarge.opencraft.opencraft.entity.meta.MetadataIndex.StatusFlags;
+import science.atlarge.opencraft.opencraft.inventory.ClothType;
+import science.atlarge.opencraft.opencraft.inventory.GlowEntityEquipment;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.DestroyEntitiesMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityEquipmentMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityMetadataMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.entity.SpawnObjectMessage;
+import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
+import science.atlarge.opencraft.opencraft.util.InventoryUtil;
 
 public class GlowArmorStand extends GlowLivingEntity implements ArmorStand {
 
@@ -184,7 +183,7 @@ public class GlowArmorStand extends GlowLivingEntity implements ArmorStand {
         if (player.getGameMode() == GameMode.SPECTATOR || isMarker) {
             return false;
         }
-        if (msg.getAction() == Action.INTERACT_AT.ordinal()) {
+        if (msg.getAction() == InteractEntityMessage.Action.INTERACT_AT.ordinal()) {
             if (InventoryUtil.isEmpty(player.getItemInHand())) {
                 EquipmentSlot slot = getEditSlot(msg.getTargetY());
 

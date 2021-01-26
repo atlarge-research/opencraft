@@ -1,4 +1,4 @@
-package net.glowstone.testutils;
+package science.atlarge.opencraft.opencraft.testutils;
 
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;

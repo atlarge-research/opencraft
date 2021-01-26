@@ -44,6 +44,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.Vector;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Answers;
@@ -183,7 +184,7 @@ public abstract class GlowEntityTest<T extends GlowEntity> {
 
         GlowEntity chicken = new GlowChicken(new Location(world, x, y, z));
 
-        assertEquals(coordinates, chicken.getCoordinates());
+        Assert.assertEquals(coordinates, chicken.getCoordinates());
     }
 
     @Test

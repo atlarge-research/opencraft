@@ -1,17 +1,6 @@
 package science.atlarge.opencraft.opencraft.net.handler.play.player;
 
 import com.flowpowered.network.MessageHandler;
-import science.atlarge.opencraft.opencraft.EventFactory;
-import science.atlarge.opencraft.opencraft.GlowServer;
-import science.atlarge.opencraft.opencraft.constants.AttackDamage;
-import science.atlarge.opencraft.opencraft.entity.GlowEntity;
-import science.atlarge.opencraft.opencraft.entity.GlowLivingEntity;
-import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
-import science.atlarge.opencraft.opencraft.inventory.ToolType;
-import science.atlarge.opencraft.opencraft.net.GlowSession;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage.Action;
-import science.atlarge.opencraft.opencraft.util.InventoryUtil;
 import org.bukkit.EntityAnimation;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -24,6 +13,16 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import science.atlarge.opencraft.opencraft.EventFactory;
+import science.atlarge.opencraft.opencraft.GlowServer;
+import science.atlarge.opencraft.opencraft.constants.AttackDamage;
+import science.atlarge.opencraft.opencraft.entity.GlowEntity;
+import science.atlarge.opencraft.opencraft.entity.GlowLivingEntity;
+import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.inventory.ToolType;
+import science.atlarge.opencraft.opencraft.net.GlowSession;
+import science.atlarge.opencraft.opencraft.net.message.play.player.InteractEntityMessage;
+import science.atlarge.opencraft.opencraft.util.InventoryUtil;
 
 public final class InteractEntityHandler implements
     MessageHandler<GlowSession, InteractEntityMessage> {
@@ -45,7 +44,7 @@ public final class InteractEntityHandler implements
             possibleTarget instanceof GlowLivingEntity ? (GlowLivingEntity) possibleTarget : null;
 
         EquipmentSlot hand = message.getHandSlot();
-        if (message.getAction() == Action.ATTACK.ordinal()) {
+        if (message.getAction() == InteractEntityMessage.Action.ATTACK.ordinal()) {
             if (target == null) {
                 if (possibleTarget != null) {
                     possibleTarget.entityInteract(player, message);
@@ -134,7 +133,7 @@ public final class InteractEntityHandler implements
                     itemInHand.setDurability((short) (itemInHand.getDurability() + durabilityLoss));
                 }
             }
-        } else if (message.getAction() == Action.INTERACT_AT.ordinal()) {
+        } else if (message.getAction() == InteractEntityMessage.Action.INTERACT_AT.ordinal()) {
             // used for adjusting specific portions of armor stands
             PlayerInteractAtEntityEvent event = new PlayerInteractAtEntityEvent(player,
                 possibleTarget,
@@ -144,7 +143,7 @@ public final class InteractEntityHandler implements
             if (!event.isCancelled()) {
                 possibleTarget.entityInteract(player, message);
             }
-        } else if (message.getAction() == Action.INTERACT.ordinal()) {
+        } else if (message.getAction() == InteractEntityMessage.Action.INTERACT.ordinal()) {
             //Todo: Handle hand variable
             PlayerInteractEntityEvent event = new PlayerInteractEntityEvent(player, possibleTarget,
                 hand);

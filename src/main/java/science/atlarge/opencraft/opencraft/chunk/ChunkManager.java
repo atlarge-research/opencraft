@@ -3,7 +3,7 @@ package science.atlarge.opencraft.opencraft.chunk;
 import com.google.common.collect.ConcurrentHashMultiset;
 import com.google.common.collect.Multiset;
 import com.google.gson.annotations.Expose;
-
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -13,11 +13,19 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Material;
+import org.bukkit.block.Biome;
+import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.ChunkPopulateEvent;
+import org.bukkit.generator.BlockPopulator;
+import org.bukkit.generator.ChunkGenerator;
+import org.bukkit.material.MaterialData;
+import org.jetbrains.annotations.NotNull;
 import science.atlarge.opencraft.opencraft.EventFactory;
 import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.chunk.GlowChunk.Key;
@@ -27,18 +35,10 @@ import science.atlarge.opencraft.opencraft.generator.GlowChunkGenerator;
 import science.atlarge.opencraft.opencraft.generator.biomegrid.MapLayer;
 import science.atlarge.opencraft.opencraft.i18n.ConsoleMessages;
 import science.atlarge.opencraft.opencraft.io.ChunkIoService;
+import science.atlarge.opencraft.opencraft.net.message.play.game.BlockChangeMessage;
+import science.atlarge.opencraft.opencraft.population.PopulateInfo;
 import science.atlarge.opencraft.opencraft.population.PopulationInvoker;
 import science.atlarge.opencraft.opencraft.population.serialization.json.annotations.ExposeClass;
-import science.atlarge.opencraft.opencraft.population.PopulateInfo;
-import science.atlarge.opencraft.opencraft.net.message.play.game.BlockChangeMessage;
-import org.bukkit.Material;
-import org.bukkit.block.Biome;
-import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.event.world.ChunkPopulateEvent;
-import org.bukkit.generator.BlockPopulator;
-import org.bukkit.generator.ChunkGenerator;
-import org.bukkit.material.MaterialData;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * A class which manages the {@link GlowChunk}s currently loaded in memory.
@@ -95,8 +95,8 @@ public class ChunkManager {
     /**
      * Creates a new chunk manager with the specified I/O service and world generator.
      *
-     * @param world The chunk manager's world.
-     * @param service The I/O service.
+     * @param world     The chunk manager's world.
+     * @param service   The I/O service.
      * @param generator The world generator.
      */
     public ChunkManager(GlowWorld world, ChunkIoService service, ChunkGenerator generator) {
@@ -172,8 +172,8 @@ public class ChunkManager {
     /**
      * Call the ChunkIoService to load a chunk, optionally generating the chunk.
      *
-     * @param x The X coordinate of the chunk to load.
-     * @param z The Y coordinate of the chunk to load.
+     * @param x        The X coordinate of the chunk to load.
+     * @param z        The Y coordinate of the chunk to load.
      * @param generate Whether to generate the chunk if needed.
      * @return True on success, false on failure.
      */
@@ -183,7 +183,8 @@ public class ChunkManager {
 
     /**
      * Attempts to load a chunk; handles exceptions.
-     * @param chunk the chunk address
+     *
+     * @param chunk    the chunk address
      * @param generate if true, generate the chunk if it's new or the saved copy is corrupted
      * @return true if the chunk was loaded or generated successfully, false otherwise
      */
@@ -261,6 +262,7 @@ public class ChunkManager {
 
     /**
      * Returns the adjacent chunks of the given coordinates
+     *
      * @param x The X coordinate
      * @param z The Z coordinate
      */
@@ -308,7 +310,7 @@ public class ChunkManager {
                 return;
             }
             chunk.setPopulated(true);
-        
+
             Random random = new Random(world.getSeed());
             long xrand = (random.nextLong() / 2 << 1) + 1;
             long zrand = (random.nextLong() / 2 << 1) + 1;
@@ -561,6 +563,7 @@ public class ChunkManager {
     /**
      * Indicates that a chunk should be locked. A chunk may be locked multiple times, and will only
      * be unloaded when all instances of a lock has been released.
+     *
      * @param key The chunk's key
      */
     private void acquireLock(Key key) {
@@ -570,6 +573,7 @@ public class ChunkManager {
     /**
      * Releases one instance of a chunk lock. A chunk may be locked multiple times, and will only be
      * unloaded when all instances of a lock has been released.
+     *
      * @param key The chunk's key
      */
     private void releaseLock(Key key) {
@@ -579,11 +583,12 @@ public class ChunkManager {
     /**
      * A group of locks on chunks to prevent them from being unloaded while in use.
      */
-    public static class ChunkLock implements Iterable<Key> {
+    public static class ChunkLock implements Iterable<Key>, Closeable {
 
         private final ChunkManager cm;
         private final String desc;
         private final Set<Key> keys = new HashSet<>();
+        private final AtomicBoolean isClosed = new AtomicBoolean(false);
 
         public ChunkLock(ChunkManager cm, String desc) {
             this.cm = cm;
@@ -592,10 +597,11 @@ public class ChunkManager {
 
         /**
          * Acquires a lock on the given chunk key, if it's not already held.
+         *
          * @param key the key to lock
          */
-        public void acquire(Key key) {
-            if (keys.contains(key)) {
+        public synchronized void acquire(Key key) {
+            if (keys.contains(key) || isClosed.get()) {
                 return;
             }
             keys.add(key);
@@ -604,9 +610,10 @@ public class ChunkManager {
 
         /**
          * Releases a lock on the given chunk key, if it's not already held.
+         *
          * @param key the key to lock
          */
-        public void release(Key key) {
+        public synchronized void release(Key key) {
             if (!keys.contains(key)) {
                 return;
             }
@@ -617,7 +624,7 @@ public class ChunkManager {
         /**
          * Release all locks.
          */
-        public void clear() {
+        public synchronized void clear() {
             for (Key key : keys) {
                 cm.releaseLock(key);
             }
@@ -633,6 +640,15 @@ public class ChunkManager {
         @Override
         public Iterator<Key> iterator() {
             return keys.iterator();
+        }
+
+        /**
+         * Release all locks, and prevent new locks from being acquired (e.g., by other threads).
+         */
+        @Override
+        public synchronized void close() {
+            isClosed.set(true);
+            clear();
         }
     }
 

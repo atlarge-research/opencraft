@@ -20,7 +20,7 @@ public class ItemDye extends ItemType {
 
     @Override
     public void rightClickBlock(GlowPlayer player, GlowBlock target, BlockFace face,
-        ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
+                                ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
         MaterialData data = holding.getData();
         if (data instanceof Dye) {
             Dye dye = (Dye) data;

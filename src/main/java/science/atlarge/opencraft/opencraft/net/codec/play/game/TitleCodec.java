@@ -5,7 +5,6 @@ import com.flowpowered.network.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import java.io.IOException;
 import science.atlarge.opencraft.opencraft.net.message.play.game.TitleMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.game.TitleMessage.Action;
 import science.atlarge.opencraft.opencraft.util.TextMessage;
 
 public final class TitleCodec implements Codec<TitleMessage> {
@@ -13,7 +12,7 @@ public final class TitleCodec implements Codec<TitleMessage> {
     @Override
     public TitleMessage decode(ByteBuf buffer) throws IOException {
         int actionId = ByteBufUtils.readVarInt(buffer);
-        Action action = Action.getAction(actionId);
+        TitleMessage.Action action = TitleMessage.Action.getAction(actionId);
         switch (action) {
             case TITLE:
             case SUBTITLE:

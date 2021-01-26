@@ -3,13 +3,6 @@ package science.atlarge.opencraft.opencraft.generator.structures;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import science.atlarge.opencraft.opencraft.GlowServer;
-import science.atlarge.opencraft.opencraft.generator.objects.RandomItemsContent;
-import science.atlarge.opencraft.opencraft.generator.objects.RandomItemsContent.RandomAmountItem;
-import science.atlarge.opencraft.opencraft.generator.structures.util.StructureBoundingBox;
-import science.atlarge.opencraft.opencraft.generator.structures.util.StructureBuilder;
-import science.atlarge.opencraft.opencraft.generator.structures.util.StructureBuilder.StructureMaterial;
-import science.atlarge.opencraft.opencraft.util.BlockStateDelegate;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -18,6 +11,11 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 import org.bukkit.material.Chest;
 import org.bukkit.util.Vector;
+import science.atlarge.opencraft.opencraft.GlowServer;
+import science.atlarge.opencraft.opencraft.generator.objects.RandomItemsContent;
+import science.atlarge.opencraft.opencraft.generator.structures.util.StructureBoundingBox;
+import science.atlarge.opencraft.opencraft.generator.structures.util.StructureBuilder;
+import science.atlarge.opencraft.opencraft.util.BlockStateDelegate;
 
 public class GlowDungeon extends GlowStructurePiece {
 
@@ -27,14 +25,14 @@ public class GlowDungeon extends GlowStructurePiece {
     private final int radiusZ;
     private final int sizeX;
     private final int sizeZ;
-    private final EntityType[] mobTypes = new EntityType[]{
-        EntityType.SKELETON, EntityType.ZOMBIE, EntityType.ZOMBIE, EntityType.SPIDER};
+    private final EntityType[] mobTypes = new EntityType[] {
+            EntityType.SKELETON, EntityType.ZOMBIE, EntityType.ZOMBIE, EntityType.SPIDER};
     private final Location loc;
 
     /**
      * Creates an instance with a random size.
      *
-     * @param random the PRNG that will generate the size
+     * @param random   the PRNG that will generate the size
      * @param location the location to generate in
      */
     public GlowDungeon(Random random, Location location) {
@@ -52,7 +50,7 @@ public class GlowDungeon extends GlowStructurePiece {
      * location.
      *
      * @param builder a StructureBuilder for this and for the world and {@link BlockStateDelegate}
-     *         that would be used to generate this
+     *                that would be used to generate this
      * @return true if this dungeon can be placed; false otherwise
      */
     public boolean canPlace(StructureBuilder builder) {
@@ -104,7 +102,7 @@ public class GlowDungeon extends GlowStructurePiece {
             return false;
         }
 
-        Map<StructureMaterial, Integer> stones = new HashMap<>();
+        Map<StructureBuilder.StructureMaterial, Integer> stones = new HashMap<>();
         builder.addRandomMaterial(stones, 1, Material.COBBLESTONE, 0);
         builder.addRandomMaterial(stones, 3, Material.MOSSY_COBBLESTONE, 0);
 
@@ -134,21 +132,21 @@ public class GlowDungeon extends GlowStructurePiece {
         }
 
         RandomItemsContent chestContent = new RandomItemsContent();
-        chestContent.addItem(new RandomAmountItem(Material.SADDLE, 1, 1), 10);
-        chestContent.addItem(new RandomAmountItem(Material.IRON_INGOT, 1, 4), 10);
-        chestContent.addItem(new RandomAmountItem(Material.BREAD, 1, 1), 10);
-        chestContent.addItem(new RandomAmountItem(Material.WHEAT, 1, 4), 10);
-        chestContent.addItem(new RandomAmountItem(Material.SULPHUR, 1, 4), 10);
-        chestContent.addItem(new RandomAmountItem(Material.STRING, 1, 4), 10);
-        chestContent.addItem(new RandomAmountItem(Material.BUCKET, 1, 1), 10);
-        chestContent.addItem(new RandomAmountItem(Material.GOLDEN_APPLE, 1, 1), 1);
-        chestContent.addItem(new RandomAmountItem(Material.REDSTONE, 1, 4), 10);
-        chestContent.addItem(new RandomAmountItem(Material.GOLD_RECORD, 1, 1), 4);
-        chestContent.addItem(new RandomAmountItem(Material.GREEN_RECORD, 1, 1), 4);
-        chestContent.addItem(new RandomAmountItem(Material.NAME_TAG, 1, 1), 10);
-        chestContent.addItem(new RandomAmountItem(Material.GOLD_BARDING, 1, 1), 2);
-        chestContent.addItem(new RandomAmountItem(Material.IRON_BARDING, 1, 1), 5);
-        chestContent.addItem(new RandomAmountItem(Material.DIAMOND_BARDING, 1, 1), 1);
+        chestContent.addItem(new RandomItemsContent.RandomAmountItem(Material.SADDLE, 1, 1), 10);
+        chestContent.addItem(new RandomItemsContent.RandomAmountItem(Material.IRON_INGOT, 1, 4), 10);
+        chestContent.addItem(new RandomItemsContent.RandomAmountItem(Material.BREAD, 1, 1), 10);
+        chestContent.addItem(new RandomItemsContent.RandomAmountItem(Material.WHEAT, 1, 4), 10);
+        chestContent.addItem(new RandomItemsContent.RandomAmountItem(Material.SULPHUR, 1, 4), 10);
+        chestContent.addItem(new RandomItemsContent.RandomAmountItem(Material.STRING, 1, 4), 10);
+        chestContent.addItem(new RandomItemsContent.RandomAmountItem(Material.BUCKET, 1, 1), 10);
+        chestContent.addItem(new RandomItemsContent.RandomAmountItem(Material.GOLDEN_APPLE, 1, 1), 1);
+        chestContent.addItem(new RandomItemsContent.RandomAmountItem(Material.REDSTONE, 1, 4), 10);
+        chestContent.addItem(new RandomItemsContent.RandomAmountItem(Material.GOLD_RECORD, 1, 1), 4);
+        chestContent.addItem(new RandomItemsContent.RandomAmountItem(Material.GREEN_RECORD, 1, 1), 4);
+        chestContent.addItem(new RandomItemsContent.RandomAmountItem(Material.NAME_TAG, 1, 1), 10);
+        chestContent.addItem(new RandomItemsContent.RandomAmountItem(Material.GOLD_BARDING, 1, 1), 2);
+        chestContent.addItem(new RandomItemsContent.RandomAmountItem(Material.IRON_BARDING, 1, 1), 5);
+        chestContent.addItem(new RandomItemsContent.RandomAmountItem(Material.DIAMOND_BARDING, 1, 1), 1);
 
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < 3; j++) {

@@ -99,7 +99,7 @@ public class AreaOfInterestTest {
     @Test
     void getWorld() {
         AreaOfInterest area = new AreaOfInterest(offsetX, CLIENT_VIEW_DISTANCE);
-        assertEquals(overworld, area.getWorld());
+        Assertions.assertEquals(overworld, area.getWorld());
     }
 
     /**

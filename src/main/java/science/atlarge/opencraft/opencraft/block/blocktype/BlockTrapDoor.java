@@ -29,7 +29,7 @@ public class BlockTrapDoor {
      * @param clickedLoc the clicked point within the block
      */
     public void placeBlock(GlowPlayer player, GlowBlockState state, BlockFace face,
-        ItemStack holding, Vector clickedLoc) {
+                           ItemStack holding, Vector clickedLoc) {
         MaterialData materialData = state.getData();
         if (materialData instanceof TrapDoor) {
             TrapDoor trapDoor = (TrapDoor) materialData;

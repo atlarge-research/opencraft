@@ -24,7 +24,7 @@ public class BlockFence extends BlockDirectDrops {
 
     @Override
     public boolean blockInteract(GlowPlayer player, GlowBlock block, BlockFace face,
-            Vector clickedLoc) {
+                                 Vector clickedLoc) {
         super.blockInteract(player, block, face, clickedLoc);
 
         if (!player.getLeashedEntities().isEmpty()) {
