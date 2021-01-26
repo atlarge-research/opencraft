@@ -1,0 +1,515 @@
+package science.atlarge.opencraft.opencraft.generator;
+
+import static org.bukkit.block.Biome.BEACHES;
+import static org.bukkit.block.Biome.BIRCH_FOREST_HILLS;
+import static org.bukkit.block.Biome.COLD_BEACH;
+import static org.bukkit.block.Biome.DEEP_OCEAN;
+import static org.bukkit.block.Biome.DESERT;
+import static org.bukkit.block.Biome.DESERT_HILLS;
+import static org.bukkit.block.Biome.EXTREME_HILLS;
+import static org.bukkit.block.Biome.EXTREME_HILLS_WITH_TREES;
+import static org.bukkit.block.Biome.FOREST_HILLS;
+import static org.bukkit.block.Biome.FROZEN_OCEAN;
+import static org.bukkit.block.Biome.FROZEN_RIVER;
+import static org.bukkit.block.Biome.ICE_FLATS;
+import static org.bukkit.block.Biome.ICE_MOUNTAINS;
+import static org.bukkit.block.Biome.JUNGLE_HILLS;
+import static org.bukkit.block.Biome.MESA;
+import static org.bukkit.block.Biome.MESA_CLEAR_ROCK;
+import static org.bukkit.block.Biome.MESA_ROCK;
+import static org.bukkit.block.Biome.MUSHROOM_ISLAND;
+import static org.bukkit.block.Biome.MUSHROOM_ISLAND_SHORE;
+import static org.bukkit.block.Biome.MUTATED_BIRCH_FOREST;
+import static org.bukkit.block.Biome.MUTATED_BIRCH_FOREST_HILLS;
+import static org.bukkit.block.Biome.MUTATED_DESERT;
+import static org.bukkit.block.Biome.MUTATED_EXTREME_HILLS;
+import static org.bukkit.block.Biome.MUTATED_EXTREME_HILLS_WITH_TREES;
+import static org.bukkit.block.Biome.MUTATED_FOREST;
+import static org.bukkit.block.Biome.MUTATED_ICE_FLATS;
+import static org.bukkit.block.Biome.MUTATED_JUNGLE;
+import static org.bukkit.block.Biome.MUTATED_JUNGLE_EDGE;
+import static org.bukkit.block.Biome.MUTATED_MESA;
+import static org.bukkit.block.Biome.MUTATED_MESA_CLEAR_ROCK;
+import static org.bukkit.block.Biome.MUTATED_MESA_ROCK;
+import static org.bukkit.block.Biome.MUTATED_REDWOOD_TAIGA;
+import static org.bukkit.block.Biome.MUTATED_REDWOOD_TAIGA_HILLS;
+import static org.bukkit.block.Biome.MUTATED_ROOFED_FOREST;
+import static org.bukkit.block.Biome.MUTATED_SAVANNA;
+import static org.bukkit.block.Biome.MUTATED_SAVANNA_ROCK;
+import static org.bukkit.block.Biome.MUTATED_SWAMPLAND;
+import static org.bukkit.block.Biome.MUTATED_TAIGA;
+import static org.bukkit.block.Biome.MUTATED_TAIGA_COLD;
+import static org.bukkit.block.Biome.OCEAN;
+import static org.bukkit.block.Biome.REDWOOD_TAIGA;
+import static org.bukkit.block.Biome.REDWOOD_TAIGA_HILLS;
+import static org.bukkit.block.Biome.RIVER;
+import static org.bukkit.block.Biome.SAVANNA;
+import static org.bukkit.block.Biome.SAVANNA_ROCK;
+import static org.bukkit.block.Biome.SMALLER_EXTREME_HILLS;
+import static org.bukkit.block.Biome.STONE_BEACH;
+import static org.bukkit.block.Biome.SWAMPLAND;
+import static org.bukkit.block.Biome.TAIGA;
+import static org.bukkit.block.Biome.TAIGA_COLD;
+import static org.bukkit.block.Biome.TAIGA_COLD_HILLS;
+import static org.bukkit.block.Biome.TAIGA_HILLS;
+
+import java.util.EnumMap;
+import java.util.Map;
+import java.util.Random;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import science.atlarge.opencraft.opencraft.GlowWorld;
+import science.atlarge.opencraft.opencraft.constants.GlowBiome;
+import science.atlarge.opencraft.opencraft.generator.ground.DirtAndStonePatchGroundGenerator;
+import science.atlarge.opencraft.opencraft.generator.ground.DirtPatchGroundGenerator;
+import science.atlarge.opencraft.opencraft.generator.ground.GravelPatchGroundGenerator;
+import science.atlarge.opencraft.opencraft.generator.ground.GroundGenerator;
+import science.atlarge.opencraft.opencraft.generator.ground.MesaGroundGenerator;
+import science.atlarge.opencraft.opencraft.generator.ground.MesaGroundGenerator.MesaType;
+import science.atlarge.opencraft.opencraft.generator.ground.MycelGroundGenerator;
+import science.atlarge.opencraft.opencraft.generator.ground.RockyGroundGenerator;
+import science.atlarge.opencraft.opencraft.generator.ground.SandyGroundGenerator;
+import science.atlarge.opencraft.opencraft.generator.ground.SnowyGroundGenerator;
+import science.atlarge.opencraft.opencraft.generator.ground.StonePatchGroundGenerator;
+import science.atlarge.opencraft.opencraft.generator.populators.OverworldPopulator;
+import science.atlarge.opencraft.opencraft.generator.populators.StructurePopulator;
+import science.atlarge.opencraft.opencraft.generator.populators.overworld.SnowPopulator;
+import science.atlarge.opencraft.opencraft.util.noise.PerlinOctaveGenerator;
+import science.atlarge.opencraft.opencraft.util.noise.SimplexOctaveGenerator;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.WorldType;
+import org.bukkit.block.Biome;
+import org.bukkit.util.noise.OctaveGenerator;
+
+public class OverworldGenerator extends GlowChunkGenerator {
+
+    private static final double[][] ELEVATION_WEIGHT = new double[5][5];
+    private static final Map<Biome, GroundGenerator> GROUND_MAP = new EnumMap<>(Biome.class);
+    private static final Map<Biome, BiomeHeight> HEIGHT_MAP = new EnumMap<>(Biome.class);
+    private static double coordinateScale;
+    private static double heightScale;
+    private static double heightNoiseScaleX; // depthNoiseScaleX
+    private static double heightNoiseScaleZ; // depthNoiseScaleZ
+    private static double detailNoiseScaleX;  // mainNoiseScaleX
+    private static double detailNoiseScaleY; // mainNoiseScaleY
+    private static double detailNoiseScaleZ;  // mainNoiseScaleZ
+    private static double surfaceScale;
+    private static double baseSize;
+    private static double stretchY;
+    private static double biomeHeightOffset;    // biomeDepthOffset
+    private static double biomeHeightWeight;    // biomeDepthWeight
+    private static double biomeScaleOffset;
+    private static double biomeScaleWeight;
+
+    static {
+        setBiomeSpecificGround(new SandyGroundGenerator(), BEACHES, COLD_BEACH, DESERT,
+                DESERT_HILLS, MUTATED_DESERT);
+        setBiomeSpecificGround(new RockyGroundGenerator(), STONE_BEACH);
+        setBiomeSpecificGround(new SnowyGroundGenerator(), MUTATED_ICE_FLATS);
+        setBiomeSpecificGround(new MycelGroundGenerator(), MUSHROOM_ISLAND, MUSHROOM_ISLAND_SHORE);
+        setBiomeSpecificGround(new StonePatchGroundGenerator(), EXTREME_HILLS);
+        setBiomeSpecificGround(new GravelPatchGroundGenerator(), MUTATED_EXTREME_HILLS,
+                MUTATED_EXTREME_HILLS_WITH_TREES);
+        setBiomeSpecificGround(new DirtAndStonePatchGroundGenerator(), MUTATED_SAVANNA,
+                MUTATED_SAVANNA_ROCK);
+        setBiomeSpecificGround(new DirtPatchGroundGenerator(), REDWOOD_TAIGA, REDWOOD_TAIGA_HILLS,
+                MUTATED_REDWOOD_TAIGA, MUTATED_REDWOOD_TAIGA_HILLS);
+        setBiomeSpecificGround(new MesaGroundGenerator(), MESA, MESA_CLEAR_ROCK, MESA_ROCK);
+        setBiomeSpecificGround(new MesaGroundGenerator(MesaType.BRYCE), MUTATED_MESA);
+        setBiomeSpecificGround(new MesaGroundGenerator(MesaType.FOREST), MESA_ROCK,
+                MUTATED_MESA_ROCK);
+
+        setBiomeHeight(BiomeHeight.OCEAN, OCEAN, FROZEN_OCEAN);
+        setBiomeHeight(BiomeHeight.DEEP_OCEAN, DEEP_OCEAN);
+        setBiomeHeight(BiomeHeight.RIVER, RIVER, FROZEN_RIVER);
+        setBiomeHeight(BiomeHeight.FLAT_SHORE, BEACHES, COLD_BEACH, MUSHROOM_ISLAND_SHORE);
+        setBiomeHeight(BiomeHeight.ROCKY_SHORE, STONE_BEACH);
+        setBiomeHeight(BiomeHeight.FLATLANDS, DESERT, ICE_FLATS, SAVANNA);
+        setBiomeHeight(BiomeHeight.EXTREME_HILLS, EXTREME_HILLS, EXTREME_HILLS_WITH_TREES,
+                MUTATED_EXTREME_HILLS, MUTATED_EXTREME_HILLS_WITH_TREES);
+        setBiomeHeight(BiomeHeight.MID_PLAINS, TAIGA, TAIGA_COLD, REDWOOD_TAIGA);
+        setBiomeHeight(BiomeHeight.SWAMPLAND, SWAMPLAND);
+        setBiomeHeight(BiomeHeight.LOW_HILLS, MUSHROOM_ISLAND);
+        setBiomeHeight(BiomeHeight.HILLS, ICE_MOUNTAINS, DESERT_HILLS, FOREST_HILLS, TAIGA_HILLS,
+                SMALLER_EXTREME_HILLS, JUNGLE_HILLS, BIRCH_FOREST_HILLS, TAIGA_COLD_HILLS,
+                REDWOOD_TAIGA_HILLS, MUTATED_MESA_ROCK, MUTATED_MESA_CLEAR_ROCK);
+        setBiomeHeight(BiomeHeight.HIGH_PLATEAU, SAVANNA_ROCK, MESA_ROCK, MESA_CLEAR_ROCK);
+        setBiomeHeight(BiomeHeight.FLATLANDS_HILLS, MUTATED_DESERT);
+        setBiomeHeight(BiomeHeight.BIG_HILLS, MUTATED_ICE_FLATS);
+        setBiomeHeight(BiomeHeight.BIG_HILLS2, MUTATED_BIRCH_FOREST_HILLS);
+        setBiomeHeight(BiomeHeight.SWAMPLAND_HILLS, MUTATED_SWAMPLAND);
+        setBiomeHeight(BiomeHeight.DEFAULT_HILLS, MUTATED_JUNGLE, MUTATED_JUNGLE_EDGE,
+                MUTATED_BIRCH_FOREST, MUTATED_ROOFED_FOREST);
+        setBiomeHeight(BiomeHeight.MID_HILLS, MUTATED_TAIGA, MUTATED_TAIGA_COLD,
+                MUTATED_REDWOOD_TAIGA, MUTATED_REDWOOD_TAIGA_HILLS);
+        setBiomeHeight(BiomeHeight.MID_HILLS2, MUTATED_FOREST);
+        setBiomeHeight(BiomeHeight.LOW_SPIKES, MUTATED_SAVANNA);
+        setBiomeHeight(BiomeHeight.HIGH_SPIKES, MUTATED_SAVANNA_ROCK);
+
+        // fill a 5x5 array with values that acts as elevation weight on chunk neighboring,
+        // this can be viewed as a parabolic field: the center gets the more weight, and the
+        // weight decreases as distance increases from the center. This is applied on the
+        // lower scale biome grid.
+        for (int x = 0; x < 5; x++) {
+            for (int z = 0; z < 5; z++) {
+                int sqX = x - 2;
+                sqX *= sqX;
+                int sqZ = z - 2;
+                sqZ *= sqZ;
+                ELEVATION_WEIGHT[x][z] = 10.0D / Math.sqrt(sqX + sqZ + 0.2D);
+            }
+        }
+    }
+
+    private final double[][][] density = new double[5][5][33];
+    private final GroundGenerator groundGen = new GroundGenerator();
+    private final BiomeHeight defaultHeight = BiomeHeight.DEFAULT;
+
+    /**
+     * Creates the generator for the overworld.
+     */
+    public OverworldGenerator() {
+        super(new OverworldPopulator(),
+                new StructurePopulator(),
+                new SnowPopulator());
+
+        coordinateScale = 648.412;
+        heightScale = 648.412;
+        heightNoiseScaleX = 200D;
+        heightNoiseScaleZ = 200D;
+        detailNoiseScaleX = 80D;
+        detailNoiseScaleY = 160D;
+        detailNoiseScaleZ = 80D;
+        surfaceScale = 0.0625;
+        baseSize = 8.5;
+        stretchY = 12D;
+        biomeHeightOffset = 0D;
+        biomeHeightWeight = 1D;
+        biomeScaleOffset = 0D;
+        biomeScaleWeight = 1D;
+    }
+
+    private static void setBiomeSpecificGround(GroundGenerator gen, Biome... biomes) {
+        for (Biome biome : biomes) {
+            GROUND_MAP.put(biome, gen);
+        }
+    }
+
+    private static void setBiomeHeight(BiomeHeight height, Biome... biomes) {
+        for (Biome biome : biomes) {
+            HEIGHT_MAP.put(biome, height);
+        }
+    }
+
+    @Override
+    public ChunkData generateChunkData(World world, Random random, int chunkX, int chunkZ,
+            BiomeGrid biomes) {
+        ChunkData chunkData = generateRawTerrain(world, chunkX, chunkZ);
+
+        int cx = chunkX << 4;
+        int cz = chunkZ << 4;
+
+        SimplexOctaveGenerator octaveGenerator = ((SimplexOctaveGenerator) getWorldOctaves(world)
+                .get("surface"));
+        int sizeX = octaveGenerator.getSizeX();
+        int sizeZ = octaveGenerator.getSizeZ();
+        double[] surfaceNoise = octaveGenerator.getFractalBrownianMotion(cx, cz, 0.5D, 0.5D);
+        for (int x = 0; x < sizeX; x++) {
+            for (int z = 0; z < sizeZ; z++) {
+                if (GROUND_MAP.containsKey(biomes.getBiome(x, z))) {
+                    GROUND_MAP.get(biomes.getBiome(x, z))
+                            .generateTerrainColumn(chunkData, world, random, cx + x, cz + z,
+                                    biomes.getBiome(x, z), surfaceNoise[x | z << 4]);
+                } else {
+                    groundGen.generateTerrainColumn(chunkData, world, random, cx + x, cz + z,
+                            biomes.getBiome(x, z), surfaceNoise[x | z << 4]);
+                }
+            }
+        }
+        return chunkData;
+    }
+
+    @Override
+    protected void createWorldOctaves(World world, Map<String, OctaveGenerator> octaves) {
+        Random seed = new Random(world.getSeed());
+
+        OctaveGenerator gen = new PerlinOctaveGenerator(seed, 16, 5, 5);
+        gen.setXScale(heightNoiseScaleX);
+        gen.setZScale(heightNoiseScaleZ);
+        octaves.put("height", gen);
+
+        gen = new PerlinOctaveGenerator(seed, 16, 5, 33, 5);
+        gen.setXScale(coordinateScale);
+        gen.setYScale(heightScale);
+        gen.setZScale(coordinateScale);
+        octaves.put("roughness", gen);
+
+        gen = new PerlinOctaveGenerator(seed, 16, 5, 33, 5);
+        gen.setXScale(coordinateScale);
+        gen.setYScale(heightScale);
+        gen.setZScale(coordinateScale);
+        octaves.put("roughness2", gen);
+
+        gen = new PerlinOctaveGenerator(seed, 8, 5, 33, 5);
+        gen.setXScale(coordinateScale / detailNoiseScaleX);
+        gen.setYScale(heightScale / detailNoiseScaleY);
+        gen.setZScale(coordinateScale / detailNoiseScaleZ);
+        octaves.put("detail", gen);
+
+        gen = new SimplexOctaveGenerator(seed, 4, 16, 16);
+        gen.setScale(surfaceScale);
+        octaves.put("surface", gen);
+    }
+
+    private ChunkData generateRawTerrain(World world, int chunkX, int chunkZ) {
+        generateTerrainDensity(world, chunkX, chunkZ);
+
+        int seaLevel = world.getSeaLevel();
+
+        ChunkData chunkData = new GlowChunkData(world);
+
+        // Terrain densities are sampled at different resolutions (1/4x on x,z and 1/8x on y by
+        // default)
+        // so it's needed to re-scale it. Linear interpolation is used to fill in the gaps.
+
+        int fill = 0;
+        int afill = Math.abs(fill);
+        int seaFill = 0;
+        double densityOffset = 0D;
+
+        for (int i = 0; i < 5 - 1; i++) {
+            for (int j = 0; j < 5 - 1; j++) {
+                for (int k = 0; k < 33 - 1; k++) {
+                    // 2x2 grid
+                    double d1 = density[i][j][k];
+                    double d2 = density[i + 1][j][k];
+                    double d3 = density[i][j + 1][k];
+                    double d4 = density[i + 1][j + 1][k];
+                    // 2x2 grid (row above)
+                    double d5 = (density[i][j][k + 1] - d1) / 8;
+                    double d6 = (density[i + 1][j][k + 1] - d2) / 8;
+                    double d7 = (density[i][j + 1][k + 1] - d3) / 8;
+                    double d8 = (density[i + 1][j + 1][k + 1] - d4) / 8;
+
+                    for (int l = 0; l < 8; l++) {
+                        double d9 = d1;
+                        double d10 = d3;
+                        for (int m = 0; m < 4; m++) {
+                            double dens = d9;
+                            for (int n = 0; n < 4; n++) {
+                                // any density higher than density offset is ground, any density
+                                // lower or equal to the density offset is air
+                                // (or water if under the sea level).
+                                // this can be flipped if the mode is negative, so lower or equal
+                                // to is ground, and higher is air/water
+                                // and, then data can be shifted by afill the order is air by
+                                // default, ground, then water. they can shift places
+                                // within each if statement
+                                // the target is densityOffset + 0, since the default target is
+                                // 0, so don't get too confused by the naming :)
+                                if (afill == 1 || afill == 10 || afill == 13 || afill == 16) {
+                                    chunkData.setBlock(m + (i << 2), l + (k << 3), n + (j << 2),
+                                            Material.STATIONARY_WATER);
+                                } else if (afill == 2 || afill == 9 || afill == 12 || afill == 15) {
+                                    chunkData.setBlock(m + (i << 2), l + (k << 3), n + (j << 2),
+                                            Material.STONE);
+                                }
+                                if (dens > densityOffset && fill > -1
+                                        || dens <= densityOffset && fill < 0) {
+                                    if (afill == 0 || afill == 3 || afill == 6 || afill == 9
+                                            || afill == 12) {
+                                        chunkData.setBlock(m + (i << 2), l + (k << 3), n + (j << 2),
+                                                Material.STONE);
+                                    } else if (afill == 2 || afill == 7 || afill == 10
+                                            || afill == 16) {
+                                        chunkData.setBlock(m + (i << 2), l + (k << 3), n + (j << 2),
+                                                Material.STATIONARY_WATER);
+                                    }
+                                } else if (l + (k << 3) < seaLevel - 1 && seaFill == 0
+                                        || l + (k << 3) >= seaLevel - 1 && seaFill == 1) {
+                                    if (afill == 0 || afill == 3 || afill == 7 || afill == 10
+                                            || afill == 13) {
+                                        chunkData.setBlock(m + (i << 2), l + (k << 3), n + (j << 2),
+                                                Material.STATIONARY_WATER);
+                                    } else if (afill == 1 || afill == 6 || afill == 9
+                                            || afill == 15) {
+                                        chunkData.setBlock(m + (i << 2), l + (k << 3), n + (j << 2),
+                                                Material.STONE);
+                                    }
+                                }
+                                // interpolation along z
+                                dens += (d10 - d9) / 4;
+                            }
+                            // interpolation along x
+                            d9 += (d2 - d1) / 4;
+                            // interpolate along z
+                            d10 += (d4 - d3) / 4;
+                        }
+                        // interpolation along y
+                        d1 += d5;
+                        d3 += d7;
+                        d2 += d6;
+                        d4 += d8;
+                    }
+                }
+            }
+        }
+
+        return chunkData;
+    }
+
+    private void generateTerrainDensity(World world, int x, int z) {
+
+        WorldType type = world.getWorldType();
+
+        // Scaling chunk x and z coordinates (4x, see below)
+        x <<= 2;
+        z <<= 2;
+
+        // Get biome grid data at lower res (scaled 4x, at this scale a chunk is 4x4 columns of
+        // the biome grid),
+        // we are loosing biome detail but saving huge amount of computation.
+        // We need 1 chunk (4 columns) + 1 column for later needed outer edges (1 column) and at
+        // least 2 columns
+        // on each side to be able to cover every value.
+        // 4 + 1 + 2 + 2 = 9 columns but the biomegrid generator needs a multiple of 2 so we ask
+        // 10 columns wide
+        // to the biomegrid generator.
+        // This gives a total of 81 biome grid columns to work with, and this includes the chunk
+        // neighborhood.
+        int[] biomeGrid = ((GlowWorld) world).getChunkManager()
+                .getBiomeGridAtLowerRes(x - 2, z - 2, 10, 10);
+
+        Map<String, OctaveGenerator> octaves = getWorldOctaves(world);
+        double[] heightNoise = ((PerlinOctaveGenerator) octaves.get("height"))
+                .getFractalBrownianMotion(x, z, 0.5D, 2.0D);
+        double[] roughnessNoise = ((PerlinOctaveGenerator) octaves.get("roughness"))
+                .getFractalBrownianMotion(x, 0, z, 0.5D, 2.0D);
+        double[] roughnessNoise2 = ((PerlinOctaveGenerator) octaves.get("roughness2"))
+                .getFractalBrownianMotion(x, 0, z, 0.5D, 2.0D);
+        double[] detailNoise = ((PerlinOctaveGenerator) octaves.get("detail"))
+                .getFractalBrownianMotion(x, 0, z, 0.5D, 2.0D);
+
+        int index = 0;
+        int indexHeight = 0;
+
+        // Sampling densities.
+        // Ideally we would sample 512 (4x4x32) values but in reality we need 825 values (5x5x33).
+        // This is because linear interpolation is done later to re-scale so we need right and
+        // bottom edge values if we want it to be "seamless".
+        // You can check this picture to have a visualization of how the biomegrid is traversed
+        // (2D plan):
+        // http://i.imgur.com/s4whlZE.png
+        // The big square grid represents our lower res biomegrid columns, and the very small
+        // square grid
+        // represents the normal biome grid columns (at block level) and the reason why it's
+        // required to
+        // re-scale it and do linear interpolation before densities can be used to generate raw
+        // terrain.
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+
+                double avgHeightScale = 0;
+                double avgHeightBase = 0;
+                double totalWeight = 0;
+                Biome biome = GlowBiome.getBiome(biomeGrid[i + 2 + (j + 2) * 10]);
+                BiomeHeight biomeHeight = HEIGHT_MAP.getOrDefault(biome, defaultHeight);
+                // Sampling an average height base and scale by visiting the neighborhood
+                // of the current biomegrid column.
+                for (int m = 0; m < 5; m++) {
+                    for (int n = 0; n < 5; n++) {
+                        Biome nearBiome = GlowBiome.getBiome(biomeGrid[i + m + (j + n) * 10]);
+                        BiomeHeight nearBiomeHeight = HEIGHT_MAP
+                                .getOrDefault(nearBiome, defaultHeight);
+                        double heightBase =
+                                biomeHeightOffset + nearBiomeHeight.getHeight() * biomeHeightWeight;
+                        double heightScale =
+                                biomeScaleOffset + nearBiomeHeight.getScale() * biomeScaleWeight;
+                        if (type == WorldType.AMPLIFIED && heightBase > 0) {
+                            heightBase = 1.0D + heightBase * 2.0D;
+                            heightScale = 1.0D + heightScale * 4.0D;
+                        }
+                        double weight = ELEVATION_WEIGHT[m][n] / (heightBase + 2.0D);
+                        if (nearBiomeHeight.getHeight() > biomeHeight.getHeight()) {
+                            weight *= 0.5D;
+                        }
+                        avgHeightScale += heightScale * weight;
+                        avgHeightBase += heightBase * weight;
+                        totalWeight += weight;
+                    }
+                }
+                avgHeightScale /= totalWeight;
+                avgHeightBase /= totalWeight;
+                avgHeightScale = avgHeightScale * 0.9D + 0.1D;
+                avgHeightBase = (avgHeightBase * 4.0D - 1.0D) / 8.0D;
+
+                double noiseH = heightNoise[indexHeight++] / 8000.0D;
+                if (noiseH < 0) {
+                    noiseH = Math.abs(noiseH) * 0.3D;
+                }
+                noiseH = noiseH * 3.0D - 2.0D;
+                if (noiseH < 0) {
+                    noiseH = Math.max(noiseH * 0.5D, -1) / 1.4D * 0.5D;
+                } else {
+                    noiseH = Math.min(noiseH, 1) / 8.0D;
+                }
+
+                noiseH = (noiseH * 0.2D + avgHeightBase) * baseSize / 8.0D * 4.0D + baseSize;
+                for (int k = 0; k < 33; k++) {
+                    // density should be lower and lower as we climb up, this gets a height value to
+                    // subtract from the noise.
+                    double nh = (k - noiseH) * stretchY * 128.0D / 256.0D / avgHeightScale;
+                    if (nh < 0.0D) {
+                        nh *= 4.0D;
+                    }
+                    double noiseR = roughnessNoise[index] / 512.0D;
+                    double noiseR2 = roughnessNoise2[index] / 512.0D;
+                    double noiseD = (detailNoise[index] / 10.0D + 1.0D) / 2.0D;
+                    // linear interpolation
+                    double dens = noiseD < 0 ? noiseR
+                            : noiseD > 1 ? noiseR2 : noiseR + (noiseR2 - noiseR) * noiseD;
+                    dens -= nh;
+                    index++;
+                    if (k > 29) {
+                        double lowering = (k - 29) / 3.0D;
+                        // linear interpolation
+                        dens = dens * (1.0D - lowering) + -10.0D * lowering;
+                    }
+                    density[i][j][k] = dens;
+                }
+            }
+        }
+    }
+
+    @RequiredArgsConstructor
+    private static class BiomeHeight {
+        public static final BiomeHeight DEFAULT = new BiomeHeight(0.1,0.2);
+        public static final BiomeHeight FLAT_SHORE = new BiomeHeight(0D,0.025);
+        public static final BiomeHeight HIGH_PLATEAU = new BiomeHeight(1.5, 0.025);
+        public static final BiomeHeight FLATLANDS = new BiomeHeight(0.125, 0.05);
+        public static final BiomeHeight SWAMPLAND = new BiomeHeight(-0.2, 0.1);
+        public static final BiomeHeight MID_PLAINS = new BiomeHeight(0.2, 0.2);
+        public static final BiomeHeight FLATLANDS_HILLS = new BiomeHeight(0.275, 0.25);
+        public static final BiomeHeight SWAMPLAND_HILLS = new BiomeHeight(-0.1, 0.3);
+        public static final BiomeHeight LOW_HILLS = new BiomeHeight(0.2, 0.3);
+        public static final BiomeHeight HILLS = new BiomeHeight(0.45, 0.3);
+        public static final BiomeHeight MID_HILLS2 = new BiomeHeight(0.1, 0.4);
+        public static final BiomeHeight DEFAULT_HILLS = new BiomeHeight(0.2, 0.4);
+        public static final BiomeHeight MID_HILLS = new BiomeHeight(0.3, 0.4);
+        public static final BiomeHeight BIG_HILLS = new BiomeHeight(0.525, 0.55);
+        public static final BiomeHeight BIG_HILLS2 = new BiomeHeight(0.55, 0.5);
+        public static final BiomeHeight EXTREME_HILLS = new BiomeHeight(1D, 0.5);
+        public static final BiomeHeight ROCKY_SHORE = new BiomeHeight(0.1, 0.8);
+        public static final BiomeHeight LOW_SPIKES = new BiomeHeight(0.4125, 1.325);
+        public static final BiomeHeight HIGH_SPIKES = new BiomeHeight(1.1, 1.3125);
+        public static final BiomeHeight RIVER = new BiomeHeight(-0.5, 0D);
+        public static final BiomeHeight OCEAN = new BiomeHeight(-1D, 0.1);
+        public static final BiomeHeight DEEP_OCEAN = new BiomeHeight(-1.8, 0.1);
+        
+        @Getter
+        private final double height;
+        @Getter
+        private final double scale;
+    }
+}

@@ -344,8 +344,8 @@
                     <forceCreation>true</forceCreation>
                     <archive>
                         <manifestEntries>
-                            <Launcher-Agent-Class>net.glowstone.util.ClassPathAgent</Launcher-Agent-Class>
-                            <Main-Class>net.glowstone.Main</Main-Class>
+                            <Launcher-Agent-Class>science.atlarge.opencraft.opencraft.util.ClassPathAgent</Launcher-Agent-Class>
+                            <Main-Class>science.atlarge.opencraft.opencraft.Main</Main-Class>
                             <Implementation-Title>${project.name}</Implementation-Title>
                             <Implementation-Version>${project.version}</Implementation-Version>
                             <Implementation-Vendor>${maven.build.timestamp}</Implementation-Vendor>

@@ -5,11 +5,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.Map;
-import net.glowstone.block.GlowBlock;
-import net.glowstone.block.ItemTable;
-import net.glowstone.block.blocktype.BlockType;
-import net.glowstone.block.entity.BlockEntity;
-import net.glowstone.chunk.GlowChunk;
+import science.atlarge.opencraft.opencraft.block.GlowBlock;
+import science.atlarge.opencraft.opencraft.block.ItemTable;
+import science.atlarge.opencraft.opencraft.block.blocktype.BlockType;
+import science.atlarge.opencraft.opencraft.block.entity.BlockEntity;
+import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.mockito.Mockito;
