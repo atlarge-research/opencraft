@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
+import org.bukkit.entity.Player;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.generator.BlockPopulator;
@@ -285,6 +286,9 @@ public class ChunkManager {
      * Populate a single chunk if needed.
      */
     private void populateChunk(int x, int z, boolean force) {
+        // start local chunk population timer
+        world.getServer().eventLogger.start(String.format("local_population (%d,%d)", x, z));
+
         lock.lock();
         try {
 
@@ -324,18 +328,26 @@ public class ChunkManager {
         } finally {
             lock.unlock();
         }
+
+        // stop local chunk population timer
+        world.getServer().eventLogger.stop(String.format("local_population (%d,%d)", x, z));
     }
 
     /**
      * Populate a single chunk serverlessly.
      */
     private void populateChunkServerless(int x, int z) {
+        // start serverless chunk population timer
+        world.getServer().eventLogger.start(String.format("serverless_population (%d,%d)", x, z));
+
         // TODO: lock?
         GlowChunk chunk = getChunk(x, z);
         // cancel out if it's already populated
         if (chunk.isPopulated()) {
             return;
         }
+
+        // todo: try to load the chunk before requesting from lambda
 
         chunk.setPopulated(true);
 
@@ -357,7 +369,6 @@ public class ChunkManager {
         // send block change messages to players
         if (output.changedBlocks != null) {
             for (BlockChangeMessage message : output.changedBlocks) {
-                // todo: check this is correct
                 world.getBlockAt(message.getX(), message.getY(), message.getZ()).setTypeIdAndData(
                         message.getType() >> 4, (byte) (message.getType() & 15), true
                 );
@@ -366,6 +377,16 @@ public class ChunkManager {
 
         // Not sure if this is necessary
         EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
+
+        // stop serverless chunk population timer
+        world.getServer().eventLogger.stop(String.format("serverless_population (%d,%d)", x, z));
+
+        // log all player positions when chunk got generated
+        String playerPos = "";
+        for (Player player : world.getPlayers()) {
+            playerPos += String.format("(%d,%d) ", player.getLocation().getBlockX(), player.getLocation().getBlockZ());
+        }
+        world.getServer().eventLogger.log(String.format("player_positions (%d,%d)", x, z), playerPos);
     }
 
     /**
