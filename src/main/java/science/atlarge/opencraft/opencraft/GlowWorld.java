@@ -109,7 +109,6 @@ import science.atlarge.opencraft.opencraft.messaging.Messaging;
 import science.atlarge.opencraft.opencraft.messaging.MessagingFactory;
 import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityStatusMessage;
 import science.atlarge.opencraft.opencraft.net.message.play.game.BlockChangeMessage;
-import science.atlarge.opencraft.opencraft.net.message.play.game.UnloadChunkMessage;
 import science.atlarge.opencraft.opencraft.net.message.play.game.UpdateBlockEntityMessage;
 import science.atlarge.opencraft.opencraft.net.message.play.player.ServerDifficultyMessage;
 import science.atlarge.opencraft.opencraft.population.PopulateInfo;
@@ -560,82 +559,6 @@ public class GlowWorld implements World {
      */
     private void updateAreasOfInterest(Collection<GlowPlayer> players) {
         chunkLoadingPolicy.update(players, messagingSystem);
-    }
-
-    /**
-     * List chunks that are in the current area of interest, but not in the previous.
-     *
-     * @param current  the current area of interest.
-     * @param previous the previous area of interest.
-     * @return the list of chunks.
-     */
-    private List<ChunkRunnable> getChunksToLoad(GlowPlayer player, AreaOfInterest current, AreaOfInterest previous) {
-        return getDifference(player, current, previous);
-    }
-
-    /**
-     * Find chunks that are in the previous area of interest, but not in the current.
-     *
-     * @param current  the current area of interest.
-     * @param previous the previous area of interest.
-     * @return the list of chunks.
-     */
-    private List<ChunkRunnable> getChunksToUnload(GlowPlayer player, AreaOfInterest current, AreaOfInterest previous) {
-        return getDifference(player, previous, current);
-    }
-
-    /**
-     * Find the chunks that are in the first area of interest, but not in the second.
-     *
-     * @param first  the first area of interest.
-     * @param second the second area of interest.
-     * @return the list of chunks.
-     */
-    private List<ChunkRunnable> getDifference(GlowPlayer player, AreaOfInterest first, AreaOfInterest second) {
-
-        if (first == null || first.equals(second)) {
-            return new ArrayList<>();
-        }
-
-        if (second == null || first.getWorld() != second.getWorld()) {
-            List<ChunkRunnable> runnables = new ArrayList<>();
-            first.forEach(chunk -> {
-                ChunkRunnable runnable = new ChunkRunnable(player, chunk);
-                runnables.add(runnable);
-            });
-            return runnables;
-        }
-
-        List<ChunkRunnable> runnables = new ArrayList<>();
-        first.forEach(chunk -> {
-            if (!second.contains(chunk)) {
-                ChunkRunnable runnable = new ChunkRunnable(player, chunk);
-                runnables.add(runnable);
-            }
-        });
-        return runnables;
-    }
-
-    /**
-     * Unload all the given chunks, except for the ones that have been cancelled. Because, the ones that were cancelled
-     * were never streamed to the player.
-     *
-     * @param toUnload The chunks to be unloaded.
-     */
-    private void unloadChunks(List<ChunkRunnable> toUnload) {
-        toUnload.forEach(runnable -> {
-
-            GlowPlayer player = runnable.getPlayer();
-            GlowChunk chunk = runnable.getChunk();
-
-            Message message = new UnloadChunkMessage(chunk.getX(), chunk.getZ());
-            Session session = player.getSession();
-            session.send(message);
-
-            GlowChunk.Key key = GlowChunk.Key.of(chunk.getX(), chunk.getZ());
-            ChunkLock lock = player.getChunkLock();
-            lock.release(key);
-        });
     }
 
     /**

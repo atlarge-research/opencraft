@@ -1267,6 +1267,7 @@ public class GlowServer implements Server {
         commandMap.clearCommands();
         // opencraft commands
         commandMap.register("opencraft", new DyconitPolicyCommand());
+        commandMap.register("opencraft", new ServerlessGenerationCommand());
         // glowstone commands
         commandMap.register("glowstone", new ColorCommand());
         commandMap.register("glowstone", new GlowstoneCommand());
@@ -1318,8 +1319,6 @@ public class GlowServer implements Server {
         commandMap.register("minecraft", new SetBlockCommand());
         commandMap.register("minecraft", new CloneCommand());
         commandMap.register("minecraft", new TestForBlocksCommand());
-        // opencraft commands
-        commandMap.register("opencraft", new ServerlessGenerationCommand());
 
         File folder = new File(config.getString(Key.PLUGIN_FOLDER));
         if (!folder.isDirectory() && !folder.mkdirs()) {

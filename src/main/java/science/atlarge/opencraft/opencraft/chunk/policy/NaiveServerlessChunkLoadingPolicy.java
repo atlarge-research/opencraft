@@ -6,6 +6,7 @@ public class NaiveServerlessChunkLoadingPolicy extends DefaultChunkLoadingPolicy
 
     public NaiveServerlessChunkLoadingPolicy(GlowWorld world) {
         super(world);
+        this.populateServerless = true;
     }
 
     public int getPolicyIndex() {

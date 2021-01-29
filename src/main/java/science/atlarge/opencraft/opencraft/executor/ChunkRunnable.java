@@ -5,7 +5,6 @@ import java.util.Objects;
 import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.chunk.AreaOfInterest;
 import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
-import science.atlarge.opencraft.opencraft.chunk.policy.NaiveServerlessChunkLoadingPolicy;
 import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
 import science.atlarge.opencraft.opencraft.net.GlowSession;
 import science.atlarge.opencraft.opencraft.util.Coordinates;
@@ -85,7 +84,7 @@ public final class ChunkRunnable extends PriorityRunnable {
 
         boolean skylight = world.getEnvironment() == World.Environment.NORMAL;
 
-        world.getChunkManager().forcePopulation(x, z, world.getChunkLoadingPolicy() instanceof NaiveServerlessChunkLoadingPolicy);
+        world.getChunkLoadingPolicy().triggerChunkPopulation(x, z);
 
         GlowChunk.Key key = GlowChunk.Key.of(x, z);
         player.getChunkLock().acquire(key);

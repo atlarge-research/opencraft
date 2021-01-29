@@ -18,11 +18,13 @@ import science.atlarge.opencraft.opencraft.net.message.play.game.UnloadChunkMess
 
 public abstract class ChunkLoadingPolicy {
 
-    GlowWorld world;
+    private final GlowWorld world;
 
-    ImmutableMap<GlowPlayer, AreaOfInterest> previousAreas;
+    protected boolean populateServerless = false;
 
-    final PriorityExecutor<ChunkRunnable> executor;
+    protected ImmutableMap<GlowPlayer, AreaOfInterest> previousAreas;
+
+    protected final PriorityExecutor<ChunkRunnable> executor;
 
     public ChunkLoadingPolicy(GlowWorld world) {
         this.world = world;
@@ -51,6 +53,16 @@ public abstract class ChunkLoadingPolicy {
      */
     public void shutdown() {
         executor.shutdown();
+    }
+
+    /**
+     * Triggers population of a chunk
+     *
+     * @param x coordinate of chunk to populate
+     * @param z coordinate of chunk to populate
+     */
+    public void triggerChunkPopulation(int x, int z) {
+         world.getChunkManager().forcePopulation(x, z, populateServerless);
     }
 
     /**
