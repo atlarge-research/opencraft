@@ -1,28 +1,21 @@
-*~
-*.iml
-*.ipr
-*.iws
-.gradle
-.idea
-.m2
-build
-out
-nbproject
-bin
-doc
-target
-!.gitignore
-!.gitmodules
-!.mailmap
-!.gitattributes
-dependency-reduced-pom.xml
-.classpath
-.project
-.settings
-.db
-.DS_Store
-.vscode
-lib
+# Ignore all files
+/*
 
-Makefile
-builds
+# Include the git configuration
+!.gitignore
+
+# Include docs, etc, and scripts folders
+!docs/
+!docs/**/*
+!etc/
+!etc/*/**
+
+# Include the project files
+!src/
+!src/*/**
+!pom.xml
+
+# Include the license and readme
+!LICENSE
+!README.md
+
