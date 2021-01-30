@@ -353,7 +353,7 @@ public class ChunkManager {
 
         // invoke the lambda function
         PopulateInfo.PopulateOutput output = PopulationInvoker.invoke(
-                new PopulateInfo.PopulateInput(world, x, z)
+                new PopulateInfo.PopulateInput(world, x, z), world.getServer().eventLogger
         );
 
         // set the populated chunk back to this world; this also deserializes the chunk
