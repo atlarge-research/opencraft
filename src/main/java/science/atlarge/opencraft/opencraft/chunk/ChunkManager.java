@@ -337,10 +337,12 @@ public class ChunkManager {
      * Populate a single chunk serverlessly.
      */
     private void populateChunkServerless(int x, int z) {
+        // TODO: lock?
+        lock.lock();
+
         // start serverless chunk population timer
         world.getServer().eventLogger.start(String.format("serverless_population (%d,%d)", x, z));
 
-        // TODO: lock?
         GlowChunk chunk = getChunk(x, z);
         // cancel out if it's already populated
         if (chunk.isPopulated()) {
@@ -360,13 +362,16 @@ public class ChunkManager {
         output.getChunk(chunk);
         //getChunk(x, z).setFromChunk(populated); <-- old way of deserializing chunk
         // start pulse tasks; TODO: test what happens without this
+        world.getServer().eventLogger.start(String.format("pulse_tasks (%d,%d)", x, z));
         if (output.pulseTasks != null) {
             for (PopulateInfo.PopulateOutput.PulseTaskInfo pti : output.pulseTasks) {
                 pti.getPulseTask(world).startPulseTask();
             }
         }
+        world.getServer().eventLogger.stop(String.format("pulse_tasks (%d,%d)", x, z));
 
         // send block change messages to players
+        world.getServer().eventLogger.start(String.format("changed_blocks (%d,%d)", x, z));
         if (output.changedBlocks != null) {
             for (BlockChangeMessage message : output.changedBlocks) {
                 world.getBlockAt(message.getX(), message.getY(), message.getZ()).setTypeIdAndData(
@@ -387,6 +392,8 @@ public class ChunkManager {
             playerPos += String.format("(%d,%d) ", player.getLocation().getBlockX(), player.getLocation().getBlockZ());
         }
         world.getServer().eventLogger.log(String.format("player_positions (%d,%d)", x, z), playerPos);
+
+        lock.unlock();
     }
 
     /**
