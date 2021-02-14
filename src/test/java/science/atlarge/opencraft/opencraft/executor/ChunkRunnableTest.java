@@ -12,6 +12,8 @@ import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.block.entity.BlockEntity;
 import science.atlarge.opencraft.opencraft.chunk.ChunkManager;
 import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
+import science.atlarge.opencraft.opencraft.chunk.policy.ChunkLoadingPolicy;
+import science.atlarge.opencraft.opencraft.chunk.policy.DefaultChunkLoadingPolicy;
 import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
 import science.atlarge.opencraft.opencraft.net.GlowSession;
 import science.atlarge.opencraft.opencraft.net.message.play.game.ChunkDataMessage;
@@ -32,6 +34,7 @@ class ChunkRunnableTest {
     private ChunkDataMessage chunkDataMessage;
     private ChunkManager.ChunkLock chunkLock;
     private ChunkManager chunkManager;
+    private ChunkLoadingPolicy chunkLoadingPolicy;
     private GlowPlayer player;
     private ChunkRunnable runnable;
     private GlowSession session;
@@ -44,11 +47,13 @@ class ChunkRunnableTest {
         blockEntityTwo = mock(BlockEntity.class);
         chunkDataMessage = new ChunkDataMessage(chunkX, chunkZ, false, 0, null, null);
         chunkManager = mock(ChunkManager.class);
+        chunkLoadingPolicy = mock(DefaultChunkLoadingPolicy.class);
         chunkLock = mock(ChunkManager.ChunkLock.class);
         session = mock(GlowSession.class);
         world = mock(GlowWorld.class);
 
         when(world.getChunkManager()).thenReturn(chunkManager);
+        when(world.getChunkLoadingPolicy()).thenReturn(chunkLoadingPolicy);
 
         GlowChunk chunk = mock(GlowChunk.class);
         when(chunk.getX()).thenReturn(chunkX);

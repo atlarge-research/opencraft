@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
@@ -375,10 +376,11 @@ public class ChunkManager {
         if (output.changedBlocks != null) {
             for (BlockChangeMessage message : output.changedBlocks) {
                 world.getBlockAt(message.getX(), message.getY(), message.getZ()).setTypeIdAndData(
-                        message.getType() >> 4, (byte) (message.getType() & 15), true
+                message.getType() >> 4, (byte) (message.getType() & 0xf), true
                 );
             }
         }
+        world.getServer().eventLogger.stop(String.format("changed_blocks (%d,%d)", x, z));
 
         // Not sure if this is necessary
         EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
