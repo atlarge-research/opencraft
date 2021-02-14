@@ -21,12 +21,12 @@ public abstract class EventLogger implements AutoCloseable {
     }
 
     public void start(String key) {
-        timings.put(key, System.currentTimeMillis());
+        timings.put(key, System.nanoTime());
     }
 
     public void stop(String key) {
         if (timings.containsKey(key)) {
-            log(key, System.currentTimeMillis() - timings.remove(key));
+            log(key, (System.nanoTime() - timings.remove(key)) / 1000000.0);
         }
     }
 
