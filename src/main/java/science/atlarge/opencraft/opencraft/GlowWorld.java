@@ -417,6 +417,7 @@ public class GlowWorld implements World {
      * List that contains BlockChangeMessages generated during serverless population
      */
     @Getter
+    @Setter
     private List<BlockChangeMessage> populatedBlockMessages;
 
     /**

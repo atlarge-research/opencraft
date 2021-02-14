@@ -2,7 +2,10 @@ package science.atlarge.opencraft.opencraft.population;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+
 import java.util.Random;
+import java.util.stream.Collectors;
+
 import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
 import science.atlarge.opencraft.opencraft.population.PopulateInfo.PopulateInput;
@@ -36,6 +39,16 @@ public class App implements RequestHandler<String, String> {
         for (BlockPopulator p : world.getGenerator().getDefaultPopulators(world)) {
             p.populate(world, random, chunkToPopulate);
         }
+
+        // only send messages that are outside of this chunk
+        // information for the blocks inside this chunk get sent as chunk data
+        world.setPopulatedBlockMessages(
+            world.getPopulatedBlockMessages().stream().filter(msg -> {
+                int msgChunkX = msg.getX() >> 4;
+                int msgChunkZ = msg.getZ() >> 4;
+                return msgChunkX != chunkToPopulate.getX() || msgChunkZ != chunkToPopulate.getZ();
+            }).collect(Collectors.toList())
+        );
 
         return new PopulateOutput(world, chunkToPopulate).serialize();
     }
