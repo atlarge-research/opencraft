@@ -287,10 +287,11 @@ public class ChunkManager {
      * Populate a single chunk if needed.
      */
     private void populateChunk(int x, int z, boolean force) {
+        lock.lock();
+
         // start local chunk population timer
         world.getServer().eventLogger.start(String.format("local_population (%d,%d)", x, z));
 
-        lock.lock();
         try {
 
             GlowChunk chunk = getChunk(x, z);
@@ -328,74 +329,76 @@ public class ChunkManager {
             EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
         } finally {
             lock.unlock();
-        }
 
-        // stop local chunk population timer
-        world.getServer().eventLogger.stop(String.format("local_population (%d,%d)", x, z));
+            // stop local chunk population timer
+            world.getServer().eventLogger.stop(String.format("local_population (%d,%d)", x, z));
+        }
     }
 
     /**
      * Populate a single chunk serverlessly.
      */
     private void populateChunkServerless(int x, int z) {
-        // TODO: lock?
+        // TODO: do we really need to lock?
         lock.lock();
 
         // start serverless chunk population timer
         world.getServer().eventLogger.start(String.format("serverless_population (%d,%d)", x, z));
 
-        GlowChunk chunk = getChunk(x, z);
-        // cancel out if it's already populated
-        if (chunk.isPopulated()) {
-            return;
-        }
-
-        // todo: try to load the chunk before requesting from lambda
-
-        chunk.setPopulated(true);
-
-        // invoke the lambda function
-        PopulateInfo.PopulateOutput output = PopulationInvoker.invoke(
-                new PopulateInfo.PopulateInput(world, x, z), world.getServer().eventLogger
-        );
-
-        // set the populated chunk back to this world; this also deserializes the chunk
-        output.getChunk(chunk);
-        //getChunk(x, z).setFromChunk(populated); <-- old way of deserializing chunk
-        // start pulse tasks; TODO: test what happens without this
-        world.getServer().eventLogger.start(String.format("pulse_tasks (%d,%d)", x, z));
-        if (output.pulseTasks != null) {
-            for (PopulateInfo.PopulateOutput.PulseTaskInfo pti : output.pulseTasks) {
-                pti.getPulseTask(world).startPulseTask();
+        try {
+            GlowChunk chunk = getChunk(x, z);
+            // cancel out if it's already populated
+            if (chunk.isPopulated()) {
+                return;
             }
-        }
-        world.getServer().eventLogger.stop(String.format("pulse_tasks (%d,%d)", x, z));
 
-        // send block change messages to players
-        world.getServer().eventLogger.start(String.format("changed_blocks (%d,%d)", x, z));
-        if (output.changedBlocks != null) {
-            for (BlockChangeMessage message : output.changedBlocks) {
-                world.getBlockAt(message.getX(), message.getY(), message.getZ()).setTypeIdAndData(
-                message.getType() >> 4, (byte) (message.getType() & 0xf), true
-                );
+            // todo: try to load the chunk before requesting from lambda
+
+            chunk.setPopulated(true);
+
+            // invoke the lambda function
+            PopulateInfo.PopulateOutput output = PopulationInvoker.invoke(
+                    new PopulateInfo.PopulateInput(world, x, z), world.getServer().eventLogger
+            );
+
+            // set the populated chunk back to this world; this also deserializes the chunk
+            output.getChunk(chunk);
+            //getChunk(x, z).setFromChunk(populated); <-- old way of deserializing chunk
+            // start pulse tasks; TODO: test what happens without this
+            world.getServer().eventLogger.start(String.format("pulse_tasks (%d,%d)", x, z));
+            if (output.pulseTasks != null) {
+                for (PopulateInfo.PopulateOutput.PulseTaskInfo pti : output.pulseTasks) {
+                    pti.getPulseTask(world).startPulseTask();
+                }
             }
+            world.getServer().eventLogger.stop(String.format("pulse_tasks (%d,%d)", x, z));
+
+            // send block change messages to players
+            world.getServer().eventLogger.start(String.format("changed_blocks (%d,%d)", x, z));
+            if (output.changedBlocks != null) {
+                for (BlockChangeMessage message : output.changedBlocks) {
+                    world.getBlockAt(message.getX(), message.getY(), message.getZ()).setTypeIdAndData(
+                    message.getType() >> 4, (byte) (message.getType() & 0xf), true
+                    );
+                }
+            }
+            world.getServer().eventLogger.stop(String.format("changed_blocks (%d,%d)", x, z));
+
+            // Not sure if this is necessary
+            EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
+
+            // log all player positions when chunk got generated
+            String playerPos = "";
+            for (Player player : world.getPlayers()) {
+                playerPos += String.format("(%d,%d) ", player.getLocation().getBlockX(), player.getLocation().getBlockZ());
+            }
+            world.getServer().eventLogger.log(String.format("player_positions (%d,%d)", x, z), playerPos);
+        } finally {
+            lock.unlock();
+
+            // stop serverless chunk population timer
+            world.getServer().eventLogger.stop(String.format("serverless_population (%d,%d)", x, z));
         }
-        world.getServer().eventLogger.stop(String.format("changed_blocks (%d,%d)", x, z));
-
-        // Not sure if this is necessary
-        EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
-
-        // stop serverless chunk population timer
-        world.getServer().eventLogger.stop(String.format("serverless_population (%d,%d)", x, z));
-
-        // log all player positions when chunk got generated
-        String playerPos = "";
-        for (Player player : world.getPlayers()) {
-            playerPos += String.format("(%d,%d) ", player.getLocation().getBlockX(), player.getLocation().getBlockZ());
-        }
-        world.getServer().eventLogger.log(String.format("player_positions (%d,%d)", x, z), playerPos);
-
-        lock.unlock();
     }
 
     /**

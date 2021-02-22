@@ -20,11 +20,6 @@ public class DefaultChunkLoadingPolicy extends ChunkLoadingPolicy {
     }
 
     @Override
-    public int getPolicyIndex() {
-        return -1;
-    }
-
-    @Override
     public void update(Collection<GlowPlayer> players, Messaging messagingSystem) {
         ImmutableMap.Builder<GlowPlayer, AreaOfInterest> currentAreasBuilder = ImmutableMap.builder();
         players.forEach(player -> currentAreasBuilder.put(player, player.getAreaOfInterest()));

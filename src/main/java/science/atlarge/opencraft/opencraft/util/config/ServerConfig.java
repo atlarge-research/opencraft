@@ -410,6 +410,9 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         OPENCRAFT_BROKER_PASSWORD("opencraft.messaging.broker.password", "", String.class::isInstance),
         OPENCRAFT_BROKER_VIRTUAL_HOST("opencraft.messaging.broker.virtualHost", "", String.class::isInstance),
 
+        // Opencraft - Serverless Population
+        OPENCRAFT_CHUNK_POPULATION_POLICY("opencraft.chunk-population.policy", "default", String.class::isInstance),
+
         // server
         SERVER_IP("server.ip", "", Migrate.PROPS, "server-ip", String.class::isInstance),
         SERVER_PORT("server.port", DEFAULT_PORT, Migrate.PROPS, "server-port", Validators.PORT),

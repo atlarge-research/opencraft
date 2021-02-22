@@ -5,6 +5,7 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.AWSLambda;
 import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
+import com.amazonaws.services.lambda.model.InvocationType;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
 
@@ -54,5 +55,14 @@ public class PopulationInvoker {
 
         // deserialize
         return PopulateOutput.deserialize(serializedResponse);
+    }
+
+    public static void preventLambdaColdBoot() {
+        // async invoke
+        InvokeRequest req = new InvokeRequest()
+                .withFunctionName("NaivePopulate")
+                .withInvocationType(InvocationType.Event)
+                .withPayload("\"\"");
+        client.invoke(req);
     }
 }

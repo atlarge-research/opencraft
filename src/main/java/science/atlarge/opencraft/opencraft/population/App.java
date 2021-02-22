@@ -18,6 +18,11 @@ import org.bukkit.generator.BlockPopulator;
  */
 public class App implements RequestHandler<String, String> {
     public String handleRequest(String input, final Context context) {
+        // for cold boot prevention
+        if (input.equals("")) {
+            return "";
+        }
+
         // TODO: error handling
         PopulateInput deserialized = PopulateInput.deserialize(input);
 

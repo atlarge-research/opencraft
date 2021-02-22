@@ -32,14 +32,13 @@ public abstract class ChunkLoadingPolicy {
         executor = new PriorityExecutor<>();
     }
 
-    public static ChunkLoadingPolicy fromInt(GlowWorld world, int index) {
-        if (index == 0) {
+    public static ChunkLoadingPolicy fromString(GlowWorld world, String name) {
+        if (name.equals("naive")) {
             return new NaiveServerlessChunkLoadingPolicy(world);
         }
+
         return new DefaultChunkLoadingPolicy(world);
     }
-
-    public abstract int getPolicyIndex();
 
     /**
      * Called every tick

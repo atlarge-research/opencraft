@@ -8,8 +8,4 @@ public class NaiveServerlessChunkLoadingPolicy extends DefaultChunkLoadingPolicy
         super(world);
         this.populateServerless = true;
     }
-
-    public int getPolicyIndex() {
-        return 0;
-    }
 }

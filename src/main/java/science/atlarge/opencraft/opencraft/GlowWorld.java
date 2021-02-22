@@ -81,7 +81,6 @@ import science.atlarge.opencraft.opencraft.chunk.ChunkSection;
 import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
 import science.atlarge.opencraft.opencraft.chunk.GlowChunkSnapshot.EmptySnapshot;
 import science.atlarge.opencraft.opencraft.chunk.policy.ChunkLoadingPolicy;
-import science.atlarge.opencraft.opencraft.chunk.policy.DefaultChunkLoadingPolicy;
 import science.atlarge.opencraft.opencraft.constants.GameRules;
 import science.atlarge.opencraft.opencraft.constants.GlowBiome;
 import science.atlarge.opencraft.opencraft.constants.GlowBiomeClimate;
@@ -112,6 +111,7 @@ import science.atlarge.opencraft.opencraft.net.message.play.game.BlockChangeMess
 import science.atlarge.opencraft.opencraft.net.message.play.game.UpdateBlockEntityMessage;
 import science.atlarge.opencraft.opencraft.net.message.play.player.ServerDifficultyMessage;
 import science.atlarge.opencraft.opencraft.population.PopulateInfo;
+import science.atlarge.opencraft.opencraft.population.PopulationInvoker;
 import science.atlarge.opencraft.opencraft.population.serialization.json.annotations.ExposeClass;
 import science.atlarge.opencraft.opencraft.util.BlockStateDelegate;
 import science.atlarge.opencraft.opencraft.util.GameRuleManager;
@@ -119,6 +119,7 @@ import science.atlarge.opencraft.opencraft.util.RayUtil;
 import science.atlarge.opencraft.opencraft.util.TickUtil;
 import science.atlarge.opencraft.opencraft.util.Vectors;
 import science.atlarge.opencraft.opencraft.util.collection.ConcurrentSet;
+import science.atlarge.opencraft.opencraft.util.config.ServerConfig;
 import science.atlarge.opencraft.opencraft.util.config.WorldConfig;
 import science.atlarge.opencraft.opencraft.util.nbt.CompoundTag;
 
@@ -474,7 +475,9 @@ public class GlowWorld implements World {
         messagingSystem = MessagingFactory.fromConfig(this, server);
 
         executor = new PriorityExecutor<>();
-        chunkLoadingPolicy = new DefaultChunkLoadingPolicy(this);
+        PopulationInvoker.preventLambdaColdBoot();
+        chunkLoadingPolicy = ChunkLoadingPolicy.fromString(this,
+                server.getConfig().getString(ServerConfig.Key.OPENCRAFT_CHUNK_POPULATION_POLICY));
 
         // Read in world data
         WorldMetadataService.WorldFinalValues values;

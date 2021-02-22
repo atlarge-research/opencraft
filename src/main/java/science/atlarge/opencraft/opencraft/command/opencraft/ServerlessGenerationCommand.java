@@ -17,13 +17,14 @@ public class ServerlessGenerationCommand extends GlowVanillaCommand {
         GlowWorld world = CommandUtils.getWorld(sender);
         if (args.length < 1) {
             new LocalizedStringImpl("slgen.done", localizedMessages.getResourceBundle())
-                    .send(sender, world.getChunkLoadingPolicy().getPolicyIndex());
+                    .send(sender, world.getChunkLoadingPolicy().getClass().getSimpleName());
             return false;
         }
 
         try {
-            world.setChunkLoadingPolicy(ChunkLoadingPolicy.fromInt(world, Integer.parseInt(args[0])));
-            new LocalizedStringImpl("slgen.done", localizedMessages.getResourceBundle()).send(sender, args[0]);
+            world.setChunkLoadingPolicy(ChunkLoadingPolicy.fromString(world, args[0]));
+            new LocalizedStringImpl("slgen.done", localizedMessages.getResourceBundle())
+                    .send(sender, world.getChunkLoadingPolicy().getClass().getSimpleName());
             return true;
         } catch (Exception ex) {
             new LocalizedStringImpl("slgen.usage", localizedMessages.getResourceBundle()).send(sender);
