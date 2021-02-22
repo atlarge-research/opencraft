@@ -2,6 +2,8 @@ package science.atlarge.opencraft.opencraft.executor;
 
 import com.flowpowered.network.Message;
 import java.util.Objects;
+
+import org.bukkit.entity.Player;
 import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.chunk.AreaOfInterest;
 import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
@@ -84,7 +86,15 @@ public final class ChunkRunnable extends PriorityRunnable {
 
         boolean skylight = world.getEnvironment() == World.Environment.NORMAL;
 
-        world.getChunkLoadingPolicy().triggerChunkPopulation(x, z);
+        if (!chunk.isPopulated()) {
+            world.getServer().eventLogger.log(String.format("trigger_population (%d,%d)", x, z),
+                    String.format("(%d,%d)", player.getLocation().getBlockX(), player.getLocation().getBlockZ()));
+
+            world.getChunkLoadingPolicy().triggerChunkPopulation(x, z);
+
+            world.getServer().eventLogger.log(String.format("finished_population (%d,%d)", x, z),
+                    String.format("(%d,%d)", player.getLocation().getBlockX(), player.getLocation().getBlockZ()));
+        }
 
         GlowChunk.Key key = GlowChunk.Key.of(x, z);
         player.getChunkLock().acquire(key);

@@ -328,10 +328,10 @@ public class ChunkManager {
 
             EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
         } finally {
-            lock.unlock();
-
             // stop local chunk population timer
             world.getServer().eventLogger.stop(String.format("local_population (%d,%d)", x, z));
+
+            lock.unlock();
         }
     }
 
@@ -386,18 +386,11 @@ public class ChunkManager {
 
             // Not sure if this is necessary
             EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
-
-            // log all player positions when chunk got generated
-            String playerPos = "";
-            for (Player player : world.getPlayers()) {
-                playerPos += String.format("(%d,%d) ", player.getLocation().getBlockX(), player.getLocation().getBlockZ());
-            }
-            world.getServer().eventLogger.log(String.format("player_positions (%d,%d)", x, z), playerPos);
         } finally {
-            lock.unlock();
-
             // stop serverless chunk population timer
             world.getServer().eventLogger.stop(String.format("serverless_population (%d,%d)", x, z));
+
+            lock.unlock();
         }
     }
 
