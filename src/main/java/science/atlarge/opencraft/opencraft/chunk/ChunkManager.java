@@ -21,7 +21,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
-import org.bukkit.entity.Player;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkPopulateEvent;
 import org.bukkit.generator.BlockPopulator;
@@ -362,8 +361,12 @@ public class ChunkManager {
             );
 
             // set the populated chunk back to this world; this also deserializes the chunk
+            world.getServer().eventLogger.start(String.format("deserialize_chunk_data (%d,%d)", x, z));
             output.getChunk(chunk);
+            world.getServer().eventLogger.stop(String.format("deserialize_chunk_data (%d,%d)", x, z));
+
             //getChunk(x, z).setFromChunk(populated); <-- old way of deserializing chunk
+
             // start pulse tasks; TODO: test what happens without this
             world.getServer().eventLogger.start(String.format("pulse_tasks (%d,%d)", x, z));
             if (output.pulseTasks != null) {

@@ -41,9 +41,13 @@ public class PopulationInvoker {
 
     public static PopulateOutput invoke(PopulateInput input, EventLogger logger) {
         // for async invoke: https://stackoverflow.com/questions/47345365/how-to-invoke-aws-lambda-function-from-another-lambda-function-and-return-withou/47350875
+        logger.start(String.format("serialize_input (%d,%d)", input.x, input.z));
+        String inp = input.serialize();
+        logger.stop(String.format("serialize_input (%d,%d)", input.x, input.z));
+
         InvokeRequest req = new InvokeRequest()
                 .withFunctionName("NaivePopulate")
-                .withPayload(input.serialize());
+                .withPayload(inp);
 
         // log time spent in lambda and invoke the function
         logger.start(String.format("lambda_time (%d,%d)", input.x, input.z));
@@ -54,7 +58,11 @@ public class PopulationInvoker {
         String serializedResponse = StandardCharsets.UTF_8.decode(response.getPayload()).toString();
 
         // deserialize
-        return PopulateOutput.deserialize(serializedResponse);
+        logger.start(String.format("deserialize_output (%d,%d)", input.x, input.z));
+        PopulateOutput out = PopulateOutput.deserialize(serializedResponse);
+        logger.stop(String.format("deserialize_output (%d,%d)", input.x, input.z));
+
+        return out;
     }
 
     public static void preventLambdaColdBoot() {
