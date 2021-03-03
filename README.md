@@ -145,16 +145,3 @@ git push -u origin <your-local-branch-name-here>
 ```
 
 Once that is completed a merge request can be created using the GitLab interface.
-
-# Updating Opencraft with Glowstone
-
-When compiling for the first time, you'll likely need to pull new commits from Glowstone's repository. Merge this code into the `dev` branch without fast-forwarding. E.g.,
-
-```bash
-git remote add upstream https://atlarge.ewi.tudelft.nl/gitlab/opencraft/minecraft-like-games/collector-glowstone.git
-git fetch --all
-git checkout dev
-git merge --no-ff upstream/dev
-```
-
-There is a reasonable chance that this results in conflicting files, Glowstone's developers may have edited the code were inspecting or monitoring. **Merge these conflicts carefully.** Our existing modifications can be crucial for somebody else's experiments. If you don't know what to do, contact one of the other Opencraft team-members.
