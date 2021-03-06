@@ -2,6 +2,7 @@ package science.atlarge.opencraft.opencraft.generator.decorators.overworld;
 
 import java.util.Random;
 import science.atlarge.opencraft.opencraft.block.GlowBlock;
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 import science.atlarge.opencraft.opencraft.generator.decorators.BlockDecorator;
 import science.atlarge.opencraft.opencraft.scheduler.PulseTask;
 import org.bukkit.Chunk;
@@ -54,9 +55,9 @@ public class FlowingLiquidDecorator extends BlockDecorator {
                     }
                 }
                 if (airBlockCount == 1) {
-                    BlockState state = block.getState();
+                    GlowBlockState state = (GlowBlockState) block.getState();
                     state.setType(type);
-                    state.update(true);
+                    state.updateNoBroadcast(true, true);
                     new PulseTask((GlowBlock) state.getBlock(), true, 1, true).startPulseTask();
                 }
             }

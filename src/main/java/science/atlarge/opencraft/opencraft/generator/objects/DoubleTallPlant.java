@@ -8,6 +8,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.DoublePlant;
 import org.bukkit.material.types.DoublePlantSpecies;
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 
 public class DoubleTallPlant implements TerrainObject {
 
@@ -34,14 +35,14 @@ public class DoubleTallPlant implements TerrainObject {
             Block topBlock = block.getRelative(BlockFace.UP);
             if (y < 255 && block.isEmpty() && topBlock.isEmpty()
                     && block.getRelative(BlockFace.DOWN).getType() == Material.GRASS) {
-                BlockState state = block.getState();
+                GlowBlockState state = (GlowBlockState) block.getState();
                 state.setType(Material.DOUBLE_PLANT);
                 state.setData(new DoublePlant(species));
-                state.update(true);
-                state = topBlock.getState();
+                state.updateNoBroadcast(true, true);
+                state = (GlowBlockState) topBlock.getState();
                 state.setType(Material.DOUBLE_PLANT);
                 state.setData(new DoublePlant(DoublePlantSpecies.PLANT_APEX));
-                state.update(true);
+                state.updateNoBroadcast(true, true);
                 placed = true;
             }
         }

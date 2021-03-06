@@ -2,6 +2,8 @@ package science.atlarge.opencraft.opencraft.generator.decorators.nether;
 
 import java.util.Arrays;
 import java.util.Random;
+
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 import science.atlarge.opencraft.opencraft.generator.decorators.BlockDecorator;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -45,10 +47,10 @@ public class MushroomDecorator extends BlockDecorator {
             Block blockBelow = world.getBlockAt(x, y - 1, z);
             if (y < 128 && block.getType() == Material.AIR && Arrays.asList(MATERIALS)
                 .contains(blockBelow.getType())) {
-                BlockState state = block.getState();
+                GlowBlockState state = (GlowBlockState) block.getState();
                 state.setType(type);
                 state.setData(new MaterialData(type));
-                state.update(true);
+                state.updateNoBroadcast(true, true);
             }
         }
     }

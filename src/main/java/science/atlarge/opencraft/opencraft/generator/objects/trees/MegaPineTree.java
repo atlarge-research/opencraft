@@ -1,6 +1,8 @@
 package science.atlarge.opencraft.opencraft.generator.objects.trees;
 
 import java.util.Random;
+
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 import science.atlarge.opencraft.opencraft.util.BlockStateDelegate;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -71,7 +73,7 @@ public class MegaPineTree extends MegaRedwoodTree {
                     Block block = world
                         .getBlockAt(sourceX + x, sourceY + y, sourceZ + z);
                     if (block.getType() == Material.GRASS || block.getType() == Material.DIRT) {
-                        BlockState state = block.getState();
+                        GlowBlockState state = (GlowBlockState) block.getState();
                         state.setType(Material.DIRT);
                         DirtType dirtType = DirtType.PODZOL;
                         if (world.getBlockAt(sourceX + x, sourceY + y + 1, sourceZ + z)
@@ -79,7 +81,7 @@ public class MegaPineTree extends MegaRedwoodTree {
                             dirtType = DirtType.NORMAL;
                         }
                         state.setData(new Dirt(dirtType));
-                        state.update(true);
+                        state.updateNoBroadcast(true, true);
                     } else if (!block.isEmpty() && sourceY + y < sourceY) {
                         break;
                     }

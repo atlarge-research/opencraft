@@ -7,6 +7,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.LongGrass;
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 
 public class TallGrass implements TerrainObject {
 
@@ -34,10 +35,10 @@ public class TallGrass implements TerrainObject {
             Material blockTypeBelow = block.getRelative(BlockFace.DOWN).getType();
             if (y < 255 && block.getType() == Material.AIR && (
                     blockTypeBelow == Material.GRASS || blockTypeBelow == Material.DIRT)) {
-                BlockState state = block.getState();
+                GlowBlockState state = (GlowBlockState) block.getState();
                 state.setType(Material.LONG_GRASS);
                 state.setData(grassType);
-                state.update(true);
+                state.updateNoBroadcast(true, true);
                 succeeded = true;
             }
         }

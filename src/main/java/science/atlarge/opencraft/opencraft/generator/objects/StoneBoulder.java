@@ -8,6 +8,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.MaterialData;
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 
 public class StoneBoulder implements TerrainObject {
 
@@ -46,14 +47,14 @@ public class StoneBoulder implements TerrainObject {
                         if (xsquared + zsquared + y * y > fsquared) {
                             continue;
                         }
-                        BlockState state = world
+                        GlowBlockState state = (GlowBlockState) world
                                 .getBlockAt(sourceX + x, sourceY + y, sourceZ + z).getState();
                         if (!TerrainObject.killPlantAbove(state.getBlock())) {
                             // FIXME: Is it a bug to suppress the cobblestone beneath where a plant
                             // previously stood?!
                             state.setType(Material.MOSSY_COBBLESTONE);
                             state.setData(new MaterialData(Material.MOSSY_COBBLESTONE));
-                            state.update(true);
+                            state.updateNoBroadcast(true, true);
                         }
                     }
                 }

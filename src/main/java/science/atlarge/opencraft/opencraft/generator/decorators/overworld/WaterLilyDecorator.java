@@ -1,6 +1,8 @@
 package science.atlarge.opencraft.opencraft.generator.decorators.overworld;
 
 import java.util.Random;
+
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 import science.atlarge.opencraft.opencraft.generator.decorators.BlockDecorator;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -27,10 +29,10 @@ public class WaterLilyDecorator extends BlockDecorator {
 
             if (y >= 0 && y <= 255 && world.getBlockAt(x, y, z).getType() == Material.AIR
                 && world.getBlockAt(x, y - 1, z).getType() == Material.STATIONARY_WATER) {
-                BlockState state = world.getBlockAt(x, y, z).getState();
+                GlowBlockState state = (GlowBlockState) world.getBlockAt(x, y, z).getState();
                 state.setType(Material.WATER_LILY);
                 state.setData(new MaterialData(Material.WATER_LILY));
-                state.update(true);
+                state.updateNoBroadcast(true, true);
             }
         }
     }

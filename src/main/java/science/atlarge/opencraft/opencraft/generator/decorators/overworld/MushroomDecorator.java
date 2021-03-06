@@ -1,6 +1,8 @@
 package science.atlarge.opencraft.opencraft.generator.decorators.overworld;
 
 import java.util.Random;
+
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 import science.atlarge.opencraft.opencraft.generator.decorators.BlockDecorator;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -78,10 +80,10 @@ public class MushroomDecorator extends BlockDecorator {
                             canPlaceShroom = false;
                     }
                     if (canPlaceShroom) {
-                        BlockState state = block.getState();
+                        GlowBlockState state = (GlowBlockState) block.getState();
                         state.setType(type);
                         state.setData(new MaterialData(type));
-                        state.update(true);
+                        state.updateNoBroadcast(true, true);
                     }
                 }
             }

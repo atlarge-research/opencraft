@@ -90,6 +90,7 @@ public final class ChunkRunnable extends PriorityRunnable {
         player.getChunkLock().acquire(key);
 
         Message message = chunk.toMessage(skylight);
+        world.getServer().getLogger().info("sending message for chunk " + x + "," + z);
         session.send(message);
 
         chunk.getRawBlockEntities().forEach(entity -> entity.update(player));

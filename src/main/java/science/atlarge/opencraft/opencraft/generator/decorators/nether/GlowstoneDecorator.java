@@ -1,6 +1,8 @@
 package science.atlarge.opencraft.opencraft.generator.decorators.nether;
 
 import java.util.Random;
+
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 import science.atlarge.opencraft.opencraft.generator.decorators.BlockDecorator;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -38,9 +40,9 @@ public class GlowstoneDecorator extends BlockDecorator {
                     || block.getRelative(BlockFace.UP).getType() != Material.NETHERRACK) {
                 continue;
             }
-            BlockState state = block.getState();
+            GlowBlockState state = (GlowBlockState) block.getState();
             state.setType(Material.GLOWSTONE);
-            state.update(true);
+            state.updateNoBroadcast(true, true);
 
             for (int j = 0; j < 1500; j++) {
                 int x = sourceX + random.nextInt(8) - random.nextInt(8);
@@ -57,9 +59,9 @@ public class GlowstoneDecorator extends BlockDecorator {
                     }
                 }
                 if (glowstoneBlockCount == 1) {
-                    state = block.getState();
+                    state = (GlowBlockState) block.getState();
                     state.setType(Material.GLOWSTONE);
-                    state.update(true);
+                    state.updateNoBroadcast(true, true);
                 }
             }
         }

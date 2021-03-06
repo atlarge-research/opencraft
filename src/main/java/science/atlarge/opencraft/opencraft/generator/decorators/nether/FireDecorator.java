@@ -1,6 +1,8 @@
 package science.atlarge.opencraft.opencraft.generator.decorators.nether;
 
 import java.util.Random;
+
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 import science.atlarge.opencraft.opencraft.generator.decorators.BlockDecorator;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
@@ -29,10 +31,10 @@ public class FireDecorator extends BlockDecorator {
                 Block blockBelow = world.getBlockAt(x, y - 1, z);
                 if (y < 128 && block.getType() == Material.AIR
                     && blockBelow.getType() == Material.NETHERRACK) {
-                    BlockState state = block.getState();
+                    GlowBlockState state = (GlowBlockState) block.getState();
                     state.setType(Material.FIRE);
                     state.setData(new MaterialData(Material.FIRE));
-                    state.update(true);
+                    state.updateNoBroadcast(true, true);
                 }
             }
         }

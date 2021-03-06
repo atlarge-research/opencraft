@@ -253,6 +253,33 @@ public class GlowBlock implements Block {
         return true;
     }
 
+    public boolean setTypeIdAndDataNoBroadcast(int type, byte data, boolean applyPhysics) {
+        Material oldTypeId = getType();
+        byte oldData = getData();
+
+        GlowChunk chunk = (GlowChunk) world.getChunkAt(this);
+        chunk.setType(x & 0xf, z & 0xf, y, type);
+        chunk.setMetaData(x & 0xf, z & 0xf, y, data);
+
+        if (oldTypeId == Material.DOUBLE_PLANT
+                && getRelative(BlockFace.UP).getType() == Material.DOUBLE_PLANT) {
+            world.getChunkAtAsync(this, c -> ((GlowChunk) c).setType(x & 0xf, z & 0xf, y + 1, 0));
+            BlockChangeMessage bcmsg = new BlockChangeMessage(x, y + 1, z, 0, 0);
+            world.collectBlockChange(bcmsg);
+//             world.broadcastBlockChange(bcmsg);
+        }
+
+        if (applyPhysics) {
+            applyPhysics(oldTypeId, type, oldData, data);
+        }
+
+        BlockChangeMessage bcmsg = new BlockChangeMessage(x, y, z, type, data);
+        world.collectBlockChange(bcmsg);
+//         world.broadcastBlockChange(bcmsg);
+
+        return true;
+    }
+
     @Override
     public boolean isEmpty() {
         return getTypeId() == 0;

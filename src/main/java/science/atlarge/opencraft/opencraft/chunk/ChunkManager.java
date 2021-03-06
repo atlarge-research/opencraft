@@ -251,6 +251,8 @@ public class ChunkManager {
                 p.populate(world, random, chunk);
             }
 
+            world.broadcastTempBlockChanges(chunk);
+
             EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
 
         } finally {

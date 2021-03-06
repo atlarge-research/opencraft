@@ -7,6 +7,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.MaterialData;
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 
 public class Cactus implements TerrainObject {
 
@@ -30,10 +31,10 @@ public class Cactus implements TerrainObject {
                             return n > y;
                         }
                     }
-                    BlockState state = block.getState();
+                    GlowBlockState state = (GlowBlockState) block.getState();
                     state.setType(Material.CACTUS);
                     state.setData(new MaterialData(Material.CACTUS));
-                    state.update(true);
+                    state.updateNoBroadcast(true, true);
                 }
             }
         }

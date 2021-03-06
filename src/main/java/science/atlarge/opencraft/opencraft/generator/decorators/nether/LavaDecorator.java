@@ -2,6 +2,7 @@ package science.atlarge.opencraft.opencraft.generator.decorators.nether;
 
 import java.util.Random;
 import science.atlarge.opencraft.opencraft.block.GlowBlock;
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 import science.atlarge.opencraft.opencraft.generator.decorators.BlockDecorator;
 import science.atlarge.opencraft.opencraft.scheduler.PulseTask;
 import org.bukkit.Chunk;
@@ -50,9 +51,9 @@ public class LavaDecorator extends BlockDecorator {
 
         if (netherrackBlockCount == 5
             || flowing && airBlockCount == 1 && netherrackBlockCount == 4) {
-            BlockState state = block.getState();
+            GlowBlockState state = (GlowBlockState) block.getState();
             state.setType(Material.LAVA);
-            state.update(true);
+            state.updateNoBroadcast(true, true);
             new PulseTask((GlowBlock) block, true, 1, true).startPulseTask();
         }
     }

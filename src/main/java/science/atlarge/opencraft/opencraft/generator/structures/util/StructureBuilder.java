@@ -6,6 +6,7 @@ import java.util.Random;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 import science.atlarge.opencraft.opencraft.generator.objects.RandomItemsContent;
 import science.atlarge.opencraft.opencraft.generator.structures.GlowStructurePiece;
 import science.atlarge.opencraft.opencraft.util.BlockStateDelegate;
@@ -422,13 +423,13 @@ public class StructureBuilder {
             DirectionalContainer container, int maxStacks) {
         Vector vec = translate(pos);
         if (boundingBox.isVectorInside(vec)) {
-            BlockState state = world.getBlockAt(vec.getBlockX(), vec.getBlockY(), vec.getBlockZ())
+            GlowBlockState state = (GlowBlockState) world.getBlockAt(vec.getBlockX(), vec.getBlockY(), vec.getBlockZ())
                     .getState();
             delegate.backupBlockState(state.getBlock());
 
             state.setType(container.getItemType());
             state.setData(container);
-            state.update(true);
+            state.updateNoBroadcast(true, true);
 
             return content.fillContainer(random, state, maxStacks);
         }
@@ -444,14 +445,14 @@ public class StructureBuilder {
     public void createMobSpawner(Vector pos, EntityType entityType) {
         Vector vec = translate(pos);
         if (boundingBox.isVectorInside(vec)) {
-            BlockState state = world.getBlockAt(vec.getBlockX(), vec.getBlockY(), vec.getBlockZ())
+            GlowBlockState state = (GlowBlockState) world.getBlockAt(vec.getBlockX(), vec.getBlockY(), vec.getBlockZ())
                     .getState();
             delegate.backupBlockState(state.getBlock());
 
             state.setType(Material.MOB_SPAWNER);
-            state.update(true);
+            state.updateNoBroadcast(true, true);
 
-            state = world.getBlockAt(vec.getBlockX(), vec.getBlockY(), vec.getBlockZ()).getState();
+            state = (GlowBlockState) world.getBlockAt(vec.getBlockX(), vec.getBlockY(), vec.getBlockZ()).getState();
             if (state instanceof CreatureSpawner) {
                 ((CreatureSpawner) state).setSpawnedType(entityType);
             }

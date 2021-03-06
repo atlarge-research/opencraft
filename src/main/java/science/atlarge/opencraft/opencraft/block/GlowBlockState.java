@@ -131,6 +131,13 @@ public class GlowBlockState implements BlockState {
                 && block.setTypeIdAndData(typeId, getRawData(), applyPhysics);
     }
 
+    public boolean updateNoBroadcast(boolean force, boolean applyPhysics) {
+        GlowBlock block = getBlock();
+
+        return (block.getTypeId() == typeId || force)
+                && block.setTypeIdAndDataNoBroadcast(typeId, getRawData(), applyPhysics);
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // Internals
 

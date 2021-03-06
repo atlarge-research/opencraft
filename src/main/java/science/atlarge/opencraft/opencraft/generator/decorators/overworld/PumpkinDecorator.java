@@ -8,6 +8,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.material.Pumpkin;
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 
 public class PumpkinDecorator extends BlockPopulator {
 
@@ -28,11 +29,11 @@ public class PumpkinDecorator extends BlockPopulator {
 
                 if (world.getBlockAt(x, y, z).getType() == Material.AIR
                         && world.getBlockAt(x, y - 1, z).getType() == Material.GRASS) {
-                    BlockState state = world.getBlockAt(x, y, z).getState();
+                    GlowBlockState state = (GlowBlockState) world.getBlockAt(x, y, z).getState();
                     state.setType(Material.PUMPKIN);
                     // random facing
                     state.setData(new Pumpkin(FACES[random.nextInt(FACES.length)]));
-                    state.update(true);
+                    state.updateNoBroadcast(true, true);
                 }
             }
         }

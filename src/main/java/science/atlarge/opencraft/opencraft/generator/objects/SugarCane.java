@@ -9,6 +9,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.material.Dirt;
 import org.bukkit.material.MaterialData;
 import org.bukkit.material.types.DirtType;
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 
 public class SugarCane implements TerrainObject {
 
@@ -46,10 +47,10 @@ public class SugarCane implements TerrainObject {
                     .isEmpty()) {
                     return n > 0;
                 }
-                BlockState state = caneBlock.getState();
+                GlowBlockState state = (GlowBlockState) caneBlock.getState();
                 state.setType(Material.SUGAR_CANE_BLOCK);
                 state.setData(new MaterialData(Material.SUGAR_CANE_BLOCK));
-                state.update(true);
+                state.updateNoBroadcast(true, true);
             }
         }
         return true;

@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.MaterialData;
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 
 public class OreVein implements TerrainObject {
 
@@ -60,10 +61,10 @@ public class OreVein implements TerrainObject {
                                 = normalizedSquaredCoordinate(originZ, radiusH, z);
                         if (squaredNormalizedX + squaredNormalizedY + squaredNormalizedZ < 1
                                 && world.getBlockAt(x, y, z).getType() == targetType) {
-                            BlockState state = world.getBlockAt(x, y, z).getState();
+                            GlowBlockState state = (GlowBlockState) world.getBlockAt(x, y, z).getState();
                             state.setType(type);
                             state.setData(data);
-                            state.update(true);
+                            state.updateNoBroadcast(true, true);
                             succeeded = true;
                         }
                     }

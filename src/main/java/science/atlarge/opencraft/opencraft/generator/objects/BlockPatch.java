@@ -8,6 +8,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.material.MaterialData;
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 
 /**
  * A patch replaces specified blocks within a cylinder. It will delete flowers, tall grass and
@@ -53,10 +54,10 @@ public class BlockPatch implements TerrainObject {
                     if (TerrainObject.killPlantAbove(block)) {
                         break;
                     }
-                    BlockState state = block.getState();
+                    GlowBlockState state = (GlowBlockState) block.getState();
                     state.setType(type);
                     state.setData(new MaterialData(type));
-                    state.update(true);
+                    state.updateNoBroadcast(true, true);
                     succeeded = true;
                     break;
                 }

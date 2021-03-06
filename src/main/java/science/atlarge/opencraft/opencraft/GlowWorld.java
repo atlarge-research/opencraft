@@ -396,6 +396,8 @@ public class GlowWorld implements World {
 
     private ImmutableMap<GlowPlayer, AreaOfInterest> previousAreas;
 
+    private List<BlockChangeMessage> tempBlockChanges;
+
     /**
      * Creates a new world from the options in the given WorldCreator.
      *
@@ -441,6 +443,8 @@ public class GlowWorld implements World {
 
         executor = new PriorityExecutor<>();
         previousAreas = ImmutableMap.of();
+
+        tempBlockChanges = new ArrayList<>();
 
         // Read in world data
         WorldMetadataService.WorldFinalValues values;
@@ -756,6 +760,30 @@ public class GlowWorld implements World {
     public void broadcastBlockChange(BlockChangeMessage message) {
         GlowBlock block = getBlockAt(message.getX(), message.getY(), message.getZ());
         messagingSystem.publish(block, message);
+    }
+
+    /**
+     * Add a block change message to the block changes temporary queue.
+     *
+     * @param message The message to be stored.
+     */
+    public void collectBlockChange(BlockChangeMessage message) {
+        tempBlockChanges.add(message);
+    }
+
+    /**
+     * Broadcasts the block change messages that are outside of the given chunk.
+     *
+     * @param toExclude chunk to omit changes from
+     */
+    public void broadcastTempBlockChanges(GlowChunk toExclude) {
+        for (BlockChangeMessage msg: tempBlockChanges) {
+            if ((msg.getX() >> 4 != toExclude.getX()) || (msg.getZ() >> 4) != toExclude.getZ()) {
+                broadcastBlockChange(msg);
+            }
+        }
+
+        tempBlockChanges.clear();
     }
 
     /**
