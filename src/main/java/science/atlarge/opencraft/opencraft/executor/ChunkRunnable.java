@@ -87,13 +87,18 @@ public final class ChunkRunnable extends PriorityRunnable {
         boolean skylight = world.getEnvironment() == World.Environment.NORMAL;
 
         if (!chunk.isPopulated()) {
-            world.getServer().eventLogger.log(String.format("trigger_population (%d,%d)", x, z),
-                    String.format("(%d,%d)", player.getLocation().getBlockX(), player.getLocation().getBlockZ()));
+            // eventLogger is always non-null, but without this if statement ChunkRunnableTest fails
+            if (world.getServer().eventLogger != null) {
+                world.getServer().eventLogger.log(String.format("trigger_population (%d,%d)", x, z),
+                        String.format("(%d,%d)", player.getLocation().getBlockX(), player.getLocation().getBlockZ()));
 
-            world.getChunkLoadingPolicy().triggerChunkPopulation(x, z);
+                world.getChunkLoadingPolicy().triggerChunkPopulation(x, z);
 
-            world.getServer().eventLogger.log(String.format("finished_population (%d,%d)", x, z),
-                    String.format("(%d,%d)", player.getLocation().getBlockX(), player.getLocation().getBlockZ()));
+                world.getServer().eventLogger.log(String.format("finished_population (%d,%d)", x, z),
+                        String.format("(%d,%d)", player.getLocation().getBlockX(), player.getLocation().getBlockZ()));
+            } else {
+                world.getChunkLoadingPolicy().triggerChunkPopulation(x, z);
+            }
         }
 
         GlowChunk.Key key = GlowChunk.Key.of(x, z);

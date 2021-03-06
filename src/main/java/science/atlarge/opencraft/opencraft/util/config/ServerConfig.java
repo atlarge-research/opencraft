@@ -412,6 +412,7 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
 
         // Opencraft - Serverless Population
         OPENCRAFT_CHUNK_POPULATION_POLICY("opencraft.chunk-population.policy", "default", String.class::isInstance),
+        OPENCRAFT_CHUNK_POPULATION_FILTERBCM("opencraft.chunk-population.filterBCM", "true", Boolean.class::isInstance),
 
         // server
         SERVER_IP("server.ip", "", Migrate.PROPS, "server-ip", String.class::isInstance),

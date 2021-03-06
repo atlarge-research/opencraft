@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
+
+import science.atlarge.opencraft.opencraft.GlowServer;
 import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.block.entity.BlockEntity;
 import science.atlarge.opencraft.opencraft.chunk.ChunkManager;
@@ -37,6 +39,7 @@ class ChunkRunnableTest {
     private ChunkLoadingPolicy chunkLoadingPolicy;
     private GlowPlayer player;
     private ChunkRunnable runnable;
+    private GlowServer server;
     private GlowSession session;
     private GlowWorld world;
 
@@ -49,11 +52,13 @@ class ChunkRunnableTest {
         chunkManager = mock(ChunkManager.class);
         chunkLoadingPolicy = mock(DefaultChunkLoadingPolicy.class);
         chunkLock = mock(ChunkManager.ChunkLock.class);
+        server = mock(GlowServer.class);
         session = mock(GlowSession.class);
         world = mock(GlowWorld.class);
 
         when(world.getChunkManager()).thenReturn(chunkManager);
         when(world.getChunkLoadingPolicy()).thenReturn(chunkLoadingPolicy);
+        when(world.getServer()).thenReturn(server);
 
         GlowChunk chunk = mock(GlowChunk.class);
         when(chunk.getX()).thenReturn(chunkX);

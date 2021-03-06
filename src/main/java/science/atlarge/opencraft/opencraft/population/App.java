@@ -51,7 +51,9 @@ public class App implements RequestHandler<String, String> {
             world.getPopulatedBlockMessages().stream().filter(msg -> {
                 int msgChunkX = msg.getX() >> 4;
                 int msgChunkZ = msg.getZ() >> 4;
-                return msgChunkX != chunkToPopulate.getX() || msgChunkZ != chunkToPopulate.getZ();
+                return !deserialized.filterBCM ||
+                        msgChunkX != chunkToPopulate.getX() ||
+                        msgChunkZ != chunkToPopulate.getZ();
             }).collect(Collectors.toList())
         );
 

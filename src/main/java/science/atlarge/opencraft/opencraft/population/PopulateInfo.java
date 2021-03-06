@@ -12,6 +12,7 @@ import science.atlarge.opencraft.opencraft.population.serialization.GlowSerializ
 import science.atlarge.opencraft.opencraft.population.serialization.json.JsonSerializer;
 import science.atlarge.opencraft.opencraft.net.message.play.game.BlockChangeMessage;
 import science.atlarge.opencraft.opencraft.scheduler.PulseTask;
+import science.atlarge.opencraft.opencraft.util.config.ServerConfig;
 
 
 public class PopulateInfo {
@@ -22,10 +23,22 @@ public class PopulateInfo {
         public int x;
         public int z;
 
-        public PopulateInput(GlowWorld world, int x, int z) {
+        /**
+         * whether lambda should send back all BlockChangeMessages or filter only the relevant ones
+         */
+        public boolean filterBCM;
+
+        public PopulateInput(GlowWorld world, int x, int z, boolean filterBCM) {
             this.world = world;
             this.x = x;
             this.z = z;
+            this.filterBCM = filterBCM;
+        }
+
+        public PopulateInput(GlowWorld world, int x, int z) {
+            this(world, x, z, Boolean.parseBoolean(
+                    world.getServer().getConfig().getString(ServerConfig.Key.OPENCRAFT_CHUNK_POPULATION_FILTERBCM)
+            ));
         }
 
         public String serialize() {
@@ -34,16 +47,17 @@ public class PopulateInfo {
                 world.setSerializedCache(serializer.serialize(world));
             }
             String worldCache = world.getSerializedCache();
-            String inp = String.format("%d,%d,%s", x, z, worldCache);
+            String inp = String.format("%d,%d,%b,%s", x, z, filterBCM, worldCache);
             return serializer.serialize(inp);
         }
 
         public static PopulateInput deserialize(String src) {
-            String[] deserialized = src.split(",", 3);
+            String[] deserialized = src.split(",", 4);
             return new PopulateInput(
-                    serializer.deserialize(deserialized[2], GlowWorld.class),
+                    serializer.deserialize(deserialized[3], GlowWorld.class),
                     Integer.parseInt(deserialized[0]),
-                    Integer.parseInt(deserialized[1])
+                    Integer.parseInt(deserialized[1]),
+                    Boolean.parseBoolean(deserialized[2])
             );
             //return serializer.deserialize(src, PopulateInput.class);
         }
