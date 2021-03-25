@@ -3,7 +3,11 @@ package science.atlarge.opencraft.opencraft.block.blocktype;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+
+import com.google.gson.Gson;
+import org.bukkit.util.Vector;
 import science.atlarge.opencraft.opencraft.EventFactory;
+import science.atlarge.opencraft.opencraft.GlowServer;
 import science.atlarge.opencraft.opencraft.block.GlowBlock;
 import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
@@ -12,8 +16,14 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.inventory.ItemStack;
+import science.atlarge.opencraft.opencraft.serverless.BlockSet;
+import science.atlarge.opencraft.opencraft.serverless.Invoker;
+import science.atlarge.opencraft.opencraft.serverless.SimulatedRegistry;
+import science.atlarge.opencraft.opencraft.serverless.StateStore;
 
 public class BlockSugarCane extends BlockNeedsAttached {
+
+    static int count = 0;
 
     @Override
     public void onNearBlockChanged(GlowBlock block, BlockFace face, GlowBlock changedBlock,
@@ -48,6 +58,8 @@ public class BlockSugarCane extends BlockNeedsAttached {
             block.breakNaturally();
             return;
         }
+
+        GlowServer.logger.info("Updating block!");
 
         GlowBlock blockAbove = block.getRelative(BlockFace.UP);
         // check it's the highest block of sugar cane
@@ -101,5 +113,31 @@ public class BlockSugarCane extends BlockNeedsAttached {
     public Collection<ItemStack> getDrops(GlowBlock me, ItemStack tool) {
         // Overridden for sugar cane to remove data from the dropped item
         return Collections.unmodifiableList(Arrays.asList(new ItemStack(Material.SUGAR_CANE)));
+    }
+
+    @Override
+    public void placeBlock(GlowPlayer player, GlowBlockState state, BlockFace face, ItemStack holding, Vector clickedLoc) {
+        super.placeBlock(player, state, face, holding, clickedLoc);
+
+        state.update(true);
+        GlowServer.logger.info("Placed a sugar cane block!");
+        GlowServer.logger.info(String.format("typeId: %s", state.getTypeId()));
+        GlowServer.logger.info(String.format("X: %s, Y: %s, Z: %s", state.getX(), state.getY(),state.getZ()));
+        BlockSet blockSet = new BlockSet(state.getBlock(), 2);
+
+        Gson gson = new Gson();
+        String json = gson.toJson(blockSet);
+
+        //TODO(Javier): check for volume intersections!
+        //TODO(Javier): check for pre-compute invalidation up-stack!
+        //TODO(Javier): lambda invocation should be async!
+        String[] resultingStates = Invoker.getInstance().simulate(json);
+
+        GlowServer.logger.info(String.format("response from lambda: %d", resultingStates.length));
+
+        SimulatedRegistry.getInstance().registerBlockSet(count, blockSet);
+        StateStore.getInstance().put(count, resultingStates);
+
+        count++;
     }
 }

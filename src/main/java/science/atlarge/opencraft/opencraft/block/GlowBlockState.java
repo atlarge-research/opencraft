@@ -19,7 +19,7 @@ import org.bukkit.plugin.Plugin;
 public class GlowBlockState implements BlockState {
 
     @Getter
-    private final GlowWorld world;
+    private transient final GlowWorld world;
     @Getter
     private final int x;
     @Getter
@@ -209,5 +209,10 @@ public class GlowBlockState implements BlockState {
             return false;
         }
         return x == other.x && y == other.y && z == other.z;
+    }
+
+    public void copy(GlowBlockState newState){
+        setType(newState.getType());
+        setRawData(newState.getRawData());
     }
 }

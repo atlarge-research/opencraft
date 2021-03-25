@@ -64,8 +64,9 @@ public class GlowBlock implements Block {
     private final int y;
     @Getter
     private final int z;
+
     @Getter
-    private GlowWorld world;
+    private transient GlowWorld world;
 
     /**
      * Creates an object to refer to a block.

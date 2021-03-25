@@ -20,10 +20,12 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import science.atlarge.opencraft.opencraft.block.GlowBlock;
+import science.atlarge.opencraft.opencraft.block.GlowBlockState;
 import science.atlarge.opencraft.opencraft.block.ItemTable;
 import science.atlarge.opencraft.opencraft.block.blocktype.BlockType;
 import science.atlarge.opencraft.opencraft.chunk.AreaOfInterest;
@@ -61,6 +63,9 @@ import science.atlarge.opencraft.opencraft.net.message.play.game.BlockChangeMess
 import science.atlarge.opencraft.opencraft.net.message.play.game.UnloadChunkMessage;
 import science.atlarge.opencraft.opencraft.net.message.play.game.UpdateBlockEntityMessage;
 import science.atlarge.opencraft.opencraft.net.message.play.player.ServerDifficultyMessage;
+import science.atlarge.opencraft.opencraft.serverless.BlockSet;
+import science.atlarge.opencraft.opencraft.serverless.SimulatedRegistry;
+import science.atlarge.opencraft.opencraft.serverless.StateStore;
 import science.atlarge.opencraft.opencraft.util.BlockStateDelegate;
 import science.atlarge.opencraft.opencraft.util.GameRuleManager;
 import science.atlarge.opencraft.opencraft.util.RayUtil;
@@ -666,6 +671,8 @@ public class GlowWorld implements World {
      * @param chunks the chunks which contain the blocks to be updated.
      */
     private void updateBlocksInChunks(Set<GlowChunk> chunks) {
+
+        if(chunks.size() <= 0) return;
         chunks.parallelStream().filter(this::isChunkLoaded).forEach(chunk -> {
 
             int x = chunk.getX();
@@ -688,7 +695,7 @@ public class GlowWorld implements World {
      * @param section the section in which to update the blocks.
      * @param index   the index of the section within the chunk.
      */
-    private void updateBlocksInSection(GlowChunk chunk, ChunkSection section, int index) {
+    public void updateBlocksInSection(GlowChunk chunk, ChunkSection section, int index) {
         if (section != null) {
             for (int j = 0; j < 3; j++) {
                 int n = ThreadLocalRandom.current().nextInt();
@@ -699,7 +706,37 @@ public class GlowWorld implements World {
                 if (type != 0) { // filter air blocks
                     BlockType blockType = ItemTable.instance().getBlock(type);
                     if (blockType != null && blockType.canTickRandomly()) {
-                        blockType.updateBlock(chunk.getBlock(x, y + (index << 4), z));
+                        GlowBlock block = chunk.getBlock(x,y + (index <<4) ,z);
+                        SimulatedRegistry.QueryResult blockSetInfo =
+                                SimulatedRegistry.getInstance().queryBlock(block.getX(), block.getY(), block.getZ());
+
+                        if(blockSetInfo != null){
+
+                            BlockSet simulatedBlockSet = StateStore.getInstance().get(blockSetInfo.getId(), blockSetInfo.getSimulationIndex());
+                            for (int i = 0; i < simulatedBlockSet.getSize_1(); i++) {
+                                for (int jj = 0; jj < simulatedBlockSet.getSize_1(); jj++) {
+                                    for (int k = 0; k < simulatedBlockSet.getSize_1(); k++) {
+                                        GlowBlockState newState = simulatedBlockSet.get(k,jj,i);
+                                        GlowBlock b = chunk.getWorld().getBlockAt(newState.getX(), newState.getY(), newState.getZ());
+                                        GlowBlockState s = b.getState();
+
+                                        GlowServer.logger.info(
+                                            String.format("changing {%d, %d} to {%d, %d}",
+                                                s.getData().getItemTypeId(), s.getData().getData(),
+                                                newState.getData().getItemTypeId(), newState.getData().getData())
+                                        );
+
+
+                                        s.copy(newState);
+                                        s.update(true);
+                                    }
+                                }
+                            }
+                            SimulatedRegistry.getInstance().update(blockSetInfo.getId());
+                        }
+                        else{
+                            blockType.updateBlock(block);
+                        }
                     }
                 }
             }

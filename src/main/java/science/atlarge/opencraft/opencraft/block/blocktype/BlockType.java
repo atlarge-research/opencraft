@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.Setter;
 import science.atlarge.opencraft.opencraft.EventFactory;
 import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.block.GlowBlock;
@@ -40,6 +41,10 @@ import org.bukkit.util.Vector;
  * Base class for specific types of blocks.
  */
 public class BlockType extends ItemType {
+
+    @Getter
+    @Setter
+    int offloadTicks;
 
     protected static final BlockFace[] SIDES = new BlockFace[] {BlockFace.NORTH, BlockFace.EAST,
         BlockFace.SOUTH, BlockFace.WEST};
