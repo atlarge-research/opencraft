@@ -353,12 +353,20 @@ public class ChunkManager {
 
             // todo: try to load the chunk before requesting from lambda
 
-            chunk.setPopulated(true);
-
             // invoke the lambda function
             PopulateInfo.PopulateOutput output = PopulationInvoker.invoke(
                     new PopulateInfo.PopulateInput(world, x, z), world.getServer().eventLogger
             );
+
+            if (output == null) {
+                // stop serverless chunk population timer
+                world.getServer().eventLogger.stop(String.format("serverless_population (%d,%d)", x, z));
+                lock.unlock();
+                populateChunk(x, z, true);
+                return;
+            }
+
+            chunk.setPopulated(true);
 
             // set the populated chunk back to this world; this also deserializes the chunk
             world.getServer().eventLogger.start(String.format("deserialize_chunk_data (%d,%d)", x, z));

@@ -46,7 +46,7 @@ public class PopulationInvoker {
         logger.stop(String.format("serialize_input (%d,%d)", input.x, input.z));
 
         InvokeRequest req = new InvokeRequest()
-                .withFunctionName("NaivePopulate")
+                .withFunctionName(System.getenv("LAMBDA_FUNCTION"))
                 .withPayload(inp);
 
         // log time spent in lambda and invoke the function
@@ -68,7 +68,7 @@ public class PopulationInvoker {
     public static void preventLambdaColdBoot() {
         // async invoke
         InvokeRequest req = new InvokeRequest()
-                .withFunctionName("NaivePopulate")
+                .withFunctionName(System.getenv("LAMBDA_FUNCTION"))
                 .withInvocationType(InvocationType.Event)
                 .withPayload("\"\"");
         client.invoke(req);
