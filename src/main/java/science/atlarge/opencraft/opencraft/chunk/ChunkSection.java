@@ -234,6 +234,27 @@ public final class ChunkSection {
     }
 
     /**
+     * Combines current section types with a given types array.
+     *
+     * @param types Type array to combine current sections with
+     */
+    public void combineTypes(char[] types) {
+        if (types.length != ARRAY_SIZE) {
+            throw new IllegalArgumentException("Types array length was not " + ARRAY_SIZE + ": "
+                    + types.length);
+        }
+
+        char[] combined = getTypes();
+        for (int i = 0; i < ARRAY_SIZE; ++i) {
+            if (types[i] != 0) {
+                combined[i] = types[i];
+            }
+        }
+
+        loadTypeArray(combined);
+    }
+
+    /**
      * Calculate the index into internal arrays for the given coordinates.
      *
      * @param x The x coordinate, for east and west.

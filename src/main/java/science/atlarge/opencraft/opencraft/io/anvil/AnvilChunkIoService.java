@@ -76,6 +76,10 @@ public final class AnvilChunkIoService implements ChunkIoService {
             levelTag = root.getCompound("Level"); // NON-NLS
         }
 
+        // backup current sections and unload the chunk, in order to be able to reinitialize its sections
+        ChunkSection[] prevSections = chunk.getSections();
+        chunk.unload(false, false);
+
         // read the vertical sections
         List<CompoundTag> sectionList = levelTag.getCompoundList("Sections"); // NON-NLS
         ChunkSection[] sections = new ChunkSection[GlowChunk.SEC_COUNT];
@@ -85,11 +89,18 @@ public final class AnvilChunkIoService implements ChunkIoService {
                 ConsoleMessages.Warn.Chunk.SECTION_OOB.log(y, chunk);
                 continue;
             }
+
             if (sections[y] != null) {
                 ConsoleMessages.Warn.Chunk.SECTION_DUP.log(y, chunk);
                 continue;
             }
+
             sections[y] = ChunkSection.fromNbt(sectionTag);
+
+            // if the chunk already had sections, we try to combine them with the stream data
+            if (prevSections != null && prevSections[y] != null) {
+                sections[y].combineTypes(prevSections[y].getTypes());
+            }
         }
 
         // initialize the chunk
