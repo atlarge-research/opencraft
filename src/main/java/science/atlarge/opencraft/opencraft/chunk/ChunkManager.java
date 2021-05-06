@@ -221,6 +221,7 @@ public class ChunkManager {
      */
     private void populateChunk(int x, int z, boolean force) {
         lock.lock();
+        world.getServer().eventLogger.start("population");
         try {
 
             GlowChunk chunk = getChunk(x, z);
@@ -256,6 +257,7 @@ public class ChunkManager {
             EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
 
         } finally {
+            world.getServer().eventLogger.stop("population");
             lock.unlock();
         }
     }
