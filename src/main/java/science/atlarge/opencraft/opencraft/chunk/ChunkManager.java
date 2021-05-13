@@ -32,6 +32,7 @@ import science.atlarge.opencraft.opencraft.generator.GlowChunkGenerator;
 import science.atlarge.opencraft.opencraft.generator.biomegrid.MapLayer;
 import science.atlarge.opencraft.opencraft.i18n.ConsoleMessages;
 import science.atlarge.opencraft.opencraft.io.ChunkIoService;
+import science.atlarge.opencraft.opencraft.measurements.EventLogger;
 
 /**
  * A class which manages the {@link GlowChunk}s currently loaded in memory.
@@ -220,13 +221,16 @@ public class ChunkManager {
      * Populate a single chunk if needed.
      */
     private void populateChunk(int x, int z, boolean force) {
+        EventLogger logger = world.getServer().eventLogger;
+
         lock.lock();
-        world.getServer().eventLogger.start("population");
+        logger.start("population");
         try {
 
             GlowChunk chunk = getChunk(x, z);
             // cancel out if it's already populated
             if (chunk.isPopulated()) {
+                logger.cancel("population");
                 return;
             }
 
@@ -257,7 +261,7 @@ public class ChunkManager {
             EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
 
         } finally {
-            world.getServer().eventLogger.stop("population");
+            logger.stop("population");
             lock.unlock();
         }
     }

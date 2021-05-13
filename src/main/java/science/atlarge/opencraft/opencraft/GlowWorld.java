@@ -54,6 +54,7 @@ import science.atlarge.opencraft.opencraft.executor.PriorityExecutor;
 import science.atlarge.opencraft.opencraft.generator.structures.GlowStructure;
 import science.atlarge.opencraft.opencraft.io.WorldStorageProvider;
 import science.atlarge.opencraft.opencraft.io.entity.EntityStorage;
+import science.atlarge.opencraft.opencraft.measurements.EventLogger;
 import science.atlarge.opencraft.opencraft.messaging.Messaging;
 import science.atlarge.opencraft.opencraft.messaging.MessagingFactory;
 import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityStatusMessage;
@@ -555,6 +556,18 @@ public class GlowWorld implements World {
             .collect(Collectors.toList());
 
         Set<ChunkRunnable> cancelled = executor.executeAndCancel(chunksToLoad, ChunkRunnable::shouldBeCancelled);
+
+        EventLogger logger = getServer().eventLogger;
+
+        // start queue timer for chunks just added to queue
+        for (ChunkRunnable ch : chunksToLoad) {
+            logger.start(String.format("queue (%d,%d)", ch.getChunk().getX(), ch.getChunk().getZ()));
+        }
+
+        // cancel queue timer for the chunks removed from the queue
+        for (ChunkRunnable ch : cancelled) {
+            logger.cancel(String.format("queue (%d,%d)", ch.getChunk().getX(), ch.getChunk().getZ()));
+        }
 
         List<ChunkRunnable> chunksToUnload = allPlayers.parallelStream()
             .map(player -> {

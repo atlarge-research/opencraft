@@ -30,5 +30,9 @@ public abstract class EventLogger implements AutoCloseable {
         }
     }
 
+    public void cancel(String key) {
+        timings.remove(key);
+    }
+
     abstract public void flush();
 }

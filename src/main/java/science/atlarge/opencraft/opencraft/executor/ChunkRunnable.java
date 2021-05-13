@@ -6,6 +6,7 @@ import science.atlarge.opencraft.opencraft.GlowWorld;
 import science.atlarge.opencraft.opencraft.chunk.AreaOfInterest;
 import science.atlarge.opencraft.opencraft.chunk.GlowChunk;
 import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.measurements.EventLogger;
 import science.atlarge.opencraft.opencraft.net.GlowSession;
 import science.atlarge.opencraft.opencraft.util.Coordinates;
 import org.bukkit.World;
@@ -82,6 +83,11 @@ public final class ChunkRunnable extends PriorityRunnable {
         int x = chunk.getX();
         int z = chunk.getZ();
 
+        EventLogger logger = world.getServer().eventLogger;
+
+        // stop queue timer for the chunk
+        logger.stop(String.format("queue (%d,%d)", x, z));
+
         boolean skylight = world.getEnvironment() == World.Environment.NORMAL;
 
         world.getChunkManager().forcePopulation(x, z);
@@ -90,10 +96,12 @@ public final class ChunkRunnable extends PriorityRunnable {
         player.getChunkLock().acquire(key);
 
         Message message = chunk.toMessage(skylight);
-        world.getServer().getLogger().info("sending message for chunk " + x + "," + z);
         session.send(message);
 
         chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
+
+        logger.log(String.format("received_chunk (%d,%d)", x, z),
+                String.format("(%d,%d)", player.getLocation().getBlockX(), player.getLocation().getBlockZ()));
     }
 
     @Override
