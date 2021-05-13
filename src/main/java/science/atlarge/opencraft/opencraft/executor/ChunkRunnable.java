@@ -90,7 +90,11 @@ public final class ChunkRunnable extends PriorityRunnable {
 
         boolean skylight = world.getEnvironment() == World.Environment.NORMAL;
 
-        world.getChunkManager().forcePopulation(x, z);
+        if (!chunk.isPopulated()) {
+            world.getChunkManager().forcePopulation(x, z);
+            logger.log(String.format("received_chunk (%d,%d)", x, z),
+                    String.format("(%d,%d)", player.getLocation().getBlockX(), player.getLocation().getBlockZ()));
+        }
 
         GlowChunk.Key key = GlowChunk.Key.of(x, z);
         player.getChunkLock().acquire(key);
@@ -99,9 +103,6 @@ public final class ChunkRunnable extends PriorityRunnable {
         session.send(message);
 
         chunk.getRawBlockEntities().forEach(entity -> entity.update(player));
-
-        logger.log(String.format("received_chunk (%d,%d)", x, z),
-                String.format("(%d,%d)", player.getLocation().getBlockX(), player.getLocation().getBlockZ()));
     }
 
     @Override
