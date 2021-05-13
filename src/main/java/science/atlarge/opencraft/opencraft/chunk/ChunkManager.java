@@ -224,7 +224,7 @@ public class ChunkManager {
         EventLogger logger = world.getServer().eventLogger;
 
         lock.lock();
-        logger.start("population");
+        logger.start(String.format("local_population (%d,%d)", x, z));
         try {
 
             GlowChunk chunk = getChunk(x, z);
@@ -261,7 +261,7 @@ public class ChunkManager {
             EventFactory.getInstance().callEvent(new ChunkPopulateEvent(chunk));
 
         } finally {
-            logger.stop("population");
+            logger.stop(String.format("local_population (%d,%d)", x, z));
             lock.unlock();
         }
     }
