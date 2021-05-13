@@ -47,7 +47,8 @@ public final class ChunkDataCodec implements Codec<ChunkDataMessage> {
             ByteBufUtils.writeVarInt(buffer, data.writerIndex());
             buffer.writeBytes(data, 0, data.readableBytes());
         } finally {
-            if (!ServerConfig.getInstance().getBoolean(ServerConfig.Key.OPENCRAFT_KLUDGE_CHUNKCACHE)) {
+            ServerConfig config = ServerConfig.getInstance();
+            if (config != null && !config.getBoolean(ServerConfig.Key.OPENCRAFT_KLUDGE_CHUNKCACHE)) {
                 data.release();
             }
         }

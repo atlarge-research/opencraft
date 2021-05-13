@@ -16,6 +16,11 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Answers;
+import org.mockito.Mock;
 import science.atlarge.opencraft.opencraft.GlowServer;
 import science.atlarge.opencraft.opencraft.net.protocol.HandshakeProtocol;
 import science.atlarge.opencraft.opencraft.net.protocol.LoginProtocol;
@@ -23,11 +28,6 @@ import science.atlarge.opencraft.opencraft.net.protocol.PlayProtocol;
 import science.atlarge.opencraft.opencraft.net.protocol.ProtocolProvider;
 import science.atlarge.opencraft.opencraft.net.protocol.StatusProtocol;
 import science.atlarge.opencraft.opencraft.util.config.ServerConfig;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Answers;
-import org.mockito.Mock;
 
 public class GameServerTest {
 
@@ -63,16 +63,17 @@ public class GameServerTest {
     static {
         try {
             LOCALHOST_IPV4 = new InetSocketAddress(
-                        InetAddress.getByAddress(new byte[]{127,0,0,1}), ServerConfig.DEFAULT_PORT);
+                    InetAddress.getByAddress(new byte[] {127, 0, 0, 1}), ServerConfig.DEFAULT_PORT);
             LOCALHOST_IPV6 = new InetSocketAddress(
-                    InetAddress.getByAddress(new byte[]{0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1}),
+                    InetAddress.getByAddress(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}),
                     ServerConfig.DEFAULT_PORT);
         } catch (UnknownHostException e) {
             throw new AssertionError(e);
         }
     }
 
-    @Mock private GlowServer glowServer;
+    @Mock
+    private GlowServer glowServer;
     private Logger logger;
     private Logger unspiedLogger;
     private GameServer gameServer;
@@ -88,10 +89,10 @@ public class GameServerTest {
         glowServer = mock(GlowServer.class, Answers.RETURNS_SMART_NULLS);
         CountDownLatch latch = new CountDownLatch(1);
         ProtocolProvider protocolProvider = new ProtocolProvider(
-            mock(HandshakeProtocol.class),
-            mock(StatusProtocol.class),
-            mock(LoginProtocol.class),
-            mock(PlayProtocol.class)
+                mock(HandshakeProtocol.class),
+                mock(StatusProtocol.class),
+                mock(LoginProtocol.class),
+                mock(PlayProtocol.class)
         );
         gameServer = new GameServer(glowServer, protocolProvider, latch);
         latch.countDown();
@@ -111,7 +112,7 @@ public class GameServerTest {
 
     @Test
     public void testLogBindFailure() {
-        gameServer.logBindFailure(LOCALHOST_IPV4, new ConnectException("Exception-handling test"));
+        GameServer.logBindFailure(LOCALHOST_IPV4, new ConnectException("Exception-handling test"));
         assertLoggedExactlyOnce("Failed to bind server to 127.0.0.1:25565.", Level.SEVERE);
     }
 

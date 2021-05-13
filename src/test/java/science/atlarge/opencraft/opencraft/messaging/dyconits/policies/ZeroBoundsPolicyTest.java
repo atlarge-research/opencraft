@@ -15,7 +15,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import science.atlarge.opencraft.dyconits.DyconitSystem;
 import science.atlarge.opencraft.dyconits.MessageListQueue;
+import science.atlarge.opencraft.opencraft.GlowServer;
 import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
+import science.atlarge.opencraft.opencraft.measurements.EventLogger;
 import science.atlarge.opencraft.opencraft.messaging.DyconitMessaging;
 import science.atlarge.opencraft.opencraft.net.GlowSession;
 
@@ -36,11 +38,15 @@ class ZeroBoundsPolicyTest {
     @Mock
     ChannelFuture mockChannelFuture;
 
+    @Mock
+    EventLogger logger;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
         messaging = new DyconitMessaging(new DyconitSystem<>(new ZeroBoundsPolicy(), (player, message) -> true, MessageListQueue::new, ForkJoinPool::commonPool, false));
         messages = new ArrayList<>();
+        GlowServer.eventLogger = logger;
         Mockito.when(mockPlayer.getSession()).thenReturn(mockSession);
         Mockito.when(mockSession.getChannel()).thenReturn(mockChannel);
         Mockito.when(mockChannel.write(ArgumentMatchers.any(Message.class))).then(
@@ -59,7 +65,7 @@ class ZeroBoundsPolicyTest {
             messaging.publish(0, new Message() {
             });
         }
-        Thread.sleep(1000);
+        messaging.flush();
         Assertions.assertEquals(numMessages, messages.size());
     }
 }
