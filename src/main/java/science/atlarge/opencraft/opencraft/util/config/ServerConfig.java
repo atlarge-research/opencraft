@@ -399,7 +399,6 @@ public class ServerConfig implements DynamicallyTypedMap<ServerConfig.Key> {
         OPENCRAFT_COLLECTOR("opencraft.collector", false, Boolean.class::isInstance),
 
         // Opencraft - Logging
-        OPENCRAFT_LOGGING_DYCONIT("opencraft.logging.dyconit", false, Boolean.class::isInstance),
         OPENCRAFT_LOGGING_EVENTS("opencraft.logging.events", false, Boolean.class::isInstance),
 
         // Opencraft - Breaker

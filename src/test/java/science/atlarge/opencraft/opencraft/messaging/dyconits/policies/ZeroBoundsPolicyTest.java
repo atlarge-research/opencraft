@@ -5,7 +5,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ForkJoinPool;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +43,7 @@ class ZeroBoundsPolicyTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        messaging = new DyconitMessaging(new DyconitSystem<>(new ZeroBoundsPolicy(), (player, message) -> true, MessageListQueue::new, ForkJoinPool::commonPool, false));
+        messaging = new DyconitMessaging(new DyconitSystem<>(new ZeroBoundsPolicy(), (player, message) -> true, MessageListQueue::new));
         messages = new ArrayList<>();
         GlowServer.eventLogger = logger;
         Mockito.when(mockPlayer.getSession()).thenReturn(mockSession);

@@ -547,7 +547,7 @@ public class GlowServer implements Server {
     }
 
     private void initEventLogging() {
-        if (config.getBoolean(Key.OPENCRAFT_LOGGING_EVENTS)) {
+        if (isLogEvents()) {
             eventLogger = new EventFileLogger(new File("opencraft-events.log"));
         } else {
             eventLogger = new EventNoopLogger();
@@ -2895,13 +2895,6 @@ public class GlowServer implements Server {
      */
     public boolean isUseCollector() {
         return config.getBoolean(Key.OPENCRAFT_COLLECTOR);
-    }
-
-    /**
-     * This configuration option enables logging dyconit information.
-     */
-    public boolean isLogDyconits() {
-        return config.getBoolean(Key.OPENCRAFT_LOGGING_DYCONIT);
     }
 
     /**
