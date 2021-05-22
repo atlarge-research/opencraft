@@ -12,7 +12,6 @@ import science.atlarge.opencraft.opencraft.messaging.Messaging;
 public class DyconitListCommand extends GlowVanillaCommand {
 
     public DyconitListCommand() {
-        // TODO give command a good name
         super("dclist");
     }
 
@@ -27,7 +26,7 @@ public class DyconitListCommand extends GlowVanillaCommand {
             new LocalizedStringImpl("dclist.done", resourceBundle).send(sender, String.join("\n", dyconits));
             return true;
         } else {
-            // TODO, ERROR
+            new LocalizedStringImpl("dclist.failed", resourceBundle).send(sender);
             return false;
         }
     }

@@ -255,10 +255,13 @@ public final class GlowScheduler implements BukkitScheduler {
             if (firstWorld instanceof GlowWorld) {
                 GlowWorld glowWorld = (GlowWorld) firstWorld;
                 Messaging messagingSystem = glowWorld.getMessagingSystem();
-                log("mcpackets_sent", String.valueOf(messagingSystem.totalMessagesSent()));
-                ((DyconitMessaging) messagingSystem)
-                        .getMessageCount()
-                        .forEach((key, value) -> log("mcpackets_sent_" + key, String.valueOf(value.sum())));
+                if (messagingSystem instanceof DyconitMessaging) {
+                    DyconitMessaging dcmessaging = (DyconitMessaging) messagingSystem;
+                    log("mcpackets_sent", String.valueOf(messagingSystem.totalMessagesSent()));
+                    dcmessaging
+                            .getMessageCount()
+                            .forEach((key, value) -> log("mcpackets_sent_" + key, String.valueOf(value.sum())));
+                }
             }
         }
     }
