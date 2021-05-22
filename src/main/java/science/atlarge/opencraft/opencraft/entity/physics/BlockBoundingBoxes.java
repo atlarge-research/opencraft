@@ -91,6 +91,7 @@ import org.bukkit.material.Stairs;
 import org.bukkit.material.Step;
 import org.bukkit.material.WoodenStep;
 import org.bukkit.util.Vector;
+import science.atlarge.opencraft.opencraft.GlowServer;
 import science.atlarge.opencraft.opencraft.block.GlowBlock;
 
 /**
@@ -589,6 +590,7 @@ public class BlockBoundingBoxes {
             inverted = ((WoodenStep) data).isInverted();
         } else {
             // TODO support other kinds of steps.
+            GlowServer.logger.warning("Failed to get correct bounding box of block type " + data.getClass().getSimpleName());
             inverted = false;
         }
 
