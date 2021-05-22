@@ -289,7 +289,6 @@ public class EntityManager implements Iterable<GlowEntity> {
     }
 
     /**
-     * TODO what is this method doing in this class?
      * Notes that an entity has moved from one location to another for physics and storage purposes.
      *
      * @param entity      The entity.
