@@ -37,7 +37,7 @@ public class DyconitPolicyCommand extends GlowVanillaCommand {
             new LocalizedStringImpl("dcpolicy.done", resourceBundle).send(sender, dm.getPolicy().getClass().getSimpleName());
             return true;
         } else {
-            // TODO, ERROR
+            new LocalizedStringImpl("dcpolicy.failed", resourceBundle).send(sender);
             return false;
         }
     }
