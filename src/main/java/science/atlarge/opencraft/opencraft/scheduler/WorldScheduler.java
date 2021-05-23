@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import lombok.Getter;
 import science.atlarge.opencraft.opencraft.GlowServer;
 import science.atlarge.opencraft.opencraft.GlowWorld;
+import science.atlarge.opencraft.opencraft.messaging.Messaging;
 import science.atlarge.opencraft.opencraft.util.config.ServerConfig;
 
 /**
@@ -145,11 +146,18 @@ public class WorldScheduler {
         int endPhase = tickEnd.arriveAndAwaitAdvance();
         if (endPhase != currentTick + 1) {
             GlowServer.logger.warning("Tick end barrier " + endPhase
-                + " has advanced differently from tick begin barrier:" + currentTick + 1);
+                    + " has advanced differently from tick begin barrier:" + currentTick + 1);
         }
         synchronized (advanceCondition) {
             advanceCondition.notifyAll();
         }
+    }
+
+    /**
+     * Flush all outgoing messages to clients.
+     */
+    public void flushMessages() {
+        worlds.stream().map(w -> w.world.getMessagingSystem()).distinct().forEach(Messaging::flush);
     }
 
     private static class WorldEntry {
@@ -178,13 +186,13 @@ public class WorldScheduler {
                     tickBegin.arriveAndAwaitAdvance();
                     if (ServerConfig.Key.OPENCRAFT_COLLECTOR.equals(true)) {
                         YSCollector.start("world_" + world.getName() + "_tick",
-                            "World thread: Duration processing tick.");
+                                "World thread: Duration processing tick.");
                     }
                     try {
                         world.pulse();
                     } catch (Throwable t) {
                         GlowServer.logger.log(Level.SEVERE,
-                            "Error occurred while pulsing world " + world.getName(), t);
+                                "Error occurred while pulsing world " + world.getName(), t);
                         throw t;
                     } finally {
                         tickEnd.arriveAndAwaitAdvance();

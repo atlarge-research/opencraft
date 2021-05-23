@@ -334,8 +334,7 @@ public final class GlowScheduler implements BukkitScheduler {
         stopMeasurement("tick_worlds");
 
         startMeasurement("tick_network_tx", "Amount of time spent sending messages.");
-        // TODO make clean call.
-        worlds.getWorlds().get(0).getMessagingSystem().flush();
+        worlds.flushMessages();
         stopMeasurement("tick_network_tx");
 
 
