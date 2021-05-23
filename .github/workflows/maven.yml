@@ -26,6 +26,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - name: maven-settings-xml-action
+        uses: whelk-io/maven-settings-xml-action@v16
+        with:
+          plugin_repositories: '[{ "id": "central", "url": "https://repo1.maven.org/maven2" }]'
       - name: Build with Maven
         run: mvn -B package --file pom.xml
       - name: SonarQube Scan
