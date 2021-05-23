@@ -507,7 +507,6 @@ public class GlowWorld implements World {
         logger.stop("tick_map_requested_" + name);
         logger.start("tick_map_find_" + name);
         GlowChunk[] activeChunks = chunkManager.getLoadedChunks();
-//        Set<GlowChunk> activeChunks = findActiveChunks(players);
         logger.stop("tick_map_find_" + name);
         logger.start("tick_map_update_" + name);
         if (players.size() > 0) {
@@ -672,22 +671,6 @@ public class GlowWorld implements World {
             ChunkLock lock = player.getChunkLock();
             lock.release(key);
         });
-    }
-
-    /**
-     * Find and collect all the chunks currently within view distance of all players. Only fully loaded chunks are
-     * included.
-     *
-     * @param players the players whom's positions should be taken into account.
-     * @return the set of active chunks around the given players.
-     */
-    private Set<GlowChunk> findActiveChunks(Collection<GlowPlayer> players) {
-        Set<GlowChunk> chunks = new HashSet<>();
-        players.forEach(player -> {
-            AreaOfInterest area = player.getAreaOfInterest();
-            area.forEach(chunks::add);
-        });
-        return chunks;
     }
 
     /**
