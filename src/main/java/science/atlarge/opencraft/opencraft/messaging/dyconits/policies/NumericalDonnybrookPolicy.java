@@ -99,13 +99,6 @@ public class NumericalDonnybrookPolicy implements DyconitPolicy<Player, Message>
                     commands.add(new DyconitSubscribeCommand<>(thisPlayer, thisCallback, Bounds.Companion.getZERO(), entityToName(added)));
                     playerSubscriberSet.add(added);
                 }
-                // We set zero bounds for players in our interest set (send immediately).
-                // For all other players, we send updates once per second.
-//                playerSubscriberSet
-//                        .forEach(p -> commands.add(new DyconitSubscribeCommand<>(thisPlayer, thisCallback, Bounds.Companion.getZERO(), entityToName(p))));
-//                allPlayers.stream()
-//                        .filter(p -> !playerSubscriberSet.contains(p))
-//                        .forEach(p -> commands.add(new DyconitSubscribeCommand<>(thisPlayer, thisCallback, oneSecondBound, entityToName(p))));
                 lastChangedMap.put(subscriber, Instant.now());
             }
         }
