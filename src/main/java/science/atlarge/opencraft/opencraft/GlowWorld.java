@@ -675,12 +675,8 @@ public class GlowWorld implements World {
      *
      * @param chunks the chunks which contain the blocks to be updated.
      */
-//    private void updateBlocksInChunks(Set<GlowChunk> chunks) {
-//        GlowServer.eventLogger.log("loadedchunks", chunks.size());
-//        chunks.stream().filter(GlowChunk::isLoaded).forEach(chunk -> {
     private void updateBlocksInChunks(GlowChunk[] chunks) {
         int counter = 0;
-        GlowServer.eventLogger.log("loadedchunks", chunks.length);
         for (GlowChunk chunk : chunks) {
             if (!chunk.isLoaded()) {
                 continue;
@@ -699,7 +695,6 @@ public class GlowWorld implements World {
             }
         }
         GlowServer.eventLogger.log("loadedchunks", counter);
-//        });
     }
 
     /**
