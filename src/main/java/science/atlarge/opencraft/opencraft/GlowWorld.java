@@ -138,7 +138,7 @@ public class GlowWorld implements World {
     /**
      * The length in ticks between autosaves (5 minutes).
      */
-    private static final int AUTOSAVE_TIME = TickUtil.minutesToTicks(1);
+    private static final int AUTOSAVE_TIME = TickUtil.minutesToTicks(5);
 
     /**
      * The maximum height of ocean water.
