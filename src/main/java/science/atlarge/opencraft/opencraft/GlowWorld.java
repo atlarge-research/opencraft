@@ -493,7 +493,6 @@ public class GlowWorld implements World {
      * Updates all the entities within this world.
      */
     public void pulse() {
-        // FIXME SEE WHAT TAKES SO LONG HERE. 40ms for 300 players? WUT?
         EventLogger logger = GlowServer.eventLogger;
         logger.start("pulse_" + name);
         List<GlowPlayer> players = entityManager.getPlayers();
