@@ -1,7 +1,7 @@
 # Opencraft
 
 This is the repository of the Opencraft server.
-Opencraft is a fork of [Glowstone](https://atlarge.ewi.tudelft.nl/gitlab/opencraft/minecraft-like-games/collector-glowstone).
+Opencraft is a fork of [Glowstone](https://github.com/GlowstoneMC/Glowstone).
 
 ![](https://atlarge.ewi.tudelft.nl/gitlab/opencraft/opencraft/badges/development/pipeline.svg)
 
