@@ -20,8 +20,8 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <powermock.version>2.0.7</powermock.version>
-        <junit.jupiter.version>5.6.2</junit.jupiter.version>
-        <junit.vintage.version>5.6.2</junit.vintage.version>
+        <junit.jupiter.version>5.8.2</junit.jupiter.version>
+        <junit.vintage.version>5.8.2</junit.vintage.version>
         <checkstyle.version>8.29</checkstyle.version>
         <maven.checkstyle.version>3.1.1</maven.checkstyle.version>
         <!-- config variables -->
@@ -168,7 +168,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13</version>
+            <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
