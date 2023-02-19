@@ -85,7 +85,7 @@ public class EnvPolicy implements DyconitPolicy<Player, Message> {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
                 Chunk chunk = world.getChunkAt(x, z);
                 String dyconitName = chunkToName(chunk);
-                chunks.add(new DyconitSubscribeCommand<>(player, sub.getCallback(), new Bounds(Math.abs(x) / 32, Integer.MAX_VALUE / 2), dyconitName));
+                chunks.add(new DyconitSubscribeCommand<>(player, sub.getCallback(), new Bounds(2, Integer.MAX_VALUE / 2), dyconitName));
                 playerSubscriptions.add(dyconitName);
             }
         }
