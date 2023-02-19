@@ -11,7 +11,7 @@ import science.atlarge.opencraft.dyconits.policies.DyconitCommand;
 import science.atlarge.opencraft.dyconits.policies.DyconitPolicy;
 import science.atlarge.opencraft.dyconits.policies.DyconitSubscribeCommand;
 
-public class ZeroBoundsPolicy implements DyconitPolicy<Player, Message> {
+public class EnvPolicy implements DyconitPolicy<Player, Message> {
 
     public static String DYCONIT_NAME = "env";
 
