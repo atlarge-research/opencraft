@@ -16,7 +16,7 @@ public class PolicyFactory {
             return new InfiniteBoundsPolicy();
         } else if (nameMatches(NewChunkPolicy.class, policyName)) {
             return new NewChunkPolicy(server.getViewDistance());
-        } else if (nameMatches(NewChunkPolicy.class, policyName)) {
+        } else if (nameMatches(EnvPolicy.class, policyName)) {
             return new EnvPolicy(server.getViewDistance());
         } else if (nameMatches(SingleDyconitPolicy.class, policyName.split(";")[0])) {
             // TODO support optional options in opencraft.yml that can hold these parameters.
