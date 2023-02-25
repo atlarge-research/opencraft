@@ -84,7 +84,7 @@ public class NewChunkPolicy implements DyconitPolicy<Player, Message> {
         for (int x = centerX - radius; x <= centerX + radius; x++) {
             // for each row, get the height of the player + a threshold
             int playerHeight = 2;
-            int highestPoint = location.getY() + playerHeight + 1;
+            int highestPoint = location.getBlockY() + playerHeight + 1;
 
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
                 Chunk chunk = world.getChunkAt(x, z);
