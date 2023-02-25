@@ -82,10 +82,16 @@ public class NewChunkPolicy implements DyconitPolicy<Player, Message> {
         Set<String> playerSubscriptions = new HashSet<>();
         chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), Bounds.Companion.getZERO(), CATCH_ALL_DYCONIT_NAME));
         for (int x = centerX - radius; x <= centerX + radius; x++) {
+            // for each row, get the height of the player + a threshold
+            int playerHeight = 2;
+            int highestPoint = location.getY() + playerHeight + 1;
+
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
                 Chunk chunk = world.getChunkAt(x, z);
+                int chunkHeight = chunk.getY();
                 String dyconitName = chunkToName(chunk);
-                chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(2, Integer.MAX_VALUE / 2), dyconitName));
+
+                chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(Integer.MAX_VALUE / 2, 2), dyconitName));
                 playerSubscriptions.add(dyconitName);
             }
         }
