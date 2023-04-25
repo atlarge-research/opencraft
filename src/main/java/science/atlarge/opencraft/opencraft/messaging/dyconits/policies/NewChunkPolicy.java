@@ -72,24 +72,35 @@ public class NewChunkPolicy implements DyconitPolicy<Player, Message> {
             return chunks;
         }
         referenceLocation.put(player, location);
-        List<Block> blocksVisibleList = getLineOfSight(null, this.viewDistance);
+        
         World world = location.getWorld();
         int centerX = location.getBlockX() >> 4;
         int centerZ = location.getBlockZ() >> 4;
         int radius = Math.min(viewDistance, sub.getKey().getViewDistance());
+        List<Block> blocksVisibleList = getLineOfSight(null, radius);
+        Set<Chunk> chunksVisibleSet = new HashSet<>();
+
+        for (Block visibleBlock : blocksVisibleList) {
+            int x = visibleBlock.getX() >> 4;
+            int z = visibleBlock.getZ() >> 4;
+            Chunk chunk = world.getChunkAt(x, z);
+            chunksVisibleSet.add(chunk);
+        }
 
         Set<String> playerSubscriptions = new HashSet<>();
         chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), Bounds.Companion.getZERO(), CATCH_ALL_DYCONIT_NAME));
         for (int x = centerX - radius; x <= centerX + radius; x++) {
-            // for each row, get the height of the player + a threshold
-            int playerHeight = 2;
-            int highestPoint = location.getBlockY() + playerHeight + 1;
-
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
                 Chunk chunk = world.getChunkAt(x, z);
                 String dyconitName = chunkToName(chunk);
 
-                chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(Integer.MAX_VALUE / 2, 2), dyconitName));
+                if (chunksVisibleSet.contains(chunk)) {
+                    chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(Math.abs(z) , Integer.MAX_VALUE), dyconitName));
+                }
+                else {
+                    chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(Integer.MAX_VALUE, Integer.MAX_VALUE), dyconitName));
+                }
+                
                 playerSubscriptions.add(dyconitName);
             }
         }
