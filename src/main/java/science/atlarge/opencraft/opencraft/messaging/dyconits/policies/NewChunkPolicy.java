@@ -11,8 +11,7 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.jetbrains.annotations.NotNull;
 import science.atlarge.opencraft.dyconits.Bounds;
 import science.atlarge.opencraft.dyconits.Subscriber;
@@ -73,7 +72,7 @@ public class NewChunkPolicy implements DyconitPolicy<Player, Message> {
             return chunks;
         }
         referenceLocation.put(player, location);
-
+        List<Block> blocksVisibleList = getLineOfSight(null, this.viewDistance);
         World world = location.getWorld();
         int centerX = location.getBlockX() >> 4;
         int centerZ = location.getBlockZ() >> 4;
