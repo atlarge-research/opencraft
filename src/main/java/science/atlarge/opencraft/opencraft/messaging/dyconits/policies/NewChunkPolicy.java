@@ -95,7 +95,8 @@ public class NewChunkPolicy implements DyconitPolicy<Player, Message> {
                 String dyconitName = chunkToName(chunk);
 
                 if (chunksVisibleSet.contains(chunk)) {
-                    chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(2 , Integer.MAX_VALUE), dyconitName));
+                    float d = Math.sqrt(Math.pow(x, 2) + Math.pow(z, 2));
+                    chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(Math.round(d) , Integer.MAX_VALUE), dyconitName));
                 }
                 else {
                     chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(Integer.MAX_VALUE, Integer.MAX_VALUE), dyconitName));
