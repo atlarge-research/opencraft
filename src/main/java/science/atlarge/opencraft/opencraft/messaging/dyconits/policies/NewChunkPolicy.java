@@ -98,9 +98,6 @@ public class NewChunkPolicy implements DyconitPolicy<Player, Message> {
                     float d = Math.sqrt(Math.pow(x, 2) + Math.pow(z, 2));
                     chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(Math.round(d) , Math.round(Math.pow(d, 2))), dyconitName));
                 }
-                else {
-                    chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(Integer.MAX_VALUE, Integer.MAX_VALUE), dyconitName));
-                }
                 
                 playerSubscriptions.add(dyconitName);
             }
