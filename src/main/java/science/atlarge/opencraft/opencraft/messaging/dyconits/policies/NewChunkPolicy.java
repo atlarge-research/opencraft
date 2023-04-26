@@ -32,6 +32,36 @@ public class NewChunkPolicy implements DyconitPolicy<Player, Message> {
         this.viewDistance = viewDistance;
     }
 
+    private List<Block> getLineOfSight(Set<Material> transparent, int maxDistance, int maxLength) {
+        // same limit as CraftBukkit
+        if (maxDistance > 120) {
+            maxDistance = 120;
+        }
+        LinkedList<Block> blocks = new LinkedList<>();
+        Iterator<Block> itr = new BlockIterator(this, maxDistance);
+        while (itr.hasNext()) {
+            Block block = itr.next();
+            blocks.add(block);
+            if (maxLength != 0 && blocks.size() > maxLength) {
+                blocks.removeFirst();
+            }
+
+            Material material = block.getType();
+
+            if (transparent == null) {
+                if (material != Material.AIR) {
+                    break;
+                }
+            } else {
+                if (!transparent.contains(material)) {
+                    break;
+                }
+            }
+        }
+            
+        return blocks;
+    }
+
     @NotNull
     @Override
     public String computeAffectedDyconit(@NotNull Object publisher) {
