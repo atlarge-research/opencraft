@@ -32,7 +32,7 @@ public class NewChunkPolicy implements DyconitPolicy<Player, Message> {
         this.viewDistance = viewDistance;
     }
 
-    private List<Block> getLineOfSight(Set<Material> transparent, int maxDistance, int maxLength) {
+    private List<Block> getLineOfSight(Set<Material> transparent, int maxDistance) {
         // same limit as CraftBukkit
         if (maxDistance > 120) {
             maxDistance = 120;
@@ -42,7 +42,7 @@ public class NewChunkPolicy implements DyconitPolicy<Player, Message> {
         while (itr.hasNext()) {
             Block block = itr.next();
             blocks.add(block);
-            if (maxLength != 0 && blocks.size() > maxLength) {
+            if (maxDistance != 0 && blocks.size() > maxDistance) {
                 blocks.removeFirst();
             }
 
@@ -107,7 +107,7 @@ public class NewChunkPolicy implements DyconitPolicy<Player, Message> {
         int centerX = location.getBlockX() >> 4;
         int centerZ = location.getBlockZ() >> 4;
         int radius = Math.min(viewDistance, sub.getKey().getViewDistance());
-        List<Block> blocksVisibleList = getLineOfSight(null, radius);
+        List<Block> blocksVisibleList = this.getLineOfSight(null, radius);
         Set<Chunk> chunksVisibleSet = new HashSet<>();
 
         for (Block visibleBlock : blocksVisibleList) {
