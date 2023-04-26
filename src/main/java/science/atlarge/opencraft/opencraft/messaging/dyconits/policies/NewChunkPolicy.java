@@ -7,7 +7,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.bukkit.*;
+import org.bukkit.Chunk;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.*;
 import org.jetbrains.annotations.NotNull;
 import science.atlarge.opencraft.dyconits.Bounds;
 import science.atlarge.opencraft.dyconits.Subscriber;
@@ -26,36 +30,6 @@ public class NewChunkPolicy implements DyconitPolicy<Player, Message> {
 
     public NewChunkPolicy(int viewDistance) {
         this.viewDistance = viewDistance;
-    }
-
-    private List<Block> getLineOfSight(Set<Material> transparent, int maxDistance) {
-        // same limit as CraftBukkit
-        if (maxDistance > 120) {
-            maxDistance = 120;
-        }
-        LinkedList<Block> blocks = new LinkedList<>();
-        Iterator<Block> itr = new BlockIterator(this, maxDistance);
-        while (itr.hasNext()) {
-            Block block = itr.next();
-            blocks.add(block);
-            if (maxDistance != 0 && blocks.size() > maxDistance) {
-                blocks.removeFirst();
-            }
-
-            Material material = block.getType();
-
-            if (transparent == null) {
-                if (material != Material.AIR) {
-                    break;
-                }
-            } else {
-                if (!transparent.contains(material)) {
-                    break;
-                }
-            }
-        }
-            
-        return blocks;
     }
 
     @NotNull
@@ -103,7 +77,7 @@ public class NewChunkPolicy implements DyconitPolicy<Player, Message> {
         int centerX = location.getBlockX() >> 4;
         int centerZ = location.getBlockZ() >> 4;
         int radius = Math.min(viewDistance, sub.getKey().getViewDistance());
-        List<Block> blocksVisibleList = this.getLineOfSight(null, radius);
+        List<Block> blocksVisibleList = player.getLineOfSight(null, radius);
         Set<Chunk> chunksVisibleSet = new HashSet<>();
 
         for (Block visibleBlock : blocksVisibleList) {
