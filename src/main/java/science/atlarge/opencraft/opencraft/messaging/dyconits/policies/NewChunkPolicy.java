@@ -64,21 +64,29 @@ public class NewChunkPolicy implements DyconitPolicy<Player, Message> {
 
     @Override
     public @NotNull List<DyconitCommand<Player, Message>> update(Subscriber<Player, Message> sub) {
+
+        // player data vars
         Player player = sub.getKey();
         Location location = player.getLocation();
+        World world = location.getWorld();
+        int playerViewDistance = Math.min(this.viewDistance, player.getViewDistance());
+        java.util.function.Consumer<Message> callback = sub.getCallback();
+
+        // chunks game state updates vars
         List<DyconitCommand<Player, Message>> chunks = new ArrayList<>();
+
+        // policy chunks of interest vars
+        List<Block> blocksVisibleList = player.getLineOfSight(null, playerViewDistance);
+        Set<Chunk> chunksVisibleSet = new HashSet<>();
+
+        // player subscription vars
+        Set<String> playerSubscriptions = new HashSet<>();
+        Set<String> prevPlayerSubscriptions = prevSubscriptions.computeIfAbsent(player, p -> new HashSet<>());
 
         if (referenceLocation.containsKey(player) && referenceLocation.get(player).distanceSquared(location) < 256) {
             return chunks;
         }
         referenceLocation.put(player, location);
-        
-        World world = location.getWorld();
-        int centerX = location.getBlockX() >> 4;
-        int centerZ = location.getBlockZ() >> 4;
-        int radius = Math.min(viewDistance, sub.getKey().getViewDistance());
-        List<Block> blocksVisibleList = player.getLineOfSight(null, radius);
-        Set<Chunk> chunksVisibleSet = new HashSet<>();
 
         for (Block visibleBlock : blocksVisibleList) {
             int x = visibleBlock.getX() >> 4;
@@ -87,18 +95,18 @@ public class NewChunkPolicy implements DyconitPolicy<Player, Message> {
             chunksVisibleSet.add(chunk);
         }
 
-        Set<String> playerSubscriptions = new HashSet<>();
-        chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(Integer.MAX_VALUE, Integer.MAX_VALUE), CATCH_ALL_DYCONIT_NAME));
+        chunks.add(new DyconitSubscribeCommand<>(player, callback, new Bounds(Integer.MAX_VALUE, Integer.MAX_VALUE), CATCH_ALL_DYCONIT_NAME));
 
         for (Chunk visibleChunk : chunksVisibleSet) {
             String dyconitName = chunkToName(visibleChunk);
-            double d = Math.sqrt(Math.pow(visibleChunk.getX(), 2) + Math.pow(visibleChunk.getZ(), 2));
+            int x = visibleChunk.getX() >> 4;
+            int z = visibleChunk.getZ() >> 4;
+            double d = Math.sqrt(Math.pow(x, 2) + Math.pow(z, 2));
 
-            chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds((int)Math.round(d), Integer.MAX_VALUE), dyconitName));
+            chunks.add(new DyconitSubscribeCommand<>(player, callback, new Bounds((int)Math.round(d), Integer.MAX_VALUE), dyconitName));
             playerSubscriptions.add(dyconitName);
         }
 
-        Set<String> prevPlayerSubscriptions = prevSubscriptions.computeIfAbsent(player, p -> new HashSet<>());
         for (String dyconitName : prevPlayerSubscriptions) {
             if (!playerSubscriptions.contains(dyconitName)) {
                 chunks.add(new DyconitUnsubscribeCommand<>(player, dyconitName));
