@@ -3,8 +3,8 @@ package science.atlarge.opencraft.opencraft.messaging.dyconits.policies.weights;
 import com.flowpowered.network.Message;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.Server;
 import science.atlarge.opencraft.dyconits.Bounds;
-import science.atlarge.opencraft.opencraft.GlowServer;
 import science.atlarge.opencraft.opencraft.entity.GlowEntity;
 import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityRotationMessage;
 import science.atlarge.opencraft.opencraft.net.message.play.entity.EntityTeleportMessage;
@@ -20,10 +20,10 @@ import science.atlarge.opencraft.opencraft.net.message.play.entity.RelativeEntit
  */
 public class DistanceMoved implements WeighMessage {
 
-    private final GlowServer server;
+    private final Server server;
     private final Bounds upperNumericalBound;
 
-    public DistanceMoved(GlowServer server, Bounds upperBound) {
+    public DistanceMoved(Server server, Bounds upperBound) {
         this.server = server;
         this.upperNumericalBound = upperBound;
     }
