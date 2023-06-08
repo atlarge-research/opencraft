@@ -75,7 +75,7 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
         List<DyconitCommand<Player, Message>> chunks = new ArrayList<>();
 
         // policy chunks of interest vars
-        List<Block> blocksVisibleList = player.getLineOfSight(null, playerViewDistance >> 4); // getLineOfSight expects playerViewDistacne in blocks rather than chunks
+        List<Block> blocksVisibleList = player.getLineOfSight(null, playerViewDistance * 16); // getLineOfSight expects playerViewDistacne in blocks rather than chunks
         Set<Chunk> chunksVisibleSet = new HashSet<>();
 
         // player subscription vars
