@@ -105,9 +105,4 @@ public class InterestSet implements DyconitPolicy<Player, Message> {
         return weighMessage.weigh(message);
     }
 
-    @NotNull
-    @Override
-    public List<DyconitCommand<Player, Message>> globalUpdate() {
-        return Collections.emptyList();
-    }
 }
