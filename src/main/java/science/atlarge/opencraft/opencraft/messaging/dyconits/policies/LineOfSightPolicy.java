@@ -68,14 +68,14 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
         // player data vars
         Player player = sub.getKey();
         Location location = player.getLocation();
-        int playerViewDistance = Math.min(this.viewDistance, player.getViewDistance());
+        int playerViewDistance = player.getViewDistance() << 4;
         java.util.function.Consumer<Message> callback = sub.getCallback();
 
         // chunks game state updates vars
         List<DyconitCommand<Player, Message>> chunks = new ArrayList<>();
 
         // policy chunks of interest vars
-        List<Block> blocksVisibleList = player.getLineOfSight(null, playerViewDistance * 16); // getLineOfSight expects playerViewDistacne in blocks rather than chunks
+        List<Block> blocksVisibleList = player.getLineOfSight(null, playerViewDistance);
         Set<Chunk> chunksVisibleSet = new HashSet<>();
 
         // player subscription vars
@@ -88,14 +88,11 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
         referenceLocation.put(player, location);
 
         World world = location.getWorld();
-        int centerX = location.getBlockX() >> 4;
-        int centerZ = location.getBlockZ() >> 4;
+        int centerX = location.getChunk().getX();
+        int centerZ = location.getChunk().getZ();
 
         for (Block visibleBlock : blocksVisibleList) {
-            int x = visibleBlock.getX() >> 4;
-            int z = visibleBlock.getZ() >> 4;
-            Chunk chunk = world.getChunkAt(x, z);
-            chunksVisibleSet.add(chunk);
+            chunksVisibleSet.add(visibleBlock.getChunk());
         }
 
         chunks.add(new DyconitSubscribeCommand<>(player, callback, new Bounds(Integer.MAX_VALUE, Integer.MAX_VALUE), CATCH_ALL_DYCONIT_NAME));
