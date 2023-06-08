@@ -42,7 +42,7 @@ public class InterestSet implements DyconitPolicy<Player, Message> {
 
     private final WeighMessage weighMessage;
 
-    public InterestSet(Server server) {
+    public InterestSet(Server server) { 
         weighMessage = new DistanceMoved(server, new Bounds(-1, 5));
     }
 
