@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import science.atlarge.opencraft.dyconits.Bounds;
-import science.atlarge.opencraft.dyconits.MessageChannel;
 import science.atlarge.opencraft.dyconits.Subscriber;
 import science.atlarge.opencraft.dyconits.policies.DyconitCommand;
 import science.atlarge.opencraft.dyconits.policies.DyconitPolicy;
@@ -67,7 +66,7 @@ public class InterestSet implements DyconitPolicy<Player, Message> {
         Instant lastChanged = lastChangedMap.computeIfAbsent(subscriber, p -> Instant.ofEpochMilli(System.currentTimeMillis() - ThreadLocalRandom.current().nextLong(turnoverTime.toMillis())));
         List<DyconitCommand<Player, Message>> commands = new ArrayList<>();
         Player thisPlayer = subscriber.getKey();
-        MessageChannel<Message> thisCallback = subscriber.getCallback();
+        java.util.function.Consumer<Message> callback = subscriber.getCallback();
         commands.add(new DyconitSubscribeCommand<>(thisPlayer, thisCallback, Bounds.Companion.getZERO(), CATCH_ALL_DYCONIT_NAME));
         // We update players' interest sets after turnoverTime has passed. See documentation at variable declaration.
         if (!interestSet.containsKey(subscriber)) {
