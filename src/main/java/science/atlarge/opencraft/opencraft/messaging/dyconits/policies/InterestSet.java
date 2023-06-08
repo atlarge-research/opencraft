@@ -14,13 +14,13 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import org.bukkit.entity.Player;
+import org.bukkit.Server;
 import org.jetbrains.annotations.NotNull;
 import science.atlarge.opencraft.dyconits.Bounds;
 import science.atlarge.opencraft.dyconits.Subscriber;
 import science.atlarge.opencraft.dyconits.policies.DyconitCommand;
 import science.atlarge.opencraft.dyconits.policies.DyconitPolicy;
 import science.atlarge.opencraft.dyconits.policies.DyconitSubscribeCommand;
-import science.atlarge.opencraft.opencraft.GlowServer;
 import science.atlarge.opencraft.opencraft.messaging.dyconits.policies.weights.DistanceMoved;
 import science.atlarge.opencraft.opencraft.messaging.dyconits.policies.weights.WeighMessage;
 
@@ -42,7 +42,7 @@ public class InterestSet implements DyconitPolicy<Player, Message> {
 
     private final WeighMessage weighMessage;
 
-    public InterestSet(GlowServer server) {
+    public InterestSet(Server server) {
         weighMessage = new DistanceMoved(server, new Bounds(-1, 5));
     }
 
