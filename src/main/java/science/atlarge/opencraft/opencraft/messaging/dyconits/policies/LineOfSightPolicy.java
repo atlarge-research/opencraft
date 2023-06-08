@@ -68,7 +68,6 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
         // player data vars
         Player player = sub.getKey();
         Location location = player.getLocation();
-        World world = location.getWorld();
         int playerViewDistance = Math.min(this.viewDistance, player.getViewDistance());
         java.util.function.Consumer<Message> callback = sub.getCallback();
 
@@ -88,9 +87,13 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
         }
         referenceLocation.put(player, location);
 
+        World world = location.getWorld();
+        int centerX = location.getBlockX() >> 4;
+        int centerZ = location.getBlockZ() >> 4;
+
         for (Block visibleBlock : blocksVisibleList) {
-            int x = visibleBlock.getX() >> 4;
-            int z = visibleBlock.getZ() >> 4;
+            int x = visibleBlock.getBlockX() >> 4;
+            int z = visibleBlock.getBlockZ() >> 4;
             Chunk chunk = world.getChunkAt(x, z);
             chunksVisibleSet.add(chunk);
         }
@@ -99,9 +102,9 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
 
         for (Chunk visibleChunk : chunksVisibleSet) {
             String dyconitName = chunkToName(visibleChunk);
-            int x = visibleChunk.getX() >> 4;
-            int z = visibleChunk.getZ() >> 4;
-            double d = Math.sqrt(Math.pow(x, 2) + Math.pow(z, 2));
+            int x = visibleChunk.getX();
+            int z = visibleChunk.getZ();
+            double d = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(z - centerZ, 2));
 
             chunks.add(new DyconitSubscribeCommand<>(player, callback, new Bounds((int)Math.round(d), Integer.MAX_VALUE), dyconitName));
             playerSubscriptions.add(dyconitName);
