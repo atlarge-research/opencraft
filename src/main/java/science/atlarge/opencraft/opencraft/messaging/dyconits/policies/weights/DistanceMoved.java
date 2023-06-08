@@ -42,18 +42,8 @@ public class DistanceMoved implements WeighMessage {
             double y = msg.getDeltaY() / 128.0;
             double z = msg.getDeltaZ() / 128.0;
             return (int) Math.sqrt(x * x + y * y + z * z);
-        } else if (message instanceof EntityRotationMessage) {
-            return 0;
-        } else if (message instanceof EntityTeleportMessage) {
-            EntityTeleportMessage msg = (EntityTeleportMessage) message;
-            Entity entity = server.getEntity(msg.getId());
-            if (entity instanceof GlowEntity) {
-                GlowEntity gEntity = (GlowEntity) entity;
-                return (int) (gEntity.getPreviousLocation().distance(new Location(entity.getWorld(), msg.getX(), msg.getY(), msg.getZ())) * 32);
-            }
-            return upperNumericalBound.getNumerical();
-        } else {
-            return 0;
-        }
+        } 
+
+        return 0;
     }
 }
