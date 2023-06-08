@@ -67,13 +67,13 @@ public class InterestSet implements DyconitPolicy<Player, Message> {
         List<DyconitCommand<Player, Message>> commands = new ArrayList<>();
         Player thisPlayer = subscriber.getKey();
         java.util.function.Consumer<Message> callback = subscriber.getCallback();
-        commands.add(new DyconitSubscribeCommand<>(thisPlayer, thisCallback, Bounds.Companion.getZERO(), CATCH_ALL_DYCONIT_NAME));
+        commands.add(new DyconitSubscribeCommand<>(thisPlayer, callback, Bounds.Companion.getZERO(), CATCH_ALL_DYCONIT_NAME));
         // We update players' interest sets after turnoverTime has passed. See documentation at variable declaration.
         if (!interestSet.containsKey(subscriber)) {
             interestSet.put(subscriber, new ArrayList<>());
             thisPlayer.getWorld().getPlayers().stream()
                     .filter(p -> !p.equals(thisPlayer))
-                    .map(p -> new DyconitSubscribeCommand<>(thisPlayer, thisCallback, oneSecondBound, entityToName(p)))
+                    .map(p -> new DyconitSubscribeCommand<>(thisPlayer, callback, oneSecondBound, entityToName(p)))
                     .forEach(commands::add);
         } else if (turnoverTime.minus(Duration.between(lastChanged, Instant.now())).isNegative()) {
             Set<Player> allPlayers = new HashSet<>(thisPlayer.getWorld().getPlayers());
@@ -87,11 +87,11 @@ public class InterestSet implements DyconitPolicy<Player, Message> {
                 if (candidates.size() > 0) {
                     if (playerSubscriberSet.size() >= INTEREST_SET_SIZE) {
                         Player removed = playerSubscriberSet.remove(random.nextInt(playerSubscriberSet.size()));
-                        commands.add(new DyconitSubscribeCommand<>(thisPlayer, thisCallback, oneSecondBound, entityToName(removed)));
+                        commands.add(new DyconitSubscribeCommand<>(thisPlayer, callback, oneSecondBound, entityToName(removed)));
                     }
 
                     Player added = candidates.get(random.nextInt(candidates.size()));
-                    commands.add(new DyconitSubscribeCommand<>(thisPlayer, thisCallback, Bounds.Companion.getZERO(), entityToName(added)));
+                    commands.add(new DyconitSubscribeCommand<>(thisPlayer, callback, Bounds.Companion.getZERO(), entityToName(added)));
                     playerSubscriberSet.add(added);
                 }
                 lastChangedMap.put(subscriber, Instant.now());
