@@ -77,7 +77,7 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
         World world = location.getWorld();
         int centerX = location.getBlockX() >> 4;
         int centerZ = location.getBlockZ() >> 4;
-        int radius = Math.min(viewDistance, sub.getKey().getViewDistance());
+        int radius = Math.min(viewDistance, player.getViewDistance());
 
         Set<String> playerSubscriptions = new HashSet<>();
         chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), Bounds.Companion.getZERO(), CATCH_ALL_DYCONIT_NAME));
@@ -85,7 +85,8 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
                 Chunk chunk = world.getChunkAt(x, z);
                 String dyconitName = chunkToName(chunk);
-                chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(Integer.MAX_VALUE / 2, 2), dyconitName));
+                double d = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(z - centerZ, 2));
+                chunks.add(new DyconitSubscribeCommand<>(player, callback, new Bounds((int)Math.round(d) * 1000, 2), dyconitName));
                 playerSubscriptions.add(dyconitName);
             }
         }
