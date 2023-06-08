@@ -92,8 +92,8 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
         int centerZ = location.getBlockZ() >> 4;
 
         for (Block visibleBlock : blocksVisibleList) {
-            int x = visibleBlock.getBlockX() >> 4;
-            int z = visibleBlock.getBlockZ() >> 4;
+            int x = visibleBlock.getX() >> 4;
+            int z = visibleBlock.getZ() >> 4;
             Chunk chunk = world.getChunkAt(x, z);
             chunksVisibleSet.add(chunk);
         }
