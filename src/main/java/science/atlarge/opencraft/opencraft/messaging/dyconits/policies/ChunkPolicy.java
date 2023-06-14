@@ -88,7 +88,7 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
                 Chunk chunk = world.getChunkAt(x, z);
                 String dyconitName = chunkToName(chunk);
-                double d = Math.abs(centerX - x) + Math.abs(centerZ - z);
+                int d = Math.abs(centerX - x) + Math.abs(centerZ - z);
                 chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(-1, d * d), dyconitName));
                 playerSubscriptions.add(dyconitName);
             }
