@@ -102,7 +102,7 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
                 Chunk chunk = world.getChunkAt(x, z);
                 String dyconitName = chunkToName(chunk);
                 double d = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(z - centerZ, 2));
-                if (visibleChunk.contains(chunk)) {
+                if (chunksVisibleSet.contains(chunk)) {
                     chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), Bounds.Companion.getZERO(), dyconitName));
                 }
                 else {
