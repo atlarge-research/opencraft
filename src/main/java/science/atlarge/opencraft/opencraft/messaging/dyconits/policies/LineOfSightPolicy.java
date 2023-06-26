@@ -1,6 +1,9 @@
 package science.atlarge.opencraft.opencraft.messaging.dyconits.policies;
 
 import com.flowpowered.network.Message;
+
+import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType.Object;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -88,8 +91,8 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
         referenceLocation.put(player, location);
 
         World world = location.getWorld();
-        int centerX = location.getChunk().getX();
-        int centerZ = location.getChunk().getZ();
+        int centerX = location.getBlockX() >> 4;
+        int centerZ = location.getBlockZ() >> 4;
 
         for (Block visibleBlock : blocksVisibleList) {
             chunksVisibleSet.add(visibleBlock.getChunk());
@@ -99,8 +102,8 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
 
         for (Chunk visibleChunk : chunksVisibleSet) {
             String dyconitName = chunkToName(visibleChunk);
-            int x = visibleChunk.getX();
-            int z = visibleChunk.getZ();
+            int x = visibleChunk.getBlockX() >> 4;
+            int z = visibleChunk.getBlockZ() >> 4;
             double d = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(z - centerZ, 2));
 
             chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds((int)Math.round(d) * (int)Math.round(d) * 50, -1), dyconitName));
