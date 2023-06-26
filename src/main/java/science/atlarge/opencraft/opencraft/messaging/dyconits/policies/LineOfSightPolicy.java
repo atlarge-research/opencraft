@@ -35,32 +35,6 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
         this.viewDistance = viewDistance;
     }
 
-    @NotNull
-    @Override
-    public String computeAffectedDyconit(@NotNull Object publisher) {
-        if (publisher instanceof Chunk) {
-            Chunk chunk = (Chunk) publisher;
-            return chunkToName(chunk);
-        }
-
-        if (publisher instanceof Block) {
-            Chunk chunk = ((Block) publisher).getChunk();
-            return chunkToName(chunk);
-        }
-
-        if (publisher instanceof Entity) {
-            Chunk chunk = ((Entity) publisher).getChunk();
-            return chunkToName(chunk);
-        }
-
-        if (publisher instanceof Location) {
-            Chunk chunk = ((Location) publisher).getChunk();
-            return chunkToName(chunk);
-        }
-
-        return CATCH_ALL_DYCONIT_NAME;
-    }
-
     private String chunkToName(Chunk chunk) {
         return chunk.getWorld().getName() + "-" + chunk.getX() + "-" + chunk.getZ();
     }
