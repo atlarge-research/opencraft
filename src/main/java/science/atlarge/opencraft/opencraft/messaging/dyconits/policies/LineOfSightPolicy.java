@@ -1,6 +1,9 @@
 package science.atlarge.opencraft.opencraft.messaging.dyconits.policies;
 
 import com.flowpowered.network.Message;
+
+import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType.Object;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -95,7 +98,7 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
             chunksVisibleSet.add(visibleBlock.getChunk());
         }
 
-        chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), Bounds.Companion.getINFINITE(), CATCH_ALL_DYCONIT_NAME));
+        chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(0, 0), CATCH_ALL_DYCONIT_NAME));
 
         for (Chunk visibleChunk : chunksVisibleSet) {
             String dyconitName = chunkToName(visibleChunk);
