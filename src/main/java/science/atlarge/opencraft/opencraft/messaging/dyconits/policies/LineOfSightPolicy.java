@@ -1,6 +1,9 @@
 package science.atlarge.opencraft.opencraft.messaging.dyconits.policies;
 
 import com.flowpowered.network.Message;
+
+import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType.Object;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +30,7 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
     private final int viewDistance;
     private final Map<Player, Location> referenceLocation = new HashMap<>();
     private final Map<Player, Set<String>> prevSubscriptions = new HashMap<>();
+    private final Bounds oneSecondBound = new Bounds(1000, -1);
 
     public LineOfSightPolicy(int viewDistance) {
         this.viewDistance = viewDistance;
@@ -90,6 +94,7 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
         World world = location.getWorld();
         int centerX = location.getChunk().getX();
         int centerZ = location.getChunk().getZ();
+        int radius = Math.min(viewDistance, player.getViewDistance());
 
         for (Block visibleBlock : blocksVisibleList) {
             chunksVisibleSet.add(visibleBlock.getChunk());
@@ -97,14 +102,20 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
 
         chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), Bounds.Companion.getINFINITE(), CATCH_ALL_DYCONIT_NAME));
 
-        for (Chunk visibleChunk : chunksVisibleSet) {
-            String dyconitName = chunkToName(visibleChunk);
-            int x = visibleChunk.getX();
-            int z = visibleChunk.getZ();
-            double d = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(z - centerZ, 2));
-
-            chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds((int)Math.round(d) * (int)Math.round(d) * 50, -1), dyconitName));
-            playerSubscriptions.add(dyconitName);
+        for (int x = centerX - radius; x <= centerX + radius; x++) {
+            for (int z = centerZ - radius; z <= centerZ + radius; z++) {
+                Chunk chunk = world.getChunkAt(x, z);
+                String dyconitName = chunkToName(chunk);
+                double d = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(z - centerZ, 2));
+                if (visibleChunk.contains(chunk)) {
+                    chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), Bounds.Companion.getZERO(), dyconitName));
+                }
+                else {
+                    chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds((int)Math.round(d) * (int)Math.round(d) * 50, -1), dyconitName));
+                }
+                
+                playerSubscriptions.add(dyconitName);
+            }
         }
 
         for (String dyconitName : prevPlayerSubscriptions) {
