@@ -54,11 +54,6 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
             return chunkToName(chunk);
         }
 
-        if (publisher instanceof Location) {
-            Chunk chunk = ((Location) publisher).getChunk();
-            return chunkToName(chunk);
-        }
-
         return CATCH_ALL_DYCONIT_NAME;
     }
 
