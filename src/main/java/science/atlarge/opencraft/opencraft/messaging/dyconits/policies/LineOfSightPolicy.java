@@ -95,7 +95,7 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
             chunksVisibleSet.add(visibleBlock.getChunk());
         }
 
-        chunks.add(new DyconitSubscribeCommand<>(player, callback, new Bounds(5000, -1), CATCH_ALL_DYCONIT_NAME));
+        chunks.add(new DyconitSubscribeCommand<>(player, callback, new Bounds(1000, -1), CATCH_ALL_DYCONIT_NAME));
 
         for (Chunk visibleChunk : chunksVisibleSet) {
             String dyconitName = chunkToName(visibleChunk);
