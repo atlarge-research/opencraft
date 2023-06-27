@@ -95,7 +95,7 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
             chunksVisibleSet.add(visibleBlock.getChunk());
         }
 
-        chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), Bounds.Companion.getINFINITE(), CATCH_ALL_DYCONIT_NAME));
+        chunks.add(new DyconitSubscribeCommand<>(player, callback, new Bounds(5000, -1), CATCH_ALL_DYCONIT_NAME));
 
         for (Chunk visibleChunk : chunksVisibleSet) {
             String dyconitName = chunkToName(visibleChunk);
@@ -103,7 +103,7 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
             int z = visibleChunk.getZ();
             double d = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(z - centerZ, 2));
 
-            chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds((int)Math.round(d) * (int)Math.round(d) * 50, -1), dyconitName));
+            chunks.add(new DyconitSubscribeCommand<>(player, callback, new Bounds((int)Math.round(d) * (int)Math.round(d), -1), dyconitName));
             playerSubscriptions.add(dyconitName);
         }
 
