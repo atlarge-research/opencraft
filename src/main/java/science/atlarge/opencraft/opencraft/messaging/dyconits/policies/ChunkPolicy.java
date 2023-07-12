@@ -90,6 +90,9 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
                 if (d > 0) {
                     chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(1000, -1), dyconitName));
                 }
+                else {
+                    chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(0, 0), dyconitName));
+                }
                 
                 playerSubscriptions.add(dyconitName);
             }
