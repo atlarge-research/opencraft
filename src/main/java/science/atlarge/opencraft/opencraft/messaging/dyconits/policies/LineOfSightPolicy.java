@@ -22,7 +22,7 @@ import science.atlarge.opencraft.dyconits.policies.DyconitUnsubscribeCommand;
 
 public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
 
-    private static final String CATCH_ALL_DYCONIT_NAME = "LineOfSight";
+    private static final String CATCH_ALL_DYCONIT_NAME = "catch-all";
 
     private final int viewDistance;
     private final Map<Player, Location> referenceLocation = new HashMap<>();
@@ -103,7 +103,7 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
             int z = visibleChunk.getZ();
             double d = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(z - centerZ, 2));
 
-            chunks.add(new DyconitSubscribeCommand<>(player, callback, new Bounds((int)Math.round(d) * (int)Math.round(d) + 20, -1), dyconitName));
+            chunks.add(new DyconitSubscribeCommand<>(player, callback, new Bounds((int)Math.round(d) * (int)Math.round(d), -1), dyconitName));
             playerSubscriptions.add(dyconitName);
         }
 

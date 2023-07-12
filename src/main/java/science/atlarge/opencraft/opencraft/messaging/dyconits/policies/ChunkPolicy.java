@@ -23,7 +23,7 @@ import science.atlarge.opencraft.dyconits.policies.DyconitUnsubscribeCommand;
 
 public class ChunkPolicy implements DyconitPolicy<Player, Message> {
 
-    private static final String CATCH_ALL_DYCONIT_NAME = "Chunk";
+    private static final String CATCH_ALL_DYCONIT_NAME = "catch-all";
 
     private final int viewDistance;
     private final Map<Player, Location> referenceLocation = new HashMap<>();
@@ -75,8 +75,8 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
         referenceLocation.put(player, location);
 
         World world = location.getWorld();
-        int centerX = location.getChunk().getX();
-        int centerZ = location.getChunk().getZ();
+        int centerX = location.getBlockX() >> 4;
+        int centerZ = location.getBlockZ() >> 4;
         int radius = Math.min(viewDistance, player.getViewDistance());
 
         Set<String> playerSubscriptions = new HashSet<>();
@@ -86,14 +86,7 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
                 Chunk chunk = world.getChunkAt(x, z);
                 String dyconitName = chunkToName(chunk);
                 double d = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(z - centerZ, 2));
-
-                if (d > 0) {
-                    chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(1000, d*d + 1), dyconitName));
-                }
-                else {
-                    chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), Bounds.Companion.getZERO(), dyconitName));
-                }
-                
+                chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds((int)Math.round(d) * (int)Math.round(d) * 50, -1), dyconitName));
                 playerSubscriptions.add(dyconitName);
             }
         }
