@@ -2,7 +2,6 @@ package science.atlarge.opencraft.opencraft.messaging.dyconits.policies;
 
 import com.flowpowered.network.Message;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,7 +23,7 @@ import science.atlarge.opencraft.dyconits.policies.DyconitUnsubscribeCommand;
 
 public class ChunkPolicy implements DyconitPolicy<Player, Message> {
 
-    private static final String CATCH_ALL_DYCONIT_NAME = "catch-all";
+    private static final String CATCH_ALL_DYCONIT_NAME = "Chunk";
 
     private final int viewDistance;
     private final Map<Player, Location> referenceLocation = new HashMap<>();
@@ -86,9 +85,14 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
                 Chunk chunk = world.getChunkAt(x, z);
                 String dyconitName = chunkToName(chunk);
-                //double d = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(z - centerZ, 2));
+                double d = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(z - centerZ, 2));
 
-                chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), Bounds.Companion.getZERO(), dyconitName));
+                if (d > 0) {
+                    chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(1000, d*d + 1), dyconitName));
+                }
+                else {
+                    chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), Bounds.Companion.getZERO(), dyconitName));
+                }
                 
                 playerSubscriptions.add(dyconitName);
             }
@@ -100,7 +104,7 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
             }
         }
         prevSubscriptions.put(player, playerSubscriptions);
-        return Collections.singletonList(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), Bounds.Companion.getZERO(), CATCH_ALL_DYCONIT_NAME));
+        return chunks;
     }
 
     @Override
