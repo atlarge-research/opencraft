@@ -100,7 +100,7 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
             }
         }
         prevSubscriptions.put(player, playerSubscriptions);
-        return Collections.singletonList(new DyconitSubscribeCommand<>(subscriber.getKey(), subscriber.getCallback(), Bounds.Companion.getZERO(), DYCONIT_NAME));
+        return Collections.singletonList(new DyconitSubscribeCommand<>(subscriber.getKey(), subscriber.getCallback(), Bounds.Companion.getZERO(), CATCH_ALL_DYCONIT_NAME));
     }
 
     @Override
