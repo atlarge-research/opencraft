@@ -2,6 +2,7 @@ package science.atlarge.opencraft.opencraft.messaging.dyconits.policies;
 
 import com.flowpowered.network.Message;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -99,7 +100,7 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
             }
         }
         prevSubscriptions.put(player, playerSubscriptions);
-        return chunks;
+        return Collections.singletonList(new DyconitSubscribeCommand<>(subscriber.getKey(), subscriber.getCallback(), Bounds.Companion.getZERO(), DYCONIT_NAME));
     }
 
     @Override
