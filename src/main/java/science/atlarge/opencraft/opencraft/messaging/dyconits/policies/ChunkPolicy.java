@@ -23,7 +23,7 @@ import science.atlarge.opencraft.dyconits.policies.DyconitUnsubscribeCommand;
 
 public class ChunkPolicy implements DyconitPolicy<Player, Message> {
 
-    private static final String CATCH_ALL_DYCONIT_NAME = "catch-all";
+    private static final String CATCH_ALL_DYCONIT_NAME = "CHUNK";
 
     private final int viewDistance;
     private final Map<Player, Location> referenceLocation = new HashMap<>();
@@ -85,8 +85,8 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
             for (int z = centerZ - radius; z <= centerZ + radius; z++) {
                 Chunk chunk = world.getChunkAt(x, z);
                 String dyconitName = chunkToName(chunk);
-                double d = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(z - centerZ, 2));
-                chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds((int)Math.round(d) * (int)Math.round(d) * 50, -1), dyconitName));
+                int distance = Math.abs(centerX - x) + Math.abs(centerZ - z);
+                chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(1000, distance * distance), dyconitName));
                 playerSubscriptions.add(dyconitName);
             }
         }

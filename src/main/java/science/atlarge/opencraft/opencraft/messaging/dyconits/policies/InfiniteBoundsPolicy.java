@@ -13,7 +13,7 @@ import science.atlarge.opencraft.dyconits.policies.DyconitSubscribeCommand;
 
 public class InfiniteBoundsPolicy implements DyconitPolicy<Player, Message> {
 
-    public static String DYCONIT_NAME = "*";
+    public static String DYCONIT_NAME = "INFINITE";
 
     @NotNull
     @Override

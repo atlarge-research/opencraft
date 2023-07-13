@@ -13,7 +13,7 @@ import science.atlarge.opencraft.dyconits.policies.DyconitSubscribeCommand;
 
 public class ZeroBoundsPolicy implements DyconitPolicy<Player, Message> {
 
-    public static String DYCONIT_NAME = "*";
+    public static String DYCONIT_NAME = "ZERO";
 
     @NotNull
     @Override

@@ -26,7 +26,7 @@ import science.atlarge.opencraft.opencraft.messaging.dyconits.policies.weights.W
 
 public class InterestSet implements DyconitPolicy<Player, Message> {
 
-    private static final String CATCH_ALL_DYCONIT_NAME = "catch-all";
+    private static final String CATCH_ALL_DYCONIT_NAME = "INTEREST";
     private static final int INTEREST_SET_SIZE = 5;
 
     /**
