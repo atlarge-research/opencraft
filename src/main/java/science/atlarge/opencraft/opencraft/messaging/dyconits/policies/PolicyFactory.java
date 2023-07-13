@@ -14,8 +14,8 @@ public class PolicyFactory {
             return new ZeroBoundsPolicy();
         } else if (nameMatches(InfiniteBoundsPolicy.class, policyName)) {
             return new InfiniteBoundsPolicy();
-        } else if (nameMatches(LineOfSightPolicy.class, policyName)) {
-            return new LineOfSightPolicy(server.getViewDistance());
+        } else if (nameMatches(SightPolicy.class, policyName)) {
+            return new SightPolicy(server.getViewDistance());
         } else if (nameMatches(InterestSet.class, policyName)) {
             return new InterestSet(server);
         } else if (nameMatches(SingleDyconitPolicy.class, policyName.split(";")[0])) {

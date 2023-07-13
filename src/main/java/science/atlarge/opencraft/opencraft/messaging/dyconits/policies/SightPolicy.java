@@ -20,14 +20,14 @@ import science.atlarge.opencraft.dyconits.policies.DyconitPolicy;
 import science.atlarge.opencraft.dyconits.policies.DyconitSubscribeCommand;
 import science.atlarge.opencraft.dyconits.policies.DyconitUnsubscribeCommand;
 
-public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
+public class SightPolicy implements DyconitPolicy<Player, Message> {
 
     private static final String CATCH_ALL_DYCONIT_NAME = "SIGHT";
 
     private final int viewDistance;
     private final Map<Player, Set<String>> prevSubscriptions = new HashMap<>();
 
-    public LineOfSightPolicy(int viewDistance) {
+    public SightPolicy(int viewDistance) {
         this.viewDistance = viewDistance;
     }
 
