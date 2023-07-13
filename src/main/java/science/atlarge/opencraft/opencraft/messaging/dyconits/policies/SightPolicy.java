@@ -88,7 +88,7 @@ public class SightPolicy implements DyconitPolicy<Player, Message> {
             chunksVisibleSet.add(visibleBlock.getChunk());
         }
 
-        chunks.add(new DyconitSubscribeCommand<>(player, callback, Bounds.Companion.getZERO(), CATCH_ALL_DYCONIT_NAME));
+        chunks.add(new DyconitSubscribeCommand<>(player, callback, new Bounds(2000, -1), CATCH_ALL_DYCONIT_NAME));
 
         for (Chunk visibleChunk : chunksVisibleSet) {
             String dyconitName = chunkToName(visibleChunk);
