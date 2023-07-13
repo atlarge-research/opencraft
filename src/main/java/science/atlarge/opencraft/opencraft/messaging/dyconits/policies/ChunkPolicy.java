@@ -26,7 +26,6 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
     private static final String CATCH_ALL_DYCONIT_NAME = "CHUNK";
 
     private final int viewDistance;
-    private final Map<Player, Location> referenceLocation = new HashMap<>();
     private final Map<Player, Set<String>> prevSubscriptions = new HashMap<>();
 
     public ChunkPolicy(int viewDistance) {
@@ -81,7 +80,14 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
                 Chunk chunk = world.getChunkAt(x, z);
                 String dyconitName = chunkToName(chunk);
                 int distance = Math.abs(centerX - x) + Math.abs(centerZ - z);
-                chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(1000, distance * distance), dyconitName));
+
+                if (distance > 0) {
+                    chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), new Bounds(1000, distance * distance), dyconitName));
+                }
+                else {
+                    chunks.add(new DyconitSubscribeCommand<>(sub.getKey(), sub.getCallback(), Bounds.Companion.getZERO(), dyconitName));
+                }
+                
                 playerSubscriptions.add(dyconitName);
             }
         }

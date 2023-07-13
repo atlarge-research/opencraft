@@ -24,8 +24,6 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
 
     private static final String CATCH_ALL_DYCONIT_NAME = "SIGHT";
 
-    private final int viewDistance;
-    private final Map<Player, Location> referenceLocation = new HashMap<>();
     private final Map<Player, Set<String>> prevSubscriptions = new HashMap<>();
 
     public LineOfSightPolicy(int viewDistance) {
@@ -81,13 +79,6 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
         // player subscription vars
         Set<String> playerSubscriptions = new HashSet<>();
         Set<String> prevPlayerSubscriptions = prevSubscriptions.computeIfAbsent(player, p -> new HashSet<>());
-
-        if (referenceLocation.containsKey(player) && referenceLocation.get(player).distanceSquared(location) < 256) {
-            return chunks;
-        }
-        referenceLocation.put(player, location);
-
-        World world = location.getWorld();
         int centerX = location.getChunk().getX();
         int centerZ = location.getChunk().getZ();
 
@@ -101,9 +92,9 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
             String dyconitName = chunkToName(visibleChunk);
             int x = visibleChunk.getX();
             int z = visibleChunk.getZ();
-            double d = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(z - centerZ, 2));
+            int distance = (int)Math.round(Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(z - centerZ, 2)));
 
-            chunks.add(new DyconitSubscribeCommand<>(player, callback, new Bounds(20 + (int)Math.round(d) * (int)Math.round(d), -1), dyconitName));
+            chunks.add(new DyconitSubscribeCommand<>(player, callback, new Bounds(20 + distance * distance, -1), dyconitName));
             playerSubscriptions.add(dyconitName);
         }
 
