@@ -24,6 +24,7 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
 
     private static final String CATCH_ALL_DYCONIT_NAME = "SIGHT";
 
+    private final int viewDistance;
     private final Map<Player, Set<String>> prevSubscriptions = new HashMap<>();
 
     public LineOfSightPolicy(int viewDistance) {
@@ -73,12 +74,13 @@ public class LineOfSightPolicy implements DyconitPolicy<Player, Message> {
         List<DyconitCommand<Player, Message>> chunks = new ArrayList<>();
 
         // policy chunks of interest vars
-        List<Block> blocksVisibleList = player.getLineOfSight(null, playerViewDistance);
+        List<Block> blocksVisibleList = player.getLineOfSight(null, Math.min(this.viewDistance, playerViewDistance));
         Set<Chunk> chunksVisibleSet = new HashSet<>();
 
         // player subscription vars
         Set<String> playerSubscriptions = new HashSet<>();
         Set<String> prevPlayerSubscriptions = prevSubscriptions.computeIfAbsent(player, p -> new HashSet<>());
+
         int centerX = location.getChunk().getX();
         int centerZ = location.getChunk().getZ();
 
