@@ -69,11 +69,6 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
         Location location = player.getLocation();
         List<DyconitCommand<Player, Message>> chunks = new ArrayList<>();
 
-        if (referenceLocation.containsKey(player) && referenceLocation.get(player).distanceSquared(location) < 256) {
-            return chunks;
-        }
-        referenceLocation.put(player, location);
-
         World world = location.getWorld();
         int centerX = location.getBlockX() >> 4;
         int centerZ = location.getBlockZ() >> 4;
