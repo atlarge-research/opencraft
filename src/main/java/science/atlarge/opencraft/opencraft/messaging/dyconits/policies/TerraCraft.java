@@ -125,7 +125,7 @@ public class TerraCraft implements DyconitPolicy<Player, Message> {
             chunksVisibleSet.add(visibleBlock.getChunk());
         }
 
-        if (location.getChunk().getEntities().length >= 10) {
+        if (location.getChunk().getEntities().length >= 25) {
                 // Make sure not all players have the same lastChangedTime, to
             Instant lastChanged = lastChangedMap.computeIfAbsent(sub, p -> Instant.ofEpochMilli(System.currentTimeMillis() - ThreadLocalRandom.current().nextLong(turnoverTime.toMillis())));
             List<DyconitCommand<Player, Message>> commands = new ArrayList<>();
