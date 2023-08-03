@@ -216,6 +216,10 @@ public class EventFactory {
                 GlowstoneMessages.Player.LEFT.get(ChatColor.YELLOW, player.getName())));
     }
 
+    public static AtomicInteger getNumPlayers() {
+        return numPlayers;
+    }
+
     /**
      * Handles a click in the air.
      *
