@@ -722,6 +722,10 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         session.send(new HeldItemMessage(getInventory().getHeldItemSlot()));
         session.send(recipeMonitor.createInitMessage());
 
+        // the client expects its health, food and experience on join
+        sendHealth();
+        sendExperience();
+
         if (!server.getResourcePackUrl().isEmpty()) {
             setResourcePack(server.getResourcePackUrl(), server.getResourcePackHash());
         }
