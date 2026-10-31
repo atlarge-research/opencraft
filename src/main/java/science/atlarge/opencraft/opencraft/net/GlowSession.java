@@ -143,6 +143,15 @@ public class GlowSession extends BasicSession {
     private volatile GlowPlayer player;
 
     /**
+     * Whether outbound messages are dropped, e.g., while loading saved player data.
+     */
+    private volatile boolean discardOutbound;
+
+    public void setDiscardOutbound(boolean discardOutbound) {
+        this.discardOutbound = discardOutbound;
+    }
+
+    /**
      * The ID of the last ping message sent, used to ensure the client responded correctly.
      */
     private volatile long pingMessageId;
@@ -313,6 +322,10 @@ public class GlowSession extends BasicSession {
 
     @Override
     public ChannelFuture sendWithFuture(Message message) {
+        if (discardOutbound) {
+            // nothing may be sent before the join game message
+            return null;
+        }
         if (!isActive()) {
             // discard messages sent if we're closed, since this happens a lot
             return null;
