@@ -400,10 +400,9 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
             }
 
             if (effect.getDuration() > 0) {
-                // reduce duration and re-add
-                addPotionEffect(
-                        new PotionEffect(type, effect.getDuration() - 1, effect.getAmplifier(),
-                                effect.isAmbient()), true);
+                // Reduce the duration. The client counts down by itself, so send nothing.
+                potionEffects.put(type, new PotionEffect(type, effect.getDuration() - 1,
+                        effect.getAmplifier(), effect.isAmbient()));
             } else {
                 // remove
                 removePotionEffect(type);
@@ -1141,12 +1140,8 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
         EntityEffectMessage msg = new EntityEffectMessage(getEntityId(), effect.getType().getId(),
                 effect.getAmplifier(), effect.getDuration(), effect.isAmbient());
         for (GlowPlayer player : world.getRawPlayers()) {
-            if (player == this) {
-                // special handling for players having a different view of themselves
-                player.getSession().send(
-                        new EntityEffectMessage(0, effect.getType().getId(), effect.getAmplifier(),
-                                effect.getDuration(), effect.isAmbient()));
-            } else if (player.canSeeEntity(this)) {
+            // a player sees their own effects under their real entity id
+            if (player == this || player.canSeeEntity(this)) {
                 player.getSession().send(msg);
             }
         }
@@ -1183,10 +1178,7 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
 
         EntityRemoveEffectMessage msg = new EntityRemoveEffectMessage(getEntityId(), type.getId());
         for (GlowPlayer player : world.getRawPlayers()) {
-            if (player == this) {
-                // special handling for players having a different view of themselves
-                player.getSession().send(new EntityRemoveEffectMessage(0, type.getId()));
-            } else if (player.canSeeEntity(this)) {
+            if (player == this || player.canSeeEntity(this)) {
                 player.getSession().send(msg);
             }
         }
