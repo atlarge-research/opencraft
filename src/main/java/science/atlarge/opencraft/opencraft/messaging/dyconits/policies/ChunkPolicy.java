@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -69,7 +70,10 @@ public class ChunkPolicy implements DyconitPolicy<Player, Message> {
         Location location = player.getLocation();
         List<DyconitCommand<Player, Message>> chunks = new ArrayList<>();
 
-        if (referenceLocation.containsKey(player) && referenceLocation.get(player).distanceSquared(location) < 256) {
+        Location previous = referenceLocation.get(player);
+        // The distance is only defined within a world, e.g., not after a change of dimension.
+        if (previous != null && Objects.equals(previous.getWorld(), location.getWorld())
+                && previous.distanceSquared(location) < 256) {
             return chunks;
         }
         referenceLocation.put(player, location);
