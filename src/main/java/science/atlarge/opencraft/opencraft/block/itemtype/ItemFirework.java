@@ -5,7 +5,6 @@ import science.atlarge.opencraft.opencraft.block.GlowBlock;
 import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
 import science.atlarge.opencraft.opencraft.entity.passive.GlowFirework;
 import science.atlarge.opencraft.opencraft.util.InventoryUtil;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -42,9 +41,7 @@ public class ItemFirework extends ItemType {
         }
         new GlowFirework(location, spawner, boostedEntity, item);
 
-        if (player.getGameMode() != GameMode.CREATIVE) {
-            item.setAmount(item.getAmount() - 1);
-        }
+        InventoryUtil.consumeHeldItem(player, item);
     }
 
     @Override
