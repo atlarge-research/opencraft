@@ -18,6 +18,7 @@ public class EntityDirector {
         registerEntityTask("look_around", LookAroundTask.class);
         registerEntityTask("look_player", LookAtPlayerTask.class);
         registerEntityTask("follow_player", FollowPlayerTask.class);
+        registerEntityTask("attack_player", AttackPlayerTask.class);
     }
 
     /**
@@ -32,7 +33,10 @@ public class EntityDirector {
         Map<MobState, List<String>> states =
                 mobStates.computeIfAbsent(entity, entity_ -> new HashMap<>());
         List<String> tasks = states.computeIfAbsent(state, state_ -> new ArrayList<>());
-        tasks.add(task);
+        // Entity constructors call this for every new entity, so avoid growing the list each time.
+        if (!tasks.contains(task)) {
+            tasks.add(task);
+        }
     }
 
     /**

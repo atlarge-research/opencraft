@@ -22,6 +22,27 @@ public class TransportHelper {
         double deltaX = (direction.getX() - location.getX());
         double deltaZ = (direction.getZ() - location.getZ());
         entity.setSpeed(speed);
-        entity.setMovement(new Vector(deltaX, 0, deltaZ));
+        entity.setMovement(toRelativeMovement(deltaX, deltaZ, location.getYaw()));
+    }
+
+    /**
+     * Converts a horizontal offset in the world to a unit movement vector relative to a yaw, as
+     * used by {@link GlowLivingEntity#setMovement}: x is forward and z is sideways.
+     *
+     * @param deltaX the offset on the x-axis
+     * @param deltaZ the offset on the z-axis
+     * @param yaw the yaw of the entity in degrees
+     * @return the unit vector, or the zero vector if there is no offset
+     */
+    static Vector toRelativeMovement(double deltaX, double deltaZ, float yaw) {
+        double length = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
+        if (length < 1e-6) {
+            return new Vector();
+        }
+        double worldX = deltaX / length;
+        double worldZ = deltaZ / length;
+        double sin = Math.sin(Math.toRadians(yaw));
+        double cos = Math.cos(Math.toRadians(yaw));
+        return new Vector(-worldX * sin + worldZ * cos, 0, worldX * cos + worldZ * sin);
     }
 }

@@ -39,6 +39,7 @@ public class GlowZombie extends GlowMonster implements Zombie {
             EntityDirector.registerEntityMobState(type, MobState.IDLE, "look_around");
             EntityDirector.registerEntityMobState(type, MobState.IDLE, "look_player");
             EntityDirector.registerEntityMobState(type, HostileMobState.TARGETING, "follow_player");
+            EntityDirector.registerEntityMobState(type, HostileMobState.TARGETING, "attack_player");
         }
         setState(MobState.IDLE);
     }
