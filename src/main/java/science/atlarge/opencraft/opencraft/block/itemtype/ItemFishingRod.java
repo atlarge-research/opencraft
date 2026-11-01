@@ -1,14 +1,30 @@
 package science.atlarge.opencraft.opencraft.block.itemtype;
 
+import science.atlarge.opencraft.opencraft.block.GlowBlock;
 import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
 import science.atlarge.opencraft.opencraft.entity.passive.GlowFishingHook;
 import org.bukkit.Location;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 public class ItemFishingRod extends ItemType {
+
+    @Override
+    public Context getContext() {
+        // Without this the default (BLOCK) applies and rightClickAir is never called.
+        return Context.ANY;
+    }
+
+    @Override
+    public void rightClickBlock(GlowPlayer player, GlowBlock target, BlockFace face,
+        ItemStack holding, Vector clickedLoc, EquipmentSlot hand) {
+        // casting or reeling in works when aiming at a block too
+        rightClickAir(player, holding);
+    }
 
     @Override
     public void rightClickAir(GlowPlayer player, ItemStack holding) {
