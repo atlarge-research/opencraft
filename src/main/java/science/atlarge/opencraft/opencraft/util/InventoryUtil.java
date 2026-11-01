@@ -127,10 +127,15 @@ public class InventoryUtil {
         if (player.getGameMode() == GameMode.CREATIVE) {
             return;
         }
+        int slot = player.getInventory().getHeldItemSlot();
         if (item.getAmount() > 1) {
+            // item is often a copy (getItemInMainHand clones), so also lower the stack in the slot
+            ItemStack held = player.getInventory().getItem(slot).clone();
+            held.setAmount(held.getAmount() - 1);
+            player.getInventory().setItem(slot, held);
             item.setAmount(item.getAmount() - 1);
         } else {
-            player.getInventory().clear(player.getInventory().getHeldItemSlot());
+            player.getInventory().clear(slot);
         }
     }
 }
