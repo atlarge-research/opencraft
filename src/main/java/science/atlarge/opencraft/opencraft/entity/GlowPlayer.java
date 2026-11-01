@@ -667,15 +667,20 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
     public void join(GlowSession session, PlayerDataService.PlayerReader reader) {
         String type = world.getWorldType().getName().toLowerCase();
 
-        reader.readData(this);
-        reader.close();
+        // applying saved data triggers setters that send packets, which must not reach the
+        // client before the join game message
+        session.setDiscardOutbound(true);
+        try {
+            reader.readData(this);
+        } finally {
+            session.setDiscardOutbound(false);
+            reader.close();
+        }
 
         int gameMode = getGameMode().getValue();
         if (server.isHardcore()) {
             gameMode |= 0x8;
         }
-
-        setGameModeDefaults();
 
         Message joinMessage = new JoinGameMessage(
                 getEntityId(),
@@ -687,6 +692,9 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 world.getGameRuleMap().getBoolean(GameRules.REDUCED_DEBUG_INFO)
         );
         session.send(joinMessage);
+
+        // may send abilities, which the client only accepts after the join game packet
+        setGameModeDefaults();
 
         // send server brand and supported plugin channels
         Message pluginMessage = PluginMessage.fromString("MC|Brand", server.getName());
