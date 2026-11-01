@@ -49,6 +49,9 @@ public final class WindowClickHandler implements MessageHandler<GlowSession, Win
                     session.getPlayer().getName() + ": illegal argument while handling click: "
                             + ex);
         }
+        // Send the slot changes now. Otherwise they arrive after the next click of the client,
+        // which then uses an outdated view of the window and gets rejected.
+        session.getPlayer().sendInventoryChanges();
         session.send(new TransactionMessage(message.getId(), message.getTransaction(), result));
         if (!result) {
             GlowServer.logger.info(session.getPlayer().getName() + ": [rejected] " + message);
