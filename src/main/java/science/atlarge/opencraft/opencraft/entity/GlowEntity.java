@@ -110,6 +110,11 @@ public abstract class GlowEntity implements Entity {
     public static final double COLLISION_OFFSET = 0.00001;
 
     /**
+     * The height below which entities have left the world, as in vanilla.
+     */
+    public static final double VOID_HEIGHT = -64;
+
+    /**
      * The metadata store for entities.
      */
     private static final MetadataStore<Entity> bukkitMetadata = new EntityMetadataStore();
@@ -613,6 +618,13 @@ public abstract class GlowEntity implements Entity {
     public void pulse() {
         ticksLived++;
         if (!getLocation().getChunk().isLoaded()) {
+            return;
+        }
+
+        // Living entities take damage in the void. The others, e.g., dropped items, would fall
+        // forever, so remove them.
+        if (!(this instanceof GlowLivingEntity) && location.getY() < VOID_HEIGHT) {
+            remove();
             return;
         }
 
