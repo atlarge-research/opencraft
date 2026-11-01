@@ -132,7 +132,7 @@ public class CommandUtils {
         if (relativeX.startsWith("~")) {
             double diff = 0;
             if (relativeX.length() > 1) {
-                diff = getDouble(relativeX.substring(1), true);
+                diff = getDouble(relativeX.substring(1), false);
             }
             x = location.getX() + diff;
         } else {
@@ -150,7 +150,7 @@ public class CommandUtils {
         if (relativeZ.startsWith("~")) {
             double diff = 0;
             if (relativeZ.length() > 1) {
-                diff = getDouble(relativeZ.substring(1), true);
+                diff = getDouble(relativeZ.substring(1), false);
             }
             z = location.getZ() + diff;
         } else {

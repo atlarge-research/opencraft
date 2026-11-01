@@ -194,7 +194,7 @@ public class PlaySoundCommandTest extends CommandTestWithFakePlayers<PlaySoundCo
             new String[]{"minecraft:entity.parrot.imitate.wither", "master", "player1", "~20",
                 "~20", "~5", "200"}), is(true));
         Mockito.verify(Bukkit.getPlayerExact("player1"))
-            .playSound(new Location(world, 31, 40.0, 36), Sound.ENTITY_PARROT_IMITATE_WITHER,
+            .playSound(new Location(world, 30.5, 40.0, 35.5), Sound.ENTITY_PARROT_IMITATE_WITHER,
                 SoundCategory.MASTER, 200, 1);
     }
 
