@@ -982,21 +982,15 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
 
             // Remove entities that are no longer visible
             List<GlowEntity> removeEntities = new LinkedList<>();
-            List<GlowEntity> destroyEntities = new LinkedList<>();
             for (GlowEntity entity : knownEntities) {
-
                 if (!isWithinDistance(entity) || entity.isRemoved()) {
                     removeEntities.add(entity);
-                }
-
-                if (!isWithinDistance(entity)) {
-                    destroyEntities.add(entity);
                 }
             }
 
             knownEntities.removeAll(removeEntities);
 
-            if (!destroyEntities.isEmpty()) {
+            if (!removeEntities.isEmpty()) {
                 List<Integer> destroyIds = removeEntities.stream()
                         .map(GlowEntity::getEntityId)
                         .collect(Collectors.toList());
