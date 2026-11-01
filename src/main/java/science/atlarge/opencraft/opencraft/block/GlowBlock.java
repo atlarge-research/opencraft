@@ -461,7 +461,12 @@ public class GlowBlock implements Block {
      * @return true if the block was destroyed
      */
     public boolean breakNaturally(float yield) {
-        return breakNaturally(yield, ItemTable.instance().getBlock(getType()).getMinedDrops(this));
+        // There is no block type for air, e.g., when the block was already broken by another tick.
+        BlockType blockType = ItemTable.instance().getBlock(getType());
+        if (blockType == null) {
+            return false;
+        }
+        return breakNaturally(yield, blockType.getMinedDrops(this));
     }
 
     /**
