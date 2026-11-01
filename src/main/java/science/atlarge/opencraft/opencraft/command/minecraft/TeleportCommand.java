@@ -63,13 +63,13 @@ public class TeleportCommand extends GlowVanillaCommand {
                 String y = args[2];
                 String z = args[3];
                 Location targetLocation = CommandUtils.getLocation(location, x, y, z);
+                targetLocation.setYaw(target.getLocation().getYaw());
+                targetLocation.setPitch(target.getLocation().getPitch());
                 if (args.length > 4) {
                     String yaw = args[4];
                     String pitch = args[5];
-                    targetLocation = CommandUtils.getRotation(target.getLocation(), yaw, pitch);
-                } else {
-                    targetLocation.setYaw(target.getLocation().getYaw());
-                    targetLocation.setPitch(target.getLocation().getPitch());
+                    // keep the coordinates, only change the rotation
+                    targetLocation = CommandUtils.getRotation(targetLocation, yaw, pitch);
                 }
                 target.teleport(targetLocation);
                 new LocalizedStringImpl("teleport.done", commandMessages.getResourceBundle())
