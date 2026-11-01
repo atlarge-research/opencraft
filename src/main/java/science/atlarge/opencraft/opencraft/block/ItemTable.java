@@ -1,8 +1,8 @@
 package science.atlarge.opencraft.opencraft.block;
 
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import science.atlarge.opencraft.opencraft.block.blocktype.BlockAnvil;
 import science.atlarge.opencraft.opencraft.block.blocktype.BlockBanner;
 import science.atlarge.opencraft.opencraft.block.blocktype.BlockBeacon;
@@ -159,7 +159,7 @@ public final class ItemTable {
         INSTANCE.registerBuiltins();
     }
 
-    private final EnumMap<Material, ItemType> materialToType = new EnumMap<>(Material.class);
+    private final Map<Material, ItemType> materialToType = new ConcurrentHashMap<>();
     private final Map<NamespacedKey, ItemType> extraTypes = new HashMap<>();
     private int nextBlockId;
     private int nextItemId;
@@ -511,8 +511,8 @@ public final class ItemTable {
                             .get(material));
         }
 
-        materialToType.put(material, type);
         type.setMaterial(material);
+        materialToType.put(material, type);
 
         if (material.isBlock()) {
             nextBlockId = Math.max(nextBlockId, material.getId() + 1);
@@ -605,9 +605,18 @@ public final class ItemTable {
      * @return {@code mat} as an {@link ItemType}
      */
     public ItemType getItem(Material mat) {
+        if (mat == null) {
+            return null;
+        }
         ItemType type = materialToType.get(mat);
         if (type == null) {
-            type = createDefault(mat);
+            // Random block ticks run in parallel, so create each default type only once.
+            synchronized (this) {
+                type = materialToType.get(mat);
+                if (type == null) {
+                    type = createDefault(mat);
+                }
+            }
         }
         return type;
     }
