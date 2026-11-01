@@ -130,6 +130,7 @@ import science.atlarge.opencraft.opencraft.command.minecraft.DeopCommand;
 import science.atlarge.opencraft.opencraft.command.minecraft.DifficultyCommand;
 import science.atlarge.opencraft.opencraft.command.minecraft.EffectCommand;
 import science.atlarge.opencraft.opencraft.command.minecraft.EnchantCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.FillCommand;
 import science.atlarge.opencraft.opencraft.command.minecraft.FunctionCommand;
 import science.atlarge.opencraft.opencraft.command.minecraft.GameModeCommand;
 import science.atlarge.opencraft.opencraft.command.minecraft.GameRuleCommand;
@@ -1318,6 +1319,7 @@ public class GlowServer implements Server {
         commandMap.register("minecraft", new TestForBlockCommand());
         commandMap.register("minecraft", new SetBlockCommand());
         commandMap.register("minecraft", new CloneCommand());
+        commandMap.register("minecraft", new FillCommand());
         commandMap.register("minecraft", new TestForBlocksCommand());
 
         File folder = new File(config.getString(Key.PLUGIN_FOLDER));
