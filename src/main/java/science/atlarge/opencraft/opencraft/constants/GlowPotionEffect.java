@@ -12,8 +12,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import science.atlarge.opencraft.opencraft.util.EntityUtils;
 import org.bukkit.Color;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionBrewer;
 import org.bukkit.potion.PotionEffect;
@@ -154,7 +157,6 @@ public final class GlowPotionEffect extends PotionEffectType {
      * @param effect Information on the effect's state.
      */
     public void pulse(LivingEntity entity, PotionEffect effect) {
-        // todo: implement pulse() for effects which need it
         checkNotNull(entity, "entity must not be null");
         if (!impl.instant || effect.getDuration() != 0) {
             impl.pulse(entity, effect.getAmplifier(), effect.getDuration());
@@ -197,8 +199,36 @@ public final class GlowPotionEffect extends PotionEffectType {
         @Getter
         private final String vanillaId;
 
+        /**
+         * Applies the periodic part of the effect. As in vanilla, the effect acts when the
+         * remaining duration is a multiple of an interval that halves for each amplifier level.
+         */
         protected void pulse(LivingEntity entity, int amplifier, int ticks) {
-            // TODO implement potion pulse
+            switch (this) {
+                case REGENERATION:
+                    if (ticks % interval(50, amplifier) == 0) {
+                        EntityUtils.heal(entity, 1, RegainReason.MAGIC_REGEN);
+                    }
+                    break;
+                case POISON:
+                    // Poison never kills.
+                    if (ticks % interval(25, amplifier) == 0 && entity.getHealth() > 1) {
+                        entity.damage(1, DamageCause.POISON);
+                    }
+                    break;
+                case WITHER:
+                    if (ticks % interval(40, amplifier) == 0) {
+                        entity.damage(1, DamageCause.WITHER);
+                    }
+                    break;
+                default:
+                    // TODO implement the other effects
+                    break;
+            }
+        }
+
+        private static int interval(int base, int amplifier) {
+            return Math.max(base >> Math.min(amplifier, 31), 1);
         }
     }
 
