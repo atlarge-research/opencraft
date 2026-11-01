@@ -22,10 +22,12 @@ public class CommandUtils {
 
     private static double getDouble(String d, boolean shift) {
         boolean literal = d.split("\\.").length != 1;
+        double value = Double.valueOf(d);
         if (shift && !literal) {
-            d += ".5";
+            // center on the block; appending ".5" to the text would subtract for negative values
+            value += 0.5;
         }
-        return Double.valueOf(d);
+        return value;
     }
 
     /**
