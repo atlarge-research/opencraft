@@ -1076,6 +1076,10 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         sendTime();
         updateInventory();
 
+        // the respawn message resets the client, so send health and experience again
+        sendHealth();
+        sendExperience();
+
         // fire world change if needed
         if (oldWorld != world) {
             session.send((world.getWorldBorder()).createMessage());
