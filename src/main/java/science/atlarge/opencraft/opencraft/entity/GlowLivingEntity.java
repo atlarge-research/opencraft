@@ -336,7 +336,7 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
                 --remainingAir;
                 if (remainingAir <= -20) {
                     remainingAir = 0;
-                    damage(1, DamageCause.DROWNING);
+                    damage(2, DamageCause.DROWNING);
                 }
             }
         } else {
