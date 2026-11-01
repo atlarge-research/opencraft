@@ -4,6 +4,7 @@ import com.flowpowered.network.AsyncableMessage;
 import com.flowpowered.network.ConnectionManager;
 import com.flowpowered.network.Message;
 import com.flowpowered.network.MessageHandler;
+import com.flowpowered.network.exception.ChannelClosedException;
 import com.flowpowered.network.protocol.AbstractProtocol;
 import com.flowpowered.network.session.BasicSession;
 import io.netty.buffer.ByteBuf;
@@ -330,7 +331,12 @@ public class GlowSession extends BasicSession {
             // discard messages sent if we're closed, since this happens a lot
             return null;
         }
-        return super.sendWithFuture(message);
+        try {
+            return super.sendWithFuture(message);
+        } catch (ChannelClosedException e) {
+            // the session closed after the check above, e.g., on another thread
+            return null;
+        }
     }
 
     /**
