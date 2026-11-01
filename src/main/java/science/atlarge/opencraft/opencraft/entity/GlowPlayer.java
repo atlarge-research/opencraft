@@ -739,6 +739,15 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         }
     }
 
+    /**
+     * Sends the slots of the open window that changed since the last time to the client.
+     */
+    public void sendInventoryChanges() {
+        for (InventoryMonitor.Entry entry : invMonitor.getChanges()) {
+            sendItemChange(entry.slot, entry.item);
+        }
+    }
+
     @Override
     public String toString() {
         return "GlowPlayer{name=" + getName() + "}";
@@ -933,9 +942,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
         }
 
         // update inventory
-        for (InventoryMonitor.Entry entry : invMonitor.getChanges()) {
-            sendItemChange(entry.slot, entry.item);
-        }
+        sendInventoryChanges();
 
         // send changed metadata
         List<MetadataMap.Entry> changes = metadata.getChanges();
