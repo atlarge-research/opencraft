@@ -153,10 +153,72 @@ public class TpCommand extends GlowVanillaCommand {
                             .getName(destination));
                     return true;
                 }
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+                return teleportToCoordinates(sender, args, commandMessages);
             default:
-                sender.sendMessage(
-                        ChatColor.RED + "Coordinate-based teleporting is not supported yet!");
+                sendUsageMessage(sender, commandMessages);
                 return false;
         }
+    }
+
+    /**
+     * Teleports to coordinates, with the syntax {@code [target] x y z [yaw pitch]}. Relative
+     * coordinates are relative to the target.
+     */
+    private boolean teleportToCoordinates(CommandSender sender, String[] args,
+            CommandMessages commandMessages) {
+        // With 3 or 5 arguments the target is omitted and defaults to the sender.
+        boolean hasTarget = args.length == 4 || args.length == 6;
+        int offset = hasTarget ? 1 : 0;
+
+        Entity target;
+        if (hasTarget) {
+            String name = args[0];
+            if (name.startsWith("@") && name.length() >= 2 && CommandUtils.isPhysical(sender)) {
+                Entity[] matched = new CommandTarget(sender, name)
+                        .getMatched(CommandUtils.getLocation(sender));
+                if (matched.length == 0) {
+                    commandMessages.getGeneric(GenericMessage.NO_MATCHES)
+                            .sendInColor(ChatColor.RED, sender, name);
+                    return false;
+                }
+                target = matched[0];
+            } else {
+                target = Bukkit.getPlayerExact(name);
+                if (target == null) {
+                    commandMessages.getGeneric(GenericMessage.NO_SUCH_PLAYER)
+                            .sendInColor(ChatColor.RED, sender, name);
+                    return false;
+                }
+            }
+        } else if (sender instanceof Entity) {
+            target = (Entity) sender;
+        } else {
+            sender.sendMessage(ChatColor.RED + "Only entities can be teleported");
+            return false;
+        }
+
+        Location destination;
+        try {
+            destination = CommandUtils.getLocation(target.getLocation(), args[offset],
+                    args[offset + 1], args[offset + 2]);
+            destination.setYaw(target.getLocation().getYaw());
+            destination.setPitch(target.getLocation().getPitch());
+            if (args.length - offset == 5) {
+                destination = CommandUtils.getRotation(destination, args[offset + 3],
+                        args[offset + 4]);
+            }
+        } catch (NumberFormatException e) {
+            sendUsageMessage(sender, commandMessages);
+            return false;
+        }
+
+        target.teleport(destination);
+        sender.sendMessage("Teleported " + CommandUtils.getName(target) + " to "
+                + destination.getX() + ", " + destination.getY() + ", " + destination.getZ());
+        return true;
     }
 }
