@@ -2,7 +2,7 @@ package science.atlarge.opencraft.opencraft.block.itemtype;
 
 import science.atlarge.opencraft.opencraft.block.GlowBlock;
 import science.atlarge.opencraft.opencraft.entity.GlowPlayer;
-import org.bukkit.GameMode;
+import science.atlarge.opencraft.opencraft.util.InventoryUtil;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockFace;
@@ -32,9 +32,7 @@ public class ItemEnderPearl extends ItemType {
 
     private void throwEnderPearl(GlowPlayer player, ItemStack holding) {
         if (player.getEnderPearlCooldown() == 0) {
-            if (!player.getGameMode().equals(GameMode.CREATIVE)) {
-                holding.setAmount(holding.getAmount() - 1);
-            }
+            InventoryUtil.consumeHeldItem(player, holding);
             throwEnderPearl(player);
         }
     }

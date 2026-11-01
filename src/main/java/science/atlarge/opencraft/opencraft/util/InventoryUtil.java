@@ -136,6 +136,8 @@ public class InventoryUtil {
             item.setAmount(item.getAmount() - 1);
         } else {
             player.getInventory().clear(slot);
+            // handlers write the held stack back to its slot, unless its amount is 0
+            item.setAmount(0);
         }
     }
 }
