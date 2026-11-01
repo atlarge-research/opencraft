@@ -39,7 +39,9 @@ public abstract class EntityTask implements Comparable<EntityTask> {
 
     @Override
     public int compareTo(EntityTask other) {
-        return 0; // TODO: AI task priority
+        // TODO: AI task priority. The order must at least tell tasks apart, because the task
+        // manager keeps its tasks in a sorted set that drops tasks that compare as equal.
+        return name.compareTo(other.name);
     }
 
     /**

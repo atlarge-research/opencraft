@@ -464,8 +464,10 @@ public abstract class GlowLivingEntity extends GlowEntity implements LivingEntit
         double yaw = Math.toRadians(location.getYaw());
         double z = Math.sin(yaw);
         double x = Math.cos(yaw);
-        movement.setX(movement.getZ() * x - movement.getX() * z);
-        movement.setZ(movement.getX() * x + movement.getZ() * z);
+        double relativeX = movement.getX();
+        double relativeZ = movement.getZ();
+        movement.setX(relativeZ * x - relativeX * z);
+        movement.setZ(relativeX * x + relativeZ * z);
 
         // apply the movement multiplier
         if (!isOnGround() || location.getBlock().isLiquid()) {
