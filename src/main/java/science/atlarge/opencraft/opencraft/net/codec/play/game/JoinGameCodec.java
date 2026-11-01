@@ -27,7 +27,7 @@ public final class JoinGameCodec implements Codec<JoinGameMessage> {
         buffer.writeByte(message.getMode());
         buffer.writeInt(message.getDimension());
         buffer.writeByte(message.getDifficulty());
-        buffer.writeByte(message.getMaxPlayers());
+        buffer.writeByte(Math.min(message.getMaxPlayers(), 255)); // unsigned byte
         ByteBufUtils.writeUTF8(buffer, message.getLevelType());
         buffer.writeBoolean(message.isReducedDebugInfo());
         return buffer;
