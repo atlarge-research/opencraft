@@ -316,7 +316,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
      * The player's current saturation level.
      */
     @Getter
-    private float saturation;
+    private float saturation = 5f;
 
     /**
      * Whether to perform special scaling of the player's health.
@@ -895,7 +895,7 @@ public class GlowPlayer extends GlowHumanEntity implements Player {
                 EntityUtils.heal(this, 1, EntityRegainHealthEvent.RegainReason.SATIATED);
                 exhaustion = Math.min(exhaustion + 3.0f, 40.0f);
 
-                saturation -= 3;
+                saturation = Math.max(saturation - 3, 0f);
             }
         }
 
