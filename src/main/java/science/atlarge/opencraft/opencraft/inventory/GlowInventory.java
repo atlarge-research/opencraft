@@ -123,10 +123,13 @@ public class GlowInventory implements Inventory {
     /**
      * Returns the set which contains viewers.
      *
+     * <p>The set is modifiable, because {@link GlowSuperInventory} adds its viewers to the sets
+     * of its parents.
+     *
      * @return Viewers set.
      */
     public Set<HumanEntity> getViewersSet() {
-        return Collections.unmodifiableSet(viewers);
+        return viewers;
     }
 
     ////////////////////////////////////////////////////////////////////////////
