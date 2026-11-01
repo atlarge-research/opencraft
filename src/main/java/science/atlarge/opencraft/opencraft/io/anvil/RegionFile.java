@@ -154,11 +154,11 @@ public class RegionFile {
                 }
             } else if ((initialLength & (SECTOR_BYTES - 1)) != 0) {
                 // if the file size is not a multiple of 4KB, grow it
-                sizeDelta.set(initialLength & (SECTOR_BYTES - 1));
+                int padding = SECTOR_BYTES - (initialLength & (SECTOR_BYTES - 1));
+                sizeDelta.set(padding);
                 GlowServer.logger.warning(
-                        "Region \"" + path + "\" not aligned: " + initialLength + " increasing by "
-                                + (
-                                SECTOR_BYTES - (initialLength & (SECTOR_BYTES - 1))));
+                        "Region \"" + path + "\" not aligned: " + initialLength
+                                + " increasing by " + padding);
 
                 for (long i = 0; i < sizeDelta.get(); ++i) {
                     file.write(0);
