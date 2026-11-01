@@ -141,6 +141,7 @@ import science.atlarge.opencraft.opencraft.command.minecraft.MeCommand;
 import science.atlarge.opencraft.opencraft.command.minecraft.OpCommand;
 import science.atlarge.opencraft.opencraft.command.minecraft.PardonCommand;
 import science.atlarge.opencraft.opencraft.command.minecraft.PardonIpCommand;
+import science.atlarge.opencraft.opencraft.command.minecraft.ParticleCommand;
 import science.atlarge.opencraft.opencraft.command.minecraft.PlaySoundCommand;
 import science.atlarge.opencraft.opencraft.command.minecraft.SaveAllCommand;
 import science.atlarge.opencraft.opencraft.command.minecraft.SaveToggleCommand;
@@ -1318,6 +1319,7 @@ public class GlowServer implements Server {
         commandMap.register("minecraft", new TestForBlockCommand());
         commandMap.register("minecraft", new SetBlockCommand());
         commandMap.register("minecraft", new CloneCommand());
+        commandMap.register("minecraft", new ParticleCommand());
         commandMap.register("minecraft", new TestForBlocksCommand());
 
         File folder = new File(config.getString(Key.PLUGIN_FOLDER));
