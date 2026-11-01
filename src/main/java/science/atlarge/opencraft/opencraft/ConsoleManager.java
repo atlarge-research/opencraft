@@ -123,6 +123,7 @@ public final class ConsoleManager {
                 handler.setFormatter(new DateOutputFormatter(CONSOLE_DATE, true));
             }
         }
+        restrictLoggerLevel();
         CONSOLE_PROMPT = server.getConsolePrompt();
         Thread thread = new ConsoleCommandThread();
         thread.setName("ConsoleCommandThread");
@@ -195,6 +196,7 @@ public final class ConsoleManager {
         fileHandler.setLevel(Level.parse(loglevel.toUpperCase()));
         fileHandler.setFormatter(new DateOutputFormatter(FILE_DATE, false));
         logger.addHandler(fileHandler);
+        restrictLoggerLevel();
     }
 
     /**
@@ -520,11 +522,37 @@ public final class ConsoleManager {
         }
     }
 
+    /**
+     * Sets the level of the root logger to the lowest level of its handlers. A level of ALL makes
+     * every log call create a record, including its (expensive) caller data, only to drop it in
+     * every handler afterwards.
+     */
+    void restrictLoggerLevel() {
+        Level lowest = Level.OFF;
+        for (Handler handler : logger.getHandlers()) {
+            if (handler.getLevel().intValue() < lowest.intValue()) {
+                lowest = handler.getLevel();
+            }
+        }
+        logger.setLevel(lowest);
+    }
+
     private class FancyConsoleHandler extends ConsoleHandler {
 
         public FancyConsoleHandler() {
             setFormatter(new DateOutputFormatter(CONSOLE_DATE, true));
             setOutputStream(System.out);
+        }
+
+        /**
+         * {@link ConsoleHandler#publish} flushes even when it drops the record. That flush is
+         * expensive with JLine, so skip the whole call for records below the handler level.
+         */
+        @Override
+        public synchronized void publish(LogRecord record) {
+            if (isLoggable(record)) {
+                super.publish(record);
+            }
         }
 
         @Override
